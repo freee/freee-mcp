@@ -1,5 +1,11 @@
 # freee-mcp
 
+## 0.7.1
+
+### Patch Changes
+
+- 3f3fe54: npm パッケージ名を @him0/freee-mcp から freee-mcp に変更したことに伴い、全ファイルの参照を更新
+
 ## 0.7.0
 
 ### Minor Changes
