@@ -291,7 +291,7 @@ https://developer.freee.co.jp/docs
 
 ### GitHub Issues
 
-https://github.com/him0/freee-mcp/issues
+https://github.com/freee/freee-mcp/issues
 
 ### 問い合わせ前に確認すること
 

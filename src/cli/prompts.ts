@@ -162,7 +162,7 @@ async function configureMcpTarget(target: McpTarget): Promise<boolean> {
   }
 }
 
-const SKILL_RELEASES_URL = 'https://github.com/him0/freee-mcp/releases/latest';
+const SKILL_RELEASES_URL = 'https://github.com/freee/freee-mcp/releases/latest';
 
 function showSkillInstallGuide(claudeCodeConfigured: boolean, claudeDesktopConfigured: boolean): void {
   if (!claudeCodeConfigured && !claudeDesktopConfigured) {
@@ -175,7 +175,7 @@ function showSkillInstallGuide(claudeCodeConfigured: boolean, claudeDesktopConfi
   if (claudeCodeConfigured) {
     console.log('[Claude Code]');
     console.log('  以下のコマンドで freee API スキルをインストールできます:\n');
-    console.log('  npx add-skill him0/freee-mcp\n');
+    console.log('  npx add-skill freee/freee-mcp\n');
   }
 
   if (claudeDesktopConfigured) {
