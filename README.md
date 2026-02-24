@@ -1,4 +1,4 @@
-# @him0/freee-mcp
+# freee-mcp
 
 freee API を Claude から使えるようにする MCP サーバー & Claude Plugin です。
 
@@ -84,7 +84,7 @@ npx @him0/freee-mcp configure
   "mcpServers": {
     "freee": {
       "command": "npx",
-      "args": ["@him0/freee-mcp"]
+      "args": ["freee-mcp"]
     }
   }
 }
@@ -92,7 +92,7 @@ npx @him0/freee-mcp configure
 
 > ⚠️ 環境変数での設定について
 > 環境変数（`FREEE_CLIENT_ID`、`FREEE_CLIENT_SECRET` など）を使った設定は非推奨です。
-> 代わりに `npx @him0/freee-mcp configure` を実行して設定ファイルに移行してください。
+> 代わりに `npx freee-mcp configure` を実行して設定ファイルに移行してください。
 > 環境変数設定は将来のバージョンで削除される予定です。
 
 ## Claude Plugin として使う
@@ -100,7 +100,7 @@ npx @him0/freee-mcp configure
 Claude Code でプラグインとしてインストールすると、API リファレンス付きのスキルが利用できます:
 
 ```bash
-npx add-skill him0/freee-mcp
+npx add-skill freee/freee-mcp
 ```
 
 [add-skill](https://github.com/anthropics/add-skill) は Claude Code、Cursor、OpenCode など複数のコーディングエージェントに対応したスキルインストーラーです。グローバルインストール(`-g`)や特定スキルのみのインストール(`-s`)も可能です。
@@ -187,7 +187,7 @@ Issue での不具合報告や機能要望、フィードバックは大歓迎�
 ## 開発者向け
 
 ```bash
-git clone https://github.com/him0/freee-mcp.git
+git clone https://github.com/freee/freee-mcp.git
 cd freee-mcp
 pnpm install
 
@@ -211,7 +211,7 @@ TypeScript / Model Context Protocol SDK / OAuth 2.0 + PKCE / Zod / esbuild
 
 ## ライセンス
 
-ISC
+Apache-2.0
 
 ## コミュニティ
 
