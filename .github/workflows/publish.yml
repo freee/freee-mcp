@@ -181,12 +181,11 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Publish to npm
+      - name: Publish to npm (Trusted Publishing)
         if: steps.check-npm.outputs.skip != 'true'
         run: pnpm run release
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
 
       - name: Sync plugin.json version
         if: steps.check-npm.outputs.skip != 'true'
