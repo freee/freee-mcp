@@ -1,5 +1,11 @@
 # freee-mcp
 
+## 0.7.2
+
+### Patch Changes
+
+- 1ea4571: npm publish を Trusted Publishing (OIDC) に移行し、NPM_TOKEN シークレットを不要に
+
 ## 0.7.1
 
 ### Patch Changes
