@@ -4,7 +4,7 @@ freee API を Claude から使えるようにする MCP サーバー & Claude Pl
 
 MCP サーバー（API 呼び出し機能）と skill（API リファレンス）を組み合わせて利用することを想定しています。
 
-[![npm version](https://badge.fury.io/js/@him0%2Ffreee-mcp.svg)](https://www.npmjs.com/package/@him0/freee-mcp)
+[![npm version](https://badge.fury.io/js/freee-mcp.svg)](https://www.npmjs.com/package/freee-mcp)
 
 > Note: このプロジェクトは開発中であり、予期せぬ不具合が発生する可能性があります。問題を発見された場合は [Issue](https://github.com/him0/freee-mcp/issues) として報告していただけると幸いです。
 
@@ -64,7 +64,7 @@ sequenceDiagram
 ### 2. セットアップ
 
 ```bash
-npx @him0/freee-mcp configure
+npx freee-mcp configure
 ```
 
 対話式ウィザードが認証情報の設定、OAuth認証、事業所選択を行います。
@@ -177,11 +177,13 @@ Issue での不具合報告や機能要望、フィードバックは大歓迎�
 ### Contributors
 
 <!-- CONTRIBUTORS-START -->
+<a href="https://github.com/him0"><img src="https://github.com/him0.png" width="40" height="40" alt="@him0"></a>
 <a href="https://github.com/dais0n"><img src="https://github.com/dais0n.png" width="40" height="40" alt="@dais0n"></a>
 <a href="https://github.com/HikaruEgashira"><img src="https://github.com/HikaruEgashira.png" width="40" height="40" alt="@HikaruEgashira"></a>
 <a href="https://github.com/nakanoasaservice"><img src="https://github.com/nakanoasaservice.png" width="40" height="40" alt="@nakanoasaservice"></a>
 <a href="https://github.com/tackeyy"><img src="https://github.com/tackeyy.png" width="40" height="40" alt="@tackeyy"></a>
 <a href="https://github.com/worldscandy"><img src="https://github.com/worldscandy.png" width="40" height="40" alt="@worldscandy"></a>
+<a href="https://github.com/akhr77"><img src="https://github.com/akhr77.png" width="40" height="40" alt="@akhr77"></a>
 <!-- CONTRIBUTORS-END -->
 
 ## 開発者向け

@@ -10,7 +10,7 @@
     "freee": {
       "command": "npx",
       "args": [
-        "@him0/freee-mcp",
+        "freee-mcp",
         "client"
       ]
     }

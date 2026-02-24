@@ -66,7 +66,7 @@ After running `freee-mcp configure`:
   "mcpServers": {
     "freee": {
       "command": "npx",
-      "args": ["@him0/freee-mcp"]
+      "args": ["freee-mcp"]
     }
   }
 }

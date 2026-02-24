@@ -1,4 +1,4 @@
-# @him0/freee-mcp
+# freee-mcp
 
 ## 0.7.0
 
