@@ -109,7 +109,7 @@ describe('mcp-config', () => {
       mockFs.readFile.mockResolvedValue(
         JSON.stringify({
           mcpServers: {
-            'freee-mcp': { command: 'npx', args: ['@him0/freee-mcp'] },
+            'freee-mcp': { command: 'npx', args: ['freee-mcp'] },
           },
         })
       );
@@ -151,7 +151,7 @@ describe('mcp-config', () => {
       );
       expect(writtenContent.mcpServers['freee-mcp']).toEqual({
         command: 'npx',
-        args: ['@him0/freee-mcp'],
+        args: ['freee-mcp'],
       });
     });
 
@@ -178,7 +178,7 @@ describe('mcp-config', () => {
       });
       expect(writtenContent.mcpServers['freee-mcp']).toEqual({
         command: 'npx',
-        args: ['@him0/freee-mcp'],
+        args: ['freee-mcp'],
       });
     });
 
@@ -224,7 +224,7 @@ describe('mcp-config', () => {
         JSON.stringify({
           mcpServers: {
             'other-mcp': { command: 'npx', args: ['other-mcp'] },
-            'freee-mcp': { command: 'npx', args: ['@him0/freee-mcp'] },
+            'freee-mcp': { command: 'npx', args: ['freee-mcp'] },
           },
         })
       );
@@ -245,7 +245,7 @@ describe('mcp-config', () => {
         JSON.stringify({
           someOtherSetting: true,
           mcpServers: {
-            'freee-mcp': { command: 'npx', args: ['@him0/freee-mcp'] },
+            'freee-mcp': { command: 'npx', args: ['freee-mcp'] },
           },
         })
       );
@@ -281,7 +281,7 @@ describe('mcp-config', () => {
       mockFs.readFile.mockResolvedValueOnce(
         JSON.stringify({
           mcpServers: {
-            'freee-mcp': { command: 'npx', args: ['@him0/freee-mcp'] },
+            'freee-mcp': { command: 'npx', args: ['freee-mcp'] },
           },
         })
       );
@@ -293,7 +293,7 @@ describe('mcp-config', () => {
       mockFs.readFile.mockResolvedValueOnce(
         JSON.stringify({
           mcpServers: {
-            'freee-mcp': { command: 'npx', args: ['@him0/freee-mcp'] },
+            'freee-mcp': { command: 'npx', args: ['freee-mcp'] },
           },
         })
       );

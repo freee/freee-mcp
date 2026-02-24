@@ -154,8 +154,8 @@ jobs:
             See [CHANGELOG.md](./CHANGELOG.md) for details.
             ${{ steps.contributors.outputs.list != '' && format('\n## Contributors\n\nThank you to the following contributors for their suggestions!\n\n{0}\n', steps.contributors.outputs.list) || '' }}
             ## Package
-            - npm: https://www.npmjs.com/package/@him0/freee-mcp/v/${{ steps.version.outputs.version }}
-            - Install: `npm install @him0/freee-mcp@${{ steps.version.outputs.version }}`
+            - npm: https://www.npmjs.com/package/freee-mcp/v/${{ steps.version.outputs.version }}
+            - Install: `npm install freee-mcp@${{ steps.version.outputs.version }}`
 
             ## Claude Plugin
             This repository can also be used as a Claude Code plugin:
@@ -173,11 +173,11 @@ jobs:
         id: check-npm
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          if npm view @him0/freee-mcp@$VERSION version 2>/dev/null; then
-            echo "ℹ️  npm package @him0/freee-mcp@$VERSION already exists - skipping"
+          if npm view freee-mcp@$VERSION version 2>/dev/null; then
+            echo "ℹ️  npm package freee-mcp@$VERSION already exists - skipping"
             echo "skip=true" >> $GITHUB_OUTPUT
           else
-            echo "✅ npm package @him0/freee-mcp@$VERSION does not exist - will publish"
+            echo "✅ npm package freee-mcp@$VERSION does not exist - will publish"
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 

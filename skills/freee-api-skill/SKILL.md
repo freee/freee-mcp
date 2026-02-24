@@ -7,7 +7,7 @@ description: "freee API を MCP 経由で操作するスキル。会計・人事
 
 ## 概要
 
-[@him0/freee-mcp](https://www.npmjs.com/package/@him0/freee-mcp) (MCP サーバー) を通じて freee API と連携。
+[freee-mcp](https://www.npmjs.com/package/freee-mcp) (MCP サーバー) を通じて freee API と連携。
 
 このスキルの役割:
 
@@ -21,7 +21,7 @@ description: "freee API を MCP 経由で操作するスキル。会計・人事
 ### 1. OAuth 認証（あなたのターミナルで実行）
 
 ```bash
-npx @him0/freee-mcp configure
+npx freee-mcp configure
 ```
 
 ブラウザで freee にログインし、事業所を選択します。設定は `~/.config/freee-mcp/config.json` に保存されます。
@@ -128,5 +128,5 @@ serviceパラメータ (必須):
 
 ## 関連リンク
 
-- [freee-mcp](https://www.npmjs.com/package/@him0/freee-mcp)
+- [freee-mcp](https://www.npmjs.com/package/freee-mcp)
 - [freee API ドキュメント](https://developer.freee.co.jp/docs)
