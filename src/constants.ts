@@ -58,4 +58,4 @@ export const PACKAGE_VERSION = typeof __PACKAGE_VERSION__ !== 'undefined' ? __PA
  * Format follows RFC 7231: ProductName/Version (comments)
  * @see https://datatracker.ietf.org/doc/html/rfc7231#section-5.5.3
  */
-export const USER_AGENT = `freee-mcp/${PACKAGE_VERSION} (MCP Server; +https://github.com/him0/freee-mcp)`;
+export const USER_AGENT = `freee-mcp/${PACKAGE_VERSION} (MCP Server; +https://github.com/freee/freee-mcp)`;

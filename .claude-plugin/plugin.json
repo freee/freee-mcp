@@ -5,7 +5,7 @@
   "author": {
     "name": "him0"
   },
-  "repository": "https://github.com/him0/freee-mcp",
+  "repository": "https://github.com/freee/freee-mcp",
   "mcpServers": {
     "freee": {
       "command": "npx",
