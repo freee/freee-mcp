@@ -49,7 +49,10 @@ export async function loadConfig(): Promise<Config> {
   let callbackPort: number;
 
   if (hasEnvCredentials()) {
-    // Environment variables (legacy support)
+    console.error('Warning: 環境変数での認証情報設定は非推奨です。');
+    console.error('  `freee-mcp configure` を実行して設定ファイルに移行してください。');
+    console.error('  環境変数設定は将来のバージョンで削除される予定です。\n');
+
     clientId = process.env.FREEE_CLIENT_ID || '';
     clientSecret = process.env.FREEE_CLIENT_SECRET || '';
     callbackPort = process.env.FREEE_CALLBACK_PORT
