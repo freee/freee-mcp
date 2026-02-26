@@ -1,9 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import {
   API_CONFIGS,
   ApiType,
   validatePathForService,
   listAllAvailablePaths,
+  _resetApiConfigs,
 } from './schema-loader.js';
 
 describe('schema-loader', () => {
@@ -76,6 +77,61 @@ describe('schema-loader', () => {
       const result = validatePathForService('get', '/api/1/deals', 'accounting');
 
       expect(result.isValid).toBe(true);
+    });
+  });
+
+  describe('resolveBaseUrl (env var overrides)', () => {
+    const envVarNames = [
+      'FREEE_API_BASE_URL_ACCOUNTING',
+      'FREEE_API_BASE_URL_HR',
+      'FREEE_API_BASE_URL_INVOICE',
+      'FREEE_API_BASE_URL_PM',
+      'FREEE_API_BASE_URL_SM',
+    ];
+
+    afterEach(() => {
+      for (const name of envVarNames) {
+        delete process.env[name];
+      }
+      _resetApiConfigs();
+    });
+
+    it('should use default base URL when no env vars are set', () => {
+      _resetApiConfigs();
+      expect(API_CONFIGS.accounting.baseUrl).toBe('https://api.freee.co.jp');
+      expect(API_CONFIGS.hr.baseUrl).toBe('https://api.freee.co.jp/hr');
+      expect(API_CONFIGS.invoice.baseUrl).toBe('https://api.freee.co.jp/iv');
+      expect(API_CONFIGS.pm.baseUrl).toBe('https://api.freee.co.jp/pm');
+      expect(API_CONFIGS.sm.baseUrl).toBe('https://api.freee.co.jp/sm');
+    });
+
+    it('should override with per-service env var', () => {
+      process.env.FREEE_API_BASE_URL_HR = 'https://staging.example.com/hr';
+      _resetApiConfigs();
+      expect(API_CONFIGS.hr.baseUrl).toBe('https://staging.example.com/hr');
+    });
+
+    it('should not affect other services when one is overridden', () => {
+      process.env.FREEE_API_BASE_URL_HR = 'https://staging.example.com/hr';
+      _resetApiConfigs();
+      expect(API_CONFIGS.accounting.baseUrl).toBe('https://api.freee.co.jp');
+      expect(API_CONFIGS.invoice.baseUrl).toBe('https://api.freee.co.jp/iv');
+      expect(API_CONFIGS.pm.baseUrl).toBe('https://api.freee.co.jp/pm');
+      expect(API_CONFIGS.sm.baseUrl).toBe('https://api.freee.co.jp/sm');
+    });
+
+    it('should strip trailing slashes from env var values', () => {
+      process.env.FREEE_API_BASE_URL_ACCOUNTING = 'https://staging.example.com/';
+      _resetApiConfigs();
+      expect(API_CONFIGS.accounting.baseUrl).toBe('https://staging.example.com');
+    });
+
+    it('should propagate overridden baseUrl through validatePathForService', () => {
+      process.env.FREEE_API_BASE_URL_ACCOUNTING = 'https://staging.example.com';
+      _resetApiConfigs();
+      const result = validatePathForService('GET', '/api/1/deals', 'accounting');
+      expect(result.isValid).toBe(true);
+      expect(result.baseUrl).toBe('https://staging.example.com');
     });
   });
 
