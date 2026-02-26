@@ -90,6 +90,11 @@ Changeset requirement:
 - Select the appropriate bump type: `patch` (bug fixes), `minor` (new features), `major` (breaking changes)
 - Write a concise description of what changed for the CHANGELOG
 
+Contributor の追加:
+
+- Issue を起票してくれた人を README.md の Contributors セクション（`<!-- CONTRIBUTORS-START -->` ～ `<!-- CONTRIBUTORS-END -->` の間）に追加する
+- 既存のフォーマットに合わせて `<a href="https://github.com/{username}"><img src="https://github.com/{username}.png" width="40" height="40" alt="@{username}"></a>` を末尾に追記する
+
 Common issues:
 
 - Mock function return types (ensure `id` fields are strings)
