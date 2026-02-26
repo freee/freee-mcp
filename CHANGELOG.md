@@ -1,5 +1,11 @@
 # freee-mcp
 
+## 0.7.3
+
+### Patch Changes
+
+- 7d84fd6: 勤怠操作ガイド(hr-attendance-operations.md)を新設し、hr-operations.mdをhr-employee-operations.mdにリネーム・整理
+
 ## 0.7.2
 
 ### Patch Changes
