@@ -36,7 +36,6 @@ function hasEnvCredentials(): boolean {
 
 /**
  * Load and cache configuration
- * Priority: environment variables > config file > error
  */
 export async function loadConfig(): Promise<Config> {
   if (cachedConfig) {
@@ -45,17 +44,12 @@ export async function loadConfig(): Promise<Config> {
 
   const fullConfig = await loadFullConfig();
 
-  // Load credentials with priority: env > file
   let clientId: string;
   let clientSecret: string;
   let callbackPort: number;
 
   if (hasEnvCredentials()) {
-    // Environment variables take priority (with deprecation warning)
-    console.error('Warning: 環境変数での認証情報設定は非推奨です。');
-    console.error('  `freee-mcp configure` を実行して設定ファイルに移行してください。');
-    console.error('  環境変数設定は将来のバージョンで削除される予定です。\n');
-
+    // Environment variables (legacy support)
     clientId = process.env.FREEE_CLIENT_ID || '';
     clientSecret = process.env.FREEE_CLIENT_SECRET || '';
     callbackPort = process.env.FREEE_CALLBACK_PORT

@@ -89,12 +89,6 @@ npx freee-mcp configure
   }
 }
 ```
-
-> ⚠️ 環境変数での設定について
-> 環境変数（`FREEE_CLIENT_ID`、`FREEE_CLIENT_SECRET` など）を使った設定は非推奨です。
-> 代わりに `npx freee-mcp configure` を実行して設定ファイルに移行してください。
-> 環境変数設定は将来のバージョンで削除される予定です。
-
 ## Claude Plugin として使う
 
 Claude Code でプラグインとしてインストールすると、API リファレンス付きのスキルが利用できます:

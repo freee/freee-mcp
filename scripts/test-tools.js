@@ -80,12 +80,7 @@ async function testFreeeTools() {
       "freee": {
         "command": "pnpm",
         "args": ["tsx", "src/index.ts"],
-        "cwd": process.cwd(),
-        "env": {
-          "FREEE_CLIENT_ID": "your_client_id_here",
-          "FREEE_CLIENT_SECRET": "your_client_secret_here",
-          "FREEE_CALLBACK_PORT": "54321"
-        }
+        "cwd": process.cwd()
       }
     }
   }, null, 2));
