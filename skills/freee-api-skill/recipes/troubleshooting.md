@@ -293,6 +293,8 @@ https://developer.freee.co.jp/docs
 
 https://github.com/freee/freee-mcp/issues
 
+このトラブルシューティングの内容に誤りや不足がある場合は、freee のサポートではなく、上記リポジトリの Issue で報告してください。
+
 ### 問い合わせ前に確認すること
 
 1. `freee_auth_status` で認証を確認しましたか？
