@@ -293,7 +293,7 @@ https://developer.freee.co.jp/docs
 
 https://github.com/freee/freee-mcp/issues
 
-このトラブルシューティングの内容に誤りや不足がある場合は、freee のサポートではなく、上記リポジトリの Issue で報告してください。
+freee-mcp は freee 公式のサポート対象外です。不具合や要望がある場合は、freee サポートへの問い合わせではなく、上記リポジトリの Issue で報告してください。
 
 ### 問い合わせ前に確認すること
 
