@@ -101,17 +101,40 @@ const API_METADATA: Record<ApiType, ApiMetadata> = {
 // Per-API lazy loading: only load schemas when accessed
 const _loadedConfigs: Partial<Record<ApiType, ApiConfig>> = {};
 
+/**
+ * Resolve the base URL for a given API type.
+ * Priority: per-service env var (FREEE_API_BASE_URL_{SERVICE}) > hardcoded default.
+ */
+function resolveBaseUrl(apiType: ApiType, defaultUrl: string): string {
+  const envVar = `FREEE_API_BASE_URL_${apiType.toUpperCase()}`;
+  const envUrl = process.env[envVar];
+  if (envUrl) {
+    return envUrl.replace(/\/+$/, '');
+  }
+  return defaultUrl;
+}
+
 function getApiConfig(apiType: ApiType): ApiConfig {
   if (!_loadedConfigs[apiType]) {
     const metadata = API_METADATA[apiType];
     _loadedConfigs[apiType] = {
       schema: loadSchema(metadata.schemaFile),
-      baseUrl: metadata.baseUrl,
+      baseUrl: resolveBaseUrl(apiType, metadata.baseUrl),
       prefix: metadata.prefix,
       name: metadata.name,
     };
   }
   return _loadedConfigs[apiType]!;
+}
+
+/**
+ * Reset cached API configs. For testing only.
+ * @internal
+ */
+export function _resetApiConfigs(): void {
+  for (const key of Object.keys(_loadedConfigs)) {
+    delete _loadedConfigs[key as ApiType];
+  }
 }
 
 export const API_CONFIGS: Record<ApiType, ApiConfig> = new Proxy(
