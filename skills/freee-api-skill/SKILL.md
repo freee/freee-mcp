@@ -91,25 +91,25 @@ serviceパラメータ (必須):
 
 ### 基本ワークフロー
 
-1. 操作ガイドを確認: `docs/` 内の該当ガイドを読む
+1. レシピを確認: `recipes/` 内の該当レシピを読む
 2. リファレンスを検索: 必要に応じて `references/` を参照
 3. API を呼び出す: `freee_api_*` ツールを使用
 
-### 操作ガイド
+### レシピ
 
-よくある操作の使用例とTipsは以下を参照:
+よくある操作のユースケースサンプルとTipsは以下を参照:
 
-- `docs/expense-application-operations.md` - 経費申請
-- `docs/deal-operations.md` - 取引（収入・支出）
-- `docs/hr-employee-operations.md` - 人事労務（従業員・給与）
-- `docs/hr-attendance-operations.md` - 勤怠（出退勤・打刻・休憩の登録）
-- `docs/invoice-operations.md` - 請求書・見積書・納品書
+- `recipes/expense-application-operations.md` - 経費申請
+- `recipes/deal-operations.md` - 取引（収入・支出）
+- `recipes/hr-employee-operations.md` - 人事労務（従業員・給与）
+- `recipes/hr-attendance-operations.md` - 勤怠（出退勤・打刻・休憩の登録）
+- `recipes/invoice-operations.md` - 請求書・見積書・納品書
 
 ## エラー対応
 
 - 認証エラー: `freee_auth_status` で確認 → `freee_clear_auth` → `freee_authenticate`
 - 事業所エラー: `freee_list_companies` → `freee_set_current_company`
-- 詳細: `docs/troubleshooting.md` 参照
+- 詳細: `recipes/troubleshooting.md` 参照
 
 ## 対応 API
 
@@ -123,7 +123,7 @@ serviceパラメータ (必須):
 
 ### 請求書 API について
 
-請求書・見積書・納品書の操作については `docs/invoice-operations.md` を参照してください。
+請求書・見積書・納品書の操作については `recipes/invoice-operations.md` を参照してください。
 
 注意: 会計 API の `/api/1/invoices` は過去の API であり、現在は請求書 API (`service: "invoice"`) を使用してください。
 
