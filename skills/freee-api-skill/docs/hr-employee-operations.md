@@ -1,4 +1,4 @@
-# 人事労務の操作
+# 従業員・給与の操作
 
 freee人事労務APIを使った従業員・勤怠管理ガイド。
 
@@ -15,14 +15,6 @@ freee人事労務APIを使った従業員・勤怠管理ガイド。
 | `/api/v1/employees` | 従業員一覧（対象年月指定） |
 | `/api/v1/companies/{company_id}/employees` | 全期間の従業員一覧 |
 | `/api/v1/employees/{id}` | 従業員詳細 |
-
-### 勤怠関連
-
-| パス | 説明 |
-|------|------|
-| `/api/v1/employees/{id}/work_records/{date}` | 勤怠記録 |
-| `/api/v1/employees/{id}/time_clocks` | 打刻 |
-| `/api/v1/employees/{id}/work_record_summaries/{year}/{month}` | 勤怠サマリ |
 
 ### 給与関連
 
@@ -59,29 +51,6 @@ freee_api_get {
 }
 ```
 
-### 従業員の勤怠記録を取得
-
-```
-freee_api_get {
-  "service": "hr",
-  "path": "/api/v1/employees/1/work_records/2025-01-15"
-}
-```
-
-### 打刻を登録
-
-```
-freee_api_post {
-  "service": "hr",
-  "path": "/api/v1/employees/1/time_clocks",
-  "body": {
-    "company_id": 123456,
-    "type": "clock_in",
-    "datetime": "2025-01-15T09:00:00+09:00"
-  }
-}
-```
-
 ### 給与明細一覧を取得
 
 ```
@@ -104,15 +73,6 @@ freee_api_get {
 | 種類 | URL形式 |
 |------|---------|
 | 従業員詳細 | `https://p.secure.freee.co.jp/employees/{id}` |
-
-### 打刻タイプ
-
-| type | 説明 |
-|------|------|
-| `clock_in` | 出勤 |
-| `clock_out` | 退勤 |
-| `break_begin` | 休憩開始 |
-| `break_end` | 休憩終了 |
 
 ### 翌月払いの従業員情報取得
 
@@ -142,6 +102,4 @@ freee_api_get {
 詳細なAPIパラメータは以下を参照:
 
 - `references/hr-employees.md` - 従業員
-- `references/hr-attendances.md` - 勤怠
-- `references/hr-time-clocks.md` - 打刻
 - `references/hr-payroll-statements.md` - 給与明細

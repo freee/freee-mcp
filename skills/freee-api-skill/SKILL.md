@@ -101,7 +101,8 @@ serviceパラメータ (必須):
 
 - `docs/expense-application-operations.md` - 経費申請
 - `docs/deal-operations.md` - 取引（収入・支出）
-- `docs/hr-operations.md` - 人事労務（従業員・勤怠）
+- `docs/hr-employee-operations.md` - 人事労務（従業員・給与）
+- `docs/hr-attendance-operations.md` - 勤怠（出退勤・打刻・休憩の登録）
 - `docs/invoice-operations.md` - 請求書・見積書・納品書
 
 ## エラー対応
