@@ -81,8 +81,7 @@ export async function makeApiRequest(
   if (!accessToken) {
     throw new Error(
       `認証が必要です。freee_authenticate ツールを使用して認証を行ってください。\n` +
-      `現在の事業所ID: ${companyId}\n` +
-      `または、FREEE_CLIENT_ID環境変数が正しく設定されているか確認してください。`
+      `現在の事業所ID: ${companyId}`
     );
   }
 
@@ -136,10 +135,9 @@ export async function makeApiRequest(
       `現在の事業所ID: ${companyId}\n` +
       `エラー詳細: ${response.status} ${errorInfo}\n\n` +
       `確認事項:\n` +
-      `1. FREEE_CLIENT_ID環境変数が正しく設定されているか\n` +
-      `2. freee側でアプリケーション設定が正しいか（リダイレクトURI等）\n` +
-      `3. トークンの有効期限が切れていないか\n` +
-      `4. 事業所IDが正しいか（freee_get_current_company で確認）`
+      `1. freee側でアプリケーション設定が正しいか（リダイレクトURI等）\n` +
+      `2. トークンの有効期限が切れていないか\n` +
+      `3. 事業所IDが正しいか（freee_get_current_company で確認）`
     );
   }
 
