@@ -1,5 +1,16 @@
 # freee-mcp
 
+## 0.8.0
+
+### Minor Changes
+
+- 806aa41: 各サービスの API ベース URL を環境変数で切り替え可能にする機能を追加。FREEE*API_BASE_URL*{SERVICE}（ACCOUNTING, HR, INVOICE, PM, SM）環境変数でサービスごとの接続先を上書きできます。
+
+### Patch Changes
+
+- 93222c3: スキルの docs/ ディレクトリを recipes/ にリネーム（ユースケースサンプル集であることを明確化）
+- d615b70: README.md の skills インストーラー CLI の参照を `add-skill` から `skills` に更新
+
 ## 0.7.3
 
 ### Patch Changes
