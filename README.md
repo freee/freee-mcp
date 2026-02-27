@@ -94,10 +94,10 @@ npx freee-mcp configure
 Claude Code でプラグインとしてインストールすると、API リファレンス付きのスキルが利用できます:
 
 ```bash
-npx add-skill freee/freee-mcp
+npx skills add freee/freee-mcp
 ```
 
-[add-skill](https://github.com/anthropics/add-skill) は Claude Code、Cursor、OpenCode など複数のコーディングエージェントに対応したスキルインストーラーです。グローバルインストール(`-g`)や特定スキルのみのインストール(`-s`)も可能です。
+[skills](https://www.npmjs.com/package/skills) は Claude Code、Cursor、OpenCode など複数のコーディングエージェントに対応したスキルインストーラーです。グローバルインストール(`-g`)や特定スキルのみのインストール(`-s`)も可能です。
 
 ### 含まれるリファレンス
 
@@ -179,6 +179,7 @@ Issue での不具合報告や機能要望、フィードバックは大歓迎�
 <a href="https://github.com/worldscandy"><img src="https://github.com/worldscandy.png" width="40" height="40" alt="@worldscandy"></a>
 <a href="https://github.com/akhr77"><img src="https://github.com/akhr77.png" width="40" height="40" alt="@akhr77"></a>
 <a href="https://github.com/trpfrog"><img src="https://github.com/trpfrog.png" width="40" height="40" alt="@trpfrog"></a>
+<a href="https://github.com/hoshinotsuyoshi"><img src="https://github.com/hoshinotsuyoshi.png" width="40" height="40" alt="@hoshinotsuyoshi"></a>
 <!-- CONTRIBUTORS-END -->
 
 ## 開発者向け
