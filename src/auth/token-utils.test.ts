@@ -51,7 +51,7 @@ describe('token-utils', () => {
       expect(result.refresh_token).toBe('fallback-refresh-token');
     });
 
-    it('should use empty string when both refresh_token and fallback are undefined', () => {
+    it('should throw error when both refresh_token and fallback are undefined', () => {
       const response: TokenResponse = {
         access_token: 'test-access-token',
         expires_in: 3600,
@@ -60,9 +60,9 @@ describe('token-utils', () => {
         scope: 'fallback-scope',
       };
 
-      const result = createTokenData(response, fallbacks);
-
-      expect(result.refresh_token).toBe('');
+      expect(() => createTokenData(response, fallbacks)).toThrow(
+        'No refresh_token available. The token response did not include a refresh_token and no fallback was provided. Please re-authenticate.'
+      );
     });
 
     it('should use Bearer as default token_type when not provided', () => {
