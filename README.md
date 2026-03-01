@@ -208,6 +208,10 @@ TypeScript / Model Context Protocol SDK / OAuth 2.0 + PKCE / Zod / esbuild
 
 プロジェクトのアーキテクチャ、内部構造、開発ガイドラインについては [CLAUDE.md](./CLAUDE.md) を参照してください。
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=freee/freee-mcp,him0/freee-mcp&type=Date)](https://star-history.com/#freee/freee-mcp&him0/freee-mcp&Date)
+
 ## ライセンス
 
 Apache-2.0
