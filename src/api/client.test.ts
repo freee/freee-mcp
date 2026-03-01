@@ -305,6 +305,28 @@ describe('client', () => {
       await fs.unlink(binaryResult.filePath).catch(() => {});
     });
 
+    it('should save CSV response to file with correct extension', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+
+      const csvData = new TextEncoder().encode('id,name\n1,Test');
+      mockFetch.mockResolvedValue(createBinaryResponse('text/csv', csvData));
+
+      const result = await makeApiRequest('GET', '/api/1/reports/csv');
+
+      expect(isBinaryFileResponse(result)).toBe(true);
+      const binaryResult = result as BinaryFileResponse;
+      expect(binaryResult.type).toBe('binary');
+      expect(binaryResult.mimeType).toBe('text/csv');
+      expect(binaryResult.size).toBe(csvData.byteLength);
+      expect(binaryResult.filePath).toContain('.csv');
+
+      // Verify file content
+      const fileContent = await fs.readFile(binaryResult.filePath, 'utf-8');
+      expect(fileContent).toBe('id,name\n1,Test');
+
+      await fs.unlink(binaryResult.filePath).catch(() => {});
+    });
+
     it('should save image response to file with correct extension', async () => {
       await setupAccessToken(TEST_ACCESS_TOKEN);
 

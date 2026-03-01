@@ -36,6 +36,7 @@ function isBinaryContentType(contentType: string): boolean {
     'application/pdf',
     'application/octet-stream',
     'image/',
+    'text/csv',
   ];
   return binaryTypes.some(type => contentType.includes(type));
 }
