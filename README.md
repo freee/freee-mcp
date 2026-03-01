@@ -210,7 +210,7 @@ TypeScript / Model Context Protocol SDK / OAuth 2.0 + PKCE / Zod / esbuild
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=freee/freee-mcp,him0/freee-mcp&type=Date)](https://star-history.com/#freee/freee-mcp&him0/freee-mcp&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=freee/freee-mcp&type=Date)](https://star-history.com/#freee/freee-mcp&Date)
 
 ## ライセンス
 
