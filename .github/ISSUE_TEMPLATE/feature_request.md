@@ -1,7 +1,7 @@
 ---
 name: Feature Request / 機能要望
 about: Suggest an idea / 機能の提案をする
-title: "[Feature] "
+title: ""
 labels: enhancement
 assignees: ""
 ---
