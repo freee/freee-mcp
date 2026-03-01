@@ -1,5 +1,14 @@
 # freee-mcp
 
+## 0.8.1
+
+### Patch Changes
+
+- 62e8483: CSVレスポンスがJSONとして処理される不整合を修正。isBinaryContentType に text/csv を追加し、CSVレスポンスが正しくファイルとして保存されるようにしました。
+- aa42fef: refresh_token が欠落している場合に空文字列を保存する代わりにエラーを返すようにし、再認証を促すメッセージを表示するようにした
+- cb2e717: 環境変数の部分設定（FREEE_CLIENT_ID または FREEE_CLIENT_SECRET の片方のみ）でエラーを返すように修正
+- 3a3346e: FREEE_CALLBACK_PORT の値検証を追加し、不正な値（NaN、範囲外）の場合はデフォルトポートにフォールバックするようにした
+
 ## 0.8.0
 
 ### Minor Changes
