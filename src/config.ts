@@ -1,6 +1,28 @@
 import { loadFullConfig } from './config/companies.js';
 import { DEFAULT_CALLBACK_PORT, AUTH_TIMEOUT_MS, FREEE_API_URL } from './constants.js';
 
+/**
+ * Validate and parse a callback port value.
+ * Returns DEFAULT_CALLBACK_PORT with a warning if the value is invalid.
+ */
+export function parseCallbackPort(value: string | number | undefined): number {
+  if (value === undefined || value === null) {
+    return DEFAULT_CALLBACK_PORT;
+  }
+
+  const port = typeof value === 'string' ? parseInt(value, 10) : value;
+
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    console.error(
+      `Warning: FREEE_CALLBACK_PORT の値が不正です (${String(value)})。` +
+      `デフォルトポート ${DEFAULT_CALLBACK_PORT} を使用します。`
+    );
+    return DEFAULT_CALLBACK_PORT;
+  }
+
+  return port;
+}
+
 export interface Config {
   freee: {
     clientId: string;
@@ -58,9 +80,7 @@ export async function loadConfig(): Promise<Config> {
 
     clientId = process.env.FREEE_CLIENT_ID || '';
     clientSecret = process.env.FREEE_CLIENT_SECRET || '';
-    callbackPort = process.env.FREEE_CALLBACK_PORT
-      ? parseInt(process.env.FREEE_CALLBACK_PORT, 10)
-      : DEFAULT_CALLBACK_PORT;
+    callbackPort = parseCallbackPort(process.env.FREEE_CALLBACK_PORT);
   } else {
     // Load from config file
     if (!fullConfig.clientId || !fullConfig.clientSecret) {
@@ -72,7 +92,7 @@ export async function loadConfig(): Promise<Config> {
 
     clientId = fullConfig.clientId;
     clientSecret = fullConfig.clientSecret;
-    callbackPort = fullConfig.callbackPort || DEFAULT_CALLBACK_PORT;
+    callbackPort = parseCallbackPort(fullConfig.callbackPort);
   }
 
   cachedConfig = {
