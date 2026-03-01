@@ -50,10 +50,29 @@ export interface Config {
 let cachedConfig: Config | null = null;
 
 /**
- * Check if environment variables are set for credentials
+ * Check if environment variables are set for credentials.
+ * Both FREEE_CLIENT_ID and FREEE_CLIENT_SECRET must be set together.
+ * Throws an error if only one of them is set.
  */
 function hasEnvCredentials(): boolean {
-  return !!(process.env.FREEE_CLIENT_ID || process.env.FREEE_CLIENT_SECRET);
+  const hasClientId = !!process.env.FREEE_CLIENT_ID;
+  const hasClientSecret = !!process.env.FREEE_CLIENT_SECRET;
+
+  if (hasClientId && !hasClientSecret) {
+    throw new Error(
+      '環境変数 FREEE_CLIENT_SECRET が設定されていません。\n' +
+      'FREEE_CLIENT_ID と FREEE_CLIENT_SECRET の両方を設定してください。'
+    );
+  }
+
+  if (!hasClientId && hasClientSecret) {
+    throw new Error(
+      '環境変数 FREEE_CLIENT_ID が設定されていません。\n' +
+      'FREEE_CLIENT_ID と FREEE_CLIENT_SECRET の両方を設定してください。'
+    );
+  }
+
+  return hasClientId && hasClientSecret;
 }
 
 /**
