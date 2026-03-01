@@ -161,5 +161,23 @@ describe('oauth', () => {
       expect(result.token_type).toBe('Bearer');
       expect(result.scope).toBe('read write');
     });
+
+    it('should throw error when response does not contain refresh_token', async () => {
+      const mockTokenResponse = {
+        access_token: 'test-access-token',
+        expires_in: 3600,
+        token_type: 'Bearer',
+        scope: 'read write'
+      };
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockTokenResponse)
+      });
+
+      await expect(
+        exchangeCodeForTokens('test-code', 'test-verifier', 'http://127.0.0.1:54321/callback')
+      ).rejects.toThrow('No refresh_token available');
+    });
   });
 });

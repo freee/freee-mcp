@@ -237,6 +237,27 @@ describe('tokens', () => {
 
       await expect(refreshAccessToken('invalid-token')).rejects.toThrow('Token refresh failed: 401');
     });
+
+    it('should fall back to old refresh token when response does not include one', async () => {
+      const refreshResponse = {
+        access_token: 'new-access-token',
+        expires_in: 3600,
+        token_type: 'Bearer',
+        scope: 'read write'
+      };
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(refreshResponse)
+      });
+      mockFs.mkdir.mockResolvedValue(undefined);
+      mockFs.writeFile.mockResolvedValue(undefined);
+
+      const result = await refreshAccessToken('old-refresh-token');
+
+      expect(result.access_token).toBe('new-access-token');
+      expect(result.refresh_token).toBe('old-refresh-token');
+    });
   });
 
   describe('clearTokens', () => {
