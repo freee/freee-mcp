@@ -61,16 +61,16 @@ function hasEnvCredentials(): boolean {
   if (hasClientId && !hasClientSecret) {
     throw new Error(
       '環境変数 FREEE_CLIENT_SECRET が設定されていません。\n' +
-      'FREEE_CLIENT_ID と FREEE_CLIENT_SECRET の両方を設定するか、\n' +
-      '`freee-mcp configure` を実行して設定ファイルに移行してください。'
+      '`freee-mcp configure` を実行して設定ファイルへ移行することを推奨します。\n' +
+      '環境変数を使う場合は FREEE_CLIENT_ID と FREEE_CLIENT_SECRET の両方を設定してください。'
     );
   }
 
   if (!hasClientId && hasClientSecret) {
     throw new Error(
       '環境変数 FREEE_CLIENT_ID が設定されていません。\n' +
-      'FREEE_CLIENT_ID と FREEE_CLIENT_SECRET の両方を設定するか、\n' +
-      '`freee-mcp configure` を実行して設定ファイルに移行してください。'
+      '`freee-mcp configure` を実行して設定ファイルへ移行することを推奨します。\n' +
+      '環境変数を使う場合は FREEE_CLIENT_ID と FREEE_CLIENT_SECRET の両方を設定してください。'
     );
   }
 
