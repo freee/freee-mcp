@@ -89,3 +89,48 @@ describe('config', () => {
   });
 
 });
+
+describe('loadConfig - partial env var validation', () => {
+  const originalClientId = process.env.FREEE_CLIENT_ID;
+  const originalClientSecret = process.env.FREEE_CLIENT_SECRET;
+
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    // Restore original env vars
+    process.env.FREEE_CLIENT_ID = originalClientId;
+    process.env.FREEE_CLIENT_SECRET = originalClientSecret;
+  });
+
+  it('should throw error when only FREEE_CLIENT_ID is set', async () => {
+    process.env.FREEE_CLIENT_ID = 'test-id';
+    delete process.env.FREEE_CLIENT_SECRET;
+
+    const { loadConfig: freshLoadConfig } = await import('./config.js');
+    await expect(freshLoadConfig()).rejects.toThrow(
+      'FREEE_CLIENT_SECRET が設定されていません'
+    );
+  });
+
+  it('should throw error when only FREEE_CLIENT_SECRET is set', async () => {
+    delete process.env.FREEE_CLIENT_ID;
+    process.env.FREEE_CLIENT_SECRET = 'test-secret';
+
+    const { loadConfig: freshLoadConfig } = await import('./config.js');
+    await expect(freshLoadConfig()).rejects.toThrow(
+      'FREEE_CLIENT_ID が設定されていません'
+    );
+  });
+
+  it('should work when both env vars are set', async () => {
+    process.env.FREEE_CLIENT_ID = 'test-id';
+    process.env.FREEE_CLIENT_SECRET = 'test-secret';
+
+    const { loadConfig: freshLoadConfig } = await import('./config.js');
+    const config = await freshLoadConfig();
+    expect(config.freee.clientId).toBe('test-id');
+    expect(config.freee.clientSecret).toBe('test-secret');
+  });
+});
