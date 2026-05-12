@@ -7,6 +7,7 @@ import { CONFIG_FILE_PERMISSION, getConfigDir } from '../constants.js';
 export const CompanyConfigSchema = z.object({
   id: z.string(),
   name: z.string().optional(),
+  display_name: z.string().optional(),
   description: z.string().optional(),
   addedAt: z.number(),
   lastUsed: z.number().optional(),
@@ -15,6 +16,7 @@ export const CompanyConfigSchema = z.object({
 export interface CompanyConfig {
   id: string;
   name?: string;
+  display_name?: string;
   description?: string;
   addedAt: number;
   lastUsed?: number;
@@ -155,6 +157,17 @@ export async function getCurrentCompanyId(): Promise<string> {
   return config.currentCompanyId;
 }
 
+// Reserved property keys that must never be used as bracket-access keys on a
+// plain object — assigning to them would mutate Object.prototype (prototype
+// pollution).
+const RESERVED_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+function assertSafeCompanyId(companyId: string): void {
+  if (RESERVED_KEYS.has(companyId)) {
+    throw new Error(`Invalid company ID: ${companyId}`);
+  }
+}
+
 /**
  * Set current company
  */
@@ -162,21 +175,24 @@ export async function setCurrentCompany(
   companyId: string,
   name?: string,
   description?: string,
+  display_name?: string,
 ): Promise<void> {
+  assertSafeCompanyId(companyId);
   const config = await loadFullConfig();
 
-  // Add or update company info
-  if (!config.companies[companyId]) {
+  if (!Object.hasOwn(config.companies, companyId)) {
     config.companies[companyId] = {
       id: companyId,
-      name: name || `Company ${companyId}`,
-      description: description || undefined,
+      name,
+      display_name,
+      description,
       addedAt: Date.now(),
     };
-  } else if (name || description) {
-    // Update existing company info if provided
-    if (name) config.companies[companyId].name = name;
-    if (description) config.companies[companyId].description = description;
+  } else {
+    const entry = config.companies[companyId];
+    if (name !== undefined) entry.name = name;
+    if (display_name !== undefined) entry.display_name = display_name;
+    if (description !== undefined) entry.description = description;
   }
 
   // Update last used timestamp
@@ -192,8 +208,10 @@ export async function setCurrentCompany(
  * Get company info by ID
  */
 export async function getCompanyInfo(companyId: string): Promise<CompanyConfig | null> {
+  assertSafeCompanyId(companyId);
   const config = await loadFullConfig();
-  return config.companies[companyId] || null;
+  if (!Object.hasOwn(config.companies, companyId)) return null;
+  return config.companies[companyId] ?? null;
 }
 
 /**

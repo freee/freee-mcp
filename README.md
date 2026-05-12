@@ -104,7 +104,10 @@ npx freee-mcp configure
 Windows Store (Microsoft Store) 版の Claude Desktop をご利用の場合、設定ファイルのパスが異なります。`freee-mcp configure` は自動的に適切なパスを検出します。
 ## Agent Skills をインストールする
 
-Claude 及び Claude Desktop では「カスタマイズ」より「スキル」を開き、[Releases](https://github.com/freee/freee-mcp/releases) ページから最新の `freee-api-skill.zip` をダウンロードしてアップロードしてください。
+Claude 及び Claude Desktop では「カスタマイズ」より「スキル」を開き、最新の `freee-api-skill.zip` をダウンロードしてアップロードしてください。
+
+- [最新版をダウンロード (freee-api-skill.zip)](https://github.com/freee/freee-mcp/releases/latest/download/freee-api-skill.zip)
+- バージョン履歴から選ぶ: [Releases ページ](https://github.com/freee/freee-mcp/releases)
 
 <img src="docs/images/claude-desktop-skill-upload.png" width="600" alt="Claude Desktop でスキルをアップロード">
 
@@ -286,6 +289,8 @@ npx --package=freee-mcp -- freee-sign-mcp configure
 <a href="https://github.com/Ryosuke-Watanabe9"><img src="https://github.com/Ryosuke-Watanabe9.png" width="40" height="40" alt="@Ryosuke-Watanabe9"></a>
 <a href="https://github.com/Kitamura777"><img src="https://github.com/Kitamura777.png" width="40" height="40" alt="@Kitamura777"></a>
 <a href="https://github.com/yuyohi"><img src="https://github.com/yuyohi.png" width="40" height="40" alt="@yuyohi"></a>
+<a href="https://github.com/bxg06523-cell"><img src="https://github.com/bxg06523-cell.png" width="40" height="40" alt="@bxg06523-cell"></a>
+<a href="https://github.com/ryoya1122"><img src="https://github.com/ryoya1122.png" width="40" height="40" alt="@ryoya1122"></a>
 <!-- CONTRIBUTORS-END -->
 
 ## 開発者向け

@@ -1,6 +1,11 @@
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import type { Request, Response } from 'express';
-import { getConfig, initRemoteConfig, loadRemoteServerConfig } from '../config.js';
+import {
+  getConfig,
+  initRemoteConfig,
+  loadRemoteServerConfig,
+  summarizeRemoteServerConfig,
+} from '../config.js';
 import { FREEE_CALLBACK_PATH } from '../constants.js';
 import { createMcpServer } from '../mcp/handlers.js';
 import type { Redis } from '../storage/redis-client.js';
@@ -11,6 +16,7 @@ import { RedisClientStore } from './client-store.js';
 import { makeErrorChain, serializeErrorChain } from './error-serializer.js';
 import { RedisUnavailableError } from './errors.js';
 import { createFreeeCallbackHandler } from './freee-callback.js';
+import { createLivenessHandler, createReadinessHandler } from './health-endpoints.js';
 import { initLogger } from './logger.js';
 import { FreeeOAuthProvider } from './oauth-provider.js';
 import { OAuthStateStore } from './oauth-store.js';
@@ -36,6 +42,10 @@ export async function startHttpServer(options?: {
 
   const logger = initLogger({ level: remoteConfig.logLevel, transportMode: 'remote' });
   initUserAgentTransportMode('remote');
+
+  // Log the resolved configuration with secrets masked, so operators can verify
+  // what was loaded at startup without exposing credentials.
+  logger.info({ config: summarizeRemoteServerConfig(remoteConfig) }, 'Loaded remote server config');
 
   const redis = getRedisClient(remoteConfig.redisUrl);
 
@@ -151,21 +161,18 @@ export async function startHttpServer(options?: {
     await setupRateLimiting(app, redis, logger);
   }
 
-  // Health check endpoint (no auth required)
-  app.get('/health', async (_req: Request, res: Response) => {
-    try {
-      await redis.ping();
-      res.json({
-        status: 'ok',
-        redis: 'connected',
-      });
-    } catch {
-      res.status(503).json({
-        status: 'degraded',
-        redis: 'disconnected',
-      });
-    }
-  });
+  // Liveness probe (no auth required, no external dependencies).
+  app.get('/livez', createLivenessHandler());
+
+  // Readiness probe (no auth required).
+  // Returns 503 when Redis is unreachable so the orchestrator stops sending
+  // traffic to this instance.
+  const readinessHandler = createReadinessHandler(redis);
+  app.get('/readyz', readinessHandler);
+
+  // Backward-compatible alias for /readyz. Existing deployments may still
+  // probe /health; new deployments should migrate to /livez and /readyz.
+  app.get('/health', readinessHandler);
 
   // freee OAuth callback (browser redirect, no MCP auth required)
   app.get(FREEE_CALLBACK_PATH, freeeCallbackHandler);

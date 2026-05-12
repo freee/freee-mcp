@@ -22,8 +22,9 @@ const MAPPINGS_FILE = join(OPENAPI_DIR, "tag-mappings.json");
 
 // Type definitions
 interface Parameter {
-  name: string;
-  in: string;
+  $ref?: string;
+  name?: string;
+  in?: string;
   description?: string;
   required?: boolean;
   schema?: SchemaObject;
@@ -111,6 +112,9 @@ interface OpenAPISchema {
     schemas?: {
       [key: string]: SchemaObject;
     };
+    parameters?: {
+      [key: string]: Parameter;
+    };
   };
 }
 
@@ -136,6 +140,47 @@ function resolveRef(
 
   const schemaName = parts[3];
   return schema.components?.schemas?.[schemaName];
+}
+
+/**
+ * Resolve $ref to a parameter in components.parameters
+ */
+function resolveParameterRef(
+  schema: OpenAPISchema,
+  ref: string
+): Parameter | undefined {
+  const prefix = "#/components/parameters/";
+  if (!ref.startsWith(prefix)) return undefined;
+  const name = ref.slice(prefix.length);
+  return schema.components?.parameters?.[name];
+}
+
+/**
+ * Resolve a schema reference, handling both direct `$ref` and the
+ * `allOf: [{ $ref: ... }]` wrapping that TypeSpec / OpenAPI emit when a
+ * referenced enum/object needs an inline `description`.
+ *
+ * Returns the original schema if no ref is present or cannot be resolved.
+ * When the input was an `allOf` wrapper with a description, the wrapper's
+ * description takes precedence over the referenced schema's description.
+ */
+function resolveSchema(
+  apiSchema: OpenAPISchema,
+  schema: SchemaObject
+): SchemaObject {
+  if (schema.$ref) {
+    const resolved = resolveRef(apiSchema, schema.$ref);
+    return resolved ?? schema;
+  }
+  if (schema.allOf && schema.allOf.length === 1 && schema.allOf[0].$ref) {
+    const resolved = resolveRef(apiSchema, schema.allOf[0].$ref);
+    if (!resolved) return schema;
+    return {
+      ...resolved,
+      description: schema.description ?? resolved.description,
+    };
+  }
+  return schema;
 }
 
 /**
@@ -174,14 +219,8 @@ function formatSchemaProperties(
     const isRequired = required.includes(propName);
     const requiredMark = isRequired ? " (必須)" : " (任意)";
 
-    // Resolve $ref if present
-    let resolvedSchema = propSchema;
-    if (propSchema.$ref) {
-      const resolved = resolveRef(apiSchema, propSchema.$ref);
-      if (resolved) {
-        resolvedSchema = resolved;
-      }
-    }
+    // Resolve $ref or `allOf: [{ $ref }]` wrapper.
+    const resolvedSchema = resolveSchema(apiSchema, propSchema);
 
     const typeDesc = getTypeDescription(resolvedSchema);
     result += `${indent}- ${propName}${requiredMark}: ${typeDesc}`;
@@ -238,13 +277,7 @@ function formatSchemaProperties(
       resolvedSchema.items &&
       currentDepth < maxDepth - 1
     ) {
-      let itemSchema = resolvedSchema.items;
-      if (itemSchema.$ref) {
-        const resolved = resolveRef(apiSchema, itemSchema.$ref);
-        if (resolved) {
-          itemSchema = resolved;
-        }
-      }
+      const itemSchema = resolveSchema(apiSchema, resolvedSchema.items);
       if (itemSchema.properties) {
         result += `${indent}  配列の要素:\n`;
         result += formatSchemaProperties(
@@ -264,7 +297,10 @@ function formatSchemaProperties(
 /**
  * Format parameters as markdown
  */
-function formatParameters(parameters: Parameter[]): string {
+function formatParameters(
+  apiSchema: OpenAPISchema,
+  parameters: Parameter[]
+): string {
   if (!parameters || parameters.length === 0) {
     return "";
   }
@@ -273,7 +309,11 @@ function formatParameters(parameters: Parameter[]): string {
   result += "| 名前 | 位置 | 必須 | 型 | 説明 |\n";
   result += "|------|------|------|-----|------|\n";
 
-  for (const param of parameters) {
+  for (const rawParam of parameters) {
+    const param = rawParam.$ref
+      ? (resolveParameterRef(apiSchema, rawParam.$ref) ?? rawParam)
+      : rawParam;
+
     const name = param.name || "";
     const location = param.in || "";
     const required = param.required ? "はい" : "いいえ";
@@ -315,15 +355,8 @@ function formatRequestBody(
     return "";
   }
 
-  let schema = jsonContent.schema;
-
-  // Resolve $ref if present
-  if (schema.$ref) {
-    const resolved = resolveRef(apiSchema, schema.$ref);
-    if (resolved) {
-      schema = resolved;
-    }
-  }
+  // Resolve $ref or `allOf: [{ $ref }]` wrapper.
+  const schema = resolveSchema(apiSchema, jsonContent.schema);
 
   if (requestBody.required) {
     result += "(必須)\n\n";
@@ -375,15 +408,8 @@ function formatSuccessResponse(
     return result;
   }
 
-  let schema = jsonContent.schema;
-
-  // Resolve $ref if present
-  if (schema.$ref) {
-    const resolved = resolveRef(apiSchema, schema.$ref);
-    if (resolved) {
-      schema = resolved;
-    }
-  }
+  // Resolve $ref or `allOf: [{ $ref }]` wrapper.
+  const schema = resolveSchema(apiSchema, jsonContent.schema);
 
   result += formatSchemaProperties(apiSchema, schema);
   result += "\n";
@@ -476,7 +502,7 @@ async function generateReference(
 
       // Add parameters
       if (parameters && parameters.length > 0) {
-        endpointsMd += formatParameters(parameters);
+        endpointsMd += formatParameters(schema, parameters);
       }
 
       // Add request body

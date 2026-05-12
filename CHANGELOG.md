@@ -1,10 +1,93 @@
 # freee-mcp
 
+## 0.26.6
+
+### Patch Changes
+
+- [`033d7d5`](https://github.com/freee/freee-mcp/commit/033d7d574593948a8caa76f4036200614585367f): リファレンス生成スクリプトで `allOf` でラップされた `$ref` が解決されない問題を修正 ([#459](https://github.com/freee/freee-mcp/pull/459))
+- [`5f36b18`](https://github.com/freee/freee-mcp/commit/5f36b18ab15c833449c12c3886721ebaed6b3cc8): OpenAPI スキーマを最新版に同期 ( 1 file changed, 137 insertions(+), 1 deletion(-)) ([#458](https://github.com/freee/freee-mcp/pull/458))
+
+## 0.26.5
+
+### Patch Changes
+
+- [`4cd986a`](https://github.com/freee/freee-mcp/commit/4cd986ac219084a81d5c211960b39b0c132f034f): freee と freee サインの MCP ツール周りのリファクタ。 ([#456](https://github.com/freee/freee-mcp/pull/456))
+
+  - HTTP メソッド →`ToolAnnotations` のマッピングを共通ユーティリティに抽出し、freee／サイン両方のツール登録で共有
+  - `CliAuthHandler` インターフェースから未使用の `codeVerifier` フィールドを除去（コールバックハンドラ内で参照されておらず Sign は PKCE 非対応）
+  - `sign_api_delete` で body を許可している理由のコメントを補足
+
+- [`3b549f9`](https://github.com/freee/freee-mcp/commit/3b549f97480c6ad26a1fdbb76eec1ee71b217cd4): エラーメッセージのプライバシースクラブ強化、POST/PUT/PATCH/DELETE ツールへの destructiveHint 付与、その他コード品質改善。 ([#454](https://github.com/freee/freee-mcp/pull/454))
+
+## 0.26.4
+
+### Patch Changes
+
+- [`f0dbc73`](https://github.com/freee/freee-mcp/commit/f0dbc7376455a5121072d966ee58056fde5c7450): `freee_api_*` の body/query が JSON 文字列で届くケースで、一部の MCP クライアントによる送信前バリデーションで弾かれていた問題を修正した。 ([#450](https://github.com/freee/freee-mcp/pull/450))
+
+## 0.26.3
+
+### Patch Changes
+
+- [`dc38067`](https://github.com/freee/freee-mcp/commit/dc380677658b044d5aead7c4d7640f36ba09c400): CLI 認証コールバックページの reflected XSS を修正 ([#448](https://github.com/freee/freee-mcp/pull/448))
+
+  - `error_description` 等の OAuth エラーパラメータを HTML エスケープしてから埋め込むように変更
+  - 127.0.0.1 上で返す HTML レスポンスに CSP / `X-Content-Type-Options` / `Referrer-Policy` を付与
+
+- [`5d6995b`](https://github.com/freee/freee-mcp/commit/5d6995ba43c53fd9f125c8add123cd2f99c2290c): freee_set_current_company の company_id にプロトタイプ汚染を引き起こす予約キーを渡せる脆弱性を修正 ([#446](https://github.com/freee/freee-mcp/pull/446))
+
+  - `__proto__` / `constructor` / `prototype` を弾くガードを追加
+  - companies レコードのルックアップを `Object.hasOwn` ベースに変更
+  - MCP ツールの入力スキーマに数字のみを受け付ける regex 検証を追加
+
+- [`b538462`](https://github.com/freee/freee-mcp/commit/b538462defd398cbcd427c0a3465295339fa5613): API path に埋め込まれたクエリ文字列で company_id 整合チェックをすり抜け、監査ログ上の事業所と実 API 呼び出し先がずれる問題を修正。 ([#447](https://github.com/freee/freee-mcp/pull/447))
+
+  権限昇格ではなく監査・整合性の問題で、freee API 側の per-company 権限はそのまま有効。影響を受けるのは複数事業所のアクセス権を正規に持つユーザー。
+
+  - API path に `?` / `#` を含むリクエストはエラーで拒否
+  - 構築後の URL に対して company_id の一致を再検証
+
+## 0.26.2
+
+### Patch Changes
+
+- [`a1ebc00`](https://github.com/freee/freee-mcp/commit/a1ebc00f2844fda08d4eb5279206b469ddfa90cf): skill レシピを修正: `/api/v1/users/me` 呼び出し時に `company_id` を付与すると 403 になる問題を反映し、人事労務・工数管理レシピのサンプルから `company_id` パラメータを削除 ([#444](https://github.com/freee/freee-mcp/pull/444))
+
+## 0.26.1
+
+### Patch Changes
+
+- [`ff9aff2`](https://github.com/freee/freee-mcp/commit/ff9aff221a9957fe9d61499611c4bfb8a14ae383): リファレンス生成で `$ref` のパラメータが空欄になっていた問題を修正 ([#441](https://github.com/freee/freee-mcp/pull/441))
+- [`02e3cad`](https://github.com/freee/freee-mcp/commit/02e3cadc27bd93b9fdf59d2e8341cda989bcbe42): OpenAPI スキーマを最新版に同期 ( 2 files changed, 189 insertions(+), 128 deletions(-)) ([#436](https://github.com/freee/freee-mcp/pull/436))
+
+## 0.26.0
+
+### Minor Changes
+
+- [`cf85553`](https://github.com/freee/freee-mcp/commit/cf85553d62444deac41245e51e3058732f5fae46): serve モードの環境変数バリデーションを zod ベースで強化し、`RATE_LIMIT_ENABLED` をデフォルト `true`（secure-by-default）に変更 ([#426](https://github.com/freee/freee-mcp/pull/426))
+
+  - BREAKING: 明示的に `RATE_LIMIT_ENABLED=false` / `SIGN_RATE_LIMIT_ENABLED=false` を設定しない限り rate limit が有効化される
+  - 必須環境変数 (ISSUER_URL / JWT_SECRET / FREEE_CLIENT_ID / FREEE_CLIENT_SECRET 等) が未設定・URL 形式不正・LOG_LEVEL 不正値の場合に起動時失敗
+  - 起動時に解決済み設定をログ出力（jwtSecret / clientSecret はマスク）
+
+- [`06c4f32`](https://github.com/freee/freee-mcp/commit/06c4f32c3a1cdd93090bdc51d4c6e70bde46b99c): ヘルスチェックエンドポイントを `/livez` (liveness) と `/readyz` (readiness) に分離 ([#427](https://github.com/freee/freee-mcp/pull/427))
+
+  - `/livez`: プロセス生存のみを確認。外部依存 (Redis 等) をチェックしないため、Redis の一時的な不調で Pod が再起動されない
+  - `/readyz`: Redis 到達性を確認し、未到達時は 503 を返してトラフィックを切り離す
+  - `/health`: 後方互換のため残し、`/readyz` と同じ挙動
+
+### Patch Changes
+
+- [`e21c2bd`](https://github.com/freee/freee-mcp/commit/e21c2bd53f5897c57919448089358657e0107a1a): リモート (HTTP) モードでリクエスト認証コンテキストが欠落している場合に、ローカル単一ユーザー用の `FileTokenStore` へフォールバックせず `InvalidTokenError` を投げて失敗するよう修正（fail-closed）。 ([#428](https://github.com/freee/freee-mcp/pull/428))
+
+  - マルチテナント環境で他テナントのトークンが流用される潜在的なリスクを排除
+  - stdio モードではこれまで通りローカルファイルストアへのフォールバックを維持
+
 ## 0.25.5
 
 ### Patch Changes
 
-- [`70a7dae`](https://github.com/freee/freee-mcp/commit/70a7dae2f8cef8bad9afd617e200562dc678d722): ローカル開発用途で loopback の CIMD URL を受け入れるオプションを追加。 ([#429](https://github.com/freee/freee-mcp/pull/429))
+- [`70a7dae`](https://github.com/freee/freee-mcp/commit/70a7dae2f8cef8bad9afd617e200562dc678d722): ローカル開発用途で loopback の OIDC URL を受け入れるオプションを追加。 ([#429](https://github.com/freee/freee-mcp/pull/429))
 
   - dev/test 環境かつ Kubernetes Pod 外でのみ、`http://localhost` / `127.0.0.1` / `[::1]` の `client_id` を許可
   - 同条件で loopback の `https://` self-signed cert も受け入れ（mkcert 等のローカル検証向け）

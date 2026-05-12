@@ -12,10 +12,25 @@ interface PendingAuthentication {
   timeout: NodeJS.Timeout;
 }
 
+function escapeHtml(input: string): string {
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+const HTML_RESPONSE_HEADERS = {
+  'Content-Type': 'text/html; charset=utf-8',
+  'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'",
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'no-referrer',
+} as const;
+
 interface CliAuthHandler {
   resolve: (code: string) => void;
   reject: (error: Error) => void;
-  codeVerifier: string;
 }
 
 /**
@@ -26,7 +41,20 @@ export class AuthenticationManager {
   private pendingAuthentications = new Map<string, PendingAuthentication>();
   private cliAuthHandlers = new Map<string, CliAuthHandler>();
 
-  registerAuthentication(state: string, codeVerifier: string): void {
+  /**
+   * Register a browser OAuth flow that will be completed by the callback server.
+   *
+   * The callback server owns code exchange and invokes these handlers once it has
+   * either exchanged the authorization code for tokens or hit an OAuth/exchange
+   * error. Keeping the handlers injectable prevents this manager from hiding a
+   * fixed no-op promise contract behind pending authentication state.
+   */
+  registerAuthentication(
+    state: string,
+    codeVerifier: string,
+    resolve: (tokens: TokenData) => void,
+    reject: (error: Error) => void,
+  ): void {
     console.error(`Registering authentication request with state: ${state.substring(0, 10)}...`);
     console.error(`Code verifier: ${codeVerifier.substring(0, 10)}...`);
 
@@ -37,12 +65,8 @@ export class AuthenticationManager {
 
     this.pendingAuthentications.set(state, {
       codeVerifier,
-      resolve: (_tokens: TokenData) => {
-        console.error('Authentication completed successfully!');
-      },
-      reject: (error: Error) => {
-        console.error('Authentication failed:', error);
-      },
+      resolve,
+      reject,
       timeout,
     });
 
@@ -134,7 +158,12 @@ class CallbackServer {
     return this.server !== null;
   }
 
-  // portOverride: サインなど freee の loadConfig() に依存しないモジュールが独自のポートを指定するため
+  /**
+   * Starts the OAuth callback server.
+   *
+   * `portOverride` allows modules (for example, sign-in flows) that do not
+   * depend on `loadConfig()` to specify a custom callback port explicitly.
+   */
   async start(portOverride?: number): Promise<void> {
     if (this.server) {
       console.error(
@@ -171,10 +200,10 @@ class CallbackServer {
         if (url.pathname === '/callback') {
           this.handleCallback(url, res);
         } else if (url.pathname === '/') {
-          res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+          res.writeHead(200, HTML_RESPONSE_HEADERS);
           res.end('<h1>freee MCP OAuth Server</h1><p>コールバックサーバーが稼働中です。</p>');
         } else {
-          res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+          res.writeHead(404, HTML_RESPONSE_HEADERS);
           res.end('<h1>404 Not Found</h1><p>このパスは存在しません。</p>');
         }
       });
@@ -245,17 +274,18 @@ class CallbackServer {
 
     if (error) {
       const errorMsg = errorDescription || error;
-      console.error(`OAuth error: ${error} - ${errorDescription}`);
-      res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
-      res.end(`<h1>認証エラー</h1><p>認証に失敗しました: ${errorMsg}</p>`);
+      const oauthErrorMessage = `OAuth error: ${error} - ${errorDescription}`;
+      console.error(oauthErrorMessage);
+      res.writeHead(400, HTML_RESPONSE_HEADERS);
+      res.end(`<h1>認証エラー</h1><p>認証に失敗しました: ${escapeHtml(errorMsg)}</p>`);
 
       if (cliHandler) {
-        cliHandler.reject(new Error(`OAuth error: ${error} - ${errorDescription}`));
+        cliHandler.reject(new Error(oauthErrorMessage));
       } else if (state) {
         const pendingAuth = this.authManager.getPendingAuthentication(state);
         if (pendingAuth) {
           clearTimeout(pendingAuth.timeout);
-          pendingAuth.reject(new Error(`OAuth error: ${error} - ${errorDescription}`));
+          pendingAuth.reject(new Error(oauthErrorMessage));
           this.authManager.removePendingAuthentication(state);
         }
       }
@@ -264,7 +294,7 @@ class CallbackServer {
 
     if (!code || !state) {
       console.error(`Missing code or state`);
-      res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.writeHead(400, HTML_RESPONSE_HEADERS);
       res.end('<h1>認証エラー</h1><p>認証コードまたは状態パラメータが不足しています。</p>');
       return;
     }
@@ -272,7 +302,7 @@ class CallbackServer {
     // Handle CLI authentication
     if (cliHandler) {
       console.error(`Valid CLI callback received`);
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.writeHead(200, HTML_RESPONSE_HEADERS);
       res.end(
         '<h1>認証完了</h1><p>認証が完了しました。このページを閉じてターミナルに戻ってください。</p>',
       );
@@ -284,7 +314,7 @@ class CallbackServer {
     const pendingAuth = this.authManager.getPendingAuthentication(state);
     if (!pendingAuth) {
       console.error(`Unknown state: ${state}`);
-      res.writeHead(400, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.writeHead(400, HTML_RESPONSE_HEADERS);
       res.end('<h1>認証エラー</h1><p>不明な認証状態です。認証を再開してください。</p>');
       return;
     }
@@ -302,7 +332,7 @@ class CallbackServer {
       pendingAuth.resolve(tokens);
 
       // 成功時のみ「認証完了」を表示
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.writeHead(200, HTML_RESPONSE_HEADERS);
       res.end('<h1>認証完了</h1><p>認証が完了しました。このページを閉じてください。</p>');
     } catch (exchangeError) {
       console.error(`Token exchange failed:`, exchangeError);
@@ -311,8 +341,8 @@ class CallbackServer {
       // エラー時は「認証エラー」を表示
       const errorMessage =
         exchangeError instanceof Error ? exchangeError.message : String(exchangeError);
-      res.writeHead(500, { 'Content-Type': 'text/html; charset=utf-8' });
-      res.end(`<h1>認証エラー</h1><p>トークン交換に失敗しました: ${errorMessage}</p>`);
+      res.writeHead(500, HTML_RESPONSE_HEADERS);
+      res.end(`<h1>認証エラー</h1><p>トークン交換に失敗しました: ${escapeHtml(errorMessage)}</p>`);
     } finally {
       this.authManager.removePendingAuthentication(state);
     }
@@ -332,13 +362,25 @@ export async function startCallbackServer(port?: number): Promise<void> {
   return defaultCallbackServer.start(port);
 }
 
-export async function startCallbackServerWithAutoStop(timeoutMs: number, port?: number): Promise<void> {
+export async function startCallbackServerWithAutoStop(
+  timeoutMs: number,
+  port?: number,
+): Promise<void> {
   await defaultCallbackServer.start(port);
   defaultCallbackServer.scheduleAutoStop(timeoutMs);
 }
 
 export function registerAuthenticationRequest(state: string, codeVerifier: string): void {
-  defaultAuthManager.registerAuthentication(state, codeVerifier);
+  defaultAuthManager.registerAuthentication(
+    state,
+    codeVerifier,
+    (_tokens: TokenData) => {
+      console.error('Authentication completed successfully!');
+    },
+    (error: Error) => {
+      console.error('Authentication failed:', error);
+    },
+  );
 }
 
 export function stopCallbackServer(): void {
