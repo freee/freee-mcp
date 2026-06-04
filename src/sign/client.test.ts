@@ -143,9 +143,9 @@ describe('sign/client', () => {
       const { getValidSignAccessToken } = await import('./tokens.js');
       vi.mocked(getValidSignAccessToken).mockResolvedValue('test-token');
 
-      await expect(
-        makeSignApiRequest('GET', 'https://attacker.example.com/leak'),
-      ).rejects.toThrow('Invalid Sign API path');
+      await expect(makeSignApiRequest('GET', 'https://attacker.example.com/leak')).rejects.toThrow(
+        'Invalid Sign API path',
+      );
       await expect(makeSignApiRequest('GET', '//attacker.example.com/leak')).rejects.toThrow(
         'Invalid Sign API path',
       );
@@ -158,9 +158,9 @@ describe('sign/client', () => {
       const { getValidSignAccessToken } = await import('./tokens.js');
       vi.mocked(getValidSignAccessToken).mockResolvedValue('test-token');
 
-      await expect(
-        makeSignApiRequest('GET', '/v1/../../../admin/secret'),
-      ).rejects.toThrow('/v1/ namespace 外への遷移は許可されていません');
+      await expect(makeSignApiRequest('GET', '/v1/../../../admin/secret')).rejects.toThrow(
+        '/v1/ namespace 外への遷移は許可されていません',
+      );
       await expect(makeSignApiRequest('GET', '/v1/documents/../../admin')).rejects.toThrow(
         '/v1/ namespace 外への遷移は許可されていません',
       );

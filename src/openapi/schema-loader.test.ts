@@ -9,7 +9,16 @@ import {
 
 describe('schema-loader', () => {
   describe('API_CONFIGS', () => {
-    const apiTypes: ApiType[] = ['accounting', 'hr', 'invoice', 'pm', 'sm'];
+    const apiTypes: ApiType[] = ['accounting', 'hr', 'invoice', 'pm', 'sm', 'it_management'];
+
+    const expectedPrefixes: Record<ApiType, string> = {
+      accounting: 'accounting',
+      hr: 'hr',
+      invoice: 'invoice',
+      pm: 'pm',
+      sm: 'sm',
+      it_management: 'it-management',
+    };
 
     it.each(apiTypes)('should return config for %s API', (apiType) => {
       const config = API_CONFIGS[apiType];
@@ -18,7 +27,7 @@ describe('schema-loader', () => {
       expect(config.schema).toBeDefined();
       expect(config.schema.paths).toBeDefined();
       expect(config.baseUrl).toMatch(/^https:\/\/api\.freee\.co\.jp/);
-      expect(config.prefix).toBe(apiType);
+      expect(config.prefix).toBe(expectedPrefixes[apiType]);
       expect(config.name).toContain('freee');
     });
 
@@ -73,6 +82,14 @@ describe('schema-loader', () => {
       expect(result.baseUrl).toBe('https://api.freee.co.jp/hr');
     });
 
+    it('should validate IT management API paths', () => {
+      const result = validatePathForService('GET', '/hub/it_management/members', 'it_management');
+
+      expect(result.isValid).toBe(true);
+      expect(result.apiType).toBe('it_management');
+      expect(result.baseUrl).toBe('https://api.freee.co.jp');
+    });
+
     it('should be case-insensitive for HTTP methods', () => {
       const result = validatePathForService('get', '/api/1/deals', 'accounting');
 
@@ -110,6 +127,7 @@ describe('schema-loader', () => {
       'FREEE_API_BASE_URL_INVOICE',
       'FREEE_API_BASE_URL_PM',
       'FREEE_API_BASE_URL_SM',
+      'FREEE_API_BASE_URL_IT_MANAGEMENT',
     ];
 
     afterEach(() => {
@@ -126,6 +144,7 @@ describe('schema-loader', () => {
       expect(API_CONFIGS.invoice.baseUrl).toBe('https://api.freee.co.jp/iv');
       expect(API_CONFIGS.pm.baseUrl).toBe('https://api.freee.co.jp/pm');
       expect(API_CONFIGS.sm.baseUrl).toBe('https://api.freee.co.jp/sm');
+      expect(API_CONFIGS.it_management.baseUrl).toBe('https://api.freee.co.jp');
     });
 
     it('should override with per-service env var', () => {
@@ -141,6 +160,7 @@ describe('schema-loader', () => {
       expect(API_CONFIGS.invoice.baseUrl).toBe('https://api.freee.co.jp/iv');
       expect(API_CONFIGS.pm.baseUrl).toBe('https://api.freee.co.jp/pm');
       expect(API_CONFIGS.sm.baseUrl).toBe('https://api.freee.co.jp/sm');
+      expect(API_CONFIGS.it_management.baseUrl).toBe('https://api.freee.co.jp');
     });
 
     it('should strip trailing slashes from env var values', () => {

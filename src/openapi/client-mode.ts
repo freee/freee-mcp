@@ -13,11 +13,11 @@ import { type ApiType, listAllAvailablePaths, validatePathForService } from './s
 
 const SUPPORTED_IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
 
-const SERVICE_HINT = 'service: accounting/hr/invoice/pm/sm';
+const SERVICE_HINT = 'service: accounting/hr/invoice/pm/sm/it_management';
 const SKILL_HINT = '詳細ガイドはfreee-api-skill skillを参照';
 
 const serviceSchema = z
-  .enum(['accounting', 'hr', 'invoice', 'pm', 'sm'])
+  .enum(['accounting', 'hr', 'invoice', 'pm', 'sm', 'it_management'])
   .describe('対象のfreeeサービス');
 
 const UTF8_BOM = String.fromCharCode(0xfeff);
@@ -180,7 +180,12 @@ function createMethodTool(method: string) {
         duration_ms: Date.now() - startTime,
       });
       recorder?.recordError({ source: 'tool_handler', chain: serializeErrorChain(error) });
-      return createTextResponse(`APIリクエストエラー: ${formatErrorMessage(error)}`);
+      // MCP 仕様 (Tools - Error Handling): 上流 API への呼び出しが 2xx 以外で返ってきた
+      // ケース（4xx/5xx/network/timeout 等）はツール実行失敗として `isError: true` で
+      // 返し、LLM/クライアントに成功と区別させる。
+      return createTextResponse(`APIリクエストエラー: ${formatErrorMessage(error)}`, {
+        isError: true,
+      });
     }
   };
 }

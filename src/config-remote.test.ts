@@ -40,7 +40,70 @@ describe('loadRemoteServerConfig', () => {
       corsAllowedOrigins: undefined,
       rateLimitEnabled: true,
       logLevel: 'info',
+      httpRequestTimeoutMs: 10 * 60 * 1000,
+      httpHeadersTimeoutMs: 65 * 1000,
+      httpKeepAliveTimeoutMs: 60 * 1000,
       allowInsecureLocalhostCimd: false,
+    });
+  });
+
+  describe('HTTP server timeouts', () => {
+    it('falls back to constants when env is unset', async () => {
+      delete process.env.HTTP_REQUEST_TIMEOUT_MS;
+      delete process.env.HTTP_HEADERS_TIMEOUT_MS;
+      delete process.env.HTTP_KEEP_ALIVE_TIMEOUT_MS;
+      const { loadRemoteServerConfig } = await import('./config.js');
+      const config = loadRemoteServerConfig();
+
+      expect(config.httpRequestTimeoutMs).toBe(10 * 60 * 1000);
+      expect(config.httpHeadersTimeoutMs).toBe(65 * 1000);
+      expect(config.httpKeepAliveTimeoutMs).toBe(60 * 1000);
+    });
+
+    it('honors env overrides when set', async () => {
+      process.env.HTTP_REQUEST_TIMEOUT_MS = '900000';
+      process.env.HTTP_HEADERS_TIMEOUT_MS = '70000';
+      process.env.HTTP_KEEP_ALIVE_TIMEOUT_MS = '65000';
+      const { loadRemoteServerConfig } = await import('./config.js');
+      const config = loadRemoteServerConfig();
+
+      expect(config.httpRequestTimeoutMs).toBe(900_000);
+      expect(config.httpHeadersTimeoutMs).toBe(70_000);
+      expect(config.httpKeepAliveTimeoutMs).toBe(65_000);
+    });
+
+    it('rejects non-numeric values with a clear error', async () => {
+      process.env.HTTP_REQUEST_TIMEOUT_MS = 'forever';
+      const { loadRemoteServerConfig } = await import('./config.js');
+
+      expect(() => loadRemoteServerConfig()).toThrow(/HTTP_REQUEST_TIMEOUT_MS/);
+    });
+
+    it('rejects zero or negative values', async () => {
+      process.env.HTTP_KEEP_ALIVE_TIMEOUT_MS = '0';
+      const { loadRemoteServerConfig } = await import('./config.js');
+
+      expect(() => loadRemoteServerConfig()).toThrow(/HTTP_KEEP_ALIVE_TIMEOUT_MS/);
+    });
+
+    it('rejects headers timeout that is not greater than keep-alive timeout', async () => {
+      // Node requires headersTimeout > keepAliveTimeout. Validate against resolved
+      // values so an operator overriding only one of the two still gets caught.
+      process.env.HTTP_HEADERS_TIMEOUT_MS = '60000';
+      process.env.HTTP_KEEP_ALIVE_TIMEOUT_MS = '60000';
+      const { loadRemoteServerConfig } = await import('./config.js');
+
+      expect(() => loadRemoteServerConfig()).toThrow(
+        /HTTP_HEADERS_TIMEOUT_MS .* must be greater than HTTP_KEEP_ALIVE_TIMEOUT_MS/,
+      );
+    });
+
+    it('catches invariant violation when only keep-alive is overridden upward', async () => {
+      // Default headersTimeout=65s; bumping only keepAlive to 70s violates the invariant.
+      process.env.HTTP_KEEP_ALIVE_TIMEOUT_MS = '70000';
+      const { loadRemoteServerConfig } = await import('./config.js');
+
+      expect(() => loadRemoteServerConfig()).toThrow(/must be greater than/);
     });
   });
 
@@ -237,12 +300,18 @@ describe('summarizeRemoteServerConfig', () => {
       redisUrl: 'redis://localhost:6379',
       rateLimitEnabled: true,
       logLevel: 'info',
+      httpRequestTimeoutMs: 600_000,
+      httpHeadersTimeoutMs: 65_000,
+      httpKeepAliveTimeoutMs: 60_000,
     });
 
     expect(summary.jwtSecret).toBe('<redacted>');
     expect(summary.freeeClientSecret).toBe('<redacted>');
     expect(summary.freeeClientId).toBe('cid');
     expect(summary.rateLimitEnabled).toBe(true);
+    expect(summary.httpRequestTimeoutMs).toBe(600_000);
+    expect(summary.httpHeadersTimeoutMs).toBe(65_000);
+    expect(summary.httpKeepAliveTimeoutMs).toBe(60_000);
   });
 });
 

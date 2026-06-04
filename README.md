@@ -1,6 +1,6 @@
 # freee-mcp
 
-freee会計、人事労務、請求書、工数管理、販売、サイン（電子契約）を AI Agent から操作できるようにする freee 公式の MCP サーバーと Agent Skills です。
+freee会計、人事労務、請求書、工数管理、販売、IT管理、サイン（電子契約）を AI Agent から操作できるようにする freee 公式の MCP サーバーと Agent Skills です。
 
 - MCP サーバー: freee API の呼び出し・認証・リクエスト検証を担当
 - Agent Skills: API リファレンスと操作レシピを AI Agent のコンテキストに注入し、正確な API 利用をガイド
@@ -9,7 +9,7 @@ freee会計、人事労務、請求書、工数管理、販売、サイン（電
 
 ## 特徴
 
-- 複数 API 対応: 会計・人事労務・請求書・工数管理・販売の5つの freee API をサポート
+- 複数 API 対応: 会計・人事労務・請求書・工数管理・販売・IT管理の6つの freee API をサポート
 - サイン（電子契約）対応: freee サインの文書管理 API を専用コマンド（`freee-sign-mcp`）でサポート
 - OAuth 2.0 + PKCE: セキュアな認証フロー、トークン自動更新
 - 複数事業所対応: 事業所の動的切り替えが可能
@@ -159,7 +159,8 @@ Claude Code のプロンプト内からも実行できます:
 | 人事労務 | 従業員、勤怠、給与明細、年末調整など             | 28         |
 | 請求書   | 請求書、見積書、納品書                           | 4          |
 | 工数管理 | プロジェクト、チーム、パートナー、工数、ユーザーなど | 7          |
-| 販売     | 案件、受注、マスタ                               | 5          |
+| 販売     | 案件、受注、マスタ                               | 8          |
+| IT管理   | メンバー、SaaSアカウント、備品                   | 3          |
 | サイン   | 文書、フォルダ、テンプレート、マイ印鑑など       | 8          |
 
 AI Agent との会話中に freee API の操作を依頼すると、これらのリファレンスやレシピを参照して正確に実行します。
@@ -289,6 +290,7 @@ npx --package=freee-mcp -- freee-sign-mcp configure
 <a href="https://github.com/Ryosuke-Watanabe9"><img src="https://github.com/Ryosuke-Watanabe9.png" width="40" height="40" alt="@Ryosuke-Watanabe9"></a>
 <a href="https://github.com/Kitamura777"><img src="https://github.com/Kitamura777.png" width="40" height="40" alt="@Kitamura777"></a>
 <a href="https://github.com/yuyohi"><img src="https://github.com/yuyohi.png" width="40" height="40" alt="@yuyohi"></a>
+<a href="https://github.com/sakura20260508"><img src="https://github.com/sakura20260508.png" width="40" height="40" alt="@sakura20260508"></a>
 <a href="https://github.com/bxg06523-cell"><img src="https://github.com/bxg06523-cell.png" width="40" height="40" alt="@bxg06523-cell"></a>
 <a href="https://github.com/ryoya1122"><img src="https://github.com/ryoya1122.png" width="40" height="40" alt="@ryoya1122"></a>
 <!-- CONTRIBUTORS-END -->

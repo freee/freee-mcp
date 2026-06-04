@@ -6,7 +6,7 @@ import { serializeErrorChain } from '../server/error-serializer.js';
 import { sanitizePath } from '../server/logger.js';
 import { deriveQueryKeys, getCurrentRecorder } from '../server/request-context.js';
 import { getUserAgent } from '../server/user-agent.js';
-import { type TokenContext, resolveCompanyId } from '../storage/context.js';
+import { resolveCompanyId, type TokenContext } from '../storage/context.js';
 import { formatApiErrorMessage, formatResponseErrorInfo } from '../utils/error.js';
 
 /**
@@ -143,22 +143,30 @@ export async function makeApiRequest(
     }
   }
 
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+    'User-Agent': getUserAgent(),
+    'freee-using-beta': 'true',
+  };
+  if (companyId) {
+    headers['x-freee-company-id'] = String(companyId);
+  }
+
   let response: Response;
   try {
     response = await fetch(url.toString(), {
       method,
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        'User-Agent': getUserAgent(),
-      },
+      headers,
       body: body ? JSON.stringify(typeof body === 'string' ? JSON.parse(body) : body) : undefined,
       signal: AbortSignal.timeout(FETCH_TIMEOUT_API_MS),
     });
   } catch (fetchError) {
     const durationMs = Date.now() - startTime;
     const errorType: 'timeout' | 'network_error' =
-      fetchError instanceof Error && fetchError.name === 'TimeoutError' ? 'timeout' : 'network_error';
+      fetchError instanceof Error && fetchError.name === 'TimeoutError'
+        ? 'timeout'
+        : 'network_error';
     recorder?.recordApiCall({
       method,
       path_pattern: safePath,
@@ -239,9 +247,7 @@ export async function makeApiRequest(
     const errorInfo = await formatResponseErrorInfo(response);
     const retryMsg = formatRetryAfterMessage(retryAfter);
     const rateLimitError = new Error(
-      `レートリミットに達しました (429): ${errorInfo}\n` +
-        `事業所ID: ${companyId}\n` +
-        retryMsg,
+      `レートリミットに達しました (429): ${errorInfo}\n` + `事業所ID: ${companyId}\n` + retryMsg,
     );
     recorder?.recordApiCall({
       method,

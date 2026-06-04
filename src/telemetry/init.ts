@@ -1,4 +1,4 @@
-import { SpanKind, SpanStatusCode, context, metrics, propagation, trace } from '@opentelemetry/api';
+import { context, metrics, propagation, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import {
   CompositePropagator,
@@ -72,12 +72,14 @@ export function instrumentedFetch(
   const tracer = trace.getTracer('freee-mcp');
 
   const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-  const method =
-    init?.method ?? (input instanceof Request ? input.method : 'GET');
+  const method = init?.method ?? (input instanceof Request ? input.method : 'GET');
 
   return tracer.startActiveSpan(
     `HTTP ${method}`,
-    { kind: SpanKind.CLIENT, attributes: { 'http.request.method': method, 'url.full': redactUrl(url) } },
+    {
+      kind: SpanKind.CLIENT,
+      attributes: { 'http.request.method': method, 'url.full': redactUrl(url) },
+    },
     (span) => {
       // Inject W3C traceparent into headers
       const headers: Record<string, string> = {};
@@ -168,9 +170,10 @@ export function initTelemetry(serviceVersion: string): OtelHandle | null {
   trace.setGlobalTracerProvider(provider);
 
   // Initialize MeterProvider for metrics export
-  const metricsExporter = process.env.OTEL_METRICS_EXPORTER === 'none'
-    ? undefined
-    : new OTLPMetricExporter({ url: `${endpoint}/v1/metrics` });
+  const metricsExporter =
+    process.env.OTEL_METRICS_EXPORTER === 'none'
+      ? undefined
+      : new OTLPMetricExporter({ url: `${endpoint}/v1/metrics` });
 
   let meterProvider: MeterProvider | undefined;
   if (metricsExporter) {

@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import {
-  SpanKind,
-  SpanStatusCode,
   context,
   propagation,
-  trace,
   type Span,
+  SpanKind,
+  SpanStatusCode,
+  trace,
 } from '@opentelemetry/api';
 import type { NextFunction, Request, Response } from 'express';
 import { scrubErrorMessage } from '../server/error-serializer.js';
@@ -113,10 +113,10 @@ export function createTracingMiddleware(): (
   next: NextFunction,
 ) => void {
   return (req: Request, res: Response, next: NextFunction): void => {
-    // Skip health/liveness/readiness probes entirely — no recorder, no span,
+    // Skip liveness/readiness probes entirely — no recorder, no span,
     // no canonical log. These are polled at high frequency by orchestrators
     // and would otherwise drown out useful telemetry.
-    if (req.path === '/health' || req.path === '/livez' || req.path === '/readyz') {
+    if (req.path === '/livez' || req.path === '/readyz') {
       next();
       return;
     }

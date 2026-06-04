@@ -7,15 +7,15 @@ import {
   stopCallbackServer,
 } from '../../auth/server.js';
 import {
-  type McpTarget,
   addMcpServerConfig,
   checkMcpConfigStatus,
   getTargetDisplayName,
+  type McpTarget,
 } from '../../config/mcp-config.js';
 import { AUTH_TIMEOUT_MS } from '../../constants.js';
 import { clearSignConfig, loadSignConfig, saveSignConfig } from '../config.js';
 import { buildSignAuthUrl, exchangeSignCodeForTokens } from '../oauth.js';
-import { type SignCredentials, collectSignCredentials } from './prompts.js';
+import { collectSignCredentials, type SignCredentials } from './prompts.js';
 
 interface SignConfigureOptions {
   force?: boolean;

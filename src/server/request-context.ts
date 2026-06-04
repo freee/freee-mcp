@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import { makeErrorChain, type ErrorChainEntry } from './error-serializer.js';
+import { type ErrorChainEntry, makeErrorChain } from './error-serializer.js';
 
 /**
  * Canonical log line: tool call sub-event.

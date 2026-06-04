@@ -1,5 +1,70 @@
 # freee-mcp
 
+## 0.29.0
+
+### Minor Changes
+
+- [`2a9a82c`](https://github.com/freee/freee-mcp/commit/2a9a82c620485b70cb87f8e27d263f8d1d5a730f): freeeIT 管理 API（メンバー・SaaS アカウント・備品）をサポート対象に追加。`service: it_management` で `freee_api_*` ツールから呼び出せるようになり、freee-api-skill にもエンドポイントリファレンスと操作レシピを同梱。 ([#135](https://github.com/freee/freee-mcp/pull/135))
+
+  - `company_id` は必須（GET / DELETE はクエリ、POST はボディ。PATCH は不要）
+  - IT 管理 API はオープンベータのため、必須ヘッダ `freee-using-beta: true` をサーバーが自動付与
+
+### Patch Changes
+
+- [`582cbf0`](https://github.com/freee/freee-mcp/commit/582cbf0d6f0a719fff2dc44e984aeeabe20c6fc7): sign API リファレンスを最新スキーマに更新（対面契約・文書コメント・パスワード機能の追加） ([#168](https://github.com/freee/freee-mcp/pull/168))
+
+## 0.28.0
+
+### Minor Changes
+
+- [`a79b638`](https://github.com/freee/freee-mcp/commit/a79b6387f4fa76b680e37a91c4995b48f3ba7fd5): `/health` エンドポイント (transitional alias) を削除し、liveness は `/livez`、readiness は `/readyz` のみで提供。 ([#162](https://github.com/freee/freee-mcp/pull/162))
+
+  - BREAKING (operator-facing): アップグレード前に liveness / readiness probe を `/livez` / `/readyz` へ移行してください。`/health` への probe は 404 を返します。
+
+### Patch Changes
+
+- [`1361282`](https://github.com/freee/freee-mcp/commit/1361282528995ae4a9d95c9111c8442c45301e65): readiness probe で Redis 疎通確認に用いるタイムアウトが確実にクリーンアップされるように修正した。 ([#163](https://github.com/freee/freee-mcp/pull/163))
+- [`dea5e2c`](https://github.com/freee/freee-mcp/commit/dea5e2c32405b520c2a1e06d52a628976d795c18): serve モードの HTTP server タイムアウトを明示設定。long-lived な MCP Streamable-HTTP / SSE 接続に合わせて Node.js の `requestTimeout` / `headersTimeout` / `keepAliveTimeout` をデフォルト 10m / 65s / 60s に固定し、それぞれ `HTTP_REQUEST_TIMEOUT_MS` / `HTTP_HEADERS_TIMEOUT_MS` / `HTTP_KEEP_ALIVE_TIMEOUT_MS` 環境変数で上書き可能にした。Node デフォルト (5m / 60s / 5s) では中間プロキシのストリームアイドルタイムアウトと衝突して MCP セッション中の長時間接続が切れるケースがあったため。 ([#134](https://github.com/freee/freee-mcp/pull/134))
+- [`7881ebd`](https://github.com/freee/freee-mcp/commit/7881ebdbdc3acae36ded50b9643567a4bb4a9961): freee public API リクエストに `x-freee-company-id` ヘッダーを付与。WAF の ApiCompositeRateLimit が (IP + company_id) の composite key でレートリミットできるようになり、共有 IP 経由で複数事業所が利用する際の誤 BLOCK を防ぐ。companyId 未設定時は従来どおりヘッダーを付与しない。 ([#139](https://github.com/freee/freee-mcp/pull/139))
+
+## 0.27.1
+
+### Patch Changes
+
+- [`472bfb9`](https://github.com/freee/freee-mcp/commit/472bfb97c6418d00c307f9b106b0f10b99feb3a4): OpenAPI スキーマを最新版に同期 ( 10 files changed, 6069 insertions(+), 3161 deletions(-)) ([#160](https://github.com/freee/freee-mcp/pull/160))
+
+## 0.27.0
+
+### Minor Changes
+
+- [`f7182b3`](https://github.com/freee/freee-mcp/commit/f7182b39358e9f42d5220745a1fa27bdd413035f): vendor 経由のトラフィック (claude.ai 等) で OAuth/MCP エンドポイントの rate limit が誤って発火する問題を修正 (#439)。 ([#140](https://github.com/freee/freee-mcp/pull/140))
+
+  - `/register`: クライアント metadata から fingerprint を計算し、同一 fingerprint の重複登録は既存の client_id を返す (RFC 7591 §3.2.1)。rate limit カウンタも消費しない
+  - `/authorize`: PKCE `state` ベースの制限と緩い IP ベースの安全網を併用し、同一 vendor IP から並行する異なるユーザーセッションを分離
+  - `/mcp`: 認証前は緩い IP ベースの安全網、認証後は検証済み user ID ベースの制限に分離し、署名検証前の JWT payload は rate limit key に使わない
+  - SDK 内蔵の `/register` rate limit (1h/20) を無効化し、freee-mcp 側の Redis ベースの limit に一本化
+
+### Patch Changes
+
+- [`e513e28`](https://github.com/freee/freee-mcp/commit/e513e28bab5e6fe2cbcf6122ade62d3db33c3905): freee*api*\* の全 API リクエストにヘッダー `freee-using-beta: true` を常時付与するようにしました。 ([#156](https://github.com/freee/freee-mcp/pull/156))
+
+  - 今後提供予定の OpenBeta 区分 API はこのヘッダーがないと呼び出せない仕様になります
+  - OpenBeta API はスキーマに破壊的変更が告知なく入る可能性がありますが、MCP 経由の利用は呼び出し時にスキーマを参照するため影響を受けにくく、無条件で有効化します
+  - 対象: `makeApiRequest` 経由の全リクエスト（stdio / remote 両モードから共通利用される）
+
+- [`82a517e`](https://github.com/freee/freee-mcp/commit/82a517ee5345ca7db0e84274de60c8aedaef3c2d): 上流 freee API への呼び出しが 2xx 以外で返ってきたとき、MCP ツール応答に `isError: true` を立てるようにしました。 ([#472](https://github.com/freee/freee-mcp/pull/472))
+
+  - MCP 仕様 (Tools - Error Handling) ではツール実行に伴う失敗は `CallToolResult.isError` で報告することが推奨されています
+  - これまでは 4xx/5xx もテキスト応答のみで返していたため、LLM やクライアントが成功応答と区別できませんでした
+  - 対象: 4xx/5xx 応答に加え、ネットワークエラー・タイムアウト等 `makeApiRequest` から例外が投げられる全ケース
+  - canonical log の `api_calls[].status_code` / `errors[]` 側は変更ありません
+
+## 0.26.7
+
+### Patch Changes
+
+- [`65e486c`](https://github.com/freee/freee-mcp/commit/65e486cc87f384533492a8c7aed625ab6d17ec74): OpenAPI スキーマを最新版に同期 ( 5 files changed, 3753 insertions(+), 1249 deletions(-)) ([#465](https://github.com/freee/freee-mcp/pull/465))
+
 ## 0.26.6
 
 ### Patch Changes

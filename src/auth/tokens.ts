@@ -2,11 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { z } from 'zod';
 import { getConfig } from '../config.js';
-import {
-  CONFIG_FILE_PERMISSION,
-  FETCH_TIMEOUT_TOKEN_MS,
-  getConfigDir,
-} from '../constants.js';
+import { CONFIG_FILE_PERMISSION, FETCH_TIMEOUT_TOKEN_MS, getConfigDir } from '../constants.js';
 import { getUserAgent } from '../server/user-agent.js';
 import { formatResponseErrorInfo } from '../utils/error.js';
 import { clearLegacyTokens, tryMigrateLegacyTokens } from './token-migration.js';

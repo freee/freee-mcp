@@ -4,8 +4,8 @@ import { uploadReceipt } from '../api/file-upload.js';
 import { serializeErrorChain } from '../server/error-serializer.js';
 import { getCurrentRecorder } from '../server/request-context.js';
 import type { AuthExtra } from '../storage/context.js';
-import { registerTracedTool } from '../telemetry/tool-tracer.js';
 import { extractTokenContext } from '../storage/context.js';
+import { registerTracedTool } from '../telemetry/tool-tracer.js';
 import { createTextResponse, formatErrorMessage } from '../utils/error.js';
 
 export function addFileUploadTool(server: McpServer): void {

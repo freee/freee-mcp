@@ -666,6 +666,7 @@ const API_CONFIGS = [
   { apiKey: "invoice-api", schemaFile: join(OPENAPI_DIR, "invoice-api-schema.json"), prefix: "invoice", outputDir: OUTPUT_DIR },
   { apiKey: "pm-api", schemaFile: join(OPENAPI_DIR, "pm-api-schema.json"), prefix: "pm", outputDir: OUTPUT_DIR },
   { apiKey: "sm-api", schemaFile: join(OPENAPI_DIR, "sm-api-schema.json"), prefix: "sm", outputDir: OUTPUT_DIR },
+  { apiKey: "it-management-api", schemaFile: join(OPENAPI_DIR, "it-management-api-schema.json"), prefix: "it-management", outputDir: OUTPUT_DIR },
   { apiKey: "sign-api", schemaFile: join(OPENAPI_DIR, "sign-api-schema.json"), prefix: "sign", outputDir: SIGN_OUTPUT_DIR },
 ];
 

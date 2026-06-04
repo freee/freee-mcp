@@ -92,8 +92,7 @@ function compileRule(raw: string): CompiledRule | null {
       const expected = `HTTP ${value.toUpperCase()}`;
       return {
         source: trimmed,
-        match: (spanName, spanKind) =>
-          spanKind === SpanKindEnum.CLIENT && spanName === expected,
+        match: (spanName, spanKind) => spanKind === SpanKindEnum.CLIENT && spanName === expected,
         inner,
       };
     }
@@ -101,8 +100,7 @@ function compileRule(raw: string): CompiledRule | null {
       const expected = `HTTP ${value}`;
       return {
         source: trimmed,
-        match: (spanName, spanKind) =>
-          spanKind === SpanKindEnum.SERVER && spanName === expected,
+        match: (spanName, spanKind) => spanKind === SpanKindEnum.SERVER && spanName === expected,
         inner,
       };
     }
@@ -189,14 +187,7 @@ export class RuleBasedSampler implements Sampler {
         return rule.inner.shouldSample(context, traceId, spanName, spanKind, attributes, links);
       }
     }
-    return this.set.fallback.shouldSample(
-      context,
-      traceId,
-      spanName,
-      spanKind,
-      attributes,
-      links,
-    );
+    return this.set.fallback.shouldSample(context, traceId, spanName, spanKind, attributes, links);
   }
 
   toString(): string {
@@ -235,4 +226,3 @@ export function resolveRootSampler(
   }
   return ratioToSampler(ratio);
 }
-

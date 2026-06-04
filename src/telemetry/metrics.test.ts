@@ -14,7 +14,11 @@ import {
   getToolInvocationDuration,
 } from './metrics.js';
 
-function setupTestMetrics(): { exporter: InMemoryMetricExporter; provider: MeterProvider; reader: PeriodicExportingMetricReader } {
+function setupTestMetrics(): {
+  exporter: InMemoryMetricExporter;
+  provider: MeterProvider;
+  reader: PeriodicExportingMetricReader;
+} {
   const exporter = new InMemoryMetricExporter(AggregationTemporality.CUMULATIVE);
   const reader = new PeriodicExportingMetricReader({
     exporter,

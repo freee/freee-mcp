@@ -173,6 +173,12 @@ const SCHEMA_SOURCES = [
     minimalFile: "sm.json",
   },
   {
+    name: "it-management-api",
+    url: "https://api-schema.freee.co.jp/it_management.yml",
+    outputFile: "it-management-api-schema.json",
+    minimalFile: "it-management.json",
+  },
+  {
     name: "sign-api",
     url: "https://ninja-sign.com/v1/openapi.yaml",
     outputFile: "sign-api-schema.json",

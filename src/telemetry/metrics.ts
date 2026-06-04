@@ -1,5 +1,5 @@
-import { metrics } from '@opentelemetry/api';
 import type { Counter, Histogram } from '@opentelemetry/api';
+import { metrics } from '@opentelemetry/api';
 
 const METER_NAME = 'freee-mcp';
 
@@ -18,10 +18,12 @@ let _toolErrorCount: Counter | null = null;
  */
 export function getHttpRequestDuration(): Histogram {
   if (!_httpRequestDuration) {
-    _httpRequestDuration = metrics.getMeter(METER_NAME).createHistogram('http.server.request.duration', {
-      description: 'HTTP server request duration',
-      unit: 's',
-    });
+    _httpRequestDuration = metrics
+      .getMeter(METER_NAME)
+      .createHistogram('http.server.request.duration', {
+        description: 'HTTP server request duration',
+        unit: 's',
+      });
   }
   return _httpRequestDuration;
 }
@@ -30,8 +32,8 @@ export function getHttpRequestDuration(): Histogram {
  * SSE (Streamable-HTTP) connection lifetime histogram (seconds).
  *
  * Recorded only for `transport=sse` requests at connection close. The expected
- * distribution clusters near the route's `streamIdleTimeout` (e.g. ~600s on
- * Istio's default HTTPRoute), so the p99 reveals whether SSE clients are
+ * distribution clusters near the route's per-request timeout (e.g. ~1200s on
+ * the configured HTTPRoute), so the p99 reveals whether SSE clients are
  * disconnecting early or running until the platform max — useful when
  * triaging `envoy.cluster.upstream_rq_timeout` alerts which alone cannot
  * distinguish "long but normal SSE" from "slow JSON-RPC".
@@ -40,10 +42,12 @@ export function getHttpRequestDuration(): Histogram {
  */
 export function getMcpSseConnectionDuration(): Histogram {
   if (!_mcpSseConnectionDuration) {
-    _mcpSseConnectionDuration = metrics.getMeter(METER_NAME).createHistogram('mcp.sse.connection.duration', {
-      description: 'SSE (Streamable-HTTP) connection lifetime',
-      unit: 's',
-    });
+    _mcpSseConnectionDuration = metrics
+      .getMeter(METER_NAME)
+      .createHistogram('mcp.sse.connection.duration', {
+        description: 'SSE (Streamable-HTTP) connection lifetime',
+        unit: 's',
+      });
   }
   return _mcpSseConnectionDuration;
 }
@@ -67,10 +71,12 @@ export function getHttpRequestErrorCount(): Counter {
  */
 export function getToolInvocationDuration(): Histogram {
   if (!_toolInvocationDuration) {
-    _toolInvocationDuration = metrics.getMeter(METER_NAME).createHistogram('mcp.tool.invocation.duration', {
-      description: 'MCP tool invocation duration',
-      unit: 's',
-    });
+    _toolInvocationDuration = metrics
+      .getMeter(METER_NAME)
+      .createHistogram('mcp.tool.invocation.duration', {
+        description: 'MCP tool invocation duration',
+        unit: 's',
+      });
   }
   return _toolInvocationDuration;
 }

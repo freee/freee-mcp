@@ -39,14 +39,21 @@ export function createReadinessHandler(
   { pingTimeoutMs = READINESS_PING_TIMEOUT_MS }: { pingTimeoutMs?: number } = {},
 ): (req: Request, res: Response) => Promise<void> {
   return async (_req: Request, res: Response): Promise<void> => {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
     try {
-      const timeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Redis ping timeout')), pingTimeoutMs),
-      );
+      const timeout = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => reject(new Error('Redis ping timeout')), pingTimeoutMs);
+      });
+
       await Promise.race([redis.ping(), timeout]);
       res.json({ status: 'ok', redis: 'connected' });
     } catch {
       res.status(503).json({ status: 'degraded', redis: 'disconnected' });
+    } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
     }
   };
 }

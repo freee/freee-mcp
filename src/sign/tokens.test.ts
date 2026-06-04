@@ -2,13 +2,13 @@ import fs from 'node:fs/promises';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { setupTestTempDir } from '../test-utils/temp-dir.js';
 import {
-  type TokenData,
   clearSignTokens,
   getValidSignAccessToken,
   isSignTokenValid,
   loadSignTokens,
   refreshSignAccessToken,
   saveSignTokens,
+  type TokenData,
 } from './tokens.js';
 
 const { setup: setupTempDir, cleanup: cleanupTempDir } = setupTestTempDir('sign-tokens-test-');
@@ -17,7 +17,11 @@ vi.mock('fs/promises');
 vi.mock('./config.js', () => ({
   SIGN_TOKEN_ENDPOINT: 'https://ninja-sign.com/oauth/token',
   SIGN_OAUTH_SCOPE: 'all',
-  getSignCredentials: (): Promise<{ clientId: string; clientSecret: string; callbackPort: number }> =>
+  getSignCredentials: (): Promise<{
+    clientId: string;
+    clientSecret: string;
+    callbackPort: number;
+  }> =>
     Promise.resolve({
       clientId: 'sign-client-id',
       clientSecret: 'sign-client-secret',

@@ -150,12 +150,7 @@ export class FreeeOAuthProvider implements OAuthServerProvider {
     const mcpCfg = getConfig().mcp;
     const verifyAudience = mcpCfg.jwtAudienceEnforce ? mcpCfg.jwtAudience : undefined;
     try {
-      payload = await verifyJwt(
-        token,
-        this.deps.jwtSecret,
-        this.deps.issuerUrl,
-        verifyAudience,
-      );
+      payload = await verifyJwt(token, this.deps.jwtSecret, this.deps.issuerUrl, verifyAudience);
     } catch (err) {
       const mapped = mapJoseErrorToInvalidToken(err);
       if (mapped) {

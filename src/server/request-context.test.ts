@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  getCurrentRecorder,
   RequestRecorder,
   UNRECORDED_ERROR_NAME,
   UNRECORDED_ERROR_TYPE,
-  getCurrentRecorder,
   withRequestRecorder,
 } from './request-context.js';
 

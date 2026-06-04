@@ -50,16 +50,12 @@ describe('HttpCIMDFetcher safety gate', () => {
   describe('default (allowInsecureLocalhost = false)', () => {
     it('rejects http:// URLs', async () => {
       const fetcher = new HttpCIMDFetcher();
-      await expect(fetcher.fetch('http://example.com/metadata')).rejects.toThrow(
-        'Unsafe CIMD URL',
-      );
+      await expect(fetcher.fetch('http://example.com/metadata')).rejects.toThrow('Unsafe CIMD URL');
     });
 
     it('rejects https://localhost', async () => {
       const fetcher = new HttpCIMDFetcher();
-      await expect(fetcher.fetch('https://localhost/metadata')).rejects.toThrow(
-        'Unsafe CIMD URL',
-      );
+      await expect(fetcher.fetch('https://localhost/metadata')).rejects.toThrow('Unsafe CIMD URL');
     });
 
     it('rejects http://localhost', async () => {
@@ -89,16 +85,12 @@ describe('HttpCIMDFetcher safety gate', () => {
 
     it('still rejects http:// to non-loopback hosts (e.g. 10.x.x.x)', async () => {
       const fetcher = new HttpCIMDFetcher({ allowInsecureLocalhost: true });
-      await expect(fetcher.fetch('http://10.0.0.1/metadata')).rejects.toThrow(
-        'Unsafe CIMD URL',
-      );
+      await expect(fetcher.fetch('http://10.0.0.1/metadata')).rejects.toThrow('Unsafe CIMD URL');
     });
 
     it('still rejects http:// to public hosts', async () => {
       const fetcher = new HttpCIMDFetcher({ allowInsecureLocalhost: true });
-      await expect(fetcher.fetch('http://example.com/metadata')).rejects.toThrow(
-        'Unsafe CIMD URL',
-      );
+      await expect(fetcher.fetch('http://example.com/metadata')).rejects.toThrow('Unsafe CIMD URL');
     });
   });
 });

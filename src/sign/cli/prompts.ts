@@ -1,6 +1,5 @@
 import prompts from 'prompts';
-import { SIGN_DEFAULT_CALLBACK_PORT } from '../config.js';
-import { loadSignConfig } from '../config.js';
+import { loadSignConfig, SIGN_DEFAULT_CALLBACK_PORT } from '../config.js';
 
 export interface SignCredentials {
   clientId: string;

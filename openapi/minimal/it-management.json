@@ -1,0 +1,82 @@
+{
+  "paths": {
+    "/hub/it_management/application_accounts": {
+      "get": {
+        "summary": "アカウント一覧取得",
+        "description": "アカウントの一覧をカーソルページネーションで取得します。"
+      },
+      "post": {
+        "summary": "アカウント作成",
+        "description": "アカウントを作成します。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/application_accounts/{id}": {
+      "get": {
+        "summary": "アカウント詳細取得",
+        "description": "アカウントの詳細を取得します。"
+      },
+      "delete": {
+        "summary": "アカウント削除",
+        "description": "アカウントを削除します（ソフトデリート）。"
+      },
+      "patch": {
+        "summary": "アカウント部分更新",
+        "description": "アカウントを部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメータのみが更新されます。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/assets": {
+      "get": {
+        "summary": "備品一覧取得",
+        "description": "備品の一覧をカーソルページネーションで取得します。"
+      },
+      "post": {
+        "summary": "備品作成",
+        "description": "備品を作成します。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/assets/{id}": {
+      "get": {
+        "summary": "備品詳細取得",
+        "description": "備品の詳細を取得します。"
+      },
+      "delete": {
+        "summary": "備品削除",
+        "description": "備品を削除します。"
+      },
+      "patch": {
+        "summary": "備品部分更新",
+        "description": "備品を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメータのみが更新されます。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/members": {
+      "get": {
+        "summary": "メンバー一覧取得",
+        "description": "メンバーの一覧をカーソルページネーションで取得します。"
+      },
+      "post": {
+        "summary": "メンバー作成",
+        "description": "メンバーを作成します。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/members/{id}": {
+      "get": {
+        "summary": "メンバー詳細取得",
+        "description": "メンバーの詳細を取得します。"
+      },
+      "delete": {
+        "summary": "メンバー削除",
+        "description": "メンバーを削除します（ソフトデリート）。"
+      },
+      "patch": {
+        "summary": "メンバー部分更新",
+        "description": "メンバーを部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメータのみが更新されます。",
+        "hasJsonBody": true
+      }
+    }
+  }
+}

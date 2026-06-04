@@ -1,7 +1,7 @@
-import { ROOT_CONTEXT, SpanKind, type Attributes } from '@opentelemetry/api';
+import { type Attributes, ROOT_CONTEXT, SpanKind } from '@opentelemetry/api';
 import { SamplingDecision } from '@opentelemetry/sdk-trace-base';
 import { describe, expect, it } from 'vitest';
-import { RuleBasedSampler, parseRulesFromEnv, resolveRootSampler } from './sampler.js';
+import { parseRulesFromEnv, RuleBasedSampler, resolveRootSampler } from './sampler.js';
 
 const TRACE_ID = '0123456789abcdef0123456789abcdef';
 

@@ -1,4 +1,4 @@
-import { SpanKind, SpanStatusCode, context, propagation, trace } from '@opentelemetry/api';
+import { context, propagation, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import { W3CTraceContextPropagator } from '@opentelemetry/core';
 import { resourceFromAttributes } from '@opentelemetry/resources';

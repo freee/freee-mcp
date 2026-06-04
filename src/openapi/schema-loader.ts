@@ -46,7 +46,7 @@ function loadSchema(filename: string): MinimalSchema {
   return result.data;
 }
 
-export type ApiType = 'accounting' | 'hr' | 'invoice' | 'pm' | 'sm';
+export type ApiType = 'accounting' | 'hr' | 'invoice' | 'pm' | 'sm' | 'it_management';
 
 export interface ApiConfig {
   schema: MinimalSchema;
@@ -93,6 +93,12 @@ const API_METADATA: Record<ApiType, ApiMetadata> = {
     baseUrl: 'https://api.freee.co.jp/sm',
     prefix: 'sm',
     name: 'freee販売 API',
+  },
+  it_management: {
+    schemaFile: 'it-management.json',
+    baseUrl: 'https://api.freee.co.jp',
+    prefix: 'it-management',
+    name: 'freeeIT管理 API',
   },
 };
 

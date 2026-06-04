@@ -5,7 +5,11 @@ vi.mock('./config.js', () => ({
   SIGN_AUTHORIZATION_ENDPOINT: 'https://ninja-sign.com/oauth/authorize',
   SIGN_TOKEN_ENDPOINT: 'https://ninja-sign.com/oauth/token',
   SIGN_OAUTH_SCOPE: 'all',
-  getSignCredentials: (): Promise<{ clientId: string; clientSecret: string; callbackPort: number }> =>
+  getSignCredentials: (): Promise<{
+    clientId: string;
+    clientSecret: string;
+    callbackPort: number;
+  }> =>
     Promise.resolve({
       clientId: 'sign-test-client-id',
       clientSecret: 'sign-test-client-secret',
@@ -35,7 +39,11 @@ describe('sign/oauth', () => {
 
   describe('buildSignAuthUrl', () => {
     it('PKCE パラメータなしの URL を生成する', () => {
-      const result = buildSignAuthUrl('test-state', 'http://127.0.0.1:54321/callback', 'sign-test-client-id');
+      const result = buildSignAuthUrl(
+        'test-state',
+        'http://127.0.0.1:54321/callback',
+        'sign-test-client-id',
+      );
 
       expect(result).toContain('https://ninja-sign.com/oauth/authorize');
       expect(result).toContain('response_type=code');

@@ -81,17 +81,15 @@ describe('extractTokenContext', () => {
     });
 
     it('throws InvalidTokenError when authInfo.extra has userId but no tokenStore', () => {
-      expect(() =>
-        extractTokenContext({ authInfo: { extra: { userId: 'user1' } } }),
-      ).toThrow(InvalidTokenError);
+      expect(() => extractTokenContext({ authInfo: { extra: { userId: 'user1' } } })).toThrow(
+        InvalidTokenError,
+      );
     });
 
     it('throws InvalidTokenError even when authInfo.extra is a partial object (regression guard)', () => {
       // Partial AuthExtra (has `extra` key but no tokenStore/userId) must
       // never silently fall back to the single-tenant local file store.
-      expect(() =>
-        extractTokenContext({ authInfo: { extra: {} } }),
-      ).toThrow(InvalidTokenError);
+      expect(() => extractTokenContext({ authInfo: { extra: {} } })).toThrow(InvalidTokenError);
     });
   });
 

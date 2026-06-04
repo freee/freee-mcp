@@ -10,8 +10,10 @@ import {
 function buildApp(redis: RedisLike, pingTimeoutMs?: number): Express {
   const app = express();
   app.get('/livez', createLivenessHandler());
-  app.get('/readyz', createReadinessHandler(redis, pingTimeoutMs ? { pingTimeoutMs } : undefined));
-  app.get('/health', createReadinessHandler(redis, pingTimeoutMs ? { pingTimeoutMs } : undefined));
+  app.get(
+    '/readyz',
+    createReadinessHandler(redis, pingTimeoutMs !== undefined ? { pingTimeoutMs } : undefined),
+  );
   return app;
 }
 
@@ -60,6 +62,44 @@ describe('createReadinessHandler', () => {
     expect(redis.ping).toHaveBeenCalledTimes(1);
   });
 
+  it('clears the timeout after Redis ping succeeds', async () => {
+    const redis: RedisLike = {
+      ping: vi.fn().mockResolvedValue('PONG'),
+    };
+    const req = {} as Parameters<ReturnType<typeof createReadinessHandler>>[0];
+    const res = {
+      json: vi.fn(),
+      status: vi.fn(),
+    } as unknown as Parameters<ReturnType<typeof createReadinessHandler>>[1];
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
+
+    try {
+      await createReadinessHandler(redis)(req, res);
+      expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      clearTimeoutSpy.mockRestore();
+    }
+  });
+
+  it('clears the timeout after Redis ping rejects', async () => {
+    const redis: RedisLike = {
+      ping: vi.fn().mockRejectedValue(new Error('connection refused')),
+    };
+    const req = {} as Parameters<ReturnType<typeof createReadinessHandler>>[0];
+    const res = {
+      json: vi.fn(),
+      status: vi.fn().mockReturnThis(),
+    } as unknown as Parameters<ReturnType<typeof createReadinessHandler>>[1];
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
+
+    try {
+      await createReadinessHandler(redis)(req, res);
+      expect(clearTimeoutSpy).toHaveBeenCalledTimes(1);
+    } finally {
+      clearTimeoutSpy.mockRestore();
+    }
+  });
+
   it('returns 503 with redis:disconnected when Redis ping rejects', async () => {
     const redis: RedisLike = {
       ping: vi.fn().mockRejectedValue(new Error('connection refused')),
@@ -85,28 +125,14 @@ describe('createReadinessHandler', () => {
     expect(res.status).toBe(503);
     expect(res.body).toEqual({ status: 'degraded', redis: 'disconnected' });
   });
-});
 
-describe('/health backward compatibility', () => {
-  it('mirrors /readyz on success', async () => {
+  it('returns 503 immediately when the timeout window is 0 ms', async () => {
     const redis: RedisLike = {
-      ping: vi.fn().mockResolvedValue('PONG'),
+      ping: vi.fn(() => new Promise(() => {})),
     };
-    const app = buildApp(redis);
+    const app = buildApp(redis, 0);
 
-    const res = await request(app).get('/health');
-
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({ status: 'ok', redis: 'connected' });
-  });
-
-  it('mirrors /readyz on failure (returns 503 when Redis is unreachable)', async () => {
-    const redis: RedisLike = {
-      ping: vi.fn().mockRejectedValue(new Error('connection refused')),
-    };
-    const app = buildApp(redis);
-
-    const res = await request(app).get('/health');
+    const res = await request(app).get('/readyz');
 
     expect(res.status).toBe(503);
     expect(res.body).toEqual({ status: 'degraded', redis: 'disconnected' });

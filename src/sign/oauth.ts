@@ -1,13 +1,13 @@
+import { createTokenData } from '../auth/token-utils.js';
+import { getUserAgent } from '../server/user-agent.js';
+import { formatResponseErrorInfo } from '../utils/error.js';
 import {
+  getSignCredentials,
   SIGN_AUTHORIZATION_ENDPOINT,
   SIGN_OAUTH_SCOPE,
   SIGN_TOKEN_ENDPOINT,
-  getSignCredentials,
 } from './config.js';
 import { OAuthTokenResponseSchema, saveSignTokens, type TokenData } from './tokens.js';
-import { getUserAgent } from '../server/user-agent.js';
-import { formatResponseErrorInfo } from '../utils/error.js';
-import { createTokenData } from '../auth/token-utils.js';
 
 export function buildSignAuthUrl(state: string, redirectUri: string, clientId: string): string {
   const params = new URLSearchParams({

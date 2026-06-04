@@ -26,6 +26,7 @@ MCP server that exposes freee API endpoints as MCP tools:
   - `invoice-api-schema.json` - 請求書API (https://api.freee.co.jp/iv)
   - `pm-api-schema.json` - 工数管理API (https://api.freee.co.jp/pm)
   - `sm-api-schema.json` - 販売API (https://api.freee.co.jp/sm)
+  - `it-management-api-schema.json` - IT管理API (https://api.freee.co.jp、パスに `/hub/it_management/` プレフィックス)
   - `sign-api-schema.json` - サイン（電子契約）API (https://ninja-sign.com)
 - Schema Loader: `src/openapi/schema-loader.ts` loads and manages all API schemas
 - Tool Generation: `generateClientModeTool()` in `src/openapi/client-mode.ts` creates method-specific tools
@@ -80,6 +81,7 @@ Sign development mode: Use `"command": "bun", "args": ["run", "src/sign/index.ts
 - `FREEE_API_BASE_URL_INVOICE` - 請求書API
 - `FREEE_API_BASE_URL_PM` - 工数管理API
 - `FREEE_API_BASE_URL_SM` - 販売API
+- `FREEE_API_BASE_URL_IT_MANAGEMENT` - IT管理API
 - `FREEE_SIGN_API_URL` - サインAPI（`src/sign/config.ts` で処理）
 
 ### Remote モードのロギング (canonical log line)
