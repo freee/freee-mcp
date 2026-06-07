@@ -1,0 +1,17 @@
+{
+  "name": "freee-mcp-marketplace",
+  "interface": {
+    "displayName": "freee MCP"
+  },
+  "plugins": [
+    {
+      "name": "freee-mcp",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "description": "freee API を MCP 経由で操作するためのプラグイン。MCP サーバー設定と Agent Skills（API リファレンス・操作レシピ）をまとめて提供。OAuth 認証とトークン管理を自動化し、経費申請、会計データ取得、人事情報管理など、freee の様々な機能を利用可能。",
+      "category": "Productivity"
+    }
+  ]
+}
