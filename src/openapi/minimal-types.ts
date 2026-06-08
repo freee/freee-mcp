@@ -5,7 +5,7 @@ import { z } from 'zod';
  * These types represent the minimized schema structure used for reduced memory consumption
  */
 
-export const MinimalParameterSchema = z.object({
+const MinimalParameterSchema = z.object({
   name: z.string(),
   in: z.enum(['path', 'query']),
   required: z.boolean().optional(),
@@ -21,7 +21,7 @@ export interface MinimalParameter {
   type: string;
 }
 
-export const MinimalOperationSchema = z.object({
+const MinimalOperationSchema = z.object({
   summary: z.string().optional(),
   description: z.string().optional(),
   parameters: z.array(MinimalParameterSchema).optional(),
@@ -35,7 +35,7 @@ export interface MinimalOperation {
   hasJsonBody?: boolean;
 }
 
-export const MinimalPathItemSchema = z.object({
+const MinimalPathItemSchema = z.object({
   get: MinimalOperationSchema.optional(),
   post: MinimalOperationSchema.optional(),
   put: MinimalOperationSchema.optional(),

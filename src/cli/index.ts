@@ -7,7 +7,7 @@ import { saveConfig } from './configuration.js';
 import { performOAuth } from './oauth-flow.js';
 import { collectCredentials, configureMcpIntegration, selectCompany } from './prompts.js';
 
-export interface ConfigureOptions {
+interface ConfigureOptions {
   force?: boolean;
 }
 

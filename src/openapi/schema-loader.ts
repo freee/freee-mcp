@@ -48,7 +48,7 @@ function loadSchema(filename: string): MinimalSchema {
 
 export type ApiType = 'accounting' | 'hr' | 'invoice' | 'pm' | 'sm' | 'it_management';
 
-export interface ApiConfig {
+interface ApiConfig {
   schema: MinimalSchema;
   baseUrl: string;
   prefix: string;
@@ -198,7 +198,7 @@ export const API_CONFIGS: Record<ApiType, ApiConfig> = new Proxy({} as Record<Ap
   },
 });
 
-export interface PathValidationResult {
+interface PathValidationResult {
   isValid: boolean;
   message: string;
   operation?: MinimalOperation;

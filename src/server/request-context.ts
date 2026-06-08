@@ -13,7 +13,7 @@ import { type ErrorChainEntry, makeErrorChain } from './error-serializer.js';
  * MUST NOT be passed — the type intentionally omits any field that could hold
  * user-supplied content, so TypeScript rejects privacy regressions at compile time.
  */
-export interface ToolCallInfo {
+interface ToolCallInfo {
   tool: string;
   service?: string;
   status: 'success' | 'error';
@@ -37,7 +37,7 @@ export type ApiCallErrorType =
  * Names only, never values — Datadog operators should not be able to
  * reconstruct user input from this field.
  */
-export interface ApiCallInfo {
+interface ApiCallInfo {
   method: string;
   path_pattern: string;
   status_code: number | null;
@@ -51,7 +51,7 @@ export interface ApiCallInfo {
   file_size_bytes?: number;
 }
 
-export type ErrorSource =
+type ErrorSource =
   | 'api_client'
   | 'sign_client'
   | 'file_upload'
@@ -68,7 +68,7 @@ export type ErrorSource =
 export const UNRECORDED_ERROR_TYPE = 'unrecorded' as const;
 export const UNRECORDED_ERROR_NAME = 'UnrecordedError' as const;
 
-export interface ErrorInfo {
+interface ErrorInfo {
   source: ErrorSource;
   status_code?: number;
   error_type?: string;
@@ -76,7 +76,7 @@ export interface ErrorInfo {
   chain: ErrorChainEntry[];
 }
 
-export interface RequestRecorderContext {
+interface RequestRecorderContext {
   request_id: string;
   source_ip: string;
   /** Inbound HTTP User-Agent header from the MCP client, normalized and truncated. */
@@ -130,7 +130,7 @@ export type CanonicalCloseReason = 'completed' | 'client_disconnect';
  * record at runtime by `otelMixin` so the recorder layer stays orthogonal
  * to the OpenTelemetry layer.
  */
-export interface CanonicalLogPayload {
+interface CanonicalLogPayload {
   request_id: string;
   source_ip: string;
   user_agent: string | null;

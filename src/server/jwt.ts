@@ -1,6 +1,6 @@
 import { errors as joseErrors, jwtVerify, SignJWT } from 'jose';
 
-export interface JwtPayload {
+interface JwtPayload {
   sub: string;
   scope: string;
   client_id: string;

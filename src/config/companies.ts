@@ -4,7 +4,7 @@ import path from 'node:path';
 import { z } from 'zod';
 import { CONFIG_FILE_PERMISSION, getConfigDir } from '../constants.js';
 
-export const CompanyConfigSchema = z.object({
+const CompanyConfigSchema = z.object({
   id: z.string(),
   name: z.string().optional(),
   display_name: z.string().optional(),
@@ -22,7 +22,7 @@ export interface CompanyConfig {
   lastUsed?: number;
 }
 
-export const FullConfigSchema = z.object({
+const FullConfigSchema = z.object({
   // OAuth credentials
   clientId: z.string().optional(),
   clientSecret: z.string().optional(),

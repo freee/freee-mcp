@@ -12,7 +12,7 @@ import { formatApiErrorMessage, formatResponseErrorInfo } from '../utils/error.j
 
 const MAX_FILE_SIZE_BYTES = 64 * 1024 * 1024; // 64MB
 
-export interface UploadReceiptOptions {
+interface UploadReceiptOptions {
   description?: string;
   receipt_metadatum_partner_name?: string;
   receipt_metadatum_issue_date?: string;

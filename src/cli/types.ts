@@ -32,7 +32,7 @@ export const CompaniesResponseSchema = z.object({
 
 export type Company = z.infer<typeof CompanySchema>;
 
-export const HrCompanySchema = z.object({
+const HrCompanySchema = z.object({
   id: z.number(),
   name: z.string().nullable(),
   name_kana: z.string().nullable().optional(),

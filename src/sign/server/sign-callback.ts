@@ -15,7 +15,7 @@ const SignUserResponseSchema = z.object({
   id: z.number().int().nonnegative(),
 });
 
-export interface SignCallbackDeps {
+interface SignCallbackDeps {
   oauthStore: OAuthStateStore;
   tokenStore: SignTokenStore;
   clientStore?: OAuthRegisteredClientsStore;

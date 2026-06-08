@@ -198,7 +198,7 @@ export function getConfig(): Config {
   return cachedConfig;
 }
 
-export interface RemoteServerConfig {
+interface RemoteServerConfig {
   port: number;
   issuerUrl: string;
   jwtSecret: string;
