@@ -32,7 +32,7 @@ jobs:
           persist-credentials: false
       - name: Run Claude Code
         id: claude
-        uses: anthropics/claude-code-action@1dc994ee7a008f0ecc866d9ac23ef036b7229f84 # v1.0.127
+        uses: anthropics/claude-code-action@593d7a5c4e0073569f74772c2b7b64c30ec14707 # v1.0.141
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           additional_permissions: |
