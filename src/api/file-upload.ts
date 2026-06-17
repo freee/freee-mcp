@@ -8,6 +8,7 @@ import type { ApiCallErrorType } from '../server/request-context.js';
 import { getCurrentRecorder } from '../server/request-context.js';
 import { getUserAgent } from '../server/user-agent.js';
 import { resolveCompanyId, type TokenContext } from '../storage/context.js';
+import { FETCH_TIMEOUT_API_MS } from '../constants.js';
 import { formatApiErrorMessage, formatResponseErrorInfo } from '../utils/error.js';
 
 const MAX_FILE_SIZE_BYTES = 64 * 1024 * 1024; // 64MB
@@ -160,6 +161,7 @@ export async function uploadReceipt(
       method: 'POST',
       headers,
       body: formData,
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_API_MS),
     });
   } catch (fetchError) {
     const errorType: ApiCallErrorType =
