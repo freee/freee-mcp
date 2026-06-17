@@ -12,6 +12,16 @@ interface PendingAuthentication {
   timeout: NodeJS.Timeout;
 }
 
+function redactCallbackUrl(url: URL): string {
+  const redacted = new URL(url.toString());
+  for (const param of ['code', 'state', 'code_verifier']) {
+    if (redacted.searchParams.has(param)) {
+      redacted.searchParams.set(param, '[REDACTED]');
+    }
+  }
+  return redacted.toString();
+}
+
 function escapeHtml(input: string): string {
   return input
     .replace(/&/g, '&amp;')
@@ -55,12 +65,11 @@ export class AuthenticationManager {
     resolve: (tokens: TokenData) => void,
     reject: (error: Error) => void,
   ): void {
-    console.error(`Registering authentication request with state: ${state.substring(0, 10)}...`);
-    console.error(`Code verifier: ${codeVerifier.substring(0, 10)}...`);
+    console.error(`Registering authentication request`);
 
     const timeout = setTimeout(() => {
       this.pendingAuthentications.delete(state);
-      console.error(`Authentication timeout for state: ${state.substring(0, 10)}...`);
+      console.error(`Authentication timeout`);
     }, getConfig().auth.timeoutMs);
 
     this.pendingAuthentications.set(state, {
@@ -193,9 +202,9 @@ class CallbackServer {
 
     return new Promise((resolve, reject) => {
       this.server = http.createServer((req, res) => {
-        console.error(`Callback request: ${req.method} ${req.url}`);
         // biome-ignore lint/style/noNonNullAssertion: req.url is always defined for HTTP/1.1 requests
         const url = new URL(req.url!, `http://127.0.0.1:${port}`);
+        console.error(`Callback request: ${req.method} ${redactCallbackUrl(url)}`);
 
         if (url.pathname === '/callback') {
           this.handleCallback(url, res);
@@ -261,7 +270,7 @@ class CallbackServer {
     const error = url.searchParams.get('error');
     const errorDescription = url.searchParams.get('error_description');
 
-    console.error(`Callback received - URL: ${url.toString()}`);
+    console.error(`Callback received - URL: ${redactCallbackUrl(url)}`);
     console.error(`Callback parameters:`, {
       code: code ? `${code.substring(0, 10)}...` : null,
       state: state ? `${state.substring(0, 10)}...` : null,
