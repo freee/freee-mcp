@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import path from 'node:path';
 import open from 'open';
 import prompts from 'prompts';
 import {
@@ -12,7 +13,7 @@ import {
   getTargetDisplayName,
   type McpTarget,
 } from '../../config/mcp-config.js';
-import { AUTH_TIMEOUT_MS } from '../../constants.js';
+import { AUTH_TIMEOUT_MS, getConfigDir } from '../../constants.js';
 import { clearSignConfig, loadSignConfig, saveSignConfig } from '../config.js';
 import { buildSignAuthUrl, exchangeSignCodeForTokens } from '../oauth.js';
 import { collectSignCredentials, type SignCredentials } from './prompts.js';
@@ -147,9 +148,10 @@ export async function signConfigure(options: SignConfigureOptions = {}): Promise
 
   stopCallbackServer();
 
+  const configDir = getConfigDir();
   console.log('設定情報を保存しました。\n');
-  console.log('認証情報は ~/.config/freee-mcp/sign-config.json に保存されました。');
-  console.log('トークンは ~/.config/freee-mcp/sign-tokens.json に保存されました。\n');
+  console.log(`認証情報は ${path.join(configDir, 'sign-config.json')} に保存されました。`);
+  console.log(`トークンは ${path.join(configDir, 'sign-tokens.json')} に保存されました。\n`);
 
   await configureSignMcp();
 

@@ -15,11 +15,15 @@ export const APP_NAME = 'freee-mcp';
 
 /**
  * Get the configuration directory path.
- * Respects XDG Base Directory specification:
- * - Uses XDG_CONFIG_HOME if set
- * - Falls back to ~/.config/freee-mcp
+ * Precedence:
+ * 1. FREEE_MCP_CONFIG_DIR — freee-mcp specific override (no APP_NAME suffix appended)
+ * 2. $XDG_CONFIG_HOME/freee-mcp — XDG Base Directory
+ * 3. ~/.config/freee-mcp — default
  */
 export function getConfigDir(): string {
+  if (process.env.FREEE_MCP_CONFIG_DIR) {
+    return process.env.FREEE_MCP_CONFIG_DIR;
+  }
   return process.env.XDG_CONFIG_HOME
     ? path.join(process.env.XDG_CONFIG_HOME, APP_NAME)
     : path.join(os.homedir(), '.config', APP_NAME);
