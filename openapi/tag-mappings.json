@@ -68,7 +68,8 @@
     "Quotations": "quotations",
     "DeliverySlips": "delivery-slips",
     "Receipts": "receipts",
-    "PurchaseOrders": "purchase-orders"
+    "PurchaseOrders": "purchase-orders",
+    "PaymentNotices": "payment-notices"
   },
   "pm-api": {
     "Users": "users",

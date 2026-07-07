@@ -9276,7 +9276,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -9499,7 +9499,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -9722,7 +9722,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -9945,7 +9945,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -10180,7 +10180,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -10415,7 +10415,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -10659,7 +10659,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -10892,7 +10892,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -11133,7 +11133,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -11374,7 +11374,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -11606,7 +11606,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -11841,7 +11841,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -12076,7 +12076,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -12320,7 +12320,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -12553,7 +12553,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -12794,7 +12794,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -13035,7 +13035,7 @@
           {
             "name": "fiscal_year",
             "in": "query",
-            "description": "会計年度",
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。",
             "schema": {
               "type": "integer",
               "format": "int64"
@@ -38804,6 +38804,354 @@
                 "maximum": 2147483647,
                 "description": "適用された経路数（ユーザーが利用できない経路を除く）",
                 "example": 1
+              }
+            }
+          }
+        }
+      },
+      "purchaseRequestUpdateParams": {
+        "type": "object",
+        "required": [
+          "company_id",
+          "status",
+          "purchase_request_form_id"
+        ],
+        "properties": {
+          "company_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "事業所ID",
+            "example": 1
+          },
+          "purchase_request_form_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "購買申請の申請フォームID",
+            "example": 1
+          },
+          "status": {
+            "type": "string",
+            "description": "申請ステータス<br>\ndraft を指定した時は下書きで購買申請を更新します。<br>\nin_progress を指定した時は申請中で購買申請を更新します。\n",
+            "example": "draft",
+            "enum": [
+              "draft",
+              "in_progress"
+            ]
+          },
+          "applicant_group_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請者グループID",
+            "example": 1,
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "description": "申請タイトル",
+            "example": "大阪出張"
+          },
+          "description": {
+            "type": "string",
+            "description": "申請の説明",
+            "example": "出張に伴う備品購入",
+            "nullable": true
+          },
+          "occurrence_start_date": {
+            "type": "string",
+            "description": "発生開始日 (yyyy-mm-dd)",
+            "example": "2019-12-17",
+            "nullable": true
+          },
+          "occurrence_end_date": {
+            "type": "string",
+            "description": "発生終了日 (yyyy-mm-dd)",
+            "example": "2019-12-20",
+            "nullable": true
+          },
+          "approval_flow_route_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請経路ID",
+            "example": 1,
+            "nullable": true
+          },
+          "approval_flow_approver_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請経路の承認者ユーザーID",
+            "example": 1,
+            "nullable": true
+          },
+          "approval_flow_group_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請経路の承認グループID",
+            "example": 1,
+            "nullable": true
+          },
+          "purchase_request_lines": {
+            "type": "array",
+            "description": "購買申請の項目行一覧（配列）",
+            "items": {
+              "type": "object",
+              "required": [
+                "amount"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "購買申請の項目行ID（新規行の場合は指定しない）",
+                  "example": 1
+                },
+                "line_order": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "description": "行番号",
+                  "example": 0
+                },
+                "amount": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "金額",
+                  "example": 1000
+                },
+                "content": {
+                  "type": "string",
+                  "description": "内容",
+                  "example": "備品購入"
+                },
+                "selected_payment_methods": {
+                  "type": "array",
+                  "description": "選択された支払方法",
+                  "items": {
+                    "type": "string",
+                    "example": "cash"
+                  }
+                },
+                "receipt_ids": {
+                  "type": "array",
+                  "description": "ファイルボックス（証憑ファイル）ID（配列）",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "example": 1
+                  }
+                },
+                "receipt_field_values": {
+                  "type": "array",
+                  "description": "ファイル添付項目の値一覧（配列）",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "field_id"
+                    ],
+                    "properties": {
+                      "field_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1,
+                        "description": "ファイル添付項目ID",
+                        "example": 1
+                      },
+                      "receipt_ids": {
+                        "type": "array",
+                        "description": "ファイルボックス（証憑ファイル）ID（配列）",
+                        "items": {
+                          "type": "integer",
+                          "format": "int64",
+                          "minimum": 1,
+                          "example": 1
+                        }
+                      }
+                    }
+                  }
+                },
+                "section_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "部門ID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "partner_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "取引先ID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "item_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "品目ID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "tag_ids": {
+                  "type": "array",
+                  "description": "メモタグID（配列）",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "example": 1
+                  }
+                },
+                "division_tag_1_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "セグメント1タグID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "division_tag_2_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "セグメント2タグID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "division_tag_3_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "セグメント3タグID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "scheduled_purchase_date": {
+                  "type": "string",
+                  "description": "購入予定日 (yyyy-mm-dd)",
+                  "example": "2019-12-17",
+                  "nullable": true
+                },
+                "scheduled_purchase_end_date": {
+                  "type": "string",
+                  "description": "購入予定終了日 (yyyy-mm-dd)",
+                  "example": "2019-12-20",
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "purchase_request_custom_values": {
+            "type": "array",
+            "description": "カスタム項目の値一覧（配列）",
+            "items": {
+              "type": "object",
+              "required": [
+                "custom_form_part_id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "カスタム項目値ID",
+                  "example": 1
+                },
+                "custom_form_part_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "カスタムフォーム項目ID",
+                  "example": 1
+                },
+                "json_value": {
+                  "type": "object",
+                  "description": "カスタム項目の値(項目種別により形式が異なる)",
+                  "properties": {
+                    "single_line_string": {
+                      "type": "string",
+                      "description": "1行テキスト",
+                      "nullable": true
+                    },
+                    "multi_line_string": {
+                      "type": "string",
+                      "description": "複数行テキスト",
+                      "nullable": true
+                    },
+                    "single_date": {
+                      "type": "string",
+                      "description": "日付 (yyyy-mm-dd)",
+                      "example": "2019-12-17",
+                      "nullable": true
+                    },
+                    "date_range": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "日付期間",
+                      "properties": {
+                        "start_date": {
+                          "type": "string",
+                          "description": "開始日 (yyyy-mm-dd)",
+                          "example": "2019-12-17",
+                          "nullable": true
+                        },
+                        "end_date": {
+                          "type": "string",
+                          "description": "終了日 (yyyy-mm-dd)",
+                          "example": "2019-12-20",
+                          "nullable": true
+                        }
+                      }
+                    },
+                    "number": {
+                      "type": "number",
+                      "description": "数値",
+                      "nullable": true
+                    },
+                    "pulldown": {
+                      "type": "string",
+                      "description": "プルダウン値",
+                      "nullable": true
+                    },
+                    "checkbox": {
+                      "type": "array",
+                      "description": "チェックボックス値（配列）",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "radio_button": {
+                      "type": "string",
+                      "description": "ラジオボタン値",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "condition_values": {
+            "type": "object",
+            "description": "条件分岐の値",
+            "properties": {
+              "applicant_position_type": {
+                "type": "string",
+                "description": "申請者の役職タイプ",
+                "nullable": true
+              },
+              "total_amount_jpy": {
+                "type": "integer",
+                "format": "int64",
+                "description": "合計金額（円）",
+                "nullable": true
               }
             }
           }

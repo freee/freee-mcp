@@ -109,6 +109,10 @@
       "description": "その他手当の操作"
     },
     {
+      "name": "従業員手当",
+      "description": "従業員手当の操作"
+    },
+    {
       "name": "月次勤怠締め申請",
       "description": "月次勤怠締め申請の操作"
     },
@@ -2077,6 +2081,428 @@
           }
         },
         "x-codegen-request-body-name": "body"
+      }
+    },
+    "/api/v1/employees/{employee_id}/allowance_rules": {
+      "get": {
+        "tags": [
+          "従業員手当"
+        ],
+        "summary": "従業員の手当情報の取得",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した従業員の手当情報をリストで返します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "operationId": "get_employee_allowance_rules",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "description": "事業所ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "description": "従業員情報を取得したい年",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 2000,
+              "maximum": 2100
+            },
+            "example": 2021
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "description": "従業員情報を取得したい月<br>\n締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>\n翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "example": 1
+          },
+          {
+            "name": "employee_id",
+            "in": "path",
+            "description": "従業員ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "employee_allowance_rules"
+                  ],
+                  "properties": {
+                    "employee_allowance_rules": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ApiV1EmployeesAllowanceRuleSerializer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/accessDeniedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/notfoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "従業員手当"
+        ],
+        "summary": "従業員の手当情報の更新",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した従業員の手当情報を更新します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n  <li>賞与に紐づく手当（frequency=bonus）の場合、対象年月に賞与情報が登録されている必要があります。</li>\n</ul>",
+        "operationId": "update_employee_allowance_rules",
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "description": "従業員ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "company_id",
+                  "year",
+                  "month",
+                  "employee_allowance_rule"
+                ],
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "description": "事業所ID",
+                    "format": "int32",
+                    "minimum": 1,
+                    "maximum": 2147483647,
+                    "example": 1
+                  },
+                  "year": {
+                    "type": "integer",
+                    "description": "対象年",
+                    "format": "int32",
+                    "minimum": 2000,
+                    "maximum": 2100,
+                    "example": 2024
+                  },
+                  "month": {
+                    "type": "integer",
+                    "description": "対象月",
+                    "format": "int32",
+                    "minimum": 1,
+                    "maximum": 12,
+                    "example": 6
+                  },
+                  "employee_allowance_rule": {
+                    "type": "object",
+                    "required": [
+                      "allowance_id",
+                      "amount"
+                    ],
+                    "properties": {
+                      "allowance_id": {
+                        "type": "integer",
+                        "description": "手当ID",
+                        "format": "int32",
+                        "minimum": 1,
+                        "maximum": 2147483647,
+                        "example": 1
+                      },
+                      "amount": {
+                        "type": "integer",
+                        "description": "金額（数値のみ）",
+                        "format": "int32",
+                        "minimum": -99999999,
+                        "maximum": 99999999,
+                        "example": 30000
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "employee_allowance_rule": {
+                      "$ref": "#/components/schemas/ApiV1EmployeesAllowanceRuleSerializer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/accessDeniedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/api/v1/employees/{employee_id}/allowance_rules/{id}": {
+      "delete": {
+        "tags": [
+          "従業員手当"
+        ],
+        "summary": "従業員の手当情報の削除",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した従業員の手当情報を削除します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "operationId": "destroy_employee_allowance_rule",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "description": "事業所ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "description": "削除対象の手当ルールを判定する締め年",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 2000,
+              "maximum": 2100
+            },
+            "example": 2021
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "description": "削除対象の手当ルールを判定する締め月<br>\n翌月払いの従業員でも、支給月ではなく締め年月を指定してください。<br>\n例: 翌月払い従業員の 2022/01 支給分を対象にする場合は year=2021, month=12 を指定します。<br>",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "example": 1
+          },
+          {
+            "name": "employee_id",
+            "in": "path",
+            "description": "従業員ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "従業員手当ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/accessDeniedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/notfoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/employees/{employee_id}/profile_custom_fields": {
@@ -4232,6 +4658,177 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiV1SalariesEmployeePayrollStatementsController.show_response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/accessDeniedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/notfoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/salaries/employee_payroll_statements/{employee_id}/remark": {
+      "put": {
+        "tags": [
+          "給与明細"
+        ],
+        "summary": "給与明細の備考の更新",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した従業員の給与明細の備考を更新します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "operationId": "update_employee_payroll_statement_remark",
+        "parameters": [
+          {
+            "name": "employee_id",
+            "in": "path",
+            "description": "従業員ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "company_id",
+                  "year",
+                  "month",
+                  "remark"
+                ],
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2147483647,
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "year": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2100,
+                    "description": "更新対象の年",
+                    "example": 2024
+                  },
+                  "month": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12,
+                    "description": "更新対象の月",
+                    "example": 10
+                  },
+                  "remark": {
+                    "type": "object",
+                    "required": [
+                      "body"
+                    ],
+                    "properties": {
+                      "body": {
+                        "type": "string",
+                        "maxLength": 500,
+                        "description": "備考本文（500 文字以内）",
+                        "example": "備考の本文"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "employee_payroll_statement_remark"
+                  ],
+                  "properties": {
+                    "employee_payroll_statement_remark": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "employee_payroll_statement_id",
+                        "body"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "description": "給与明細備考ID"
+                        },
+                        "employee_payroll_statement_id": {
+                          "type": "integer",
+                          "description": "給与明細ID"
+                        },
+                        "body": {
+                          "type": "string",
+                          "description": "備考本文"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -11814,6 +12411,25 @@
             "type": "string",
             "nullable": true,
             "description": "備考"
+          }
+        }
+      },
+      "ApiV1SalariesEmployeePayrollStatementRemarkSerializer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "給与明細備考ID",
+            "format": "int32"
+          },
+          "employee_payroll_statement_id": {
+            "type": "integer",
+            "description": "給与明細ID",
+            "format": "int32"
+          },
+          "body": {
+            "type": "string",
+            "description": "備考本文"
           }
         }
       },
@@ -21549,6 +22165,63 @@
           },
           "allowance": {
             "$ref": "#/components/schemas/ApiV1AllowanceCreateRequestSerializer"
+          }
+        }
+      },
+      "ApiV1EmployeesAllowanceRuleSerializer": {
+        "type": "object",
+        "required": [
+          "id",
+          "employee_id",
+          "allowance_id",
+          "allowance_name",
+          "frequency",
+          "calc_type"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "従業員手当ID",
+            "format": "int64"
+          },
+          "employee_id": {
+            "type": "integer",
+            "description": "従業員ID",
+            "format": "int64"
+          },
+          "allowance_id": {
+            "type": "integer",
+            "description": "手当ID",
+            "format": "int64"
+          },
+          "allowance_name": {
+            "type": "string",
+            "description": "手当名"
+          },
+          "amount": {
+            "type": "integer",
+            "description": "手当の金額（勤怠に応じた手当・カスタム項目手当の場合は単価）",
+            "nullable": true
+          },
+          "frequency": {
+            "type": "string",
+            "description": "支給タイミング",
+            "enum": [
+              "salary_this_month",
+              "salary_monthly",
+              "bonus"
+            ]
+          },
+          "calc_type": {
+            "type": "string",
+            "description": "計算タイプ",
+            "enum": [
+              "fixed",
+              "variable",
+              "custom",
+              "attendance_day_tag",
+              "attendance_time_tag"
+            ]
           }
         }
       },
