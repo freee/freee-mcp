@@ -128,6 +128,16 @@ PATCH /hub/it_management/application_accounts/{id}
 
 メンバーの primary email（`PATCH /members/{id}` の `email`）は API での更新に対応していない。
 
+### メンバーに紐づくアカウント・備品の棚卸し
+
+特定メンバーの利用状況を横断的に確認したいとき（入退社時の棚卸し等）は、各一覧をメンバーで絞り込む。
+
+1. SaaSアカウント: GET `/hub/it_management/application_accounts` を `member_id`（アカウントホルダー）で絞り込み
+2. 備品: GET `/hub/it_management/assets` を `member_id`（利用者）で絞り込み
+3. メンバー一覧自体は雇用形態（`employment_type_id`）・入社日/退職日の範囲でも絞り込める（GET `/hub/it_management/members`）。退職者の洗い出しは退職日の範囲指定が使える
+
+各フィルタの型・指定方法はリファレンスを参照。`employment_type_id` のように対応するマスタ一覧 API がない参照 ID は、既存メンバーの一覧レスポンス（`employment_type.id`）から値を取得する。
+
 ### 備品の貸与状況を更新
 
 1. 備品一覧を取得し対象を特定（GET `/hub/it_management/assets`）

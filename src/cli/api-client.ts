@@ -1,4 +1,4 @@
-import { FREEE_API_URL } from '../constants.js';
+import { getConfig } from '../config.js';
 import { formatResponseErrorInfo } from '../utils/error.js';
 import { CompaniesResponseSchema, type Company, HrUsersMeResponseSchema } from './types.js';
 
@@ -21,7 +21,7 @@ export async function fetchCompanies(accessToken: string): Promise<Company[]> {
 }
 
 async function fetchAccountingCompanies(accessToken: string): Promise<Company[]> {
-  const response = await fetch(`${FREEE_API_URL}/api/1/companies`, {
+  const response = await fetch(`${getConfig().freee.apiUrl}/api/1/companies`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ async function fetchAccountingCompanies(accessToken: string): Promise<Company[]>
 }
 
 async function fetchHrCompanies(accessToken: string): Promise<Company[]> {
-  const response = await fetch(`${FREEE_API_URL}/hr/api/v1/users/me`, {
+  const response = await fetch(`${getConfig().freee.apiUrl}/hr/api/v1/users/me`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',

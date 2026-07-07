@@ -14,8 +14,9 @@ freee工数管理APIを使ったプロジェクト・工数の管理ガイド。
 | パス | メソッド | 説明 |
 |------|---------|------|
 | `/projects` | GET, POST | プロジェクト一覧・作成 |
-| `/projects/{id}` | GET, PUT, DELETE, PATCH | プロジェクト詳細・更新・削除 |
+| `/projects/{id}` | GET | プロジェクト詳細 |
 | `/workloads` | GET, POST | 工数実績一覧・登録 |
+| `/workloads/{id}` | PATCH, DELETE | 工数実績編集・削除 |
 | `/workload_summaries` | GET | 工数サマリ取得 |
 | `/people` | GET | 従業員一覧（payroll_employee_id でHR連携可） |
 | `/teams` | GET | チーム一覧 |
@@ -24,6 +25,8 @@ freee工数管理APIを使ったプロジェクト・工数の管理ガイド。
 | `/users/me` | GET | ログインユーザー情報 |
 
 ## 使用例
+
+以下はリクエスト構造の参考例です。APIを呼び出す前に必ず後述のリファレンスで実際のパラメータ名・型・必須項目・制約を確認してください。
 
 ### プロジェクト一覧を取得
 
@@ -112,5 +115,5 @@ freee_api_get {
 - `references/pm-people.md` - 従業員
 - `references/pm-teams.md` - チーム
 - `references/pm-partners.md` - 取引先
-- `references/pm-unit-costs.md` - 単価
+- `references/pm-unit-costs.md` - 従業員単価
 - `references/pm-users.md` - ログインユーザー

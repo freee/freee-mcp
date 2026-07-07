@@ -67,9 +67,8 @@ vi.mock('../config/companies', () => ({
 }));
 
 // Mock config module
-vi.mock('../config', () => ({
-  loadConfig: vi.fn(() => Promise.resolve()),
-  config: {
+vi.mock('../config', () => {
+  const config = {
     freee: {
       clientId: 'test-client-id',
       clientSecret: 'test-client-secret',
@@ -78,8 +77,13 @@ vi.mock('../config', () => ({
     oauth: {
       callbackPort: 54321,
     },
-  },
-}));
+  };
+  return {
+    loadConfig: vi.fn(() => Promise.resolve()),
+    config,
+    getConfig: vi.fn(() => config),
+  };
+});
 
 // Mock auth server module
 vi.mock('../auth/server', () => ({

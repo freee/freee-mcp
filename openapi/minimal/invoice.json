@@ -155,6 +155,38 @@
         "hasJsonBody": true
       }
     },
+    "/delivery_slips/{id}/cancel": {
+      "put": {
+        "summary": "納品書の取消\n",
+        "description": "指定された納品書を取消状態にします。\n\n取引が紐づいている場合は取引も削除されます。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "納品書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/delivery_slips/{id}/uncancel": {
+      "put": {
+        "summary": "取消された納品書の復元\n",
+        "description": "指定された取消済み納品書を復元します。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "納品書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/invoices": {
       "get": {
         "summary": "請求書一覧の取得\n",
@@ -323,6 +355,411 @@
         "hasJsonBody": true
       }
     },
+    "/invoices/{id}/cancel": {
+      "put": {
+        "summary": "請求書の取消\n",
+        "description": "指定された請求書を取消状態にします。\n\n取引が紐づいている場合は取引も削除されます。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "請求書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/invoices/{id}/uncancel": {
+      "put": {
+        "summary": "取消された請求書の復元\n",
+        "description": "指定された取消済み請求書を復元します。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "請求書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/payment_notices": {
+      "get": {
+        "summary": "支払通知書一覧の取得\n",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "payment_notice_number",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "支払通知書番号"
+          },
+          {
+            "name": "subject",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "件名"
+          },
+          {
+            "name": "partner_ids",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "取引先ID（半角数字のidを半角カンマ区切りスペースなしで指定してください。最大3件まで指定できます。）"
+          },
+          {
+            "name": "sending_status",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "送付ステータス（sent: 送付済み、 unsent: 送付待ち）"
+          },
+          {
+            "name": "cancel_status",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "取消済み（canceled: 該当する、 uncanceled: 該当しない）"
+          },
+          {
+            "name": "start_payment_notice_date",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "支払通知書日付の開始日"
+          },
+          {
+            "name": "end_payment_notice_date",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "支払通知書日付の終了日"
+          },
+          {
+            "name": "start_collects_on",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "支払予定日の開始日"
+          },
+          {
+            "name": "end_collects_on",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "支払予定日の終了日"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得レコードのオフセット (デフォルト: 0)"
+          }
+        ]
+      },
+      "post": {
+        "summary": "支払通知書の作成\n",
+        "description": "支払通知書の作成をします。",
+        "hasJsonBody": true
+      }
+    },
+    "/payment_notices/templates": {
+      "get": {
+        "summary": "使用可能な支払通知書の帳票テンプレート一覧の取得\n",
+        "description": "使用可能な支払通知書の帳票テンプレート一覧を返します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          }
+        ]
+      }
+    },
+    "/payment_notices/{id}": {
+      "get": {
+        "summary": "支払通知書の取得\n",
+        "description": "指定されたIDの支払通知書を返します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "支払通知書ID"
+          }
+        ]
+      },
+      "put": {
+        "summary": "支払通知書の更新\n",
+        "description": "支払通知書の更新をします。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "支払通知書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/payment_notices/{id}/cancel": {
+      "put": {
+        "summary": "支払通知書の取消\n",
+        "description": "指定された支払通知書を取消状態にします。\n\n取引が紐づいている場合は取引も削除されます。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "支払通知書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/payment_notices/{id}/uncancel": {
+      "put": {
+        "summary": "取消された支払通知書の復元\n",
+        "description": "指定された取消済み支払通知書を復元します。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "支払通知書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/purchase_orders": {
+      "get": {
+        "summary": "発注書一覧の取得\n",
+        "description": "発注書の一覧を返します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "purchase_order_number",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "発注書番号"
+          },
+          {
+            "name": "subject",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "件名"
+          },
+          {
+            "name": "partner_ids",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "取引先ID（半角数字のidを半角カンマ区切りスペースなしで指定してください。最大3件まで指定できます。）"
+          },
+          {
+            "name": "deal_status",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "取引ステータス（registered: 登録済み、 unregistered: 登録待ち）"
+          },
+          {
+            "name": "sending_status",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "送付ステータス（sent: 送付済み、 unsent: 送付待ち）"
+          },
+          {
+            "name": "cancel_status",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "取消済み（canceled: 該当する、 uncanceled: 該当しない）"
+          },
+          {
+            "name": "payment_status",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "決済ステータス（unsettled: 決済待ち, settled: 決済済み）"
+          },
+          {
+            "name": "start_purchase_order_date",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "発注日の開始日"
+          },
+          {
+            "name": "end_purchase_order_date",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "発注日の終了日"
+          },
+          {
+            "name": "start_collects_on",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "支払予定日の開始日"
+          },
+          {
+            "name": "end_collects_on",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "支払予定日の終了日"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。"
+          }
+        ]
+      },
+      "post": {
+        "summary": "発注書の作成\n",
+        "description": "発注書の作成をします。\n\nissue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。\n\ntag_idsは10個まで設定可能です。",
+        "hasJsonBody": true
+      }
+    },
+    "/purchase_orders/templates": {
+      "get": {
+        "summary": "使用可能な発注書の帳票テンプレート一覧の取得\n",
+        "description": "使用可能な発注書の帳票テンプレート一覧を返します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          }
+        ]
+      }
+    },
+    "/purchase_orders/{id}": {
+      "get": {
+        "summary": "発注書の取得\n",
+        "description": "指定されたIDの発注書を返します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "発注書ID"
+          }
+        ]
+      },
+      "put": {
+        "summary": "発注書の更新\n",
+        "description": "発注書の更新をします。\n\nissue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。\n\ntag_idsは10個まで設定可能です。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "発注書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/purchase_orders/{id}/cancel": {
+      "put": {
+        "summary": "発注書の取消\n",
+        "description": "指定された発注書を取消状態にします。\n\n取引が紐づいている場合は取引も削除されます。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "発注書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/purchase_orders/{id}/uncancel": {
+      "put": {
+        "summary": "取消された発注書の復元\n",
+        "description": "指定された取消済み発注書を復元します。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "発注書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/quotations": {
       "get": {
         "summary": "見積書一覧の取得\n",
@@ -477,6 +914,38 @@
         "hasJsonBody": true
       }
     },
+    "/quotations/{id}/cancel": {
+      "put": {
+        "summary": "見積書の取消\n",
+        "description": "指定された見積書を取消状態にします。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "見積書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/quotations/{id}/uncancel": {
+      "put": {
+        "summary": "取消された見積書の復元\n",
+        "description": "指定された取消済み見積書を復元します。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "見積書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/receipts": {
       "get": {
         "summary": "領収書一覧の取得\n",
@@ -613,6 +1082,38 @@
       "put": {
         "summary": "領収書の更新\n",
         "description": "領収書の更新をします。\n\nissue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。\n\ntag_idsは10個まで設定可能です。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "領収書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/receipts/{id}/cancel": {
+      "put": {
+        "summary": "領収書の取消\n",
+        "description": "指定された領収書を取消状態にします。\n\n取引が紐づいている場合は取引も削除されます。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "領収書ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/receipts/{id}/uncancel": {
+      "put": {
+        "summary": "取消された領収書の復元\n",
+        "description": "指定された取消済み領収書を復元します。",
         "parameters": [
           {
             "name": "id",

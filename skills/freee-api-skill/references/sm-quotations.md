@@ -13,7 +13,7 @@
 説明: 概要 見積の一覧を取得します。 登録されている見積情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する見積のみを取得することが可能です。
 
 定義
-start_registered_date : 見積登録日(絞り込み開始) end_registered_date : 見積登録日(絞り込み終了) start_last_updated_date : 見積更新日(絞り込み開始) end_last_updated_date : 見積更新日(絞り込み終了) start_quotation_date : 見積日(絞り込み開始) end_quotation_date : 見積日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) business_ids : 案件ID(複数指定可) quotation_status : 見積ステータス billing_status : 請求書送付ステータス canceled : 取消状態(デフォルト:false) `limit`と...
+start_registered_date : 見積登録日(絞り込み開始) end_registered_date : 見積登録日(絞り込み終了) start_last_updated_date : 見積更新日(絞り込み開始) end_last_updated_date : 見積更新日(絞り込み終了) start_quotation_date : 見積日(絞り込み開始) end_quotation_date : 見積日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) business_ids : 案件ID(複数指定可) quotation_no : 見積No. quotation_status : 見積ステータス billing_status : 請求書送付ステータス canceled : 取消状態(...
 
 ### パラメータ
 
@@ -29,6 +29,7 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
 | charge_employee_ids[] | query | いいえ | array[integer] | 社内担当者の従業員ID |
 | customer_ids[] | query | いいえ | array[integer] | 顧客の取引先ID |
 | business_ids[] | query | いいえ | array[string] | 案件ID |
+| quotation_no | query | いいえ | string | 見積No.で絞込 |
 | quotation_status | query | いいえ | string | 見積ステータス (未受注: unanswered, 受注済: order_received, 失注: order_lost) (選択肢: unanswered, order_received, order_lost) |
 | billing_status | query | いいえ | string | 請求書送付ステータス (未請求: not_billed, 一部請求済: partially_billed, 請求済: billed, なし: none) (選択肢: not_billed, partially_billed, billed, none) |
 | canceled | query | いいえ | boolean | 取消状態 |

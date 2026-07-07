@@ -31,15 +31,18 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 | start_unit_price | query | いいえ | integer(int64) | 単価:下限 |
 | end_unit_price | query | いいえ | integer(int64) | 単価:上限 |
 | charge_employee_ids[] | query | いいえ | array[integer] | 社内担当者の従業員ID |
-| reporting_section_ids[] | query | いいえ | array[integer] | 担当部門ID |
+| reporting_section_ids[] | query | いいえ | object | 担当部門ID |
 | supplier_ids[] | query | いいえ | array[integer] | 仕入先の取引先ID |
 | payment_partner_ids[] | query | いいえ | array[integer] | 支払先の取引先ID |
-| accounting_reporting_section_ids[] | query | いいえ | array[integer] | 会計計上部門ID |
+| accounting_reporting_section_ids[] | query | いいえ | object | 会計計上部門ID |
 | item_tag_ids[] | query | いいえ | array[integer] | 会計品目タグID |
 | segment_tag_1_ids[] | query | いいえ | array[integer] | セグメントタグ1 ID |
 | segment_tag_2_ids[] | query | いいえ | array[integer] | セグメントタグ2 ID |
 | segment_tag_3_ids[] | query | いいえ | array[integer] | セグメントタグ3 ID |
 | business_ids[] | query | いいえ | array[string] | 案件ID |
+| cost_budget_no | query | いいえ | string | 原価予算No.で絞込 |
+| start_last_updated_date | query | いいえ | string(date) | 更新日で絞込：開始日(yyyy-mm-dd) |
+| end_last_updated_date | query | いいえ | string(date) | 更新日で絞込：終了日(yyyy-mm-dd) |
 | canceled | query | いいえ | boolean | 取消状態 |
 | limit | query | いいえ | integer(int32) | 取得レコードの件数（デフォルト：20, 最小：1, 最大：100） |
 | offset | query | いいえ | integer(int32) | 取得レコードのオフセット（デフォルト：0） |

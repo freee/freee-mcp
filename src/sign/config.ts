@@ -138,7 +138,7 @@ export async function getSignCredentials(): Promise<{
 
 export const SIGN_CALLBACK_PATH = '/oauth/sign-callback';
 
-export interface SignRemoteServerConfig {
+interface SignRemoteServerConfig {
   port: number;
   issuerUrl: string;
   jwtSecret: string;

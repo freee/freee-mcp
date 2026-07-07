@@ -209,6 +209,15 @@ export async function startHttpServer(options?: {
   const { decodeBasicAuth } = await import('./client-auth-basic.js');
   app.use('/token', decodeBasicAuth({ clientStore, realm: 'freee MCP' }));
   app.use('/revoke', decodeBasicAuth({ clientStore, realm: 'freee MCP' }));
+  // Diagnostic: record the SDK auth router's OAuth error responses
+  // (invalid_grant / invalid_client / invalid_request / ...) so the canonical
+  // log surfaces the real failure reason instead of the `unrecorded` fallback.
+  // Mounted after decodeBasicAuth (whose own rejections are already recorded)
+  // and before mcpAuthRouter so the res.json wrapper is installed first.
+  const { captureOAuthErrorResponse } = await import('./oauth-error-capture.js');
+  for (const oauthPath of ['/token', '/authorize', '/register', '/revoke']) {
+    app.use(oauthPath, captureOAuthErrorResponse());
+  }
   app.use(
     mcpAuthRouter({
       provider,

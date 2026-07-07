@@ -6,7 +6,7 @@ import { PACKAGE_VERSION } from '../constants.js';
  * - `stdio`: CLI mode, invoked over stdin/stdout by an MCP client process
  * - `remote`: HTTP mode, serving `/mcp` behind Express (mcp.freee.co.jp)
  */
-export type TransportMode = 'stdio' | 'remote';
+type TransportMode = 'stdio' | 'remote';
 
 /**
  * Internal mutable state. Node.js is single-threaded, so reading and writing

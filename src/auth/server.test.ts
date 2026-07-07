@@ -149,4 +149,67 @@ describe('AuthenticationManager', () => {
 
     manager.removePendingAuthentication('state-1');
   });
+
+  it('does not log state or code_verifier on registration', () => {
+    const manager = new AuthenticationManager();
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const state = 'sensitive-state-value-abcdef0123456789';
+    const codeVerifier = 'sensitive-code-verifier-value-abcdef0123456789';
+
+    try {
+      manager.registerAuthentication(state, codeVerifier, vi.fn(), vi.fn());
+
+      const joined = errorSpy.mock.calls.map((args) => args.join(' ')).join('\n');
+      expect(joined).not.toContain(state);
+      expect(joined).not.toContain(codeVerifier);
+      expect(joined).not.toContain(state.substring(0, 10));
+      expect(joined).not.toContain(codeVerifier.substring(0, 10));
+    } finally {
+      manager.removePendingAuthentication(state);
+      errorSpy.mockRestore();
+    }
+  });
+});
+
+describe('CallbackServer log redaction', () => {
+  let port: number;
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(async () => {
+    port = await findFreePort();
+    errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await startCallbackServer(port);
+  });
+
+  afterEach(() => {
+    stopCallbackServer();
+    getDefaultAuthManager().clearAllPending();
+    errorSpy.mockRestore();
+  });
+
+  it('does not log the raw callback URL, code, or state on callback receipt', async () => {
+    const code = 'sensitive-authorization-code-abcdef0123456789';
+    const state = 'sensitive-state-value-abcdef0123456789';
+    const url = `http://127.0.0.1:${port}/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+
+    await getRaw(url);
+
+    const joined = errorSpy.mock.calls.map((args) => args.map(String).join(' ')).join('\n');
+    expect(joined).not.toContain(code);
+    expect(joined).not.toContain(state);
+    expect(joined).not.toContain(code.substring(0, 10));
+    expect(joined).not.toContain(state.substring(0, 10));
+    expect(joined).not.toContain(`code=${encodeURIComponent(code)}`);
+  });
+
+  it('does not log the state value when the state is unknown', async () => {
+    const state = 'unknown-state-value-abcdef0123456789';
+    const code = 'arbitrary-code-abcdef0123456789';
+    const url = `http://127.0.0.1:${port}/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+
+    await getRaw(url);
+
+    const joined = errorSpy.mock.calls.map((args) => args.map(String).join(' ')).join('\n');
+    expect(joined).not.toContain(state);
+  });
 });

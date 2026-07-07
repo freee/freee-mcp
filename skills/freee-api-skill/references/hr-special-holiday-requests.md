@@ -67,6 +67,7 @@ successful operation
     - status (必須): string - 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し） (選択肢: draft, in_progress, approved, feedback) 例: `in_progress`
     - revoke_status (必須): string - 取消申請ステータス。（null:取消申請されてない、revoking:取消中、revoked:取消済） (選択肢: revoking, revoked) 例: `null`
     - passed_auto_check (必須): boolean - 自動チェック結果 例: `true`
+    - proxy_applicant_id (任意): integer(int32) - 代理申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
 - total_count (必須): integer(int32) - 合計件数 例: `1` (最小: 0, 最大: 2147483647)
 
 ### POST /api/v1/approval_requests/special_holidays
@@ -122,6 +123,7 @@ successful operation
   - current_step_id (任意): integer(int32) - 現在承認ステップID<br>
 申請を差戻した場合、nullになります。 例: `1` (最小: 1, 最大: 2147483647)
   - current_round (必須): integer(int32) - 現在のround。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。 例: `1` (最小: 0, 最大: 2147483647)
+  - proxy_applicant_id (任意): integer(int32) - 代理申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
 
 ### GET /api/v1/approval_requests/special_holidays/{id}
 
@@ -169,6 +171,7 @@ successful operation
   - current_step_id (任意): integer(int32) - 現在承認ステップID<br>
 申請を差戻した場合、nullになります。 例: `1` (最小: 1, 最大: 2147483647)
   - current_round (必須): integer(int32) - 現在のround。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。 例: `1` (最小: 0, 最大: 2147483647)
+  - proxy_applicant_id (任意): integer(int32) - 代理申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
 
 ### PUT /api/v1/approval_requests/special_holidays/{id}
 
@@ -229,6 +232,7 @@ successful operation
   - current_step_id (任意): integer(int32) - 現在承認ステップID<br>
 申請を差戻した場合、nullになります。 例: `1` (最小: 1, 最大: 2147483647)
   - current_round (必須): integer(int32) - 現在のround。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。 例: `1` (最小: 0, 最大: 2147483647)
+  - proxy_applicant_id (任意): integer(int32) - 代理申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
 
 ### DELETE /api/v1/approval_requests/special_holidays/{id}
 
@@ -303,6 +307,7 @@ successful operation
   - current_step_id (任意): integer(int32) - 現在承認ステップID<br>
 申請を差戻した場合、nullになります。 例: `1` (最小: 1, 最大: 2147483647)
   - current_round (必須): integer(int32) - 現在のround。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。 例: `1` (最小: 0, 最大: 2147483647)
+  - proxy_applicant_id (任意): integer(int32) - 代理申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
 
 
 

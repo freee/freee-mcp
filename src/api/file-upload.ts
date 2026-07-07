@@ -3,6 +3,7 @@ import path from 'node:path';
 import { getValidAccessToken } from '../auth/tokens.js';
 import { getCurrentCompanyId } from '../config/companies.js';
 import { getConfig } from '../config.js';
+import { FETCH_TIMEOUT_FILE_UPLOAD_MS } from '../constants.js';
 import { serializeErrorChain } from '../server/error-serializer.js';
 import type { ApiCallErrorType } from '../server/request-context.js';
 import { getCurrentRecorder } from '../server/request-context.js';
@@ -12,7 +13,7 @@ import { formatApiErrorMessage, formatResponseErrorInfo } from '../utils/error.j
 
 const MAX_FILE_SIZE_BYTES = 64 * 1024 * 1024; // 64MB
 
-export interface UploadReceiptOptions {
+interface UploadReceiptOptions {
   description?: string;
   receipt_metadatum_partner_name?: string;
   receipt_metadatum_issue_date?: string;
@@ -160,6 +161,7 @@ export async function uploadReceipt(
       method: 'POST',
       headers,
       body: formData,
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_FILE_UPLOAD_MS),
     });
   } catch (fetchError) {
     const errorType: ApiCallErrorType =

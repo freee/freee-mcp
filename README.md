@@ -151,16 +151,30 @@ Claude Code のプロンプト内からも実行できます:
 /plugin install freee-mcp@freee-mcp-marketplace
 ```
 
+## Codex Plugin として使う
+
+OpenAI Codex のプラグインマーケットプレース（[公式ドキュメント](https://developers.openai.com/codex/plugins)）にも対応しており、MCP サーバーと Agent Skills（API リファレンス・操作レシピ）をまとめて利用できます。
+
+Codex CLI からマーケットプレースを追加します:
+
+```bash
+codex plugin marketplace add freee/freee-mcp
+```
+
+その後 Codex を起動し、`/plugins` スラッシュコマンドでプラグイン一覧を開き、`freee-mcp` を選択して `Install plugin` を実行してください。
+
+プラグイン定義は `.codex-plugin/plugin.json`、マーケットプレースカタログは `.agents/plugins/marketplace.json` にあります。
+
 ## Agent Skills の内容
 
 | API      | 内容                                             | ファイル数 |
 | -------- | ------------------------------------------------ | ---------- |
 | 会計     | 取引、勘定科目、取引先、請求書、経費申請など     | 32         |
 | 人事労務 | 従業員、勤怠、給与明細、年末調整など             | 28         |
-| 請求書   | 請求書、見積書、納品書                           | 4          |
+| 請求書   | 請求書、見積書、納品書                           | 6          |
 | 工数管理 | プロジェクト、チーム、パートナー、工数、ユーザーなど | 7          |
-| 販売     | 案件、受注、マスタ                               | 8          |
-| IT管理   | メンバー、SaaSアカウント、備品                   | 3          |
+| 販売     | 案件、受注、マスタ                               | 10          |
+| IT管理   | メンバー、SaaSアカウント、備品                   | 4          |
 | サイン   | 文書、フォルダ、テンプレート、マイ印鑑など       | 8          |
 
 AI Agent との会話中に freee API の操作を依頼すると、これらのリファレンスやレシピを参照して正確に実行します。
@@ -293,6 +307,8 @@ npx --package=freee-mcp -- freee-sign-mcp configure
 <a href="https://github.com/sakura20260508"><img src="https://github.com/sakura20260508.png" width="40" height="40" alt="@sakura20260508"></a>
 <a href="https://github.com/bxg06523-cell"><img src="https://github.com/bxg06523-cell.png" width="40" height="40" alt="@bxg06523-cell"></a>
 <a href="https://github.com/ryoya1122"><img src="https://github.com/ryoya1122.png" width="40" height="40" alt="@ryoya1122"></a>
+<a href="https://github.com/Kanahiro"><img src="https://github.com/Kanahiro.png" width="40" height="40" alt="@Kanahiro"></a>
+<a href="https://github.com/kagemeka"><img src="https://github.com/kagemeka.png" width="40" height="40" alt="@kagemeka"></a>
 <!-- CONTRIBUTORS-END -->
 
 ## 開発者向け

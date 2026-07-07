@@ -521,6 +521,60 @@ The request has succeeded.
   - lines (必須): array[object] - 納品書の明細行
   - report_url (必須): string(uri) - 帳票詳細ページのURL
 
+### PUT /delivery_slips/{id}/cancel
+
+操作: 納品書の取消
+
+
+説明: 指定された納品書を取消状態にします。 取引が紐づいている場合は取引も削除されます。
+
+### パラメータ
+
+| 名前 | 位置 | 必須 | 型 | 説明 |
+|------|------|------|-----|------|
+| id | path | はい | integer | 納品書ID |
+
+### リクエストボディ
+
+(必須)
+
+- company_id (必須): integer(int64) - 事業所ID (最小: 1, 最大: 9223372036854775000)
+
+### レスポンス (200)
+
+The request has succeeded.
+
+- delivery_slip (必須): object
+  - id (必須): integer(int64) - 納品書ID (最小: 1, 最大: 9223372036854775000)
+  - cancel_status (必須): string - 取消状態（canceled: 取消済み、uncanceled: 取消されていない） (選択肢: canceled, uncanceled)
+
+### PUT /delivery_slips/{id}/uncancel
+
+操作: 取消された納品書の復元
+
+
+説明: 指定された取消済み納品書を復元します。
+
+### パラメータ
+
+| 名前 | 位置 | 必須 | 型 | 説明 |
+|------|------|------|-----|------|
+| id | path | はい | integer | 納品書ID |
+
+### リクエストボディ
+
+(必須)
+
+- company_id (必須): integer(int64) - 事業所ID (最小: 1, 最大: 9223372036854775000)
+
+### レスポンス (200)
+
+The request has succeeded.
+
+- delivery_slip (必須): object
+  - id (必須): integer(int64) - 納品書ID (最小: 1, 最大: 9223372036854775000)
+  - cancel_status (必須): string - 取消状態（canceled: 取消済み、uncanceled: 取消されていない） (選択肢: canceled, uncanceled)
+
 
 
 ## 参考情報

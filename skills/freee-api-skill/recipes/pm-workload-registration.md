@@ -64,6 +64,7 @@ freee_api_get {
 
 レスポンスの `companies[].employee_id` が HR の employee_id です。
 `payroll_employee_id` が null の場合はこちらを使ってください。
+こちらも null の場合は HR 未利用のユーザーなので、 step 2 をスキップして step 3 に進みます。
 
 self_only 権限の詳細は `recipes/hr-attendance-operations.md` の「self_only 権限について」を参照してください。
 

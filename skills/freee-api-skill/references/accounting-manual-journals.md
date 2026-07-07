@@ -51,7 +51,7 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
     - company_id (必須): integer(int64) - 事業所ID 例: `1` (最小: 1)
     - issue_date (必須): string - 発生日 (yyyy-mm-dd) 例: `2019-12-17`
     - adjustment (必須): boolean - 決算整理仕訳フラグ（falseまたは未指定の場合: 日常仕訳） 例: `false`
-    - txn_number (必須): string - 仕訳番号 例: `2CX05`
+    - txn_number (任意): string - 仕訳番号 例: `2CX05`
     - details (必須): array[object] - 貸借行一覧（配列）: 貸借合わせて100行まで登録できます。
     - receipt_ids (任意): array[integer] - ファイルボックス（証憑ファイル）ID 例: `[1,2,3]`
 
@@ -103,7 +103,7 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
   - company_id (必須): integer(int64) - 事業所ID 例: `1` (最小: 1)
   - issue_date (必須): string - 発生日 (yyyy-mm-dd) 例: `2019-12-17`
   - adjustment (必須): boolean - 決算整理仕訳フラグ（falseまたは未指定の場合: 日常仕訳） 例: `false`
-  - txn_number (必須): string - 仕訳番号 例: `2CX05`
+  - txn_number (任意): string - 仕訳番号 例: `2CX05`
   - details (必須): array[object] - 貸借行一覧（配列）: 貸借合わせて100行まで登録できます。
   - receipt_ids (任意): array[integer] - ファイルボックス（証憑ファイル）ID 例: `[1,2,3]`
 
@@ -133,7 +133,7 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
   - company_id (必須): integer(int64) - 事業所ID 例: `1` (最小: 1)
   - issue_date (必須): string - 発生日 (yyyy-mm-dd) 例: `2019-12-17`
   - adjustment (必須): boolean - 決算整理仕訳フラグ（falseまたは未指定の場合: 日常仕訳） 例: `false`
-  - txn_number (必須): string - 仕訳番号 例: `2CX05`
+  - txn_number (任意): string - 仕訳番号 例: `2CX05`
   - details (必須): array[object] - 貸借行一覧（配列）: 貸借合わせて100行まで登録できます。
   - receipt_ids (任意): array[integer] - ファイルボックス（証憑ファイル）ID 例: `[1,2,3]`
 
@@ -165,17 +165,23 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
     - id (任意): integer(int64) - 貸借行ID: 既存貸借行を更新または削除する場合に指定します。IDを指定しない貸借行は、新規行として扱われ追加されます。 例: `1` (最小: 1)
     - entry_side (必須): string - 貸借（貸方: credit, 借方: debit） (選択肢: debit, credit) 例: `debit`
     - tax_code (必須): integer(int64) - 税区分コード 例: `1` (最小: 0, 最大: 2147483647)
-    - account_item_id (必須): integer(int64) - 勘定科目ID 例: `1` (最小: 1)
+    - account_item_id (任意): integer(int64) - 勘定科目ID 例: `1` (最小: 1)
+    - account_item_code (任意): string - 勘定科目コード 例: `code001`
     - amount (必須): integer(int64) - 取引金額（税込で指定してください） 例: `10800` (最小: 1, 最大: 9223372036854776000)
     - vat (任意): integer(int64) - 消費税額（指定しない場合は自動で計算されます） 例: `800`
     - partner_id (任意): integer(int64) - 取引先ID 例: `1` (最小: 1)
     - partner_code (任意): string - 取引先コード 例: `code001`
     - item_id (任意): integer(int64) - 品目ID 例: `1` (最小: 1)
+    - item_code (任意): string - 品目コード 例: `code001`
     - section_id (任意): integer(int64) - 部門ID 例: `1` (最小: 1)
+    - section_code (任意): string - 部門コード 例: `code001`
     - tag_ids (任意): array[integer] - メモタグID
     - segment_1_tag_id (任意): integer(int64) - セグメント１タグID 例: `1` (最小: 1)
     - segment_2_tag_id (任意): integer(int64) - セグメント２タグID 例: `1` (最小: 1)
     - segment_3_tag_id (任意): integer(int64) - セグメント３タグID 例: `1` (最小: 1)
+    - segment_1_tag_code (任意): string - セグメント１タグコード 例: `code001`
+    - segment_2_tag_code (任意): string - セグメント２タグコード 例: `code001`
+    - segment_3_tag_code (任意): string - セグメント３タグコード 例: `code001`
     - description (任意): string - 備考 例: `備考`
 - receipt_ids (任意): array[integer] - ファイルボックス（証憑ファイル）ID（配列）
 
@@ -186,7 +192,7 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
   - company_id (必須): integer(int64) - 事業所ID 例: `1` (最小: 1)
   - issue_date (必須): string - 発生日 (yyyy-mm-dd) 例: `2019-12-17`
   - adjustment (必須): boolean - 決算整理仕訳フラグ（falseまたは未指定の場合: 日常仕訳） 例: `false`
-  - txn_number (必須): string - 仕訳番号 例: `2CX05`
+  - txn_number (任意): string - 仕訳番号 例: `2CX05`
   - details (必須): array[object] - 貸借行一覧（配列）: 貸借合わせて100行まで登録できます。
   - receipt_ids (任意): array[integer] - ファイルボックス（証憑ファイル）ID 例: `[1,2,3]`
 

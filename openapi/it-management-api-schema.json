@@ -6,25 +6,31 @@
     "license": {
       "name": "© Since 2013 freee K.K."
     },
-    "description": "<h2 id=\"start_guide\">スタートガイド</h2>\n<p>freee API開発がはじめての方は<a href=\"https://developer.freee.co.jp/getting-started\">freee APIスタートガイド</a>を参照してください。</p>\n<hr />\n<h2 id=\"specification\">仕様</h2>\n<h3 id=\"api_endpoint\">APIエンドポイント</h3>\n<p>https://api.freee.co.jp/hub/</p>\n<h3 id=\"about_authorize\">認証について</h3>\n<p>OAuth2.0を利用します。詳細は<a href=\"https://developer.freee.co.jp/reference/#%e8%aa%8d%e8%a8%bc\" target=\"_blank\">リファレンスの認証に関する記載</a>を参照してください。</p>\n<h3 id=\"data_format\">データフォーマット</h3>\n<p>リクエスト、レスポンスともにJSON形式をサポートしていますが、詳細は、API毎の説明欄（application/jsonなど）を確認してください。</p>\n<h3 id=\"compatibility\">後方互換性ありの変更</h3>\n<p>freeeでは、APIを改善していくために以下のような変更は後方互換性ありとして通知なく変更を入れることがあります。アプリケーション実装者は以下を踏まえて開発を行ってください。</p>\n<ul>\n<li>新しいAPIリソース・エンドポイントの追加</li>\n<li>既存のAPIに対して必須ではない新しいリクエストパラメータの追加</li>\n<li>既存のAPIレスポンスに対する新しいプロパティの追加</li>\n<li>既存のAPIレスポンスに対するプロパティの順番の入れ変え</li>\n<li>keyとなっているidやcodeの長さの変更（長くする）</li>\n<li>エラーメッセージの変更</li>\n</ul>\n<h3 id=\"common_response_header\">共通レスポンスヘッダー</h3>\n<p>すべてのAPIのレスポンスには以下のHTTPヘッダーが含まれます。</p>\n<ul>\n<li>\n<p>Freee-Request-Id</p>\n<ul>\n<li>各リクエスト毎に発行されるID</li>\n</ul>\n</li>\n</ul>\n<h3 id=\"common_error_response\">共通エラーレスポンス</h3>\n<p>APIリクエストでエラーが発生した場合は、エラー原因に応じたステータスコードおよびメッセージを返します。</p>\n<table border=\"1\">\n<tbody>\n<tr>\n<th style=\"padding: 10px\"><strong>ステータスコード</strong></th>\n<th style=\"padding: 10px\"><strong>原因</strong></th>\n</tr>\n<tr><td style=\"padding: 10px\">400</td><td style=\"padding: 10px\">リクエストパラメータが不正</td></tr>\n<tr><td style=\"padding: 10px\">401</td><td style=\"padding: 10px\">アクセストークンが無効</td></tr>\n<tr><td style=\"padding: 10px\">403</td><td style=\"padding: 10px\">アクセス権限がない</td></tr>\n<tr><td style=\"padding: 10px\">404</td><td style=\"padding: 10px\">リソースが存在しない</td></tr>\n<tr><td style=\"padding: 10px\">429</td><td style=\"padding: 10px\">リクエスト回数制限を超えた</td></tr>\n<tr><td style=\"padding: 10px\">500</td><td style=\"padding: 10px\">システム内で予期しないエラーが発生</td></tr>\n</tbody>\n</table>\n<p>エラーレスポンスは以下の形式で返されます。</p>\n<pre><code>{\n&nbsp;&nbsp;\"code\": \"AHB-3003-0002\",\n&nbsp;&nbsp;\"message\": \"リクエストの形式が正しくありません。\",\n&nbsp;&nbsp;\"fields\": [\n&nbsp;&nbsp;&nbsp;&nbsp;{\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"name\": \"company_id\",\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"message\": \"事業所IDは必須です。\"\n&nbsp;&nbsp;&nbsp;&nbsp;}\n&nbsp;&nbsp;]\n}</code></pre>\n<h3 id=\"api_rate_limit\">API使用制限</h3>\n<p>APIリクエストは1分あたり60回、1時間あたり1500回、1日あたり3000回を上限としています。<br>\nAPI使用ステータスはRFC準拠のレスポンスヘッダに付与されます。各ヘッダの意味は次のとおりです。</p>\n<table>\n<thead>\n<tr>\n<th>ヘッダ名</th>\n<th>説明</th>\n<th>例</th>\n</tr>\n</thead>\n<tbody>\n<tr><td>RateLimit-Policy</td><td>ポリシー情報（上限と期間）</td><td><code>\"base_rate_limit_minute\";q=60;w=60</code></td></tr>\n<tr><td>RateLimit</td><td>残り回数とリセットまでの秒数</td><td><code>\"base_rate_limit_minute\";r=59;t=45</code></td></tr>\n</tbody>\n</table>\n<p>この上限を超えた場合APIアクセスは制限され、http status codeは429となります。</p>\n<p>また、上記に加えfreeeは一定期間に過度のアクセスを検知した場合、APIアクセスをコントロールする場合があります。<br>\nその際のhttp status codeは403となります。制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>",
+    "description": "<h2 id=\"start_guide\">スタートガイド</h2>\n<p>freee API開発がはじめての方は<a href=\"https://developer.freee.co.jp/getting-started\">freee APIスタートガイド</a>を参照してください。</p>\n<hr />\n<h2 id=\"specification\">仕様</h2>\n<h3 id=\"api_endpoint\">APIエンドポイント</h3>\n<p>https://api.freee.co.jp/hub/</p>\n<h3 id=\"about_authorize\">認証について</h3>\n<p>OAuth2.0を利用します。詳細は<a href=\"https://developer.freee.co.jp/reference/#%e8%aa%8d%e8%a8%bc\" target=\"_blank\">リファレンスの認証に関する記載</a>を参照してください。</p>\n<h3 id=\"data_format\">データフォーマット</h3>\n<p>リクエスト、レスポンスともにJSON形式をサポートしていますが、詳細は、API毎の説明欄（application/jsonなど）を確認してください。</p>\n<h3 id=\"compatibility\">後方互換性ありの変更</h3>\n<p>freeeでは、APIを改善していくために以下のような変更は後方互換性ありとして通知なく変更を入れることがあります。アプリケーション実装者は以下を踏まえて開発を行ってください。</p>\n<ul>\n<li>新しいAPIリソース・エンドポイントの追加</li>\n<li>既存のAPIに対して必須ではない新しいリクエストパラメータの追加</li>\n<li>既存のAPIレスポンスに対する新しいプロパティの追加</li>\n<li>既存のAPIレスポンスに対するプロパティの順番の入れ変え</li>\n<li>keyとなっているidやcodeの長さの変更（長くする）</li>\n<li>エラーメッセージの変更</li>\n</ul>\n<h3 id=\"common_response_header\">共通レスポンスヘッダー</h3>\n<p>すべてのAPIのレスポンスには以下のHTTPヘッダーが含まれます。</p>\n<ul>\n<li>\n<p>Freee-Request-Id</p>\n<ul>\n<li>各リクエスト毎に発行されるID</li>\n</ul>\n</li>\n</ul>\n<h3 id=\"common_error_response\">共通エラーレスポンス</h3>\n<p>APIリクエストでエラーが発生した場合は、エラー原因に応じたステータスコードおよびメッセージを返します。</p>\n<table border=\"1\">\n<tbody>\n<tr>\n<th style=\"padding: 10px\"><strong>ステータスコード</strong></th>\n<th style=\"padding: 10px\"><strong>原因</strong></th>\n</tr>\n<tr><td style=\"padding: 10px\">400</td><td style=\"padding: 10px\">リクエストパラメータが不正</td></tr>\n<tr><td style=\"padding: 10px\">401</td><td style=\"padding: 10px\">アクセストークンが無効</td></tr>\n<tr><td style=\"padding: 10px\">403</td><td style=\"padding: 10px\">アクセス権限がない</td></tr>\n<tr><td style=\"padding: 10px\">404</td><td style=\"padding: 10px\">リソースが存在しない</td></tr>\n<tr><td style=\"padding: 10px\">429</td><td style=\"padding: 10px\">リクエスト回数制限を超えた</td></tr>\n<tr><td style=\"padding: 10px\">500</td><td style=\"padding: 10px\">システム内で予期しないエラーが発生</td></tr>\n</tbody>\n</table>\n<p>エラーレスポンスは以下の形式で返されます。</p>\n<pre><code>{\n&nbsp;&nbsp;\"code\": \"AHB-3003-0002\",\n&nbsp;&nbsp;\"message\": \"リクエストの形式が正しくありません。\",\n&nbsp;&nbsp;\"fields\": [\n&nbsp;&nbsp;&nbsp;&nbsp;{\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"name\": \"company_id\",\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"message\": \"事業所IDは必須です。\"\n&nbsp;&nbsp;&nbsp;&nbsp;}\n&nbsp;&nbsp;]\n}</code></pre>\n<h3 id=\"api_rate_limit\">API使用制限</h3>\n<p>APIリクエストは1分あたり60回、1時間あたり1500回、1日あたり3000回を上限としています。<br>\nAPI使用ステータスはRFC準拠のレスポンスヘッダに付与されます。各ヘッダの意味は次のとおりです。</p>\n<table>\n<thead>\n<tr>\n<th>ヘッダ名</th>\n<th>説明</th>\n<th>例</th>\n</tr>\n</thead>\n<tbody>\n<tr><td>RateLimit-Policy</td><td>ポリシー情報（上限と期間）</td><td><code>\"base_rate_limit_minute\";q=60;w=60</code></td></tr>\n<tr><td>RateLimit</td><td>残り回数とリセットまでの秒数</td><td><code>\"base_rate_limit_minute\";r=59;t=45</code></td></tr>\n</tbody>\n</table>\n<p>この上限を超えた場合APIアクセスは制限され、http status codeは429となります。</p>\n<p>また、上記に加えfreeeは一定期間に過度のアクセスを検知した場合、APIアクセスをコントロールする場合があります。<br>\nその際のhttp status codeは403となります。制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>\n<h3 id=\"open_beta\">オープンベータ版のご利用について</h3> <p>本リファレンスには、現在オープンベータ版として提供されているAPIエンドポイントが含まれています。これらのエンドポイントには、タイトルや説明に「（β版）」の表記があります。</p> <p>オープンベータ版APIのご利用にあたっては、通常の一般公開APIとは異なり、事前の予告なく後方互換性のない変更などが起こりえます。詳しい制約および免責事項は <a href=\"https://developer.freee.co.jp/reference/open-beta\">オープンベータ版の仕様</a> をご覧ください。</p> <h4>現状の方針</h4> <p>日常業務で利用される操作のAPIを順次追加し、対応完了後に正式リリースする予定です。</p>",
     "version": "0.0.0"
   },
   "tags": [
     {
-      "name": "it_management_application_account"
+      "name": "it_management_application_accounts",
+      "description": "application_accounts",
+      "x-displayName": "アカウント"
     },
     {
-      "name": "it_management_assets"
+      "name": "it_management_assets",
+      "description": "assets",
+      "x-displayName": "備品"
     },
     {
-      "name": "it_management_members"
+      "name": "it_management_members",
+      "description": "members",
+      "x-displayName": "メンバー"
     }
   ],
   "paths": {
     "/hub/it_management/application_accounts": {
       "get": {
         "operationId": "list_it_management_application_accounts",
-        "summary": "アカウント一覧取得",
+        "summary": "アカウント一覧取得（β版）",
         "description": "アカウントの一覧をカーソルページネーションで取得します。",
         "parameters": [
           {
@@ -47,6 +53,9 @@
           },
           {
             "$ref": "#/components/parameters/ItManagement.ApplicationAccounts.ListRequest.status_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ApplicationAccounts.ListRequest.member_id"
           }
         ],
         "responses": {
@@ -82,12 +91,12 @@
           }
         },
         "tags": [
-          "it_management_application_account"
+          "it_management_application_accounts"
         ]
       },
       "post": {
         "operationId": "create_it_management_application_account",
-        "summary": "アカウント作成",
+        "summary": "アカウント作成（β版）",
         "description": "アカウントを作成します。",
         "parameters": [
           {
@@ -107,7 +116,7 @@
           }
         },
         "tags": [
-          "it_management_application_account"
+          "it_management_application_accounts"
         ],
         "requestBody": {
           "required": true,
@@ -173,7 +182,7 @@
     "/hub/it_management/application_accounts/{id}": {
       "get": {
         "operationId": "get_it_management_application_account",
-        "summary": "アカウント詳細取得",
+        "summary": "アカウント詳細取得（β版）",
         "description": "アカウントの詳細を取得します。",
         "parameters": [
           {
@@ -199,12 +208,12 @@
           }
         },
         "tags": [
-          "it_management_application_account"
+          "it_management_application_accounts"
         ]
       },
       "patch": {
         "operationId": "partial_update_it_management_application_account",
-        "summary": "アカウント部分更新",
+        "summary": "アカウント部分更新（β版）",
         "description": "アカウントを部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメータのみが更新されます。",
         "parameters": [
           {
@@ -227,7 +236,7 @@
           }
         },
         "tags": [
-          "it_management_application_account"
+          "it_management_application_accounts"
         ],
         "requestBody": {
           "required": true,
@@ -298,7 +307,7 @@
       },
       "delete": {
         "operationId": "delete_it_management_application_account",
-        "summary": "アカウント削除",
+        "summary": "アカウント削除（β版）",
         "description": "アカウントを削除します（ソフトデリート）。",
         "parameters": [
           {
@@ -317,14 +326,14 @@
           }
         },
         "tags": [
-          "it_management_application_account"
+          "it_management_application_accounts"
         ]
       }
     },
     "/hub/it_management/assets": {
       "get": {
         "operationId": "list_it_management_assets",
-        "summary": "備品一覧取得",
+        "summary": "備品一覧取得（β版）",
         "description": "備品の一覧をカーソルページネーションで取得します。",
         "parameters": [
           {
@@ -347,6 +356,9 @@
           },
           {
             "$ref": "#/components/parameters/ItManagement.Assets.ListRequest.asset_category_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Assets.ListRequest.member_id"
           }
         ],
         "responses": {
@@ -387,7 +399,7 @@
       },
       "post": {
         "operationId": "create_it_management_asset",
-        "summary": "備品作成",
+        "summary": "備品作成（β版）",
         "description": "備品を作成します。",
         "parameters": [
           {
@@ -479,7 +491,7 @@
     "/hub/it_management/assets/{id}": {
       "get": {
         "operationId": "get_it_management_asset",
-        "summary": "備品詳細取得",
+        "summary": "備品詳細取得（β版）",
         "description": "備品の詳細を取得します。",
         "parameters": [
           {
@@ -510,7 +522,7 @@
       },
       "patch": {
         "operationId": "partial_update_it_management_asset",
-        "summary": "備品部分更新",
+        "summary": "備品部分更新（β版）",
         "description": "備品を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメータのみが更新されます。",
         "parameters": [
           {
@@ -597,7 +609,7 @@
       },
       "delete": {
         "operationId": "delete_it_management_asset",
-        "summary": "備品削除",
+        "summary": "備品削除（β版）",
         "description": "備品を削除します。",
         "parameters": [
           {
@@ -623,7 +635,7 @@
     "/hub/it_management/members": {
       "get": {
         "operationId": "list_it_management_members",
-        "summary": "メンバー一覧取得",
+        "summary": "メンバー一覧取得（β版）",
         "description": "メンバーの一覧をカーソルページネーションで取得します。",
         "parameters": [
           {
@@ -646,6 +658,21 @@
           },
           {
             "$ref": "#/components/parameters/ItManagement.Members.ListRequest.department_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Members.ListRequest.employment_type_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Members.ListRequest.entered_since"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Members.ListRequest.entered_until"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Members.ListRequest.resigned_since"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Members.ListRequest.resigned_until"
           }
         ],
         "responses": {
@@ -686,7 +713,7 @@
       },
       "post": {
         "operationId": "create_it_management_member",
-        "summary": "メンバー作成",
+        "summary": "メンバー作成（β版）",
         "description": "メンバーを作成します。",
         "parameters": [
           {
@@ -826,7 +853,7 @@
     "/hub/it_management/members/{id}": {
       "get": {
         "operationId": "get_it_management_member",
-        "summary": "メンバー詳細取得",
+        "summary": "メンバー詳細取得（β版）",
         "description": "メンバーの詳細を取得します。",
         "parameters": [
           {
@@ -857,7 +884,7 @@
       },
       "patch": {
         "operationId": "partial_update_it_management_member",
-        "summary": "メンバー部分更新",
+        "summary": "メンバー部分更新（β版）",
         "description": "メンバーを部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメータのみが更新されます。",
         "parameters": [
           {
@@ -993,7 +1020,7 @@
       },
       "delete": {
         "operationId": "delete_it_management_member",
-        "summary": "メンバー削除",
+        "summary": "メンバー削除（β版）",
         "description": "メンバーを削除します（ソフトデリート）。",
         "parameters": [
           {
@@ -1099,6 +1126,17 @@
         "in": "query",
         "required": false,
         "description": "ステータスIDでフィルタ",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "explode": false
+      },
+      "ItManagement.ApplicationAccounts.ListRequest.member_id": {
+        "name": "member_id",
+        "in": "query",
+        "required": false,
+        "description": "アカウントホルダーのメンバーIDでフィルタ",
         "schema": {
           "type": "string",
           "format": "uuid"
@@ -1223,6 +1261,17 @@
         },
         "explode": false
       },
+      "ItManagement.Assets.ListRequest.member_id": {
+        "name": "member_id",
+        "in": "query",
+        "required": false,
+        "description": "利用者のメンバーIDでフィルタ",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "explode": false
+      },
       "ItManagement.Assets.GetRequest.company_id": {
         "name": "company_id",
         "in": "query",
@@ -1337,6 +1386,61 @@
         "schema": {
           "type": "string",
           "format": "uuid"
+        },
+        "explode": false
+      },
+      "ItManagement.Members.ListRequest.employment_type_id": {
+        "name": "employment_type_id",
+        "in": "query",
+        "required": false,
+        "description": "雇用形態IDでフィルタ",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "explode": false
+      },
+      "ItManagement.Members.ListRequest.entered_since": {
+        "name": "entered_since",
+        "in": "query",
+        "required": false,
+        "description": "入社日の範囲検索の開始日(yyyy-mm-dd、指定日を含む以降)",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "ItManagement.Members.ListRequest.entered_until": {
+        "name": "entered_until",
+        "in": "query",
+        "required": false,
+        "description": "入社日の範囲検索の終了日(yyyy-mm-dd、指定日を含む以前)",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "ItManagement.Members.ListRequest.resigned_since": {
+        "name": "resigned_since",
+        "in": "query",
+        "required": false,
+        "description": "退職日の範囲検索の開始日(yyyy-mm-dd、指定日を含む以降)",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "ItManagement.Members.ListRequest.resigned_until": {
+        "name": "resigned_until",
+        "in": "query",
+        "required": false,
+        "description": "退職日の範囲検索の終了日(yyyy-mm-dd、指定日を含む以前)",
+        "schema": {
+          "type": "string",
+          "format": "date"
         },
         "explode": false
       },

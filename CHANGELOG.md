@@ -1,5 +1,77 @@
 # freee-mcp
 
+## 0.30.3
+
+### Patch Changes
+
+- [`edd0ee7`](https://github.com/freee/freee-mcp/commit/edd0ee7462c7b61bb063713085e51e04f87077ba): OpenAPI スキーマを最新版に同期 ( 7 files changed, 5737 insertions(+), 3149 deletions(-)) ([#205](https://github.com/freee/freee-mcp/pull/205))
+
+## 0.30.2
+
+### Patch Changes
+
+- [`fa60c7c`](https://github.com/freee/freee-mcp/commit/fa60c7cafe01ccec0044597aa851e4c04f2dc638): `freee_file_upload` の fetch に AbortSignal タイムアウト（120 秒）を設定し、上流 API が応答しないケースで abort されるように修正 ([#198](https://github.com/freee/freee-mcp/pull/198))
+- [`da2d7f8`](https://github.com/freee/freee-mcp/commit/da2d7f8502223c9e4ec4a76151752fae59ec9a46): MCP server instructions の対応 API 列挙から漏れていた IT 管理 API を追加 ([#196](https://github.com/freee/freee-mcp/pull/196))
+- [`ddcf382`](https://github.com/freee/freee-mcp/commit/ddcf38241a5e3b5792d5bfc213cecfe6a0d8db40): 請求書 API（freee 請求書）の帳票（請求書・見積書・納品書・領収書・発注書）の取消・復元エンドポイントに対応 ([#192](https://github.com/freee/freee-mcp/pull/192))
+
+  - `skills/freee-api-skill/recipes/invoice-operations.md` に取消(cancel)・復元(uncancel)のパスと使用例を追記
+  - 公開スキーマ最新化に伴い各帳票のリファレンスを再生成
+  - README の請求書の対応帳票に領収書・発注書が反映されていなかったため修正
+
+- [`6366230`](https://github.com/freee/freee-mcp/commit/6366230435342b72d08b14921d83316b717d5456): OAuth callback サーバーのログから `code` / `state` / `code_verifier` を redact。callback リクエストの URL や parsed URL、登録時の state/code_verifier prefix、unknown state 時の state 値などを presence のみのログに置き換え、OAuth artifact が stderr / MCP client log に残らないようにした。 ([#197](https://github.com/freee/freee-mcp/pull/197))
+- [`80d3e70`](https://github.com/freee/freee-mcp/commit/80d3e70e33ed93d3152dbae9ffe5d81f05a28749): OpenAPI スキーマを最新版に同期 ( 3 files changed, 1518 insertions(+), 80 deletions(-)) ([#193](https://github.com/freee/freee-mcp/pull/193))
+
+## 0.30.1
+
+### Patch Changes
+
+- [`bb1d6c2`](https://github.com/freee/freee-mcp/commit/bb1d6c21cd7e8c1ead74dd761ecb3d4ff0841bd6): 販売(sm)管理レシピを最新化 ([#186](https://github.com/freee/freee-mcp/pull/186))
+
+  - GET を含む全リクエストで company_id が必須であることと、指定場所（GET=query / POST・PATCH=body）を明記
+  - 見積・納品・売上・原価予算・その他原価などのパスと、ドメイン用語（案件=businesses 等）の対応を追記
+  - 受注作成サンプルを実際に通る形へ修正し、明細(lines)や請求作成方法・入金方法の enum 値を記載
+  - 取消/ロック/復元の違い、ULID 形式の ID、ページネーションの Tips を追加
+
+- [`d8f0a06`](https://github.com/freee/freee-mcp/commit/d8f0a0683ddedb744e041d5a88968df4bdc2c5ba): OpenAPI スキーマを最新版に同期 ( 2 files changed, 7 insertions(+), 6 deletions(-)) ([#187](https://github.com/freee/freee-mcp/pull/187))
+- [`9d9ca5b`](https://github.com/freee/freee-mcp/commit/9d9ca5ba3a04cf4b7c388369dd8522c0c9a63917): 工数管理スキルのレシピとワークフローガイドを改善 ([#185](https://github.com/freee/freee-mcp/pull/185))
+
+  - pm-operations: `/projects/{id}` を GET のみに修正（PUT/DELETE/PATCH は非対応）、`/workloads/{id}` に PATCH/DELETE を追加
+  - pm-operations: 使用例セクションにリファレンス確認を促す注意書きを追加
+  - pm-workload-registration: `payroll_employee_id`・`employee_id` がともに null の場合（HR 未利用ユーザー）のスキップ手順を追記
+
+## 0.30.0
+
+### Minor Changes
+
+- [`fb2d04c`](https://github.com/freee/freee-mcp/commit/fb2d04c8c23655502aa23d7076e75291ccbdbd37): Codex プラグイン定義を追加 ([#176](https://github.com/freee/freee-mcp/pull/176))
+
+  - `.codex-plugin/plugin.json` を追加し、OpenAI Codex のプラグインとして MCP サーバーと Agent Skills をまとめて利用可能に
+  - `.agents/plugins/marketplace.json`（Codex マーケットプレースカタログ）を追加
+  - README に Codex でのインストール手順を追記
+
+- [`54031da`](https://github.com/freee/freee-mcp/commit/54031da6ad8849542e8f51e836354ddcbccdec7d): 請求書 API（freee 請求書）の発注書(purchase_order)操作に対応 ([#181](https://github.com/freee/freee-mcp/pull/181))
+
+  - `skills/freee-api-skill/recipes/invoice-operations.md` に発注書のパス・作成例・Web 確認 URL・リファレンス参照を追記
+  - `skills/freee-api-skill/references/invoice-purchase-orders.md` を公開スキーマから生成して追加
+  - あわせて領収書(receipts)のレシピ記載漏れを補完
+  - `fetch:schemas` / `generate:references` の再実行で生じた他 API（会計・IT 管理・サイン）の公開スキーマ最新化差分を反映
+
+### Patch Changes
+
+- [`48e9800`](https://github.com/freee/freee-mcp/commit/48e9800cf42b3b29dfad806d082a3380d89da40b): npm パッケージを最新版に更新 ([#175](https://github.com/freee/freee-mcp/pull/175))
+- [`83bf657`](https://github.com/freee/freee-mcp/commit/83bf6575758ac1c4d93352e73eee9e4399fcb5df): IT 管理 API スキーマを更新し、一覧取得の検索パラメーターを追加 ([#182](https://github.com/freee/freee-mcp/pull/182))
+
+  - メンバー一覧: 雇用形態 ID・入社日/退職日の範囲での絞り込みに対応
+  - アカウント一覧: アカウントホルダーのメンバー ID での絞り込みに対応
+  - 備品一覧: 利用者のメンバー ID での絞り込みに対応
+
+- [`df31caf`](https://github.com/freee/freee-mcp/commit/df31caffe75e9af40bccce640e7c942965445060): knip 設定を整理し、未使用のコードと依存を削除 ([#177](https://github.com/freee/freee-mcp/pull/177))
+
+  - `knip.json` を最小構成に整理（sign エントリを追加、stale な ignore を削除）
+  - 未使用の `@opentelemetry/semantic-conventions` 依存を削除
+  - 未使用ファイル `src/storage/index.ts` を削除
+  - 内部参照のみの export を非公開化して公開 API 表面を縮小
+
 ## 0.29.0
 
 ### Minor Changes

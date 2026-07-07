@@ -12,7 +12,7 @@ import path from 'node:path';
 
 export type McpTarget = 'claude-code' | 'claude-desktop';
 
-export type McpConfigStatus = {
+type McpConfigStatus = {
   path: string;
   exists: boolean;
   hasFreeeConfig: boolean;

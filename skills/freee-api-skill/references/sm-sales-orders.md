@@ -13,17 +13,20 @@
 説明: 概要 受注の一覧を取得します。 登録されている受注情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する受注のみを取得することが可能です。
 
 定義
-start_sales_order_date : 受注日(絞り込み開始) end_sales_order_date : 受注日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) canceled : 取消状態(デフォルト:false) `limit`と`offset`パラメータを使用してページネーションが可能です。 デフォルトでは20件ずつ取得され、最大100件まで一度に取得できます。
+start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 更新日(絞り込み終了) start_sales_order_date : 受注日(絞り込み開始) end_sales_order_date : 受注日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) sales_order_no : 受注No. canceled : 取消状態(デフォルト:false) `limit`と`offset`パラメータを使用してページネーションが可能です。 デフォルトでは20件ずつ取得され、最大100件まで一度に取得できます。
 
 ### パラメータ
 
 | 名前 | 位置 | 必須 | 型 | 説明 |
 |------|------|------|-----|------|
 | company_id | query | はい | integer(int64) | 事業所ID |
+| start_last_updated_date | query | いいえ | string(date) | 更新日で絞込：開始日(yyyy-mm-dd) |
+| end_last_updated_date | query | いいえ | string(date) | 更新日で絞込：終了日(yyyy-mm-dd) |
 | start_sales_order_date | query | いいえ | string(date) | 受注日で絞込：開始日(yyyy-mm-dd) |
 | end_sales_order_date | query | いいえ | string(date) | 受注日で絞込：終了日(yyyy-mm-dd) |
 | charge_employee_ids[] | query | いいえ | array[integer] | 社内担当者の従業員ID |
 | customer_ids[] | query | いいえ | array[integer] | 顧客の取引先ID |
+| sales_order_no | query | いいえ | string | 受注No.で絞込 |
 | canceled | query | いいえ | boolean | 取消状態 |
 | limit | query | いいえ | integer(int32) | 取得レコードの件数（デフォルト：20, 最小：1, 最大：100） |
 | offset | query | いいえ | integer(int32) | 取得レコードのオフセット（デフォルト：0） |

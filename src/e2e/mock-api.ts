@@ -19,7 +19,7 @@ import {
   mockUserResponse,
 } from './fixtures/api-responses.js';
 
-export interface MockApiConfig {
+interface MockApiConfig {
   /** Override responses for specific paths */
   overrides?: Record<string, { status: number; body: unknown }>;
   /** Simulate authentication failure */

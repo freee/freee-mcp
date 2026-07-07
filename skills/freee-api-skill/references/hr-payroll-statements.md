@@ -137,6 +137,40 @@ successful operation
   - overtime_pays (任意): array[object] - 時間外労働項目(法定内残業、時間外労働、法定休日労働、深夜労働等)
   - remark (任意): string - 備考
 
+### PUT /api/v1/salaries/employee_payroll_statements/{employee_id}/remark
+
+操作: 給与明細の備考の更新
+
+説明: 概要 指定した従業員の給与明細の備考を更新します。
+
+注意点
+管理者権限を持ったユーザーのみ実行可能です。
+
+### パラメータ
+
+| 名前 | 位置 | 必須 | 型 | 説明 |
+|------|------|------|-----|------|
+| employee_id | path | はい | integer | 従業員ID |
+
+### リクエストボディ
+
+(必須)
+
+- company_id (必須): integer - 事業所ID 例: `1` (最小: 1, 最大: 2147483647)
+- year (必須): integer - 更新対象の年 例: `2024` (最小: 2000, 最大: 2100)
+- month (必須): integer - 更新対象の月 例: `10` (最小: 1, 最大: 12)
+- remark (必須): object
+  - body (必須): string - 備考本文（500 文字以内） 例: `備考の本文`
+
+### レスポンス (200)
+
+successful operation
+
+- employee_payroll_statement_remark (必須): object
+  - id (必須): integer - 給与明細備考ID
+  - employee_payroll_statement_id (必須): integer - 給与明細ID
+  - body (必須): string - 備考本文
+
 
 
 ## 参考情報

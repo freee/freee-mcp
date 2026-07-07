@@ -55,12 +55,11 @@ export class AuthenticationManager {
     resolve: (tokens: TokenData) => void,
     reject: (error: Error) => void,
   ): void {
-    console.error(`Registering authentication request with state: ${state.substring(0, 10)}...`);
-    console.error(`Code verifier: ${codeVerifier.substring(0, 10)}...`);
+    console.error('Registering authentication request');
 
     const timeout = setTimeout(() => {
       this.pendingAuthentications.delete(state);
-      console.error(`Authentication timeout for state: ${state.substring(0, 10)}...`);
+      console.error('Authentication timeout');
     }, getConfig().auth.timeoutMs);
 
     this.pendingAuthentications.set(state, {
@@ -193,9 +192,10 @@ class CallbackServer {
 
     return new Promise((resolve, reject) => {
       this.server = http.createServer((req, res) => {
-        console.error(`Callback request: ${req.method} ${req.url}`);
         // biome-ignore lint/style/noNonNullAssertion: req.url is always defined for HTTP/1.1 requests
         const url = new URL(req.url!, `http://127.0.0.1:${port}`);
+        // Avoid logging req.url directly — it contains OAuth code/state in query.
+        console.error(`Callback request: ${req.method} ${url.pathname}`);
 
         if (url.pathname === '/callback') {
           this.handleCallback(url, res);
@@ -261,10 +261,11 @@ class CallbackServer {
     const error = url.searchParams.get('error');
     const errorDescription = url.searchParams.get('error_description');
 
-    console.error(`Callback received - URL: ${url.toString()}`);
+    // Avoid logging url.toString()/code/state values — they are OAuth artifacts.
+    console.error(`Callback received - path: ${url.pathname}`);
     console.error(`Callback parameters:`, {
-      code: code ? `${code.substring(0, 10)}...` : null,
-      state: state ? `${state.substring(0, 10)}...` : null,
+      hasCode: code !== null,
+      hasState: state !== null,
       error,
       errorDescription,
     });
@@ -313,7 +314,7 @@ class CallbackServer {
 
     const pendingAuth = this.authManager.getPendingAuthentication(state);
     if (!pendingAuth) {
-      console.error(`Unknown state: ${state}`);
+      console.error('Unknown state received');
       res.writeHead(400, HTML_RESPONSE_HEADERS);
       res.end('<h1>認証エラー</h1><p>不明な認証状態です。認証を再開してください。</p>');
       return;

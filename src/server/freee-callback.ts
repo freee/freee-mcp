@@ -14,7 +14,7 @@ import { getLogger } from './logger.js';
 import type { OAuthStateStore } from './oauth-store.js';
 import { getUserAgent } from './user-agent.js';
 
-export interface FreeeCallbackDeps {
+interface FreeeCallbackDeps {
   oauthStore: OAuthStateStore;
   tokenStore: TokenStore;
   clientStore?: OAuthRegisteredClientsStore;

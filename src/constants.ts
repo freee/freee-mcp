@@ -62,7 +62,7 @@ export const FREEE_TOKEN_ENDPOINT = 'https://accounts.secure.freee.co.jp/public_
 export const FREEE_OAUTH_SCOPE = 'read write';
 
 export const SERVER_INSTRUCTIONS =
-  'freee APIと連携するMCPサーバー。会計・人事労務・請求書・工数管理・販売APIをサポート。詳細ガイドはfreee-api-skill skillを参照。skillが未インストールの場合は npx skills add freee/freee-mcp で追加';
+  'freee APIと連携するMCPサーバー。会計・人事労務・請求書・工数管理・販売・IT管理APIをサポート。詳細ガイドはfreee-api-skill skillを参照。skillが未インストールの場合は npx skills add freee/freee-mcp で追加';
 
 export const REFRESH_TOKEN_TTL_SECONDS = 90 * 24 * 60 * 60; // 90 days
 
@@ -74,6 +74,7 @@ export const OAUTH_KEY_PREFIX = 'freee-mcp:oauth';
 export const FETCH_TIMEOUT_TOKEN_MS = 10_000; // Token exchange / refresh
 export const FETCH_TIMEOUT_USERINFO_MS = 10_000; // User info fetch
 export const FETCH_TIMEOUT_API_MS = 30_000; // freee API calls (MCP tools)
+export const FETCH_TIMEOUT_FILE_UPLOAD_MS = 120_000; // freee file upload (64MB max, accommodates slow connections)
 
 // HTTP server timeouts for serve mode (Streamable-HTTP / SSE long-lived connections).
 // Defaults; per-environment override via HTTP_REQUEST_TIMEOUT_MS / HTTP_HEADERS_TIMEOUT_MS / HTTP_KEEP_ALIVE_TIMEOUT_MS.

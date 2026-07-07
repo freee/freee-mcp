@@ -1,14 +1,14 @@
-# it_management_application_account
+# it_management_application_accounts
 
 ## 概要
 
-it_management_application_accountの操作
+application_accounts
 
 ## エンドポイント一覧
 
 ### GET /hub/it_management/application_accounts
 
-操作: アカウント一覧取得
+操作: アカウント一覧取得（β版）
 
 説明: アカウントの一覧をカーソルページネーションで取得します。
 
@@ -23,6 +23,7 @@ it_management_application_accountの操作
 | application_id | query | いいえ | string(uuid) | アプリケーションIDでフィルタ |
 | keyword | query | いいえ | string | キーワード検索（account に部分一致） |
 | status_id | query | いいえ | string(uuid) | ステータスIDでフィルタ |
+| member_id | query | いいえ | string(uuid) | アカウントホルダーのメンバーIDでフィルタ |
 
 ### レスポンス (200)
 
@@ -49,7 +50,7 @@ it_management_application_accountの操作
 
 ### POST /hub/it_management/application_accounts
 
-操作: アカウント作成
+操作: アカウント作成（β版）
 
 説明: アカウントを作成します。
 
@@ -102,7 +103,7 @@ it_management_application_accountの操作
 
 ### GET /hub/it_management/application_accounts/{id}
 
-操作: アカウント詳細取得
+操作: アカウント詳細取得（β版）
 
 説明: アカウントの詳細を取得します。
 
@@ -146,7 +147,7 @@ it_management_application_accountの操作
 
 ### PATCH /hub/it_management/application_accounts/{id}
 
-操作: アカウント部分更新
+操作: アカウント部分更新（β版）
 
 説明: アカウントを部分的に更新します。 ##
 
@@ -205,7 +206,7 @@ it_management_application_accountの操作
 
 ### DELETE /hub/it_management/application_accounts/{id}
 
-操作: アカウント削除
+操作: アカウント削除（β版）
 
 説明: アカウントを削除します（ソフトデリート）。
 

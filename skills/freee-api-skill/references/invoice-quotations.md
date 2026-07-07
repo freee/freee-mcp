@@ -459,6 +459,60 @@ The request has succeeded.
   - lines (必須): array[object] - 見積書の明細行
   - report_url (必須): string(uri) - 帳票詳細ページのURL
 
+### PUT /quotations/{id}/cancel
+
+操作: 見積書の取消
+
+
+説明: 指定された見積書を取消状態にします。
+
+### パラメータ
+
+| 名前 | 位置 | 必須 | 型 | 説明 |
+|------|------|------|-----|------|
+| id | path | はい | integer | 見積書ID |
+
+### リクエストボディ
+
+(必須)
+
+- company_id (必須): integer(int64) - 事業所ID (最小: 1, 最大: 9223372036854775000)
+
+### レスポンス (200)
+
+The request has succeeded.
+
+- quotation (必須): object
+  - id (必須): integer(int64) - 見積書ID (最小: 1, 最大: 9223372036854775000)
+  - cancel_status (必須): string - 取消状態（canceled: 取消済み、uncanceled: 取消されていない） (選択肢: canceled, uncanceled)
+
+### PUT /quotations/{id}/uncancel
+
+操作: 取消された見積書の復元
+
+
+説明: 指定された取消済み見積書を復元します。
+
+### パラメータ
+
+| 名前 | 位置 | 必須 | 型 | 説明 |
+|------|------|------|-----|------|
+| id | path | はい | integer | 見積書ID |
+
+### リクエストボディ
+
+(必須)
+
+- company_id (必須): integer(int64) - 事業所ID (最小: 1, 最大: 9223372036854775000)
+
+### レスポンス (200)
+
+The request has succeeded.
+
+- quotation (必須): object
+  - id (必須): integer(int64) - 見積書ID (最小: 1, 最大: 9223372036854775000)
+  - cancel_status (必須): string - 取消状態（canceled: 取消済み、uncanceled: 取消されていない） (選択肢: canceled, uncanceled)
+
 
 
 ## 参考情報

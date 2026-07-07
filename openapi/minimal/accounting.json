@@ -1915,7 +1915,7 @@
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -2008,7 +2008,7 @@
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -2101,7 +2101,7 @@
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -2194,7 +2194,7 @@
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -2293,7 +2293,7 @@
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -2392,7 +2392,7 @@
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -2492,13 +2492,13 @@
             "in": "query",
             "type": "string",
             "required": true,
-            "description": "出力する部門の指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。0を指定すると、未選択の部門で比較できます。）"
+            "description": "出力する部門の指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。指定できる部門数は1〜5つです。0を指定すると、未選択の部門で比較できます。）"
           },
           {
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -2592,13 +2592,13 @@
             "in": "query",
             "type": "string",
             "required": true,
-            "description": "出力するセグメント１タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。0を指定すると、未選択のセグメントで比較できます）"
+            "description": "出力するセグメント１タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。指定できるセグメント数は1〜5つです。0を指定すると、未選択のセグメントで比較できます）"
           },
           {
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -2698,13 +2698,13 @@
             "in": "query",
             "type": "string",
             "required": true,
-            "description": "出力するセグメント２タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。0を指定すると、未選択のセグメントで比較できます）"
+            "description": "出力するセグメント２タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。指定できるセグメント数は1〜5つです。0を指定すると、未選択のセグメントで比較できます）"
           },
           {
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -2804,13 +2804,13 @@
             "in": "query",
             "type": "string",
             "required": true,
-            "description": "出力するセグメント３タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。0を指定すると、未選択のセグメントで比較できます）"
+            "description": "出力するセグメント３タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。指定できるセグメント数は1〜5つです。0を指定すると、未選択のセグメントで比較できます）"
           },
           {
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -2909,7 +2909,7 @@
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -3008,7 +3008,7 @@
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -3107,7 +3107,7 @@
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -3207,13 +3207,13 @@
             "in": "query",
             "type": "string",
             "required": true,
-            "description": "出力する部門の指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。0を指定すると、未選択の部門で比較できます）"
+            "description": "出力する部門の指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。指定できる部門数は1〜5つです。0を指定すると、未選択の部門で比較できます）"
           },
           {
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -3307,13 +3307,13 @@
             "in": "query",
             "type": "string",
             "required": true,
-            "description": "出力するセグメント１タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。0を指定すると、未選択のセグメントで比較できます）"
+            "description": "出力するセグメント１タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。指定できるセグメント数は1〜5つです。0を指定すると、未選択のセグメントで比較できます）"
           },
           {
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -3413,13 +3413,13 @@
             "in": "query",
             "type": "string",
             "required": true,
-            "description": "出力するセグメント２タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。0を指定すると、未選択のセグメントで比較できます）"
+            "description": "出力するセグメント２タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。指定できるセグメント数は1〜5つです。0を指定すると、未選択のセグメントで比較できます）"
           },
           {
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -3519,13 +3519,13 @@
             "in": "query",
             "type": "string",
             "required": true,
-            "description": "出力するセグメント３タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。0を指定すると、未選択のセグメントで比較できます）"
+            "description": "出力するセグメント３タグIDの指定（半角数字のidを半角カンマ区切りスペースなしで指定してください。指定できるセグメント数は1〜5つです。0を指定すると、未選択のセグメントで比較できます）"
           },
           {
             "name": "fiscal_year",
             "in": "query",
             "type": "integer",
-            "description": "会計年度"
+            "description": "会計年度（年度の開始日の年）。会計年度の作成後に期間を変更した場合などに、指定した年と実際に集計対象となる会計年度がずれることがあります。意図した期間が集計されない場合は、fiscal_year ではなく start_date・end_date で期間を指定してください。"
           },
           {
             "name": "start_month",
@@ -4263,6 +4263,24 @@
             "in": "query",
             "type": "integer",
             "description": "部門IDで絞込"
+          },
+          {
+            "name": "partner_name",
+            "in": "query",
+            "type": "string",
+            "description": "取引先名で絞込"
+          },
+          {
+            "name": "approval_flow_route_id",
+            "in": "query",
+            "type": "integer",
+            "description": "申請経路IDで絞込（`/api/1/approval_flow_routes` のレスポンス id と同じ値）"
+          },
+          {
+            "name": "observing",
+            "in": "query",
+            "type": "string",
+            "description": "'共有された申請の絞り込み (ignore_observing: 共有された申請を含めない, only_observing: 共有された申請のみ)'\n"
           },
           {
             "name": "offset",

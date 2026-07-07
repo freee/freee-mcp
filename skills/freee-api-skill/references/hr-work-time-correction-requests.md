@@ -70,6 +70,7 @@ successful operation
     - comment (任意): string - 申請理由 例: `申請理由`
     - status (必須): string - 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し） (選択肢: draft, in_progress, approved, feedback) 例: `in_progress`
     - passed_auto_check (必須): boolean - 自動チェック結果 例: `true`
+    - proxy_applicant_id (任意): integer(int32) - 代理申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
 - total_count (必須): integer(int32) - 合計件数 例: `1` (最小: 0, 最大: 2147483647)
 
 ### POST /api/v1/approval_requests/work_times
@@ -118,6 +119,7 @@ true: 勤務時間を削除する
     - comment (任意): string - 申請理由 例: `申請理由`
     - status (必須): string - 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し） (選択肢: draft, in_progress, approved, feedback) 例: `in_progress`
     - passed_auto_check (必須): boolean - 自動チェック結果 例: `true`
+    - proxy_applicant_id (任意): integer(int32) - 代理申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
 - lateness_mins (任意): integer(int32) - 遅刻分の時間（分単位）
 - early_leaving_mins (任意): integer(int32) - 早退分の時間（分単位）
 - break_records (任意): array[object] - 休憩時間のリスト
@@ -145,6 +147,7 @@ true: 勤務時間を削除する
     - comment (任意): string - 申請理由 例: `申請理由`
     - status (必須): string - 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し） (選択肢: draft, in_progress, approved, feedback) 例: `in_progress`
     - passed_auto_check (必須): boolean - 自動チェック結果 例: `true`
+    - proxy_applicant_id (任意): integer(int32) - 代理申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
 - comment (任意): string - 申請理由 例: `申請理由`
 - approval_flow_route_id (必須): integer(int32) - 申請経路ID（必須） 例: `1` (最小: 1, 最大: 2147483647)
 - approver_id (任意): integer(int32) - 承認者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
@@ -183,6 +186,7 @@ successful operation
   - current_step_id (任意): integer(int32) - 現在承認ステップID<br>
 申請を差戻した場合、nullになります。 例: `1` (最小: 1, 最大: 2147483647)
   - current_round (必須): integer(int32) - 現在のround。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。 例: `1` (最小: 0, 最大: 2147483647)
+  - proxy_applicant_id (任意): integer(int32) - 代理申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
 
 ### GET /api/v1/approval_requests/work_times/{id}
 

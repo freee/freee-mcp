@@ -92,7 +92,7 @@
     },
     "/unit_costs": {
       "get": {
-        "summary": "単価マスタの取得",
+        "summary": "従業員単価マスタの取得",
         "description": "従業員の単価マスタを返します。",
         "parameters": [
           {

@@ -3,7 +3,7 @@ import { createOAuthMetadata } from '@modelcontextprotocol/sdk/server/auth/route
 import type { OAuthMetadata } from '@modelcontextprotocol/sdk/shared/auth.js';
 import type { RequestHandler } from 'express';
 
-export interface OverrideMetadataOptions {
+interface OverrideMetadataOptions {
   provider: OAuthServerProvider;
   issuerUrl: URL;
   baseUrl?: URL;

@@ -170,13 +170,6 @@
         "description": "指定した添付ファイルを取得する。\n\nこのエンドポイントはセキュリティ保護のため、`APIクライアント` でのご利用を制限しております。`OAuth 2.0 APIクライアント` をご利用ください。"
       }
     },
-    "/v1/documents/{document_id}/comments": {
-      "post": {
-        "summary": "文書コメントの投稿",
-        "description": "指定した文書にコメントを投稿する。\n投稿者はアクセストークンの保有者（OAuth 連携の認可ユーザー）に固定される。\nコメント機能を含むプランの契約が必要。",
-        "hasJsonBody": true
-      }
-    },
     "/v1/documents/{document_id}/conclusion": {
       "post": {
         "summary": "文書締結",
@@ -212,13 +205,6 @@
       "patch": {
         "summary": "入力項目に値を設定",
         "description": "文書に付与した入力項目の値を設定する。",
-        "hasJsonBody": true
-      }
-    },
-    "/v1/documents/{document_id}/face_to_face_extension": {
-      "post": {
-        "summary": "対面契約文書の有効期限延長",
-        "description": "対面契約 (notification_type=face_to_face) の文書の有効期限を延長する。",
         "hasJsonBody": true
       }
     },

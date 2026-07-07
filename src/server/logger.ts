@@ -3,9 +3,7 @@ import pino from 'pino';
 import { APP_NAME, PACKAGE_VERSION } from '../constants.js';
 import { serializeErrorChain } from './error-serializer.js';
 
-export type Logger = pino.Logger;
-
-export interface LoggerOptions {
+interface LoggerOptions {
   level?: string;
   transportMode?: 'stdio' | 'remote';
   serviceName?: string;

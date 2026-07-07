@@ -58,6 +58,7 @@ describe('uploadReceipt', () => {
         headers: expect.objectContaining({
           Authorization: 'Bearer test-access-token',
         }),
+        signal: expect.any(AbortSignal),
       }),
     );
 

@@ -29,7 +29,7 @@ export function computeClientFingerprint(metadata: Partial<OAuthClientInformatio
   return createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
 }
 
-export interface ClientStoreOptions {
+interface ClientStoreOptions {
   redis: Redis;
   cimdFetcher?: CIMDFetcher;
   prefix?: string;

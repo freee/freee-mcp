@@ -2,13 +2,13 @@
 
 ## 概要
 
-it_management_membersの操作
+members
 
 ## エンドポイント一覧
 
 ### GET /hub/it_management/members
 
-操作: メンバー一覧取得
+操作: メンバー一覧取得（β版）
 
 説明: メンバーの一覧をカーソルページネーションで取得します。
 
@@ -23,6 +23,11 @@ it_management_membersの操作
 | keyword | query | いいえ | string | キーワード検索（name, email, code に部分一致） |
 | status | query | いいえ | object | 在籍ステータス |
 | department_id | query | いいえ | string(uuid) | 部署IDでフィルタ |
+| employment_type_id | query | いいえ | string(uuid) | 雇用形態IDでフィルタ |
+| entered_since | query | いいえ | string(date) | 入社日の範囲検索の開始日(yyyy-mm-dd、指定日を含む以降) |
+| entered_until | query | いいえ | string(date) | 入社日の範囲検索の終了日(yyyy-mm-dd、指定日を含む以前) |
+| resigned_since | query | いいえ | string(date) | 退職日の範囲検索の開始日(yyyy-mm-dd、指定日を含む以降) |
+| resigned_until | query | いいえ | string(date) | 退職日の範囲検索の終了日(yyyy-mm-dd、指定日を含む以前) |
 
 ### レスポンス (200)
 
@@ -53,7 +58,7 @@ it_management_membersの操作
 
 ### POST /hub/it_management/members
 
-操作: メンバー作成
+操作: メンバー作成（β版）
 
 説明: メンバーを作成します。
 
@@ -115,7 +120,7 @@ it_management_membersの操作
 
 ### GET /hub/it_management/members/{id}
 
-操作: メンバー詳細取得
+操作: メンバー詳細取得（β版）
 
 説明: メンバーの詳細を取得します。
 
@@ -160,7 +165,7 @@ it_management_membersの操作
 
 ### PATCH /hub/it_management/members/{id}
 
-操作: メンバー部分更新
+操作: メンバー部分更新（β版）
 
 説明: メンバーを部分的に更新します。 ##
 
@@ -226,7 +231,7 @@ it_management_membersの操作
 
 ### DELETE /hub/it_management/members/{id}
 
-操作: メンバー削除
+操作: メンバー削除（β版）
 
 説明: メンバーを削除します（ソフトデリート）。
 

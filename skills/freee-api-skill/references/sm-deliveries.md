@@ -13,7 +13,7 @@
 説明: 概要 納品の一覧を取得します。 登録されている納品情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する納品のみを取得することが可能です。
 
 定義
-start_registered_date : 登録日(絞り込み開始) end_registered_date : 登録日(絞り込み終了) start_delivery_date : 納品日(絞り込み開始) end_delivery_date : 納品日(絞り込み終了) start_acceptance_date : 検収日(絞り込み開始) end_acceptance_date : 検収日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) delivery_status : 納品ステータス canceled : 取消状態(デフォルト:false) `limit`と`offset`パラメータを使用してページネーションが可能です。 デフォルトでは20件ずつ取得され、最大100件まで一度に取得できます。
+start_registered_date : 登録日(絞り込み開始) end_registered_date : 登録日(絞り込み終了) start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 更新日(絞り込み終了) start_delivery_date : 納品日(絞り込み開始) end_delivery_date : 納品日(絞り込み終了) start_acceptance_date : 検収日(絞り込み開始) end_acceptance_date : 検収日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) delivery_no : 納品No. delivery_status : 納品ステータス canceled : 取消...
 
 ### パラメータ
 
@@ -22,12 +22,15 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 | company_id | query | はい | integer(int64) | 事業所ID |
 | start_registered_date | query | いいえ | string(date) | 登録日で絞込：開始日(yyyy-mm-dd) |
 | end_registered_date | query | いいえ | string(date) | 登録日で絞込：終了日(yyyy-mm-dd) |
+| start_last_updated_date | query | いいえ | string(date) | 更新日で絞込：開始日(yyyy-mm-dd) |
+| end_last_updated_date | query | いいえ | string(date) | 更新日で絞込：終了日(yyyy-mm-dd) |
 | start_delivery_date | query | いいえ | string(date) | 納品日で絞込：開始日(yyyy-mm-dd) |
 | end_delivery_date | query | いいえ | string(date) | 納品日で絞込：終了日(yyyy-mm-dd) |
 | start_acceptance_date | query | いいえ | string(date) | 検収日で絞込：開始日(yyyy-mm-dd) |
 | end_acceptance_date | query | いいえ | string(date) | 検収日で絞込：終了日(yyyy-mm-dd) |
 | charge_employee_ids[] | query | いいえ | array[integer] | 社内担当者の従業員ID |
 | customer_ids[] | query | いいえ | array[integer] | 顧客の取引先ID |
+| delivery_no | query | いいえ | string | 納品No.で絞込 |
 | delivery_status | query | いいえ | string | 納品ステータス (未納品: not_delivered, 納品済: delivered) (選択肢: not_delivered, delivered) |
 | canceled | query | いいえ | boolean | 取消状態 |
 | limit | query | いいえ | integer(int32) | 取得レコードの件数（デフォルト：20, 最小：1, 最大：100） |

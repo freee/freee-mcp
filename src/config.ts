@@ -161,14 +161,18 @@ export async function loadConfig(): Promise<Config> {
       clientId,
       clientSecret,
       companyId: '0',
-      apiUrl: FREEE_API_URL,
+      apiUrl: process.env.FREEE_API_BASE_URL?.replace(/\/+$/, '') || FREEE_API_URL,
     },
     oauth: {
       callbackPort,
       redirectUri: `http://127.0.0.1:${callbackPort}/callback`,
-      authorizationEndpoint: FREEE_AUTHORIZATION_ENDPOINT,
-      tokenEndpoint: FREEE_TOKEN_ENDPOINT,
-      scope: FREEE_OAUTH_SCOPE,
+      // Allow overriding the freee endpoints for local development (e.g. a
+      // local authlete/accounts mock). Falls back to the production constants
+      // when unset, matching loadRemoteServerConfig().
+      authorizationEndpoint:
+        process.env.FREEE_AUTHORIZATION_ENDPOINT || FREEE_AUTHORIZATION_ENDPOINT,
+      tokenEndpoint: process.env.FREEE_TOKEN_ENDPOINT || FREEE_TOKEN_ENDPOINT,
+      scope: process.env.FREEE_SCOPE || FREEE_OAUTH_SCOPE,
     },
     server: {
       name: 'freee',
@@ -198,7 +202,7 @@ export function getConfig(): Config {
   return cachedConfig;
 }
 
-export interface RemoteServerConfig {
+interface RemoteServerConfig {
   port: number;
   issuerUrl: string;
   jwtSecret: string;

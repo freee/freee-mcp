@@ -42,6 +42,10 @@ approver_id を指定した場合は無効です。
 | end_payment_date | query | いいえ | string | 支払期限で絞込：終了日(yyyy-mm-dd) |
 | document_code | query | いいえ | string | 請求書番号で絞込 |
 | section_id | query | いいえ | integer(int64) | 部門IDで絞込 |
+| partner_name | query | いいえ | string | 取引先名で絞込 |
+| approval_flow_route_id | query | いいえ | integer(int64) | 申請経路IDで絞込（`/api/1/approval_flow_routes` のレスポンス id と同じ値） |
+| observing | query | いいえ | string | '共有された申請の絞り込み (ignore_observing: 共有された申請を含めない, only_observing: 共有された申請のみ)'
+ (選択肢: ignore_observing, only_observing) |
 | offset | query | いいえ | integer(int64) | 取得レコードのオフセット (デフォルト: 0) |
 | limit | query | いいえ | integer(int64) | 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 500) |
 

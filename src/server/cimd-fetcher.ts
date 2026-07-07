@@ -10,7 +10,7 @@ export interface CIMDFetcher {
   fetch(url: string): Promise<OAuthClientMetadata>;
 }
 
-export interface HttpCIMDFetcherOptions {
+interface HttpCIMDFetcherOptions {
   // When true, http:// URLs whose host is localhost / 127.0.0.1 / [::1] bypass
   // the HTTPS requirement and the SSRF hostname filter. Intended for local
   // development only; callers must gate this on a non-production environment.

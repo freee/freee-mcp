@@ -2,7 +2,7 @@
  * Result type for JSON parsing operations.
  * Allows callers to distinguish between success and failure while preserving error context.
  */
-export type JsonParseResult =
+type JsonParseResult =
   | { success: true; data: Record<string, unknown> }
   | { success: false; error: string };
 

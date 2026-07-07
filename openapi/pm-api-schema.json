@@ -442,7 +442,7 @@
     "/unit_costs": {
       "get": {
         "operationId": "/unit_costs/index",
-        "summary": "単価マスタの取得",
+        "summary": "従業員単価マスタの取得",
         "description": "従業員の単価マスタを返します。",
         "tags": [
           "UnitCosts"
@@ -1872,7 +1872,7 @@
                   "example": 11
                 },
                 "unit_cost_id": {
-                  "description": "このプロジェクトでの実績単価ID",
+                  "description": "このプロジェクトで使用する従業員単価マスタID\n`use_standard_unit_cost: true` の場合は無視されます",
                   "format": "int32",
                   "type": "integer",
                   "example": 3
@@ -1884,7 +1884,7 @@
                   "example": 2000
                 },
                 "use_standard_unit_cost": {
-                  "description": "標準従業員単価の利用（デフォルト：false）",
+                  "description": "標準の従業員単価マスタの単価を利用（デフォルト：false）",
                   "type": "boolean",
                   "example": true
                 }
@@ -2305,7 +2305,7 @@
             "properties": {
               "id": {
                 "type": "integer",
-                "description": "標準単価ID",
+                "description": "標準の従業員単価マスタID",
                 "example": 1
               },
               "name": {
@@ -2750,7 +2750,8 @@
                     "error",
                     "unauthorized",
                     "record_not_found",
-                    "payment_required"
+                    "payment_required",
+                    "bad_request"
                   ]
                 },
                 "codes": {

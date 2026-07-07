@@ -18,7 +18,7 @@ import type { OAuthStateStore } from '../../server/oauth-store.js';
 import { SIGN_CALLBACK_PATH } from '../config.js';
 import type { SignTokenStore } from './sign-redis-token-store.js';
 
-export interface SignOAuthProviderDeps {
+interface SignOAuthProviderDeps {
   clientStore: RedisClientStore;
   oauthStore: OAuthStateStore;
   tokenStore: SignTokenStore;

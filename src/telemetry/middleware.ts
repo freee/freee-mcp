@@ -34,7 +34,7 @@ import {
  */
 const MAX_USER_AGENT_LENGTH = 256;
 
-export type CanonicalLogLevel = 'info' | 'warn' | 'error';
+type CanonicalLogLevel = 'info' | 'warn' | 'error';
 
 /**
  * 4xx (incl. 401/403/404/422) → `warn`, 5xx → `error`. Per ECS/Datadog

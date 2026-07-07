@@ -67,7 +67,9 @@
     "Invoices": "invoices",
     "Quotations": "quotations",
     "DeliverySlips": "delivery-slips",
-    "Receipts": "receipts"
+    "Receipts": "receipts",
+    "PurchaseOrders": "purchase-orders",
+    "PaymentNotices": "payment-notices"
   },
   "pm-api": {
     "Users": "users",
@@ -86,10 +88,12 @@
     "sales": "sales",
     "cost_budgets": "cost-budgets",
     "other_costs": "other-costs",
-    "quotations": "quotations"
+    "quotations": "quotations",
+    "procurements": "procurements",
+    "purchase_orders": "purchase-orders"
   },
   "it-management-api": {
-    "it_management_application_account": "application-account",
+    "it_management_application_accounts": "application-account",
     "it_management_assets": "assets",
     "it_management_members": "members"
   },

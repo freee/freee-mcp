@@ -4,7 +4,7 @@ import express, { type RequestHandler } from 'express';
 import { makeErrorChain } from './error-serializer.js';
 import { getCurrentRecorder } from './request-context.js';
 
-export interface DecodeBasicAuthOptions {
+interface DecodeBasicAuthOptions {
   clientStore: OAuthRegisteredClientsStore;
   realm: string;
 }

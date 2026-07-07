@@ -34,9 +34,10 @@ Projectsの操作
 - members (任意): array[object] - アサインするユーザの配列
   配列の要素:
     - person_id (必須): integer(int32) - 従業員ID 例: `11`
-    - unit_cost_id (必須): integer(int32) - このプロジェクトでの実績単価ID 例: `3`
+    - unit_cost_id (必須): integer(int32) - このプロジェクトで使用する従業員単価マスタID
+`use_standard_unit_cost: true` の場合は無視されます 例: `3`
     - budgets_cost (必須): integer(int32) - 予算計算用の単価(円) 例: `2000`
-    - use_standard_unit_cost (任意): boolean - 標準従業員単価の利用（デフォルト：false） 例: `true`
+    - use_standard_unit_cost (任意): boolean - 標準の従業員単価マスタの単価を利用（デフォルト：false） 例: `true`
 - orderer_ids (任意): array[integer] - 発注元として指定する取引先IDの配列
 - contractor_ids (任意): array[integer] - 発注先として指定する取引先IDの配列
 

@@ -10,7 +10,8 @@ import { CONFIG_FILE_PERMISSION, getConfigDir } from '../constants.js';
 import { getSignCredentials, SIGN_OAUTH_SCOPE, SIGN_TOKEN_ENDPOINT } from './config.js';
 
 export { OAuthTokenResponseSchema, type TokenData };
-export const SignTokenDataSchema = TokenDataSchema;
+
+const SignTokenDataSchema = TokenDataSchema;
 
 function getSignTokenFilePath(): string {
   return path.join(getConfigDir(), 'sign-tokens.json');

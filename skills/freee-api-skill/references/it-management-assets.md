@@ -2,13 +2,13 @@
 
 ## 概要
 
-it_management_assetsの操作
+assets
 
 ## エンドポイント一覧
 
 ### GET /hub/it_management/assets
 
-操作: 備品一覧取得
+操作: 備品一覧取得（β版）
 
 説明: 備品の一覧をカーソルページネーションで取得します。
 
@@ -23,6 +23,7 @@ it_management_assetsの操作
 | keyword | query | いいえ | string | キーワード検索（name, asset_number, serial_number に部分一致） |
 | asset_status_id | query | いいえ | string(uuid) | ステータスIDでフィルタ |
 | asset_category_id | query | いいえ | string(uuid) | 種別IDでフィルタ |
+| member_id | query | いいえ | string(uuid) | 利用者のメンバーIDでフィルタ |
 
 ### レスポンス (200)
 
@@ -45,7 +46,7 @@ it_management_assetsの操作
 
 ### POST /hub/it_management/assets
 
-操作: 備品作成
+操作: 備品作成（β版）
 
 説明: 備品を作成します。
 
@@ -91,7 +92,7 @@ it_management_assetsの操作
 
 ### GET /hub/it_management/assets/{id}
 
-操作: 備品詳細取得
+操作: 備品詳細取得（β版）
 
 説明: 備品の詳細を取得します。
 
@@ -127,7 +128,7 @@ it_management_assetsの操作
 
 ### PATCH /hub/it_management/assets/{id}
 
-操作: 備品部分更新
+操作: 備品部分更新（β版）
 
 説明: 備品を部分的に更新します。 ##
 
@@ -177,7 +178,7 @@ it_management_assetsの操作
 
 ### DELETE /hub/it_management/assets/{id}
 
-操作: 備品削除
+操作: 備品削除（β版）
 
 説明: 備品を削除します。
 

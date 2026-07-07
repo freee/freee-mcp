@@ -16,12 +16,6 @@
 
 - document (必須): object
   - title (必須): string - 作成する文書のタイトル 例: `文書 忍者太郎様`
-  - password (任意): string - 文書へのアクセスパスワード。
-設定すると受領者はパスワード入力が必要になる。
-null を渡すと既存パスワードを削除する。
-4文字以上72文字以下。使用可能文字は英数字および記号（!"#$%&'()*+,-./:;<=>?@¥[\]^_`{|}~）。
-レスポンスにはパスワード文字列は含まれず has_password フィールドで設定有無のみ返却する。
-TeamSetting.document_password が true の場合、パスワード設定が必須となる（未設定で署名依頼送信時に 422 エラー）。 (パターン: ^[a-zA-Z0-9!-/:-@\[-`{-~¥]+$)
   - items (任意): array[object] - 入力項目
 - template_id (必須): object - 使用する文書テンプレートのID
 - creator_id (任意): object - 文書の作成者となるユーザーのID (APIクライアントを利用する場合は必須)
@@ -92,11 +86,6 @@ TeamSetting.document_password が true の場合、パスワード設定が必�
 falseの場合、署名・合意文書。
 - signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
 配布文書でない場合は常にfalse。
-- approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-- face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-- has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
 
 ### GET /v1/documents
 
@@ -201,11 +190,6 @@ falseの場合、署名・合意文書。
 falseの場合、署名・合意文書。
   - signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
 配布文書でない場合は常にfalse。
-  - approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-  - face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-  - has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
 
 ### GET /v1/documents/{document_id}
 
@@ -227,13 +211,7 @@ falseの場合、署名・合意文書。
 ### リクエストボディ
 
 - document (必須): object
-  - title (任意): string - 文書のタイトル 例: `文書 忍者太郎様`
-  - password (任意): string - 文書へのアクセスパスワード。
-設定すると受領者はパスワード入力が必要になる。
-null を渡すと既存パスワードを削除する。
-4文字以上72文字以下。使用可能文字は英数字および記号（!"#$%&'()*+,-./:;<=>?@¥[\]^_`{|}~）。
-レスポンスにはパスワード文字列は含まれず has_password フィールドで設定有無のみ返却する。
-TeamSetting.document_password が true の場合、パスワード設定が必須となる（未設定で署名依頼送信時に 422 エラー）。 (パターン: ^[a-zA-Z0-9!-/:-@\[-`{-~¥]+$)
+  - title (必須): string - 文書のタイトル 例: `文書 忍者太郎様`
 - user_id (任意): integer(int64) - 実行するユーザーのID (APIクライアントを利用する場合は必須) 例: `1` (最小: 1)
 
 ### レスポンス (200)
@@ -301,11 +279,6 @@ TeamSetting.document_password が true の場合、パスワード設定が必�
 falseの場合、署名・合意文書。
 - signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
 配布文書でない場合は常にfalse。
-- approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-- face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-- has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
 
 ### DELETE /v1/documents/{document_id}
 
@@ -382,11 +355,6 @@ falseの場合、署名・合意文書。
 falseの場合、署名・合意文書。
 - signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
 配布文書でない場合は常にfalse。
-- approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-- face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-- has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
 
 ### GET /v1/documents/{document_id}/activities
 
@@ -425,29 +393,6 @@ falseの場合、署名・合意文書。
 - content_type (必須): string - ContentType 例: `application/pdf`
 - extension (必須): string - 拡張子 例: `pdf`
 - creator_id (必須): integer(int64) - ユーザーID 例: `1` (最小: 1)
-
-### POST /v1/documents/{document_id}/comments
-
-操作: 文書コメントの投稿
-
-説明: 指定した文書にコメントを投稿する。 投稿者はアクセストークンの保有者（OAuth 連携の認可ユーザー）に固定される。 コメント機能を含むプランの契約が必要。
-
-### リクエストボディ
-
-- body (必須): string - コメント本文
-
-### レスポンス (201)
-
-投稿成功
-
-- id (必須): integer(int64) - コメントID
-- body (必須): string - コメント本文
-- user (必須): object - 投稿者
-  - id (必須): integer(int64) - ユーザーID
-  - full_name (必須): string - ユーザーのフルネーム
-  - email (必須): string(email) - メールアドレス
-- created_at (必須): string(date-time)
-- updated_at (必須): string(date-time)
 
 ### POST /v1/documents/{document_id}/conclusion
 
@@ -526,11 +471,6 @@ falseの場合、署名・合意文書。
 falseの場合、署名・合意文書。
 - signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
 配布文書でない場合は常にfalse。
-- approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-- face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-- has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
 
 ### POST /v1/documents/{document_id}/confirmations
 
@@ -542,23 +482,14 @@ falseの場合、署名・合意文書。
 
 - notification_type (任意): string - 締結の種類
 
-メール送信の場合は `email`、SMS送信の場合は `sms`、署名者用URL発行の場合は `url`、対面契約の場合は `face_to_face`。
+メール送信の場合は `email`、SMS送信の場合は `sms`、署名者用URL発行の場合は `url`。
 指定しない場合はメール送信として扱われます。
 
 送り先情報はメール送信、SMS送信のいずれか選択した締結の種類のパラメータを含めてください。
 文書配付の場合は、受領者に署名を求めないため、反映されない項目がありますのでご注意ください。
 
 url を指定した場合はAPI実行時点で送信処理はされず、署名者用URLの発行が行われます。
-発行されたURLを相手に伝え、署名依頼の手続きを進めてください。
-
-face_to_face を指定した場合、対面契約として処理されます。以下の値が自動的に強制されます。
-- es_type: timestamp_only
-- password_required: false
-- remind_about_expiry: false
-- CC宛先は全削除
-
-face_to_face を指定した場合、レスポンスの `face_to_face_url` フィールドに対面署名画面のURLが返ります。
-このURLを署名者の端末で開くことで対面契約フローを開始してください。 (選択肢: email, sms, url, face_to_face)
+発行されたURLを相手に伝え、署名依頼の手続きを進めてください。 (選択肢: email, sms, url)
 - sender_id (任意): object - 送信するユーザーのID (APIクライアントを利用する場合は必須)
 - to (必須): object
 - es_type (任意): string - 署名方法
@@ -665,11 +596,6 @@ true のとき署名有効期限の4日前・1日前にリマインドメール�
 falseの場合、署名・合意文書。
 - signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
 配布文書でない場合は常にfalse。
-- approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-- face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-- has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
 
 ### GET /v1/documents/{document_id}/contract_certificate
 
@@ -826,87 +752,6 @@ falseの場合、署名・合意文書。
 入力項目が印鑑でなかった場合またはマイ印鑑機能を使用していない場合は無し。
 - item_id (任意): integer(int64) - 入力項目のID
 
-### POST /v1/documents/{document_id}/face_to_face_extension
-
-操作: 対面契約文書の有効期限延長
-
-説明: 対面契約 (notification_type=face_to_face) の文書の有効期限を延長する。
-
-### リクエストボディ
-
-- sender_id (任意): object - 実行ユーザーのID (APIクライアントを利用する場合は必須)
-
-### レスポンス (200)
-
-延長成功
-
-- id (必須): integer(int64) - 文書ID 例: `1` (最小: 1)
-- title (必須): string - 文書のタイトル 例: `文書 忍者太郎様`
-- owner_id (必須): object - 文書作成者ユーザーID
-- status (必須): string - 文書のステータス
-* draft - 作成中
-* in_progress - 確認待ち
-* awaiting_receipt - 受け取り待ち
-* approved - 要確認
-* concluded - 完了
-* rejected - 却下
-* expired - 有効期限切れ
-* trashed - 削除済み (選択肢: draft, in_progress, awaiting_receipt, approved, concluded, rejected, expired, trashed)
-- folder_id (必須): object - 文書が保存されているフォルダのID
-- folder_name (必須): string - 文書が保存されているフォルダの名前
-- items (任意): array[object] - 入力項目 設定されていない場合は無し。
-  配列の要素:
-    - name (必須): string - 項目名
-    - role (必須): string - どちら側の入力項目か
-* owner 送信者側
-* signer 承認側 (選択肢: owner, signer)
-    - order (必須): integer(int64) - 署名の順番。以下の順で表示
-* ownerのアイテム群
-* signer1のアイテム群
-* signer2のアイテム群
-…
-    - required (必須): boolean - 必須項目かどうか
-    - value (任意): string - 入力された値
-未入力の場合は無し。
-    - user_id (任意): object - 文書入力項目入力ユーザーID
-未入力の場合は無し。
-    - seal_image_id (任意): integer(int64) - マイ印鑑画像のID
-入力項目が印鑑でなかった場合またはマイ印鑑機能を使用していない場合は無し。
-    - item_id (任意): integer(int64) - 入力項目のID
-- meta_items (任意): array[object] - 検索項目 設定されていない場合は無し。
-  配列の要素:
-    - item_id (必須): integer(int64) - 検索項目の項目ID
-    - type (必須): string - 検索項目の種類 (選択肢: string, date, number, select, stamp, acceptance)
-    - name (必須): string - 検索項目の名前
-    - value (必須): string - 検索項目の値
-- signers (任意): array[object] - 文書に設定されている署名者
-送信前は無し。
-  配列の要素:
-    - signer_id (必須): object - 文書の署名者となるユーザーのID
-- signer_url (任意): object - 署名者用URLを受け取った相手は、そのURLから署名依頼の手続きを進めることができます
-  - id (任意): integer(int64) - ID 例: `1` (最小: 1)
-  - url (任意): string - 短縮URL
-  - expires_at (任意): string(date-time) - 有効期限日時
-- created_at (必須): string(date-time) - 作成日時。 ISO8601 形式を受け入れます。<br>
-<br>
-入力例: 2022-01-01T00:00:00+09:00
-- updated_at (必須): string(date-time) - 更新日時。 ISO8601 形式を受け入れます。<br>
-<br>
-入力例: 2022-02-01T00:00:00+09:00
-- timestamped (必須): boolean - タイムスタンプが付与されているかどうか
-- expires_at (任意): string(date-time) - 有効期限日時
-- sent_at (任意): string(date-time) - 送信日時
-- concluded_at (任意): string(date-time) - 締結完了日時
-- skip_approval (必須): boolean - trueの場合、配布文書（署名合意をスキップする文書）。
-falseの場合、署名・合意文書。
-- signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
-配布文書でない場合は常にfalse。
-- approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-- face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-- has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
-
 ### PUT /v1/documents/{document_id}/meta
 
 操作: 検索項目付与
@@ -1022,11 +867,6 @@ SMSによる再送信の場合はパラメータに含めても送信内容に�
 falseの場合、署名・合意文書。
 - signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
 配布文書でない場合は常にfalse。
-- approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-- face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-- has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
 
 ### POST /v1/documents/{document_id}/rejection
 
@@ -1105,11 +945,6 @@ falseの場合、署名・合意文書。
 falseの場合、署名・合意文書。
 - signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
 配布文書でない場合は常にfalse。
-- approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-- face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-- has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
 
 ### POST /v1/documents/{document_id}/send_back
 
@@ -1188,11 +1023,6 @@ falseの場合、署名・合意文書。
 falseの場合、署名・合意文書。
 - signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
 配布文書でない場合は常にfalse。
-- approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-- face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-- has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
 
 ### PUT /v1/documents/{document_id}/signature_requests/cancel
 
@@ -1271,11 +1101,6 @@ falseの場合、署名・合意文書。
 falseの場合、署名・合意文書。
 - signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
 配布文書でない場合は常にfalse。
-- approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-- face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-- has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
 
 ### POST /v1/pdf_documents
 
@@ -1335,11 +1160,6 @@ falseの場合、署名・合意文書。
 falseの場合、署名・合意文書。
   - signer_document_confirmation (必須): boolean - 配布文書の受領者が文書を確認済みかどうか。
 配布文書でない場合は常にfalse。
-  - approve_on_signing (任意): boolean - 署名と合意を同時に行う設定が有効かどうか。
-三者間以上の契約で署名完了後の復路合意ステップを省略する。
-  - face_to_face_url (任意): string(uri) - 対面契約モード（notification_type=face_to_face）で送信された文書について、対面署名画面のURLが返る。
-対面契約でない文書ではレスポンスに含まれない。 例: `https://example.com/documents/1/face_to_face?token=xxxxxxxxxxxxxxxx`
-  - has_password (任意): boolean - 文書にパスワードが設定されている場合は true。
 - message (任意): string - メッセージ
 
 ### GET /v1/users/{user_id}/documents
