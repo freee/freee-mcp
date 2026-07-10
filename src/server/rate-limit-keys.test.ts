@@ -1,7 +1,15 @@
+import { createHash } from 'node:crypto';
 import type { Request } from 'express';
 import { ipKeyGenerator } from 'express-rate-limit';
 import { describe, expect, it } from 'vitest';
-import { rateLimitIpKey, verifiedMcpRateLimitKey } from './http-server.js';
+import {
+  rateLimitIpKey,
+  stateRateLimitKey,
+  tokenRateLimitKey,
+  verifiedMcpRateLimitKey,
+} from './http-server.js';
+
+const sha256 = (v: string): string => createHash('sha256').update(v).digest('hex');
 
 function requestWith(fields: Partial<Request> & { auth?: unknown }): Request {
   return fields as Request;
@@ -49,5 +57,69 @@ describe('rate limit key helpers', () => {
     });
 
     expect(verifiedMcpRateLimitKey(req)).toBe('client:client-1');
+  });
+});
+
+describe('tokenRateLimitKey', () => {
+  it('keys by hashed refresh_token, isolating users behind a shared egress IP', () => {
+    const req = requestWith({
+      ip: '203.0.113.10',
+      body: { grant_type: 'refresh_token', refresh_token: 'rt-secret', client_id: 'shared' },
+    });
+
+    expect(tokenRateLimitKey(req)).toBe(`rt:${sha256('rt-secret')}`);
+  });
+
+  it('keys by hashed authorization code when no refresh_token is present', () => {
+    const req = requestWith({
+      ip: '203.0.113.10',
+      body: { grant_type: 'authorization_code', code: 'auth-code', client_id: 'shared' },
+    });
+
+    expect(tokenRateLimitKey(req)).toBe(`code:${sha256('auth-code')}`);
+  });
+
+  it('does not leak the raw credential into the key', () => {
+    const req = requestWith({ ip: '203.0.113.10', body: { refresh_token: 'rt-secret' } });
+
+    expect(tokenRateLimitKey(req)).not.toContain('rt-secret');
+  });
+
+  it('falls back to client_id when no per-session secret is present', () => {
+    const req = requestWith({ ip: '203.0.113.10', body: { client_id: 'client-1' } });
+
+    expect(tokenRateLimitKey(req)).toBe('client:client-1');
+  });
+
+  it('falls back to IP when the body has no usable identifier', () => {
+    const req = requestWith({ ip: '203.0.113.10', body: {} });
+
+    expect(tokenRateLimitKey(req)).toBe(`ip:${ipKeyGenerator('203.0.113.10')}`);
+  });
+
+  it('does not throw when the body has not been parsed', () => {
+    const req = requestWith({ ip: '203.0.113.10' });
+
+    expect(tokenRateLimitKey(req)).toBe(`ip:${ipKeyGenerator('203.0.113.10')}`);
+  });
+});
+
+describe('stateRateLimitKey', () => {
+  it('keys by hashed per-attempt state, isolating concurrent sessions on one IP', () => {
+    const req = requestWith({ ip: '203.0.113.10', query: { state: 'pkce-state-123' } });
+
+    expect(stateRateLimitKey(req)).toBe(`state:${sha256('pkce-state-123')}`);
+  });
+
+  it('does not leak the raw state into the key', () => {
+    const req = requestWith({ ip: '203.0.113.10', query: { state: 'pkce-state-123' } });
+
+    expect(stateRateLimitKey(req)).not.toContain('pkce-state-123');
+  });
+
+  it('falls back to IP when no state is present', () => {
+    const req = requestWith({ ip: '203.0.113.10', query: {} });
+
+    expect(stateRateLimitKey(req)).toBe(`ip:${ipKeyGenerator('203.0.113.10')}`);
   });
 });

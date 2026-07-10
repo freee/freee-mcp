@@ -1,5 +1,33 @@
 # freee-mcp
 
+## 0.30.4
+
+### Patch Changes
+
+- [`6725488`](https://github.com/freee/freee-mcp/commit/67254885da857bba7b399dc40fa578660611e41b): Remote モードの OAuth エンドポイント (/token /authorize /register /revoke) で、MCP SDK が直接返すエラー応答の `error` / `error_description` を canonical log に記録するようにしました。 ([#208](https://github.com/freee/freee-mcp/pull/208))
+
+  - これまでは SDK が `recordError` を経由せずに 4xx を返すため、ログには `unrecorded` フォールバックしか残らず実際の失敗理由が分かりませんでした。
+  - これにより `invalid_grant` / `invalid_client` / `invalid_request` などの区別がログから可能になります。
+  - 記録するのはサーバー生成の OAuth エラー項目のみ (スクラブ適用)。リクエストボディ (認可コード・client_secret・PKCE verifier) は読み取りません。
+
+- [`289e0de`](https://github.com/freee/freee-mcp/commit/289e0de5bcb76a4effe2ed616ef5f716d990ef63): configure / stdio モードでも `FREEE_*` エンドポイントの env 上書きを尊重するよう `loadConfig` を修正しました。 ([#212](https://github.com/freee/freee-mcp/pull/212))
+
+  - これまで env を読むのは serve モードのみで、`loadConfig` は本番定数をハードコードしていたため、`.envrc` でローカルの authlete/accounts エンドポイントを指定しても configure が本番エンドポイントを開いてしまうバグがありました。
+  - `FREEE_AUTHORIZATION_ENDPOINT` / `FREEE_TOKEN_ENDPOINT` / `FREEE_API_BASE_URL`（末尾スラッシュ除去）/ `FREEE_SCOPE` を上書き可能にし、未設定時は本番定数へフォールバック（`loadRemoteServerConfig` と同一挙動）します。
+  - あわせて CLI の事業所取得を `FREEE_API_URL` 直参照から `getConfig().freee.apiUrl` 経由に統一し、ランタイム API クライアントと挙動を揃えました。
+
+- [`80923b4`](https://github.com/freee/freee-mcp/commit/80923b496f9e15f04821ce9f146de6a61d1120ad): Remote モードの rate limit パラメータをエンドポイント単位の設定オブジェクトに集約 ([#209](https://github.com/freee/freee-mcp/pull/209))
+
+  - 散在していた WINDOW/MAX/IP-MAX の定数を `RATE_LIMITS` にまとめ、各エンドポイントの二段構成（coarse per-IP + fine per-credential/state/user）を一箇所で見通せるように整理（挙動は不変）
+
+- [`80923b4`](https://github.com/freee/freee-mcp/commit/80923b496f9e15f04821ce9f146de6a61d1120ad): Remote モードの rate limit を共有 egress IP 環境向けに修正 ([#209](https://github.com/freee/freee-mcp/pull/209))
+
+  - OAuth トークン発行・更新とコールバックをユーザー / セッション単位でカウントするよう変更し、多数のユーザーが同一 egress IP を共有する環境での 429 を解消
+  - 認証済み MCP リクエストのユーザー単位の上限を引き上げ
+  - rate limit 発動時にどの limiter・キーで制限されたかを canonical log に記録
+
+- [`60f47c8`](https://github.com/freee/freee-mcp/commit/60f47c83d98afd6afca7175da92c374e68d10708): OpenAPI スキーマを最新版に同期 ( 8 files changed, 4442 insertions(+), 978 deletions(-)) ([#211](https://github.com/freee/freee-mcp/pull/211))
+
 ## 0.30.3
 
 ### Patch Changes
