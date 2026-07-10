@@ -244,7 +244,16 @@ export async function startHttpServer(options?: {
       // Disable the SDK's built-in /register limiter (1h/20, in-memory). The
       // freee-mcp Redis-backed limiter mounted in setupRateLimiting() is the
       // single source of truth for /register throttling.
-      clientRegistrationOptions: { rateLimit: false },
+      //
+      // clientSecretExpirySeconds: 0 issues non-expiring secrets
+      // (client_secret_expires_at: 0). The SDK default is 30 days, but a DCR
+      // registration is reused for up to CLIENT_TTL_SECONDS (1 year) via the
+      // fingerprint dedup path, and vendor-fronted clients (claude.ai, ...)
+      // share a single registration across all their users. A 30-day secret
+      // therefore expires while the registration is still live, breaking every
+      // user of that vendor at /token until the client is re-registered. Match
+      // the secret lifetime to the registration lifetime by not expiring it.
+      clientRegistrationOptions: { rateLimit: false, clientSecretExpirySeconds: 0 },
     }),
   );
 

@@ -4,7 +4,11 @@ import type {
 } from '@modelcontextprotocol/sdk/shared/auth.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CIMDFetcher } from './cimd-fetcher.js';
-import { computeClientFingerprint, RedisClientStore } from './client-store.js';
+import {
+  computeClientFingerprint,
+  isClientSecretExpired,
+  RedisClientStore,
+} from './client-store.js';
 import { RedisUnavailableError } from './errors.js';
 
 function createMockRedis() {
@@ -244,6 +248,61 @@ describe('RedisClientStore', () => {
       const store = new RedisClientStore({ redis: redis as never });
       const found = await store.findClientByFingerprint('deadbeef'.repeat(8));
       expect(found).toBeUndefined();
+    });
+
+    it('findClientByFingerprint skips a client whose secret has expired', async () => {
+      const store = new RedisClientStore({ redis: redis as never });
+      const client = {
+        client_id: 'cid-expired',
+        client_id_issued_at: 1700000000,
+        client_secret: 'shh',
+        // expired well in the past
+        client_secret_expires_at: 1700000030,
+        redirect_uris: ['https://app.example.com/cb'],
+        client_name: 'Example',
+      } as OAuthClientInformationFull;
+      await store.registerClient(client);
+
+      const fp = computeClientFingerprint(client);
+      const found = await store.findClientByFingerprint(fp);
+      expect(found).toBeUndefined();
+    });
+
+    it('findClientByFingerprint returns a non-expiring client (client_secret_expires_at 0)', async () => {
+      const store = new RedisClientStore({ redis: redis as never });
+      const client = {
+        client_id: 'cid-forever',
+        client_id_issued_at: 1700000000,
+        client_secret: 'shh',
+        client_secret_expires_at: 0,
+        redirect_uris: ['https://app.example.com/cb'],
+        client_name: 'Example',
+      } as OAuthClientInformationFull;
+      await store.registerClient(client);
+
+      const fp = computeClientFingerprint(client);
+      const found = await store.findClientByFingerprint(fp);
+      expect(found?.client_id).toBe('cid-forever');
+    });
+  });
+
+  describe('isClientSecretExpired', () => {
+    const now = 1_800_000_000;
+
+    it('returns true when the secret expired in the past', () => {
+      expect(isClientSecretExpired({ client_secret_expires_at: now - 1 }, now)).toBe(true);
+    });
+
+    it('returns false when the secret expires in the future', () => {
+      expect(isClientSecretExpired({ client_secret_expires_at: now + 1 }, now)).toBe(false);
+    });
+
+    it('treats 0 as non-expiring', () => {
+      expect(isClientSecretExpired({ client_secret_expires_at: 0 }, now)).toBe(false);
+    });
+
+    it('treats undefined (public client) as non-expiring', () => {
+      expect(isClientSecretExpired({ client_secret_expires_at: undefined }, now)).toBe(false);
     });
   });
 });

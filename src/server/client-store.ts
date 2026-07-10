@@ -29,6 +29,18 @@ export function computeClientFingerprint(metadata: Partial<OAuthClientInformatio
   return createHash('sha256').update(JSON.stringify(normalized)).digest('hex');
 }
 
+// A DCR client whose secret has already expired must not be reused by the
+// /register dedup path: handing it back would keep the vendor (claude.ai, ...)
+// using an expired secret that gets rejected at /token. client_secret_expires_at
+// of 0 or undefined (e.g. public clients) means the secret never expires.
+export function isClientSecretExpired(
+  client: Pick<OAuthClientInformationFull, 'client_secret_expires_at'>,
+  nowSeconds: number = Math.floor(Date.now() / 1000),
+): boolean {
+  const expiresAt = client.client_secret_expires_at;
+  return typeof expiresAt === 'number' && expiresAt > 0 && expiresAt < nowSeconds;
+}
+
 interface ClientStoreOptions {
   redis: Redis;
   cimdFetcher?: CIMDFetcher;
@@ -94,7 +106,12 @@ export class RedisClientStore implements OAuthRegisteredClientsStore {
     const fpKey = `${this.prefix}:client-fp:${fingerprint}`;
     const clientId = await withRedis('findClientByFingerprint:lookup', () => this.redis.get(fpKey));
     if (!clientId) return undefined;
-    return this.getDcrClient(clientId);
+    const client = await this.getDcrClient(clientId);
+    // Skip an expired-secret client so the dedup middleware falls through to a
+    // fresh registration instead of resurrecting a credential /token rejects.
+    // The new registration overwrites the fingerprint index (same metadata).
+    if (client && isClientSecretExpired(client)) return undefined;
+    return client;
   }
 
   private async getCimdClient(
