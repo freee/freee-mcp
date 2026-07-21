@@ -5,40 +5,15 @@ import { getDefaultAuthManager, startCallbackServerWithAutoStop } from '../auth/
 import { AUTH_TIMEOUT_MS, PACKAGE_VERSION } from '../constants.js';
 import { createTextResponse, formatErrorMessage } from '../utils/error.js';
 import { getHttpMethodToolAnnotations } from '../utils/http-method-annotations.js';
-import type { SignTokenContext } from './client.js';
 import { makeSignApiRequest } from './client.js';
 import { getSignCredentials } from './config.js';
 import { buildSignAuthUrl, exchangeSignCodeForTokens } from './oauth.js';
-import type { SignTokenStore } from './server/sign-redis-token-store.js';
 import { clearSignTokens, isSignTokenValid, loadSignTokens } from './tokens.js';
-
-type SignAuthExtra = { authInfo?: { extra?: Record<string, unknown> } };
-
-function extractSignTokenContext(extra?: SignAuthExtra): SignTokenContext | undefined {
-  const authExtra = extra?.authInfo?.extra;
-  if (authExtra?.tokenStore && typeof authExtra.userId === 'string') {
-    return {
-      tokenStore: authExtra.tokenStore as SignTokenStore,
-      userId: authExtra.userId,
-    };
-  }
-  return undefined;
-}
-
-// Remote 時に tokenContext が取れない場合、local filesystem トークンへ fallback させると
-// 他ユーザーの資格情報を共有する impersonation になるため、明示的に失敗させる
-function resolveTokenContext(
-  extra: SignAuthExtra | undefined,
-  isRemote: boolean,
-): SignTokenContext | undefined {
-  const ctx = extractSignTokenContext(extra);
-  if (isRemote && !ctx) {
-    throw new Error(
-      'Remote モードで認証コンテキストが取得できませんでした。MCP クライアントを再接続してください。',
-    );
-  }
-  return ctx;
-}
+import {
+  resolveTokenContext,
+  SIGN_FILE_UPLOAD_TOOL_NAME,
+  type SignAuthExtra,
+} from './tool-support.js';
 
 function addSignAuthTools(server: McpServer, options?: { remote?: boolean }): void {
   // sign_authenticate は CLI mode のみ（remote は MCP OAuth で認証する）
@@ -160,15 +135,29 @@ function addSignAuthTools(server: McpServer, options?: { remote?: boolean }): vo
 }
 
 export function addSignApiTools(server: McpServer, options?: { remote?: boolean }): void {
-  const methods = [
+  // 大きな Base64 body は LLM のツール引数生成が出力上限に達して失敗するため、POST の
+  // 説明で先回りして sign_file_upload へ誘導する。descExtension で method 別の追加文言を
+  // データ側に持たせることで、ループ本体はメソッドごとの均一登録に閉じる
+  const methods: ReadonlyArray<{
+    name: string;
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+    desc: string;
+    descExtension?: string;
+  }> = [
     { name: 'sign_api_get', method: 'GET', desc: 'freee サイン API GET' },
-    { name: 'sign_api_post', method: 'POST', desc: 'freee サイン API POST' },
+    {
+      name: 'sign_api_post',
+      method: 'POST',
+      desc: 'freee サイン API POST',
+      descExtension: `（ファイルから文書を作成する場合は body に Base64 を渡さず ${SIGN_FILE_UPLOAD_TOOL_NAME} ツールを使用してください）`,
+    },
     { name: 'sign_api_put', method: 'PUT', desc: 'freee サイン API PUT' },
     { name: 'sign_api_patch', method: 'PATCH', desc: 'freee サイン API PATCH' },
     { name: 'sign_api_delete', method: 'DELETE', desc: 'freee サイン API DELETE' },
-  ] as const;
+  ];
 
-  for (const { name, method, desc } of methods) {
+  for (const { name, method, desc, descExtension } of methods) {
+    const description = desc + (descExtension ?? '');
     // freee サイン API では一部の DELETE エンドポイントが user_id などの JSON body を要求するため、DELETE も body 許可対象に含める
     const hasBody =
       method === 'POST' || method === 'PUT' || method === 'PATCH' || method === 'DELETE';
@@ -196,7 +185,7 @@ export function addSignApiTools(server: McpServer, options?: { remote?: boolean 
       name,
       {
         title: desc,
-        description: desc,
+        description,
         inputSchema,
         annotations: getHttpMethodToolAnnotations(method),
       },

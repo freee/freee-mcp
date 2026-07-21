@@ -15,7 +15,7 @@ export const SIGN_TOKEN_ENDPOINT = `${SIGN_API_URL}/oauth/token`;
 export const SIGN_OAUTH_SCOPE = 'all';
 
 export const SIGN_SERVER_INSTRUCTIONS =
-  'freee サイン（電子契約）APIと連携するMCPサーバー。文書CRUD・フォルダ・入力項目・マイ印鑑・チーム管理をサポート。';
+  'freee サイン（電子契約）APIと連携するMCPサーバー。文書CRUD・フォルダ・入力項目・マイ印鑑・チーム管理をサポート。詳細ガイドはfreee-api-skill skillのSIGN-GUIDE.mdを参照。skillが未インストールの場合は npx skills add freee/freee-mcp で追加';
 
 const SignConfigSchema = z.object({
   clientId: z.string().optional(),

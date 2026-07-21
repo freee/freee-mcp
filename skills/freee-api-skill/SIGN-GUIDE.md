@@ -27,15 +27,38 @@ API 呼び出し:
 - `sign_api_patch` - PATCH リクエスト
 - `sign_api_delete` - DELETE リクエスト
 
+ファイル操作:
+
+- `sign_file_upload` - ローカルファイルから文書を作成 (POST /v1/documents/uploads または /v1/pdf_documents)
+
+サーバー情報:
+
+- `sign_server_info` - サーバー情報取得（バージョン、transport）
+
 ## 基本ワークフロー
 
 1. 認証状態を確認: `sign_auth_status`（未認証なら `sign_authenticate` を実行）
-2. リファレンスを検索: `sign-references/` 内の該当リファレンスを参照
-3. API を呼び出す: `sign_api_*` ツールを使用
+2. レシピを確認: 文書の作成・ファイルアップロードは `recipes/sign-document-operations.md` を参照
+3. リファレンスを検索: `sign-references/` 内の該当リファレンスを参照
+4. API を呼び出す: `sign_api_*` ツールを使用
 
 注意:
 - freee 本体の `company_id` や `freee_get_current_company` はサインでは使用しません
 - サインの API パスは `/v1/` から始まります（例: `/v1/documents`）
+
+## API ベース URL
+
+サイン API のベース URL は `https://ninja-sign.com` です（`https://sign.freee.co.jp` ではありません）。
+curl 等で MCP を経由せず直接 API を呼び出す場合は `https://ninja-sign.com/v1/...` にリクエストしてください。
+開発用に環境変数 `FREEE_SIGN_API_URL` で向き先を上書きできます。
+
+## 大容量ファイルの送信制限
+
+ファイルから文書を作成する場合は `sign_file_upload` を使ってください（`sign_api_post` に数百 KB を超える Base64 body を渡すと失敗するため）。理由と使い分け・手順は `recipes/sign-document-operations.md` を参照。
+
+## レシピ
+
+- `recipes/sign-document-operations.md` - 文書の作成・ファイルアップロード（エンドポイントの使い分け・uploader_id の取得・署名依頼までの流れ）
 
 ## リファレンス
 
