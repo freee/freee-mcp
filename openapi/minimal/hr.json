@@ -556,6 +556,120 @@
         ]
       }
     },
+    "/api/v1/employees/{employee_id}/deduction_rules": {
+      "get": {
+        "summary": "従業員の控除情報の取得",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した従業員の控除情報をリストで返します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "従業員情報を取得したい年"
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "従業員情報を取得したい月<br>\n締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>\n翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>"
+          },
+          {
+            "name": "employee_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "従業員ID"
+          }
+        ]
+      },
+      "put": {
+        "summary": "従業員の控除情報の更新",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した従業員の控除情報を更新します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n  <li>賞与に紐づく控除（frequency=bonus）の場合、対象年月に賞与情報が登録されている必要があります。</li>\n</ul>",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "更新対象の控除ルールを判定する締め年"
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "更新対象の控除ルールを判定する締め月<br>\n翌月払いの従業員でも、支給月ではなく締め年月を指定してください。<br>\n例: 翌月払い従業員の 2022/01 支給分を対象にする場合は year=2021, month=12 を指定します。<br>"
+          },
+          {
+            "name": "employee_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "従業員ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/api/v1/employees/{employee_id}/deduction_rules/{id}": {
+      "delete": {
+        "summary": "従業員の控除情報の削除",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した従業員の控除情報を削除します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "削除対象の控除ルールを判定する締め年"
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "削除対象の控除ルールを判定する締め月<br>\n翌月払いの従業員でも、支給月ではなく締め年月を指定してください。<br>\n例: 翌月払い従業員の 2022/01 支給分を対象にする場合は year=2021, month=12 を指定します。<br>"
+          },
+          {
+            "name": "employee_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "従業員ID"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "従業員控除ID"
+          }
+        ]
+      }
+    },
     "/api/v1/employees/{employee_id}/profile_custom_fields": {
       "get": {
         "summary": "従業員のカスタム項目の取得",
@@ -1415,6 +1529,85 @@
             "type": "integer",
             "required": true,
             "description": "その他手当ID"
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          }
+        ]
+      }
+    },
+    "/api/v1/deductions": {
+      "get": {
+        "summary": "その他控除一覧の取得",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した事業所のその他控除情報をリストで返します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "frequency",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "支給頻度フィルタ（省略で全件取得）"
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "表示状態フィルタ（省略で全件取得）"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得レコードのオフセット (デフォルト: 0)"
+          }
+        ]
+      },
+      "post": {
+        "summary": "その他控除の作成",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した事業所のその他控除を新規作成します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/api/v1/deductions/{id}": {
+      "get": {
+        "summary": "その他控除の取得",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した事業所のその他控除情報を返します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "その他控除ID"
           },
           {
             "name": "company_id",

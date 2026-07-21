@@ -224,7 +224,7 @@
             "in": "query",
             "type": "string",
             "required": false,
-            "description": "決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル）"
+            "description": "決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル, unprocessed: 決済依頼前, failed: 決済失敗）"
           },
           {
             "name": "deal_status",

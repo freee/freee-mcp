@@ -88,7 +88,7 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 
 操作: 納品取消
 
-説明: 概要 指定されたIDの納品を取消します。
+説明: 概要 指定されたIDの納品を取り消します。
 
 ### パラメータ
 

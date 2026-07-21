@@ -287,7 +287,7 @@
           "businesses"
         ],
         "summary": "案件取消",
-        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの案件を取消します。\n</p>",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの案件を取り消します。\n</p>",
         "operationId": "cancel_business",
         "parameters": [
           {
@@ -1899,7 +1899,7 @@
           "sales_orders"
         ],
         "summary": "受注取消",
-        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの受注を取消します。\n</p>",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの受注を取り消します。\n</p>",
         "operationId": "cancel_sales_order",
         "parameters": [
           {
@@ -2180,7 +2180,7 @@
           "deliveries"
         ],
         "summary": "納品取消",
-        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの納品を取消します。\n</p>",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの納品を取り消します。\n</p>",
         "operationId": "cancel_delivery",
         "parameters": [
           {
@@ -2571,7 +2571,7 @@
           "sales"
         ],
         "summary": "売上取消",
-        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの売上を取消します。\n</p>",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの売上を取り消します。\n</p>",
         "operationId": "cancel_sale",
         "parameters": [
           {
@@ -2593,6 +2593,633 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/SaleCancelResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/periodic_sales": {
+      "get": {
+        "tags": [
+          "periodic_sales"
+        ],
+        "summary": "定期売上一覧",
+        "description": "<h2 id=\"\">概要</h2>\n<p>定期売上の一覧を取得します。\n登録されている定期売上情報を一覧形式で取得できます。\n各種フィルタ条件を指定することで、特定の条件に合致する定期売上のみを取得することが可能です。\n</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>canceled : 取消状態(デフォルト:false)</p>\n</li>\n<li>\n<p>start_recurrence_period : 繰り返し期間(絞り込み開始)</p>\n</li>\n<li>\n<p>end_recurrence_period : 繰り返し期間(絞り込み終了)</p>\n</li>\n<li>\n<p>start_recorded_count : 計上済み回数(絞り込み下限)</p>\n</li>\n<li>\n<p>end_recorded_count : 計上済み回数(絞り込み上限)</p>\n</li>\n<li>\n<p>start_total_schedule_count : 売上予定の総回数(絞り込み下限)</p>\n</li>\n<li>\n<p>end_total_schedule_count : 売上予定の総回数(絞り込み上限)</p>\n</li>\n<li>\n<p>start_next_sales_on : 次回売上予定日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_next_sales_on : 次回売上予定日(絞り込み終了)</p>\n</li>\n<li>\n<p>start_last_revenue_recognition_date : 最終計上日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_last_revenue_recognition_date : 最終計上日(絞り込み終了)</p>\n</li>\n<li>\n<p>customer_ids : 顧客の取引先ID(複数指定可)</p>\n</li>\n<li>\n<p>charge_employee_ids : 社内担当者の従業員ID(複数指定可)</p>\n</li>\n<li>\n<p>reporting_section_ids : 担当部門ID(複数指定可)</p>\n</li>\n<li>\n<p>business_ids : 案件ID(複数指定可)</p>\n</li>\n<li>\n<p>periodic_sales_no : 定期売上No.で絞込</p>\n</li>\n</ul>\n<p>\n`limit`と`offset`パラメータを使用してページネーションが可能です。\nデフォルトでは20件ずつ取得され、最大100件まで一度に取得できます。\n</p>",
+        "operationId": "list_periodic_sales",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/company_id"
+          },
+          {
+            "$ref": "#/components/parameters/canceled"
+          },
+          {
+            "$ref": "#/components/parameters/start_recurrence_period"
+          },
+          {
+            "$ref": "#/components/parameters/end_recurrence_period"
+          },
+          {
+            "$ref": "#/components/parameters/start_recorded_count"
+          },
+          {
+            "$ref": "#/components/parameters/end_recorded_count"
+          },
+          {
+            "$ref": "#/components/parameters/start_total_schedule_count"
+          },
+          {
+            "$ref": "#/components/parameters/end_total_schedule_count"
+          },
+          {
+            "$ref": "#/components/parameters/start_next_sales_on"
+          },
+          {
+            "$ref": "#/components/parameters/end_next_sales_on"
+          },
+          {
+            "$ref": "#/components/parameters/start_last_revenue_recognition_date"
+          },
+          {
+            "$ref": "#/components/parameters/end_last_revenue_recognition_date"
+          },
+          {
+            "$ref": "#/components/parameters/customer_ids"
+          },
+          {
+            "$ref": "#/components/parameters/charge_employee_ids"
+          },
+          {
+            "$ref": "#/components/parameters/reporting_section_ids"
+          },
+          {
+            "$ref": "#/components/parameters/business_ids"
+          },
+          {
+            "$ref": "#/components/parameters/periodic_sales_no"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PeriodicSaleListResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "periodic_sales"
+        ],
+        "summary": "定期売上登録",
+        "description": "<h2 id=\"\">概要</h2>\n<p>新しい定期売上を登録します。\n登録した定期売上の繰り返しルールに従って売上予定が作成されます。\n前受金を取り崩す定期売上を登録する場合は、本APIではなく「前受金取崩（定期売上登録）」API（<code>POST /advance_receipts/{id}/periodic_reduction</code>）を使用してください。\n</p>\n<h2 id=\"_2\">定義</h2>\n<h3>必須項目</h3>\n<ul>\n<li>\n<p>customer_id : 顧客の取引先ID</p>\n</li>\n<li>\n<p>recurrence_rule : 繰り返しルール</p>\n</li>\n<li>\n<p>billing_partner_id : 請求先の取引先ID</p>\n</li>\n<li>\n<p>billing_creating_method_type : 請求の管理</p>\n</li>\n<li>\n<p>collecting_partner_id : 入金元の取引先ID</p>\n</li>\n<li>\n<p>collection_method_type : 入金方法</p>\n</li>\n<li>\n<p>lines : 明細リスト</p>\n</li>\n</ul>\n<h3>任意項目</h3>\n<ul>\n<li>\n<p>business_id : 案件ID</p>\n</li>\n<li>\n<p>subject : 定期売上タイトル</p>\n</li>\n<li>\n<p>customer_order_no : 顧客注文No.</p>\n</li>\n<li>\n<p>invoice_template_id : 請求書テンプレートID ※指定しない場合はデフォルトのテンプレートが適用されます。</p>\n</li>\n<li>\n<p>bills_on_rule : 請求予定日ルール ※billing_creating_method_typeがautomaticallyの場合は必須</p>\n</li>\n<li>\n<p>invoice_subject : 請求書件名</p>\n</li>\n<li>\n<p>invoice_note : 請求書の備考欄に掲載する内容</p>\n</li>\n<li>\n<p>collects_on_rule : 入金予定日ルール ※billing_creating_method_typeがautomaticallyの場合は必須</p>\n</li>\n<li>\n<p>charge_employee_id : 社内担当者の従業員ID</p>\n</li>\n<li>\n<p>reporting_section_id : 担当部門ID</p>\n</li>\n<li>\n<p>internal_memo : 社内メモ</p>\n</li>\n</ul>",
+        "operationId": "create_periodic_sale",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/PeriodicSaleCreateRequest"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/PeriodicSaleCreateResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/periodic_sales/{id}": {
+      "get": {
+        "tags": [
+          "periodic_sales"
+        ],
+        "summary": "定期売上詳細取得",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの定期売上の詳細情報を取得します。</p>",
+        "operationId": "get_periodic_sale",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/company_id"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "定期売上ID",
+            "schema": {
+              "type": "string",
+              "minLength": 26,
+              "maxLength": 26,
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PeriodicSaleShowResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "periodic_sales"
+        ],
+        "summary": "定期売上更新",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの定期売上を更新します。\n定期売上の基本情報や繰り返しルール、請求・入金情報などを部分的に更新できます。\n送信したフィールドのみが更新され、送信しなかったフィールドは変更されません。\n</p>\n<h2 id=\"_2\">定義</h2>\n<h3>更新可能項目</h3>\n<ul>\n<li>\n<p>subject : 定期売上タイトル</p>\n</li>\n<li>\n<p>customer_order_no : 顧客注文No.</p>\n</li>\n<li>\n<p>recurrence_rule : 繰り返しルール</p>\n</li>\n<li>\n<p>customer_id : 顧客の取引先ID</p>\n</li>\n<li>\n<p>billing_creating_method_type : 請求の管理</p>\n</li>\n<li>\n<p>bills_on_rule : 請求予定日ルール ※billing_creating_method_typeがautomaticallyの場合は必須</p>\n</li>\n<li>\n<p>invoice_template_id : 請求書テンプレートID</p>\n</li>\n<li>\n<p>billing_partner_id : 請求先の取引先ID</p>\n</li>\n<li>\n<p>invoice_subject : 請求書件名</p>\n</li>\n<li>\n<p>invoice_note : 請求書の備考欄に掲載する内容</p>\n</li>\n<li>\n<p>collects_on_rule : 入金予定日ルール ※billing_creating_method_typeがautomaticallyの場合は必須</p>\n</li>\n<li>\n<p>collection_method_type : 入金方法</p>\n</li>\n<li>\n<p>collecting_partner_id : 入金元の取引先ID</p>\n</li>\n<li>\n<p>charge_employee_id : 社内担当者の従業員ID</p>\n</li>\n<li>\n<p>reporting_section_id : 担当部門ID</p>\n</li>\n<li>\n<p>internal_memo : 社内メモ</p>\n</li>\n<li>\n<p>business_id : 案件ID</p>\n</li>\n<li>\n<p>lines : 明細リスト（指定した場合、既存の明細は全て削除され、新しい明細に置き換えられます）</p>\n</li>\n</ul>\n<p>※全ての項目は任意です。更新したい項目のみを送信してください。</p>\n<h2 id=\"_3\">注意点</h2>\n<h3>明細行の金額再計算について</h3>\n<p>定期売上を更新する際、登録後に下記の設定変更が行われていた場合は、明細行の金額が再計算されます。</p>\n<ul>\n<li><p>事業所(自社)の設定が変更された場合：freee会計の「設定」で変更可能な\"消費税の経理処理\"、\"消費税の端数処理\"の設定値</p></li>\n<li><p>取引先の設定が変更された場合：freeeの「取引先」で変更可能な\"内税/外税\"の設定値</p></li>\n<li><p>明細取引タイプが変更された場合：freee販売の「明細取引タイプ」で変更可能な\"税区分\"、\"軽減税率\"の設定値</p></li>\n</ul>\n<h3>売上予定への反映について</h3>\n<p>定期売上を更新しても請求は作成されません。繰り返しルールに従って作成される売上予定に更新内容が反映されます。</p>\n<p>個別に内容を変更した売上予定がある場合でも、定期売上の更新内容が反映されます。</p>",
+        "operationId": "update_periodic_sale",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "定期売上ID",
+            "schema": {
+              "type": "string",
+              "minLength": 26,
+              "maxLength": 26,
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/PeriodicSaleUpdateRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PeriodicSaleUpdateResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/periodic_sales/{id}/sales_entries": {
+      "get": {
+        "tags": [
+          "periodic_sales"
+        ],
+        "summary": "売上計上状況取得",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定された定期売上に含まれる各回の売上予定について、計上済みか未計上かの状況を一覧で取得します。\n各行は1回分の売上予定に対応し、<code>status</code>が計上済み(actual)か未計上(scheduled)かを示します。\nlimit/offsetによるページネーションに対応しています。\n</p>",
+        "operationId": "list_periodic_sale_sales_entries",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/company_id"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "定期売上ID",
+            "schema": {
+              "type": "string",
+              "minLength": 26,
+              "maxLength": 26,
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SalesEntryListResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/periodic_sales/{id}/cancellation": {
+      "post": {
+        "tags": [
+          "periodic_sales"
+        ],
+        "summary": "定期売上取消",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの定期売上を取り消します。\n</p>",
+        "operationId": "cancel_periodic_sale",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "定期売上ID",
+            "schema": {
+              "type": "string",
+              "minLength": 26,
+              "maxLength": 26,
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/PeriodicSaleCancelRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PeriodicSaleCancelResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/sales_schedules": {
+      "get": {
+        "tags": [
+          "sales_schedules"
+        ],
+        "summary": "売上予定一覧",
+        "description": "<h2 id=\"\">概要</h2>\n<p>売上予定の一覧を取得します。\n登録されている売上予定情報を一覧形式で取得できます。\n各種フィルタ条件を指定することで、特定の条件に合致する売上予定のみを取得することが可能です。\n</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>periodic_sales_id : 定期売上IDで絞込</p>\n</li>\n<li>\n<p>start_scheduled_date : 売上予定日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_scheduled_date : 売上予定日(絞り込み終了)</p>\n</li>\n<li>\n<p>customer_ids : 顧客の取引先ID(複数指定可)</p>\n</li>\n<li>\n<p>start_bills_on : 請求予定日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_bills_on : 請求予定日(絞り込み終了)</p>\n</li>\n<li>\n<p>start_collects_on : 入金予定日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_collects_on : 入金予定日(絞り込み終了)</p>\n</li>\n<li>\n<p>charge_employee_ids : 社内担当者の従業員ID(複数指定可)</p>\n</li>\n<li>\n<p>reporting_section_ids : 担当部門ID(複数指定可)</p>\n</li>\n<li>\n<p>business_ids : 案件ID(複数指定可)</p>\n</li>\n<li>\n<p>start_last_updated_date : 変更日時(絞り込み開始)</p>\n</li>\n<li>\n<p>end_last_updated_date : 変更日時(絞り込み終了)</p>\n</li>\n</ul>\n<p>\n`limit`と`offset`パラメータを使用してページネーションが可能です。\nデフォルトでは20件ずつ取得され、最大100件まで一度に取得できます。\n</p>",
+        "operationId": "get_sales_schedules",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/company_id"
+          },
+          {
+            "$ref": "#/components/parameters/periodic_sales_id"
+          },
+          {
+            "$ref": "#/components/parameters/start_scheduled_date"
+          },
+          {
+            "$ref": "#/components/parameters/end_scheduled_date"
+          },
+          {
+            "$ref": "#/components/parameters/customer_ids"
+          },
+          {
+            "$ref": "#/components/parameters/start_bills_on"
+          },
+          {
+            "$ref": "#/components/parameters/end_bills_on"
+          },
+          {
+            "$ref": "#/components/parameters/start_collects_on"
+          },
+          {
+            "$ref": "#/components/parameters/end_collects_on"
+          },
+          {
+            "$ref": "#/components/parameters/charge_employee_ids"
+          },
+          {
+            "$ref": "#/components/parameters/reporting_section_ids"
+          },
+          {
+            "$ref": "#/components/parameters/business_ids"
+          },
+          {
+            "$ref": "#/components/parameters/sales_schedules_controller.openapi_components-parameters-start_last_updated_date"
+          },
+          {
+            "$ref": "#/components/parameters/sales_schedules_controller.openapi_components-parameters-end_last_updated_date"
+          },
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SalesScheduleIndexResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/sales_schedules/{id}": {
+      "get": {
+        "tags": [
+          "sales_schedules"
+        ],
+        "summary": "売上予定詳細取得",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの売上予定の詳細情報を取得します。\n指定された売上予定が既に売上として計上済みの場合、303 See Otherを返却し、Locationヘッダーに計上済み売上の詳細取得APIのURLを設定します。\n</p>",
+        "operationId": "get_sales_schedule",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/company_id"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "売上予定ID",
+            "schema": {
+              "type": "string",
+              "minLength": 26,
+              "maxLength": 26,
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SalesScheduleShowResponse"
+          },
+          "303": {
+            "$ref": "#/components/responses/SalesScheduleShowSeeOtherResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "sales_schedules"
+        ],
+        "summary": "売上予定更新",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの売上予定を更新します。\n送信したフィールドのみが更新され、送信しなかったフィールドは変更されません。\n</p>\n<h2 id=\"_2\">定義</h2>\n<h3>更新可能項目</h3>\n<ul>\n<li>\n<p>customer_id : 顧客の取引先ID</p>\n</li>\n<li>\n<p>subject : 件名</p>\n</li>\n<li>\n<p>customer_order_no : 顧客注文No.</p>\n</li>\n<li>\n<p>scheduled_date : 売上予定日</p>\n</li>\n<li>\n<p>billing_creating_method_type : 請求の管理</p>\n</li>\n<li>\n<p>bills_on : 請求予定日</p>\n</li>\n<li>\n<p>billing_partner_id : 請求先の取引先ID</p>\n</li>\n<li>\n<p>invoice_template_id : 請求書テンプレートID</p>\n</li>\n<li>\n<p>invoice_subject : 請求書件名</p>\n</li>\n<li>\n<p>invoice_note : 請求書の備考欄に掲載する内容</p>\n</li>\n<li>\n<p>collects_on : 入金予定日</p>\n</li>\n<li>\n<p>collecting_partner_id : 入金元の取引先ID</p>\n</li>\n<li>\n<p>collection_method_type : 入金方法</p>\n</li>\n<li>\n<p>charge_employee_id : 社内担当者の従業員ID</p>\n</li>\n<li>\n<p>reporting_section_id : 担当部門ID</p>\n</li>\n<li>\n<p>internal_memo : 社内メモ</p>\n</li>\n<li>\n<p>lines : 明細リスト（指定した場合、既存の明細は全て削除され、新しい明細に置き換えられます）</p>\n</li>\n</ul>\n<p>※全ての項目は任意です。更新したい項目のみを送信してください。</p>",
+        "operationId": "update_sales_schedule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "売上予定ID",
+            "schema": {
+              "type": "string",
+              "minLength": 26,
+              "maxLength": 26,
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/SalesScheduleUpdateRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SalesScheduleUpdateResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "sales_schedules"
+        ],
+        "summary": "売上予定削除",
+        "description": "指定されたIDの売上予定を削除します。",
+        "operationId": "delete_sales_schedule",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/company_id"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "売上予定ID",
+            "schema": {
+              "type": "string",
+              "minLength": 26,
+              "maxLength": 26,
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SalesScheduleDeleteResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/sales_schedules/{id}/actualization": {
+      "post": {
+        "tags": [
+          "sales_schedules"
+        ],
+        "summary": "売上予定の売上計上",
+        "description": "指定されたIDの売上予定を売上として計上します。",
+        "operationId": "actualize_sales_schedule",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "売上予定ID",
+            "schema": {
+              "type": "string",
+              "minLength": 26,
+              "maxLength": 26,
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/SalesScheduleActualizationRequest"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/SalesScheduleActualizationResponse"
           },
           "400": {
             "$ref": "#/components/responses/BadRequestErrorResponse"
@@ -3241,6 +3868,59 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/ProcurementCancellationResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/advance_receipts/{id}/periodic_reduction": {
+      "post": {
+        "tags": [
+          "advance_receipts"
+        ],
+        "summary": "前受金取崩（定期売上登録）",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの前受金を取り崩す定期売上を登録します。繰り返しルールに従って売上予定が作成されます。</p>",
+        "operationId": "create_periodic_reduced_sale",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "前受金ID",
+            "schema": {
+              "type": "string",
+              "minLength": 26,
+              "maxLength": 26,
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/AdvanceReceiptPeriodicReductionRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AdvanceReceiptPeriodicReductionResponse"
           },
           "400": {
             "$ref": "#/components/responses/BadRequestErrorResponse"
@@ -4194,6 +4874,234 @@
           "example": "not_settled"
         }
       },
+      "start_recurrence_period": {
+        "name": "start_recurrence_period",
+        "description": "繰り返し期間で絞込：指定期間の開始日。この日付以降も有効な（繰り返し終了日がこの日付以降の）定期売上を返す(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2024-01-01"
+        }
+      },
+      "end_recurrence_period": {
+        "name": "end_recurrence_period",
+        "description": "繰り返し期間で絞込：指定期間の終了日。この日付までに開始している（繰り返し開始日がこの日付以前の）定期売上を返す(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2024-12-31"
+        }
+      },
+      "start_recorded_count": {
+        "name": "start_recorded_count",
+        "description": "計上済み回数で絞込：下限",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "example": 0
+        }
+      },
+      "end_recorded_count": {
+        "name": "end_recorded_count",
+        "description": "計上済み回数で絞込：上限",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "example": 12
+        }
+      },
+      "start_total_schedule_count": {
+        "name": "start_total_schedule_count",
+        "description": "売上予定の総回数で絞込：下限",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "example": 0
+        }
+      },
+      "end_total_schedule_count": {
+        "name": "end_total_schedule_count",
+        "description": "売上予定の総回数で絞込：上限",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "example": 12
+        }
+      },
+      "start_next_sales_on": {
+        "name": "start_next_sales_on",
+        "description": "次回売上予定日で絞込：開始日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2024-01-01"
+        }
+      },
+      "end_next_sales_on": {
+        "name": "end_next_sales_on",
+        "description": "次回売上予定日で絞込：終了日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2024-12-31"
+        }
+      },
+      "start_last_revenue_recognition_date": {
+        "name": "start_last_revenue_recognition_date",
+        "description": "最終計上日で絞込：開始日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2024-01-01"
+        }
+      },
+      "end_last_revenue_recognition_date": {
+        "name": "end_last_revenue_recognition_date",
+        "description": "最終計上日で絞込：終了日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2024-12-31"
+        }
+      },
+      "periodic_sales_no": {
+        "name": "periodic_sales_no",
+        "description": "定期売上No.で絞込",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "example": "PS-2024-0001"
+        }
+      },
+      "periodic_sales_id": {
+        "name": "periodic_sales_id",
+        "description": "定期売上IDで絞込",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "minLength": 26,
+          "maxLength": 26,
+          "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+        }
+      },
+      "start_scheduled_date": {
+        "name": "start_scheduled_date",
+        "description": "売上予定日で絞込：開始日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2025-01-01"
+        }
+      },
+      "end_scheduled_date": {
+        "name": "end_scheduled_date",
+        "description": "売上予定日で絞込：終了日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2025-12-31"
+        }
+      },
+      "start_bills_on": {
+        "name": "start_bills_on",
+        "description": "請求予定日で絞込：開始日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2025-01-01"
+        }
+      },
+      "end_bills_on": {
+        "name": "end_bills_on",
+        "description": "請求予定日で絞込：終了日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2025-12-31"
+        }
+      },
+      "start_collects_on": {
+        "name": "start_collects_on",
+        "description": "入金予定日で絞込：開始日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2025-01-01"
+        }
+      },
+      "end_collects_on": {
+        "name": "end_collects_on",
+        "description": "入金予定日で絞込：終了日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2025-12-31"
+        }
+      },
+      "sales_schedules_controller.openapi_components-parameters-start_last_updated_date": {
+        "name": "start_last_updated_date",
+        "description": "変更日時で絞込：開始日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2025-01-01"
+        }
+      },
+      "sales_schedules_controller.openapi_components-parameters-end_last_updated_date": {
+        "name": "end_last_updated_date",
+        "description": "変更日時で絞込：終了日(yyyy-mm-dd)",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "format": "date",
+          "example": "2025-12-31"
+        }
+      },
       "other_cost_no": {
         "name": "other_cost_no",
         "description": "その他原価No.で絞込",
@@ -4673,6 +5581,7 @@
           "company_id": {
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "description": "事業所ID",
             "example": 1
@@ -4695,6 +5604,7 @@
         "description": "顧客の取引先ID",
         "type": "integer",
         "format": "int64",
+        "minimum": 1,
         "maximum": 9223372036854776000,
         "nullable": true,
         "example": 1001
@@ -4703,6 +5613,7 @@
         "description": "担当部門ID<br>\n※ 親部門のIDは指定できません",
         "type": "integer",
         "format": "int64",
+        "minimum": 1,
         "maximum": 9223372036854776000,
         "nullable": true,
         "example": 67890
@@ -5865,7 +6776,7 @@
             "format": "int64",
             "minimum": 1,
             "maximum": 9223372036854776000,
-            "description": "仕入先ID",
+            "description": "仕入先の取引先ID",
             "nullable": true,
             "example": 1001
           },
@@ -5874,7 +6785,7 @@
             "format": "int64",
             "minimum": 1,
             "maximum": 9223372036854776000,
-            "description": "支払先ID",
+            "description": "支払先の取引先ID",
             "nullable": true,
             "example": 1002
           },
@@ -5954,7 +6865,7 @@
             "format": "int64",
             "minimum": 1,
             "maximum": 9223372036854776000,
-            "description": "セグメントタグ1ID",
+            "description": "セグメントタグ1のID",
             "nullable": true,
             "example": 12345
           },
@@ -5963,7 +6874,7 @@
             "format": "int64",
             "minimum": 1,
             "maximum": 9223372036854776000,
-            "description": "セグメントタグ2ID",
+            "description": "セグメントタグ2のID",
             "nullable": true,
             "example": 12345
           },
@@ -5972,7 +6883,7 @@
             "format": "int64",
             "minimum": 1,
             "maximum": 9223372036854776000,
-            "description": "セグメントタグ3ID",
+            "description": "セグメントタグ3のID",
             "nullable": true,
             "example": 12345
           }
@@ -6019,7 +6930,7 @@
             "nullable": false,
             "maximum": 999999999999,
             "minimum": -999999999999,
-            "description": "金額",
+            "description": "税抜金額",
             "example": 10000
           }
         },
@@ -7171,6 +8082,7 @@
           "accounting_reporting_section_id": {
             "description": "会計計上部門ID<br>\n※ 親部門のIDは指定できません",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
@@ -7179,6 +8091,7 @@
           "item_tag_id": {
             "description": "会計品目タグID",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
@@ -7190,6 +8103,7 @@
             "nullable": true,
             "items": {
               "format": "int64",
+              "minimum": 1,
               "maximum": 9223372036854776000,
               "type": "integer",
               "example": 3001
@@ -7303,6 +8217,7 @@
             "description": "仕入先の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1001
           },
@@ -7337,6 +8252,7 @@
             "description": "発注書テンプレートID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "nullable": true,
             "example": 10001
@@ -7915,6 +8831,7 @@
             "description": "顧客の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1001
           },
@@ -7943,6 +8860,7 @@
             "description": "見積書テンプレートID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "nullable": true,
             "example": 10001
@@ -8314,6 +9232,7 @@
             "description": "顧客の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1001
           },
@@ -8342,6 +9261,7 @@
             "description": "納品書テンプレートID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "nullable": true,
             "example": 10001
@@ -8374,6 +9294,7 @@
             "description": "請求先の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1002
           },
@@ -8381,6 +9302,7 @@
             "description": "請求書テンプレートID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "nullable": true,
             "example": 10002
@@ -8410,6 +9332,7 @@
             "description": "入金元の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1003
           },
@@ -8890,6 +9813,7 @@
             "description": "顧客の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1001
           },
@@ -8904,6 +9828,7 @@
             "description": "納品書テンプレートID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "nullable": true,
             "example": 10001
@@ -8932,6 +9857,7 @@
             "description": "請求書テンプレートID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "nullable": true,
             "example": 10002
@@ -8940,6 +9866,7 @@
             "description": "請求先の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1002
           },
@@ -8971,6 +9898,7 @@
             "description": "入金元の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1003
           },
@@ -9356,6 +10284,7 @@
                 "description": "セグメントタグ1のID",
                 "type": "integer",
                 "format": "int64",
+                "minimum": 1,
                 "maximum": 9223372036854776000,
                 "nullable": true,
                 "example": 12345
@@ -9364,6 +10293,7 @@
                 "description": "セグメントタグ2のID",
                 "type": "integer",
                 "format": "int64",
+                "minimum": 1,
                 "maximum": 9223372036854776000,
                 "nullable": true,
                 "example": 12345
@@ -9372,6 +10302,7 @@
                 "description": "セグメントタグ3のID",
                 "type": "integer",
                 "format": "int64",
+                "minimum": 1,
                 "maximum": 9223372036854776000,
                 "nullable": true,
                 "example": 12345
@@ -9434,6 +10365,7 @@
             "description": "顧客の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1001
           },
@@ -9448,6 +10380,7 @@
             "description": "請求書テンプレートID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "nullable": true,
             "example": 10002
@@ -9456,6 +10389,7 @@
             "description": "請求先の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1002
           },
@@ -9487,6 +10421,7 @@
             "description": "入金元の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1003
           },
@@ -9746,6 +10681,1398 @@
           }
         ]
       },
+      "PeriodicSaleDigest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "定期売上ID",
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
+            "maxLength": 26,
+            "minLength": 26
+          },
+          "periodic_sales_no": {
+            "type": "string",
+            "description": "定期売上No.",
+            "example": "PS-2024-0001"
+          },
+          "subject": {
+            "type": "string",
+            "description": "定期売上タイトル",
+            "nullable": true,
+            "example": "Webサイト保守費"
+          },
+          "canceled": {
+            "type": "boolean",
+            "description": "取消状態",
+            "example": false
+          },
+          "total_schedule_count": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2147483647,
+            "nullable": true,
+            "description": "売上予定の総回数",
+            "example": 12
+          },
+          "recorded_count": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2147483647,
+            "nullable": true,
+            "description": "計上済み回数",
+            "example": 3
+          },
+          "advance_receipt_id": {
+            "type": "string",
+            "description": "紐づく前受金ID（前受金由来の定期売上の場合のみ。それ以外はnull）",
+            "nullable": true,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
+            "maxLength": 26,
+            "minLength": 26
+          },
+          "registered_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "登録日時",
+            "example": "2024-01-15T10:30:00+09:00"
+          },
+          "last_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "変更日時",
+            "example": "2024-01-16T14:45:00+09:00"
+          },
+          "registered_by": {
+            "description": "登録者",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Employee"
+              }
+            ]
+          },
+          "last_updated_by": {
+            "description": "変更者",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Employee"
+              }
+            ]
+          },
+          "customer": {
+            "description": "顧客",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Partner"
+              }
+            ]
+          },
+          "business": {
+            "$ref": "#/components/schemas/Business"
+          },
+          "charge_employee": {
+            "description": "社内担当者",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Employee"
+              }
+            ],
+            "nullable": true
+          },
+          "reporting_section": {
+            "$ref": "#/components/schemas/ReportingSection"
+          },
+          "billing_partner": {
+            "description": "請求先",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Partner"
+              }
+            ]
+          },
+          "collecting_partner": {
+            "description": "入金元",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Partner"
+              }
+            ]
+          },
+          "invoice_note": {
+            "type": "string",
+            "description": "請求書の備考欄に掲載する内容",
+            "nullable": true,
+            "example": "お振込期限は月末までとなります"
+          },
+          "internal_memo": {
+            "$ref": "#/components/schemas/InternalMemo"
+          }
+        },
+        "required": [
+          "id",
+          "periodic_sales_no",
+          "canceled",
+          "registered_at",
+          "last_updated_at",
+          "registered_by",
+          "last_updated_by",
+          "customer"
+        ],
+        "additionalProperties": false
+      },
+      "PeriodicSaleBasicLineParams": {
+        "description": "定期売上通常明細パラメータ",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicLineParams"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "segment_tag_1_id": {
+                "description": "セグメントタグ1のID",
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "maximum": 9223372036854776000,
+                "nullable": true,
+                "example": 12345
+              },
+              "segment_tag_2_id": {
+                "description": "セグメントタグ2のID",
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "maximum": 9223372036854776000,
+                "nullable": true,
+                "example": 12345
+              },
+              "segment_tag_3_id": {
+                "description": "セグメントタグ3のID",
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "maximum": 9223372036854776000,
+                "nullable": true,
+                "example": 12345
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "PeriodicSaleLineParams": {
+        "description": "明細パラメータ",
+        "discriminator": {
+          "propertyName": "line_type",
+          "mapping": {
+            "basic": "#/components/schemas/PeriodicSaleBasicLineParams",
+            "text": "#/components/schemas/TextLineParams"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PeriodicSaleBasicLineParams"
+          },
+          {
+            "$ref": "#/components/schemas/TextLineParams"
+          }
+        ]
+      },
+      "PeriodicSaleRequestBase": {
+        "type": "object",
+        "properties": {
+          "business_id": {
+            "description": "案件ID",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 26,
+            "minLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "customer_id": {
+            "description": "顧客の取引先ID",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "example": 1001
+          },
+          "subject": {
+            "description": "定期売上タイトル",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100,
+            "example": "サンプル案件定期売上の件"
+          },
+          "customer_order_no": {
+            "description": "顧客注文No.",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100,
+            "example": "C-PO-20211212-001"
+          },
+          "recurrence_rule": {
+            "description": "繰り返しルール",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "start_date",
+              "end_date",
+              "interval",
+              "day_of_month"
+            ],
+            "properties": {
+              "start_date": {
+                "description": "開始日",
+                "type": "string",
+                "format": "date",
+                "example": "2025-04-01"
+              },
+              "end_date": {
+                "description": "終了日",
+                "type": "string",
+                "format": "date",
+                "example": "2026-03-31"
+              },
+              "interval": {
+                "description": "周期 (毎月: 1, 2ヶ月ごと: 2, 3ヶ月ごと: 3, 6ヶ月ごと: 6, 12ヶ月ごと: 12, 偶数月: even, 奇数月: odd)",
+                "type": "string",
+                "enum": [
+                  "1",
+                  "2",
+                  "3",
+                  "6",
+                  "12",
+                  "even",
+                  "odd"
+                ],
+                "example": "1"
+              },
+              "day_of_month": {
+                "description": "周期日。1〜28 の日付、または末日を指定します。末日は 32 を指定してください（29〜31 は月によって存在しない日があるため指定できません）。",
+                "type": "integer",
+                "format": "int32",
+                "example": 32
+              }
+            }
+          },
+          "billing_partner_id": {
+            "description": "請求先の取引先ID",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "example": 1002
+          },
+          "invoice_template_id": {
+            "description": "請求書テンプレートID",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "nullable": true,
+            "example": 10002
+          },
+          "bills_on_rule": {
+            "description": "請求予定日ルール ※billing_creating_method_typeがautomaticallyの場合は必須",
+            "nullable": true,
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "cutoff_day",
+              "additional_months",
+              "fixed_day"
+            ],
+            "properties": {
+              "cutoff_day": {
+                "description": "締め日。1〜28 の日付、または末日を指定します。末日は 32 を指定してください（29〜31 は月によって存在しない日があるため指定できません）。",
+                "type": "integer",
+                "format": "int32",
+                "example": 32
+              },
+              "additional_months": {
+                "description": "締め日を基準に加算する月数。0 は当月、1 は翌月、2 は翌々月",
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0,
+                "maximum": 6,
+                "example": 1
+              },
+              "fixed_day": {
+                "description": "締め日を基準に additional_months か月後の予定日の日。1〜28 の日付、または末日を指定します。末日は 32 を指定してください（29〜31 は月によって存在しない日があるため指定できません）。",
+                "type": "integer",
+                "format": "int32",
+                "example": 32
+              }
+            }
+          },
+          "billing_creating_method_type": {
+            "$ref": "#/components/schemas/BillingCreatingMethodType"
+          },
+          "invoice_subject": {
+            "description": "請求書件名",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100,
+            "example": "サンプル案件定期売上の件"
+          },
+          "invoice_note": {
+            "description": "請求書の備考欄に掲載する内容",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 4000,
+            "example": "お振込期限は月末までとなります"
+          },
+          "collecting_partner_id": {
+            "description": "入金元の取引先ID",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "example": 1003
+          },
+          "collection_method_type": {
+            "$ref": "#/components/schemas/CollectionMethodType"
+          },
+          "collects_on_rule": {
+            "description": "入金予定日ルール ※billing_creating_method_typeがautomaticallyの場合は必須",
+            "nullable": true,
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "cutoff_day",
+              "additional_months",
+              "fixed_day"
+            ],
+            "properties": {
+              "cutoff_day": {
+                "description": "締め日。1〜28 の日付、または末日を指定します。末日は 32 を指定してください（29〜31 は月によって存在しない日があるため指定できません）。",
+                "type": "integer",
+                "format": "int32",
+                "example": 32
+              },
+              "additional_months": {
+                "description": "締め日を基準に加算する月数。0 は当月、1 は翌月、2 は翌々月",
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0,
+                "maximum": 6,
+                "example": 1
+              },
+              "fixed_day": {
+                "description": "締め日を基準に additional_months か月後の予定日の日。1〜28 の日付、または末日を指定します。末日は 32 を指定してください（29〜31 は月によって存在しない日があるため指定できません）。",
+                "type": "integer",
+                "format": "int32",
+                "example": 32
+              }
+            }
+          },
+          "charge_employee_id": {
+            "$ref": "#/components/schemas/ChargeEmployeeId"
+          },
+          "reporting_section_id": {
+            "$ref": "#/components/schemas/ReportingSectionId"
+          },
+          "internal_memo": {
+            "$ref": "#/components/schemas/InternalMemo"
+          },
+          "lines": {
+            "description": "明細リスト",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeriodicSaleLineParams"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "PeriodicSaleMinimalResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "定期売上ID",
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "registered_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "登録日時",
+            "example": "2025-04-01T09:00:00+09:00"
+          },
+          "last_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "変更日時",
+            "example": "2025-04-15T14:30:00+09:00"
+          }
+        },
+        "required": [
+          "id",
+          "registered_at",
+          "last_updated_at"
+        ],
+        "additionalProperties": false
+      },
+      "ScheduledDateRuleDay": {
+        "description": "予定日ルールの日。1〜28 の日付、または末日を指定します。\n末日は 32 を指定してください（29〜31 は月によって存在しない日があるため指定できません）。\n",
+        "type": "integer",
+        "format": "int32",
+        "example": 32
+      },
+      "RecurrenceRule": {
+        "description": "繰り返しルール",
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "description": "開始日",
+            "type": "string",
+            "format": "date",
+            "example": "2025-04-01"
+          },
+          "end_date": {
+            "description": "終了日",
+            "type": "string",
+            "format": "date",
+            "example": "2026-03-31"
+          },
+          "interval": {
+            "description": "周期 (毎月: 1, 2ヶ月ごと: 2, 3ヶ月ごと: 3, 6ヶ月ごと: 6, 12ヶ月ごと: 12, 偶数月: even, 奇数月: odd)",
+            "type": "string",
+            "enum": [
+              "1",
+              "2",
+              "3",
+              "6",
+              "12",
+              "even",
+              "odd"
+            ],
+            "example": "1"
+          },
+          "day_of_month": {
+            "description": "周期日。32 は末日",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScheduledDateRuleDay"
+              }
+            ]
+          }
+        },
+        "required": [
+          "start_date",
+          "end_date",
+          "interval",
+          "day_of_month"
+        ],
+        "additionalProperties": false
+      },
+      "PeriodicSaleBasicLineDetail": {
+        "description": "定期売上通常明細詳細",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicLineDetail"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "is_manual_tax_entry": {
+                "description": "税の手動入力フラグ",
+                "type": "boolean",
+                "example": false
+              },
+              "segment_tag_1": {
+                "description": "セグメントタグ1",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SegmentTag"
+                  }
+                ]
+              },
+              "segment_tag_2": {
+                "description": "セグメントタグ2",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SegmentTag"
+                  }
+                ]
+              },
+              "segment_tag_3": {
+                "description": "セグメントタグ3",
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/SegmentTag"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "is_manual_tax_entry",
+              "segment_tag_1",
+              "segment_tag_2",
+              "segment_tag_3"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "PeriodicSaleLineDetail": {
+        "description": "定期売上明細詳細",
+        "discriminator": {
+          "propertyName": "line_type",
+          "mapping": {
+            "basic": "#/components/schemas/PeriodicSaleBasicLineDetail",
+            "text": "#/components/schemas/TextLineDetail"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/PeriodicSaleBasicLineDetail"
+          },
+          {
+            "$ref": "#/components/schemas/TextLineDetail"
+          }
+        ]
+      },
+      "BillingCreatingMethodTypeWithNone": {
+        "description": "請求作成方法区分\n* `automatically` - 自動作成\n* `manually` - 手動作成\n* `none` - なし",
+        "enum": [
+          "automatically",
+          "manually",
+          "none"
+        ],
+        "type": "string",
+        "example": "none"
+      },
+      "ScheduledDateRule": {
+        "description": "予定日ルール",
+        "type": "object",
+        "properties": {
+          "cutoff_day": {
+            "description": "締め日。32 は末日",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScheduledDateRuleDay"
+              }
+            ]
+          },
+          "additional_months": {
+            "description": "締め日を基準に加算する月数。0 は当月、1 は翌月、2 は翌々月",
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 6,
+            "example": 1
+          },
+          "fixed_day": {
+            "description": "締め日を基準に additional_months か月後の予定日の日。32 は末日",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScheduledDateRuleDay"
+              }
+            ]
+          }
+        },
+        "required": [
+          "cutoff_day",
+          "additional_months",
+          "fixed_day"
+        ],
+        "additionalProperties": false
+      },
+      "SalesEntry": {
+        "type": "object",
+        "description": "売上計上状況",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "effectiveブロックの値のソース（actual: 計上済み / scheduled: 未計上）",
+            "enum": [
+              "actual",
+              "scheduled"
+            ],
+            "example": "scheduled"
+          },
+          "sales_schedule_id": {
+            "type": "string",
+            "description": "売上予定ID（計上済み時はnull。計上済みの売上予定は詳細を閲覧できないため）",
+            "minLength": 26,
+            "maxLength": 26,
+            "nullable": true,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "scheduled_date": {
+            "type": "string",
+            "format": "date",
+            "description": "売上予定日",
+            "example": "2024-01-31"
+          },
+          "actual_sales_id": {
+            "type": "string",
+            "description": "計上された売上ID（未計上時はnull）",
+            "minLength": 26,
+            "maxLength": 26,
+            "nullable": true,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "actual_sales_revenue_recognition_date": {
+            "type": "string",
+            "format": "date",
+            "description": "計上された売上の計上日（未計上時はnull）",
+            "nullable": true,
+            "example": "2024-01-31"
+          },
+          "amount_set": {
+            "description": "金額セット（statusが示す側の値）",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AmountSet"
+              }
+            ]
+          },
+          "internal_memo": {
+            "description": "社内メモ（statusが示す側の値）",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/InternalMemo"
+              }
+            ]
+          },
+          "registered_by": {
+            "description": "登録者（statusが示す側の値）",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Employee"
+              }
+            ]
+          },
+          "registered_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "登録日時（statusが示す側の値）",
+            "example": "2024-01-15T10:30:00+09:00"
+          },
+          "last_updated_by": {
+            "description": "変更者（statusが示す側の値）",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Employee"
+              }
+            ]
+          },
+          "last_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "変更日時（statusが示す側の値）",
+            "example": "2024-01-16T14:45:00+09:00"
+          }
+        },
+        "required": [
+          "status",
+          "scheduled_date",
+          "amount_set",
+          "registered_by",
+          "registered_at",
+          "last_updated_by",
+          "last_updated_at"
+        ],
+        "additionalProperties": false
+      },
+      "SalesScheduleRegistrationStatus": {
+        "description": "売上予定の登録ステータス (未登録: none, 処理中: in_progress, エラー: error)",
+        "enum": [
+          "none",
+          "in_progress",
+          "error"
+        ],
+        "type": "string",
+        "example": "none"
+      },
+      "SalesScheduleDigest": {
+        "type": "object",
+        "description": "売上予定一覧情報",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "売上予定ID",
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "periodic_sales_id": {
+            "type": "string",
+            "description": "定期売上ID",
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "advance_receipt_id": {
+            "type": "string",
+            "description": "引継元の前受金ID",
+            "nullable": true,
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "subject": {
+            "type": "string",
+            "description": "件名",
+            "nullable": true,
+            "example": "Webサイト保守費"
+          },
+          "customer_order_no": {
+            "type": "string",
+            "description": "顧客注文No.",
+            "nullable": true,
+            "example": "C-PO-20211212-001"
+          },
+          "scheduled_date": {
+            "type": "string",
+            "format": "date",
+            "description": "売上予定日",
+            "example": "2025-04-30"
+          },
+          "registration_status": {
+            "$ref": "#/components/schemas/SalesScheduleRegistrationStatus"
+          },
+          "customer": {
+            "description": "顧客",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Partner"
+              }
+            ]
+          },
+          "bills_on": {
+            "type": "string",
+            "format": "date",
+            "description": "請求予定日",
+            "nullable": true,
+            "example": "2025-05-31"
+          },
+          "billing_partner": {
+            "description": "請求先",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Partner"
+              }
+            ]
+          },
+          "collects_on": {
+            "type": "string",
+            "format": "date",
+            "description": "入金予定日",
+            "nullable": true,
+            "example": "2025-06-30"
+          },
+          "collecting_partner": {
+            "description": "入金元",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Partner"
+              }
+            ]
+          },
+          "charge_employee": {
+            "description": "社内担当者",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Employee"
+              }
+            ]
+          },
+          "reporting_section": {
+            "description": "担当部門",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReportingSection"
+              }
+            ]
+          },
+          "amount_set": {
+            "description": "売上金額",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AmountSet"
+              }
+            ]
+          },
+          "total_amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "源泉徴収税額を除いた合計金額",
+            "example": 110000
+          },
+          "amount_of_withholding_tax": {
+            "type": "integer",
+            "format": "int64",
+            "description": "源泉徴収税額",
+            "nullable": true,
+            "example": 10000
+          },
+          "business": {
+            "description": "案件",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Business"
+              }
+            ]
+          },
+          "registered_by": {
+            "description": "登録者",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Employee"
+              }
+            ]
+          },
+          "last_updated_by": {
+            "description": "最新変更者",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Employee"
+              }
+            ]
+          },
+          "registered_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "登録日時",
+            "example": "2025-04-01T09:00:00+09:00"
+          },
+          "last_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "最終変更日時",
+            "example": "2025-04-15T14:30:00+09:00"
+          }
+        },
+        "required": [
+          "id",
+          "periodic_sales_id",
+          "scheduled_date",
+          "registration_status",
+          "customer",
+          "amount_set",
+          "total_amount",
+          "registered_by",
+          "last_updated_by",
+          "registered_at",
+          "last_updated_at"
+        ],
+        "additionalProperties": false
+      },
+      "SalesScheduleBasicLineDetail": {
+        "description": "売上予定通常明細詳細",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicLineDetail"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "is_manual_tax_entry": {
+                "description": "税の手動入力フラグ",
+                "type": "boolean",
+                "example": false
+              },
+              "account_item": {
+                "$ref": "#/components/schemas/AccountItem"
+              },
+              "segment_tag_1": {
+                "$ref": "#/components/schemas/SegmentTag"
+              },
+              "segment_tag_2": {
+                "$ref": "#/components/schemas/SegmentTag"
+              },
+              "segment_tag_3": {
+                "$ref": "#/components/schemas/SegmentTag"
+              }
+            },
+            "required": [
+              "is_manual_tax_entry",
+              "account_item"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "SalesScheduleLineDetail": {
+        "description": "売上予定明細詳細",
+        "discriminator": {
+          "propertyName": "line_type",
+          "mapping": {
+            "basic": "#/components/schemas/SalesScheduleBasicLineDetail",
+            "text": "#/components/schemas/TextLineDetail"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/SalesScheduleBasicLineDetail"
+          },
+          {
+            "$ref": "#/components/schemas/TextLineDetail"
+          }
+        ]
+      },
+      "SalesScheduleDetail": {
+        "type": "object",
+        "description": "売上予定詳細",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "売上予定ID",
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "periodic_sales_id": {
+            "type": "string",
+            "description": "定期売上ID",
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "advance_receipt_id": {
+            "type": "string",
+            "description": "引継元の前受金ID",
+            "nullable": true,
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "subject": {
+            "type": "string",
+            "description": "件名",
+            "nullable": true,
+            "example": "Webサイト保守費"
+          },
+          "customer_order_no": {
+            "type": "string",
+            "description": "顧客注文No.",
+            "nullable": true,
+            "example": "C-PO-20211212-001"
+          },
+          "scheduled_date": {
+            "type": "string",
+            "format": "date",
+            "description": "売上予定日",
+            "example": "2025-04-30"
+          },
+          "registration_status": {
+            "$ref": "#/components/schemas/SalesScheduleRegistrationStatus"
+          },
+          "customer": {
+            "description": "顧客",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Partner"
+              }
+            ]
+          },
+          "billing_creating_method_type": {
+            "$ref": "#/components/schemas/BillingCreatingMethodTypeWithNone"
+          },
+          "bills_on": {
+            "type": "string",
+            "format": "date",
+            "description": "請求予定日",
+            "nullable": true,
+            "example": "2025-05-31"
+          },
+          "invoice_template_name": {
+            "type": "string",
+            "description": "請求書テンプレート名称",
+            "nullable": true,
+            "example": "デフォルトテンプレート"
+          },
+          "billing_partner": {
+            "description": "請求先",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Partner"
+              }
+            ]
+          },
+          "invoice_subject": {
+            "type": "string",
+            "description": "請求書件名",
+            "nullable": true,
+            "example": "サンプル案件売上の件"
+          },
+          "invoice_note": {
+            "type": "string",
+            "description": "請求書の備考欄に掲載する内容",
+            "nullable": true,
+            "example": "お振込期限は月末までとなります"
+          },
+          "collects_on": {
+            "type": "string",
+            "format": "date",
+            "description": "入金予定日",
+            "nullable": true,
+            "example": "2025-06-30"
+          },
+          "collecting_partner": {
+            "description": "入金元",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Partner"
+              }
+            ]
+          },
+          "collection_method_type": {
+            "$ref": "#/components/schemas/CollectionMethodTypeWithNone"
+          },
+          "charge_employee": {
+            "description": "社内担当者",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Employee"
+              }
+            ]
+          },
+          "reporting_section": {
+            "$ref": "#/components/schemas/ReportingSection"
+          },
+          "internal_memo": {
+            "$ref": "#/components/schemas/InternalMemo"
+          },
+          "amount_set": {
+            "description": "売上金額",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AmountSet"
+              }
+            ]
+          },
+          "amount_set_rates": {
+            "description": "税率を含む金額セット",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AmountSetRate"
+            }
+          },
+          "total_amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "源泉徴収税額を除いた合計金額",
+            "example": 110000
+          },
+          "amount_of_withholding_tax": {
+            "type": "integer",
+            "format": "int64",
+            "description": "源泉徴収税額",
+            "nullable": true,
+            "example": 10000
+          },
+          "business": {
+            "$ref": "#/components/schemas/Business"
+          },
+          "registered_by": {
+            "description": "登録者",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Employee"
+              }
+            ]
+          },
+          "last_updated_by": {
+            "description": "変更者",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Employee"
+              }
+            ]
+          },
+          "registered_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "登録日時",
+            "example": "2025-04-01T09:00:00+09:00"
+          },
+          "last_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "変更日時",
+            "example": "2025-04-15T14:30:00+09:00"
+          },
+          "lines": {
+            "description": "売上予定明細リスト",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SalesScheduleLineDetail"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "periodic_sales_id",
+          "scheduled_date",
+          "registration_status",
+          "customer",
+          "billing_creating_method_type",
+          "collection_method_type",
+          "amount_set",
+          "amount_set_rates",
+          "total_amount",
+          "registered_by",
+          "last_updated_by",
+          "registered_at",
+          "last_updated_at",
+          "lines"
+        ],
+        "additionalProperties": false
+      },
+      "SalesScheduleMinimalResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "売上予定ID",
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "registered_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "登録日時",
+            "example": "2025-04-01T09:00:00+09:00"
+          },
+          "last_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "変更日時",
+            "example": "2025-04-15T14:30:00+09:00"
+          }
+        },
+        "required": [
+          "id",
+          "registered_at",
+          "last_updated_at"
+        ],
+        "additionalProperties": false
+      },
+      "SalesScheduleBasicLineParams": {
+        "description": "売上予定通常明細パラメータ",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BasicLineParams"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "segment_tag_1_id": {
+                "description": "セグメントタグ1のID",
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "maximum": 9223372036854776000,
+                "nullable": true,
+                "example": 12345
+              },
+              "segment_tag_2_id": {
+                "description": "セグメントタグ2のID",
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "maximum": 9223372036854776000,
+                "nullable": true,
+                "example": 12345
+              },
+              "segment_tag_3_id": {
+                "description": "セグメントタグ3のID",
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "maximum": 9223372036854776000,
+                "nullable": true,
+                "example": 12345
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "SalesScheduleLineParams": {
+        "description": "売上予定明細パラメータ",
+        "discriminator": {
+          "propertyName": "line_type",
+          "mapping": {
+            "basic": "#/components/schemas/SalesScheduleBasicLineParams",
+            "text": "#/components/schemas/TextLineParams"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/SalesScheduleBasicLineParams"
+          },
+          {
+            "$ref": "#/components/schemas/TextLineParams"
+          }
+        ]
+      },
+      "SalesScheduleUpdateParams": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "description": "顧客の取引先ID",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "example": 1001
+          },
+          "subject": {
+            "description": "件名",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100,
+            "example": "サンプル案件売上の件"
+          },
+          "customer_order_no": {
+            "description": "顧客注文No.",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100,
+            "example": "C-PO-20211212-001"
+          },
+          "scheduled_date": {
+            "description": "売上予定日",
+            "type": "string",
+            "format": "date",
+            "example": "2025-04-30"
+          },
+          "billing_creating_method_type": {
+            "$ref": "#/components/schemas/BillingCreatingMethodType"
+          },
+          "bills_on": {
+            "description": "請求予定日",
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2025-05-31"
+          },
+          "billing_partner_id": {
+            "description": "請求先の取引先ID",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "example": 1002
+          },
+          "invoice_template_id": {
+            "description": "請求書テンプレートID",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "nullable": true,
+            "example": 10002
+          },
+          "invoice_subject": {
+            "description": "請求書件名",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100,
+            "example": "サンプル案件売上の件"
+          },
+          "invoice_note": {
+            "description": "請求書の備考欄に掲載する内容",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 4000,
+            "example": "お振込期限は月末までとなります"
+          },
+          "collects_on": {
+            "description": "入金予定日",
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2025-06-30"
+          },
+          "collecting_partner_id": {
+            "description": "入金元の取引先ID",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "example": 1003
+          },
+          "collection_method_type": {
+            "$ref": "#/components/schemas/CollectionMethodType"
+          },
+          "charge_employee_id": {
+            "$ref": "#/components/schemas/ChargeEmployeeId"
+          },
+          "reporting_section_id": {
+            "$ref": "#/components/schemas/ReportingSectionId"
+          },
+          "internal_memo": {
+            "$ref": "#/components/schemas/InternalMemo"
+          },
+          "lines": {
+            "description": "売上予定明細リスト（指定した場合、既存の明細は全て削除され、新しい明細に置き換えられます）",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SalesScheduleLineParams"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "SalesScheduleActualizationResult": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "売上予定ID",
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "sales_id": {
+            "type": "string",
+            "description": "計上された売上のID",
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "registered_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "登録日時",
+            "example": "2025-04-01T09:00:00+09:00"
+          },
+          "last_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "変更日時",
+            "example": "2025-04-15T14:30:00+09:00"
+          }
+        },
+        "required": [
+          "id",
+          "sales_id",
+          "registered_at",
+          "last_updated_at"
+        ],
+        "additionalProperties": false
+      },
       "OtherCostDetail": {
         "type": "object",
         "properties": {
@@ -9825,7 +12152,7 @@
                 "type": "integer",
                 "format": "int64",
                 "maximum": 9223372036854776000,
-                "description": "会計取引ID",
+                "description": "会計の取引ID",
                 "example": 1001
               },
               "deal_line_id": {
@@ -10136,6 +12463,7 @@
           "accounting_reporting_section_id": {
             "description": "会計計上部門ID<br>\n※ 親部門のIDは指定できません",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
@@ -10144,6 +12472,7 @@
           "item_tag_id": {
             "description": "会計品目タグID",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
@@ -10155,30 +12484,34 @@
             "nullable": true,
             "items": {
               "format": "int64",
+              "minimum": 1,
               "maximum": 9223372036854776000,
               "type": "integer",
               "example": 3001
             }
           },
           "segment_tag_1_id": {
-            "description": "セグメントタグ1 ID",
+            "description": "セグメントタグ1のID",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
             "example": 12345
           },
           "segment_tag_2_id": {
-            "description": "セグメントタグ2 ID",
+            "description": "セグメントタグ2のID",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
             "example": 12346
           },
           "segment_tag_3_id": {
-            "description": "セグメントタグ3 ID",
+            "description": "セグメントタグ3のID",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
@@ -10214,6 +12547,7 @@
             "description": "仕入先の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1001
           },
@@ -10522,6 +12856,7 @@
           "accounting_reporting_section_id": {
             "description": "会計計上部門ID<br>\n※ 親部門のIDは指定できません",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
@@ -10530,6 +12865,7 @@
           "item_tag_id": {
             "description": "会計品目タグID",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
@@ -10541,30 +12877,34 @@
             "nullable": true,
             "items": {
               "format": "int64",
+              "minimum": 1,
               "maximum": 9223372036854776000,
               "type": "integer",
               "example": 3001
             }
           },
           "segment_tag_1_id": {
-            "description": "セグメントタグ1 ID",
+            "description": "セグメントタグ1のID",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
             "example": 12345
           },
           "segment_tag_2_id": {
-            "description": "セグメントタグ2 ID",
+            "description": "セグメントタグ2のID",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
             "example": 12346
           },
           "segment_tag_3_id": {
-            "description": "セグメントタグ3 ID",
+            "description": "セグメントタグ3のID",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "type": "integer",
             "nullable": true,
@@ -10601,6 +12941,7 @@
             "description": "仕入先の取引先ID",
             "type": "integer",
             "format": "int64",
+            "minimum": 1,
             "maximum": 9223372036854776000,
             "example": 1001
           },
@@ -10646,6 +12987,180 @@
             }
           }
         },
+        "additionalProperties": false
+      },
+      "AdvanceReceiptReductionLineParams": {
+        "description": "売上通常明細パラメータ",
+        "type": "object",
+        "properties": {
+          "line_type": {
+            "description": "明細種別（売上は basic のみサポート）",
+            "type": "string",
+            "enum": [
+              "basic"
+            ],
+            "example": "basic"
+          },
+          "deal_line_type_id": {
+            "description": "明細取引タイプID",
+            "type": "string",
+            "maxLength": 26,
+            "minLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "master_item_id": {
+            "description": "商品ID",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 26,
+            "minLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
+          "description": {
+            "description": "摘要",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200,
+            "example": "売上明細の摘要"
+          },
+          "quantity": {
+            "description": "数量",
+            "format": "double",
+            "type": "number",
+            "example": 1
+          },
+          "unit_price": {
+            "description": "単価",
+            "format": "double",
+            "type": "number",
+            "maximum": 999999999999,
+            "minimum": 0,
+            "example": 100000
+          },
+          "uom_name": {
+            "description": "単位",
+            "type": "string",
+            "nullable": true,
+            "maxLength": 10,
+            "example": "個"
+          },
+          "item_tag_id": {
+            "description": "会計品目タグID",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "type": "integer",
+            "nullable": true,
+            "example": 2001
+          },
+          "accounting_reporting_section_id": {
+            "description": "会計計上部門ID<br>\n※ 親部門のIDは指定できません",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "nullable": true,
+            "example": 67890
+          },
+          "memo_tags": {
+            "description": "メモタグID",
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "format": "int64",
+              "minimum": 1,
+              "maximum": 9223372036854776000,
+              "type": "integer",
+              "example": 3001
+            }
+          },
+          "is_manual_tax_entry": {
+            "description": "税の手動入力を行うかどうか",
+            "type": "boolean",
+            "example": false
+          },
+          "tax": {
+            "description": "手動入力した税額<br>\n※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。",
+            "type": "integer",
+            "format": "int64",
+            "maximum": 999999999999,
+            "minimum": -999999999999,
+            "nullable": true,
+            "example": 10000
+          },
+          "segment_tag_1_id": {
+            "description": "セグメントタグ1のID",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "nullable": true,
+            "example": 12345
+          },
+          "segment_tag_2_id": {
+            "description": "セグメントタグ2のID",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "nullable": true,
+            "example": 12345
+          },
+          "segment_tag_3_id": {
+            "description": "セグメントタグ3のID",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9223372036854776000,
+            "nullable": true,
+            "example": 12345
+          }
+        },
+        "required": [
+          "line_type",
+          "deal_line_type_id",
+          "quantity",
+          "unit_price",
+          "is_manual_tax_entry"
+        ],
+        "additionalProperties": false
+      },
+      "AdvanceReceiptPeriodicReductionResult": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "取崩元の前受金ID",
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
+            "maxLength": 26,
+            "minLength": 26
+          },
+          "periodic_sales_id": {
+            "type": "string",
+            "description": "登録された定期取崩売上ID",
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
+            "maxLength": 26,
+            "minLength": 26
+          },
+          "registered_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "登録日時",
+            "example": "2025-01-15T10:30:00+09:00"
+          },
+          "last_updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "変更日時",
+            "example": "2025-01-16T14:45:00+09:00"
+          }
+        },
+        "required": [
+          "id",
+          "periodic_sales_id",
+          "registered_at",
+          "last_updated_at"
+        ],
         "additionalProperties": false
       }
     },
@@ -11476,6 +13991,276 @@
           }
         }
       },
+      "PeriodicSaleListResponse": {
+        "description": "定期売上一覧のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "periodic_sales": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PeriodicSaleDigest"
+                  }
+                },
+                "meta": {
+                  "$ref": "#/components/schemas/PaginationMeta"
+                }
+              },
+              "required": [
+                "periodic_sales",
+                "meta"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "PeriodicSaleCreateResponse": {
+        "description": "定期売上登録のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PeriodicSaleMinimalResponse"
+            }
+          }
+        }
+      },
+      "PeriodicSaleShowResponse": {
+        "description": "定期売上詳細取得のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/PeriodicSaleDigest"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "total_amount_set": {
+                      "$ref": "#/components/schemas/AmountSet"
+                    },
+                    "each_amount_set": {
+                      "description": "定期売上額（単体）",
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/AmountSet"
+                        }
+                      ]
+                    },
+                    "each_amount_set_rates": {
+                      "description": "定期売上単体の税率",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AmountSetRate"
+                      }
+                    },
+                    "customer_order_no": {
+                      "type": "string",
+                      "description": "顧客注文No.",
+                      "nullable": true,
+                      "example": "PO-2025-001"
+                    },
+                    "recurrence_rule": {
+                      "$ref": "#/components/schemas/RecurrenceRule"
+                    },
+                    "next_sales_on": {
+                      "type": "string",
+                      "format": "date",
+                      "description": "次回売上予定日",
+                      "nullable": true,
+                      "example": "2025-05-31"
+                    },
+                    "lines": {
+                      "type": "array",
+                      "description": "定期売上明細リスト",
+                      "items": {
+                        "$ref": "#/components/schemas/PeriodicSaleLineDetail"
+                      }
+                    },
+                    "billing_creating_method_type": {
+                      "$ref": "#/components/schemas/BillingCreatingMethodTypeWithNone"
+                    },
+                    "bills_on_rule": {
+                      "nullable": true,
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/ScheduledDateRule"
+                        }
+                      ]
+                    },
+                    "invoice_template_name": {
+                      "type": "string",
+                      "description": "請求書テンプレート名称",
+                      "nullable": true,
+                      "example": "デフォルトテンプレート"
+                    },
+                    "invoice_subject": {
+                      "type": "string",
+                      "description": "請求書件名",
+                      "nullable": true,
+                      "example": "月額保守費用"
+                    },
+                    "collects_on_rule": {
+                      "nullable": true,
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/ScheduledDateRule"
+                        }
+                      ]
+                    },
+                    "collection_method_type": {
+                      "$ref": "#/components/schemas/CollectionMethodTypeWithNone"
+                    }
+                  },
+                  "required": [
+                    "total_amount_set",
+                    "each_amount_set",
+                    "each_amount_set_rates",
+                    "customer_order_no",
+                    "recurrence_rule",
+                    "next_sales_on",
+                    "lines",
+                    "billing_creating_method_type",
+                    "bills_on_rule",
+                    "collects_on_rule",
+                    "collection_method_type"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "PeriodicSaleUpdateResponse": {
+        "description": "定期売上更新のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PeriodicSaleMinimalResponse"
+            }
+          }
+        }
+      },
+      "SalesEntryListResponse": {
+        "description": "売上計上状況一覧のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "sales_entries": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SalesEntry"
+                  }
+                },
+                "meta": {
+                  "$ref": "#/components/schemas/PaginationMeta"
+                }
+              },
+              "required": [
+                "sales_entries",
+                "meta"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "PeriodicSaleCancelResponse": {
+        "description": "定期売上取消のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PeriodicSaleMinimalResponse"
+            }
+          }
+        }
+      },
+      "SalesScheduleIndexResponse": {
+        "description": "売上予定一覧のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "sales_schedules": {
+                  "type": "array",
+                  "description": "売上予定一覧",
+                  "items": {
+                    "$ref": "#/components/schemas/SalesScheduleDigest"
+                  }
+                },
+                "meta": {
+                  "description": "ページネーション情報",
+                  "$ref": "#/components/schemas/PaginationMeta"
+                }
+              },
+              "required": [
+                "sales_schedules",
+                "meta"
+              ],
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "SalesScheduleShowResponse": {
+        "description": "売上予定詳細取得のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SalesScheduleDetail"
+            }
+          }
+        }
+      },
+      "SalesScheduleShowSeeOtherResponse": {
+        "description": "売上予定は既に計上されています。Locationヘッダーに計上された売上の詳細情報APIのURLが含まれます。",
+        "headers": {
+          "Location": {
+            "required": true,
+            "description": "計上された売上詳細取得APIのURL",
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        }
+      },
+      "SalesScheduleDeleteResponse": {
+        "description": "売上予定削除のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SalesScheduleMinimalResponse"
+            }
+          }
+        }
+      },
+      "SalesScheduleUpdateResponse": {
+        "description": "売上予定更新のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SalesScheduleMinimalResponse"
+            }
+          }
+        }
+      },
+      "SalesScheduleActualizationResponse": {
+        "description": "売上予定計上のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SalesScheduleActualizationResult"
+            }
+          }
+        }
+      },
       "OtherCostIndexResponse": {
         "description": "その他原価一覧のレスポンス",
         "content": {
@@ -11594,6 +14379,16 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/ProcurementMinimalResponse"
+            }
+          }
+        }
+      },
+      "AdvanceReceiptPeriodicReductionResponse": {
+        "description": "前受金取崩（定期売上登録）のレスポンス",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AdvanceReceiptPeriodicReductionResult"
             }
           }
         }
@@ -11940,6 +14735,7 @@
                       "description": "納品書テンプレートID",
                       "type": "integer",
                       "format": "int64",
+                      "minimum": 1,
                       "maximum": 9223372036854776000,
                       "nullable": false,
                       "example": 10001
@@ -11948,6 +14744,7 @@
                       "description": "請求書テンプレートID",
                       "type": "integer",
                       "format": "int64",
+                      "minimum": 1,
                       "maximum": 9223372036854776000,
                       "nullable": false,
                       "example": 10002
@@ -12126,6 +14923,7 @@
                       "description": "請求書テンプレートID",
                       "type": "integer",
                       "format": "int64",
+                      "minimum": 1,
                       "maximum": 9223372036854776000,
                       "nullable": false,
                       "example": 10002
@@ -12140,6 +14938,114 @@
       },
       "SaleCancelRequest": {
         "description": "売上取消リクエスト",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WithCompanyId"
+            },
+            "example": {
+              "company_id": 1
+            }
+          }
+        }
+      },
+      "PeriodicSaleCreateRequest": {
+        "description": "定期売上登録リクエスト",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/WithCompanyId"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {},
+                  "required": [
+                    "customer_id",
+                    "recurrence_rule",
+                    "billing_partner_id",
+                    "billing_creating_method_type",
+                    "collecting_partner_id",
+                    "collection_method_type",
+                    "lines"
+                  ]
+                },
+                {
+                  "$ref": "#/components/schemas/PeriodicSaleRequestBase"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "PeriodicSaleUpdateRequest": {
+        "description": "定期売上更新リクエスト",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/WithCompanyId"
+                },
+                {
+                  "$ref": "#/components/schemas/PeriodicSaleRequestBase"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "invoice_template_id": {
+                      "description": "請求書テンプレートID",
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "maximum": 9223372036854776000,
+                      "nullable": false,
+                      "example": 10002
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ]
+            }
+          }
+        }
+      },
+      "PeriodicSaleCancelRequest": {
+        "description": "定期売上取消リクエスト",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/WithCompanyId"
+            },
+            "example": {
+              "company_id": 1
+            }
+          }
+        }
+      },
+      "SalesScheduleUpdateRequest": {
+        "description": "売上予定更新リクエスト",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/WithCompanyId"
+                },
+                {
+                  "$ref": "#/components/schemas/SalesScheduleUpdateParams"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "SalesScheduleActualizationRequest": {
+        "description": "売上予定計上リクエスト",
         "content": {
           "application/json": {
             "schema": {
@@ -12173,7 +15079,7 @@
                       "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
                     },
                     "amount_excluding_tax": {
-                      "description": "金額(税抜)",
+                      "description": "税抜金額",
                       "type": "integer",
                       "format": "int64",
                       "maximum": 999999999999,
@@ -12227,7 +15133,7 @@
                       "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
                     },
                     "amount_excluding_tax": {
-                      "description": "金額(税抜)",
+                      "description": "税抜金額",
                       "type": "integer",
                       "format": "int64",
                       "maximum": 999999999999,
@@ -12328,6 +15234,81 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/WithCompanyId"
+            }
+          }
+        }
+      },
+      "AdvanceReceiptPeriodicReductionRequest": {
+        "description": "前受金取崩（定期売上登録）リクエスト",
+        "content": {
+          "application/json": {
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/WithCompanyId"
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "customer_id",
+                    "recurrence_rule",
+                    "lines"
+                  ],
+                  "properties": {
+                    "customer_id": {
+                      "description": "顧客の取引先ID",
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "maximum": 9223372036854776000,
+                      "example": 1001
+                    },
+                    "recurrence_rule": {
+                      "$ref": "#/components/schemas/RecurrenceRule"
+                    },
+                    "business_id": {
+                      "description": "案件ID",
+                      "type": "string",
+                      "maxLength": 26,
+                      "minLength": 26,
+                      "nullable": true,
+                      "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+                    },
+                    "subject": {
+                      "description": "定期売上タイトル",
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 100,
+                      "example": "サンプル案件定期売上の件"
+                    },
+                    "customer_order_no": {
+                      "description": "顧客注文No.",
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 100,
+                      "example": "C-PO-20211212-001"
+                    },
+                    "charge_employee_id": {
+                      "$ref": "#/components/schemas/ChargeEmployeeId"
+                    },
+                    "reporting_section_id": {
+                      "$ref": "#/components/schemas/ReportingSectionId"
+                    },
+                    "internal_memo": {
+                      "$ref": "#/components/schemas/InternalMemo"
+                    },
+                    "lines": {
+                      "description": "明細リスト",
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "$ref": "#/components/schemas/AdvanceReceiptReductionLineParams"
+                      }
+                    }
+                  }
+                }
+              ]
             }
           }
         }

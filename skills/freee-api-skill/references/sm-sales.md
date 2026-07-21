@@ -84,7 +84,7 @@ start_registered_date : 売上登録日(絞り込み開始) end_registered_date 
 
 操作: 売上取消
 
-説明: 概要 指定されたIDの売上を取消します。
+説明: 概要 指定されたIDの売上を取り消します。
 
 ### パラメータ
 

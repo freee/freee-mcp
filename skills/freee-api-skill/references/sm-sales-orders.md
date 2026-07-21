@@ -83,7 +83,7 @@ start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 
 
 操作: 受注取消
 
-説明: 概要 指定されたIDの受注を取消します。
+説明: 概要 指定されたIDの受注を取り消します。
 
 ### パラメータ
 

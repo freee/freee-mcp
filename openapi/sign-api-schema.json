@@ -1666,8 +1666,7 @@
                   },
                   "approve_on_signing": {
                     "type": "boolean",
-                    "default": false,
-                    "description": "三者間以上の契約で署名と合意を同時に行う場合は、trueとしてください。\n\n文書配付の場合は送信内容には反映されません。"
+                    "description": "三者間以上の契約で、受領者の合意を「署名と同時に行う」場合は、trueとしてください。\n\n本パラメータを省略した場合、チームの「合意のデフォルト設定」が適用されます。\n\n文書配付の場合は送信内容には反映されません。"
                   }
                 },
                 "required": [
@@ -1844,7 +1843,7 @@
               }
             }
           },
-          "description": "### 文書送信パラメーター\n\n`multipart/form-data` 形式のリクエストは非推奨です。三者間契約に対応した `application/json` 形式のリクエストをご使用ください。\n\n### 三者間以上の契約の署名・合意について（[機能について詳しく](https://support.freee.co.jp/hc/ja/articles/7477108755609-%E4%B8%89%E8%80%85%E9%96%93%E4%BB%A5%E4%B8%8A%E3%81%AE%E5%A5%91%E7%B4%84%E6%A9%9F%E8%83%BD%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6#h_01HNHX8YFGMZ58N1D60ZBFZ170)）\n\n- 以下条件で送付する場合、`approve_on_signing` を設定すると、「署名と合意を同時に行う」ことができます。<br>\n  署名方法：電子サイン・電子署名<br>\n  送信方法：メール\n- 本設定を実装する場合は、以下の注意事項を設定画面に必ず表記してください。<br />\n  *本機能をご利用の際は、署名者間で事前に十分な協議を行ってください。*<br>\n  *契約の重要部分については、受領者側ではなく送信者側であらかじめ入力済みにして運用してください。*<br>\n  *署名者が入力項目の内容を確認できない場合、トラブルが発生する可能性があります。この点にご注意いただき、慎重に設定を行ってください。*"
+          "description": "### 文書送信パラメーター\n\n`multipart/form-data` 形式のリクエストは非推奨です。三者間契約に対応した `application/json` 形式のリクエストをご使用ください。\n\n### 三者間以上の契約の合意タイミングについて（[機能について詳しく](https://support.freee.co.jp/hc/ja/articles/7477108755609-%E4%B8%89%E8%80%85%E9%96%93%E4%BB%A5%E4%B8%8A%E3%81%AE%E5%A5%91%E7%B4%84%E6%A9%9F%E8%83%BD%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)）\n\n- 三者間以上の契約では、受領者の「署名」と「合意」の操作を同時に行うか、別に行うかを選択できます。\n- `approve_on_signing` を設定すると、合意を「署名と同時に行う」ことができます。\n  - 三者間以上の契約で[入力項目](https://support.freee.co.jp/hc/ja/articles/5882806388761-%E5%85%A5%E5%8A%9B%E9%A0%85%E7%9B%AE%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)（自由記載欄）を設定する場合は、署名順と入力タイミングにご注意ください"
         },
         "tags": [
           "文書"
@@ -4998,6 +4997,11 @@
             "type": "boolean",
             "description": "相手方の電話番号確認が必須か否か",
             "example": true
+          },
+          "default_approve_on_signing": {
+            "type": "boolean",
+            "description": "合意タイミングのデフォルト設定",
+            "example": false
           }
         },
         "required": [
@@ -5006,7 +5010,8 @@
           "approval_workflow",
           "workflow_route",
           "multiple_approvals",
-          "verify_signer_telephone_number"
+          "verify_signer_telephone_number",
+          "default_approve_on_signing"
         ]
       },
       "Invitation": {

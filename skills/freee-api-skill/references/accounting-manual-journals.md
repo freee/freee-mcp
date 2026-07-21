@@ -13,10 +13,10 @@
 説明: 概要 指定した事業所の振替伝票一覧を取得する
 
 定義
-issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算整理仕訳, false: 日常仕訳） txn_number : 仕訳番号 details : 振替伝票の貸借行 entry_side : 貸借区分 credit : 貸方 debit : 借方 amount : 金額
+issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算整理仕訳, false: 日常仕訳） txn_number : 仕訳番号 ref_number : 管理番号 details : 振替伝票の貸借行 entry_side : 貸借区分 credit : 貸方 debit : 借方 amount : 金額
 
 注意点
-振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録は取引(Deals)をお使いください。 事業所の仕訳番号形式が有効な場合のみ、レスポンスで仕訳番号(txn_number)を返します。 セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンスプラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。 partner_codeを利用するには、事業所の設定から取引先コードの利用を有効にする必要があります。またpartner_codeとpartner_idは同時に指定すること...
+振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録は取引(Deals)をお使いください。 事業所の仕訳番号形式が有効な場合のみ、レスポンスで仕訳番号(txn_number)を返します。 セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンスプラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。 partner_codeを利用するには、事業所の設定から取引先コードの利用を有効にする必要があります。またpartner_codeとpa...
 
 ### パラメータ
 
@@ -40,6 +40,7 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
 | comment_important | query | いいえ | boolean | お気に入りコメント付きの振替伝票を絞込 |
 | adjustment | query | いいえ | string | 決算整理仕訳で絞込（決算整理仕訳のみ: only, 決算整理仕訳以外: without） (選択肢: only, without) |
 | txn_number | query | いいえ | string | 仕訳番号で絞込（事業所の仕訳番号形式が有効な場合のみ） |
+| ref_number | query | いいえ | string | 管理番号で絞込（前方一致） |
 | offset | query | いいえ | integer(int64) | 取得レコードのオフセット (デフォルト: 0) |
 | limit | query | いいえ | integer(int64) | 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 500)  |
 
@@ -52,6 +53,7 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
     - issue_date (必須): string - 発生日 (yyyy-mm-dd) 例: `2019-12-17`
     - adjustment (必須): boolean - 決算整理仕訳フラグ（falseまたは未指定の場合: 日常仕訳） 例: `false`
     - txn_number (任意): string - 仕訳番号 例: `2CX05`
+    - ref_number (任意): string - 管理番号 例: `123-456`
     - details (必須): array[object] - 貸借行一覧（配列）: 貸借合わせて100行まで登録できます。
     - receipt_ids (任意): array[integer] - ファイルボックス（証憑ファイル）ID 例: `[1,2,3]`
 
@@ -62,16 +64,17 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
 説明: 概要 指定した事業所の振替伝票を作成する
 
 定義
-issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算整理仕訳, false: 日常仕訳） txn_number : 仕訳番号 details : 振替伝票の貸借行 entry_side : 貸借区分 credit : 貸方 debit : 借方 amount : 金額
+issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算整理仕訳, false: 日常仕訳） txn_number : 仕訳番号 ref_number : 管理番号 details : 振替伝票の貸借行 entry_side : 貸借区分 credit : 貸方 debit : 借方 amount : 金額
 
 注意点
-振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録は取引(Deals)をお使いください。 事業所の仕訳番号形式が有効な場合のみ、レスポンスで仕訳番号(txn_number)を返します。 貸借合わせて100行まで仕訳行を登録できます。 セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンスプラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。 partner_codeを利用するには、事業所の設定から取引先コードの利用を有効にする必要があります。またpartner_cod...
+振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録は取引(Deals)をお使いください。 事業所の仕訳番号形式が有効な場合のみ、レスポンスで仕訳番号(txn_number)を返します。 貸借合わせて100行まで仕訳行を登録できます。 セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナルプラン）以上で利用可能です。利用可能なセグメントの数は、法人アドバンスプラン（および旧法人プロフェッショナルプラン）の場合は1つ、法人エンタープライズプランの場合は3つです。 partner_codeを利用するには、事業所の設定から取引先コードの利用を有効にする必要が...
 
 ### リクエストボディ
 
 - company_id (必須): integer(int64) - 事業所ID 例: `1` (最小: 1)
 - issue_date (必須): string - 発生日 (yyyy-mm-dd) 例: `2019-12-17`
 - adjustment (任意): boolean - 決算整理仕訳フラグ（falseまたは未指定の場合: 日常仕訳） 例: `false`
+- ref_number (任意): string - 管理番号（20文字以内） 例: `123-456`
 - details (必須): array[object]
   配列の要素:
     - entry_side (必須): string - 貸借（貸方: credit, 借方: debit） (選択肢: debit, credit) 例: `debit`
@@ -104,6 +107,7 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
   - issue_date (必須): string - 発生日 (yyyy-mm-dd) 例: `2019-12-17`
   - adjustment (必須): boolean - 決算整理仕訳フラグ（falseまたは未指定の場合: 日常仕訳） 例: `false`
   - txn_number (任意): string - 仕訳番号 例: `2CX05`
+  - ref_number (任意): string - 管理番号 例: `123-456`
   - details (必須): array[object] - 貸借行一覧（配列）: 貸借合わせて100行まで登録できます。
   - receipt_ids (任意): array[integer] - ファイルボックス（証憑ファイル）ID 例: `[1,2,3]`
 
@@ -134,6 +138,7 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
   - issue_date (必須): string - 発生日 (yyyy-mm-dd) 例: `2019-12-17`
   - adjustment (必須): boolean - 決算整理仕訳フラグ（falseまたは未指定の場合: 日常仕訳） 例: `false`
   - txn_number (任意): string - 仕訳番号 例: `2CX05`
+  - ref_number (任意): string - 管理番号 例: `123-456`
   - details (必須): array[object] - 貸借行一覧（配列）: 貸借合わせて100行まで登録できます。
   - receipt_ids (任意): array[integer] - ファイルボックス（証憑ファイル）ID 例: `[1,2,3]`
 
@@ -144,10 +149,10 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
 説明: 概要 指定した事業所の振替伝票を更新する
 
 定義
-issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算整理仕訳, false: 日常仕訳） txn_number : 仕訳番号 details : 振替伝票の貸借行 entry_side : 貸借区分 credit : 貸方 debit : 借方 amount : 金額
+issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算整理仕訳, false: 日常仕訳） txn_number : 仕訳番号 ref_number : 管理番号 details : 振替伝票の貸借行 entry_side : 貸借区分 credit : 貸方 debit : 借方 amount : 金額
 
 注意点
-振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録は取引(Deals)をお使いください。 事業所の仕訳番号形式が有効な場合のみ、レスポンスで仕訳番号(txn_number)を返します。 貸借合わせて100行まで仕訳行を登録できます。 detailsに含まれない既存の貸借行は削除されます。更新後も残したい行は、必ず貸借行IDを指定してdetailsに含めてください。 detailsに含まれる貸借行IDの指定がある行は、更新行として扱われ更新されます。 detailsに含まれる貸借行IDの指定がない行は、新規行として扱われ追加されます。 セグメントタグ情報は法人アドバンスプラン（および旧法人プロフェッショナ...
+振替伝票は売掛・買掛レポートには反映されません。債権・債務データの登録は取引(Deals)をお使いください。 事業所の仕訳番号形式が有効な場合のみ、レスポンスで仕訳番号(txn_number)を返します。 貸借合わせて100行まで仕訳行を登録できます。 detailsに含まれない既存の貸借行は削除されます。更新後も残したい行は、必ず貸借行IDを指定してdetailsに含めてください。 detailsに含まれる貸借行IDの指定がある行は、更新行として扱われ更新されます。 detailsに含まれる貸借行IDの指定がない行は、新規行として扱われ追加されます。 セグメントタグ情報は法人アドバンス...
 
 ### パラメータ
 
@@ -160,6 +165,7 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
 - company_id (必須): integer(int64) - 事業所ID 例: `1` (最小: 1)
 - issue_date (必須): string - 発生日 (yyyy-mm-dd) 例: `2019-12-17`
 - adjustment (任意): boolean - 決算整理仕訳フラグ（falseまたは未指定の場合: 日常仕訳） 例: `false`
+- ref_number (任意): string - 管理番号（20文字以内） 例: `123-456`
 - details (必須): array[object]
   配列の要素:
     - id (任意): integer(int64) - 貸借行ID: 既存貸借行を更新または削除する場合に指定します。IDを指定しない貸借行は、新規行として扱われ追加されます。 例: `1` (最小: 1)
@@ -193,6 +199,7 @@ issue_date : 発生日 adjustment : 決算整理仕訳フラグ（true: 決算�
   - issue_date (必須): string - 発生日 (yyyy-mm-dd) 例: `2019-12-17`
   - adjustment (必須): boolean - 決算整理仕訳フラグ（falseまたは未指定の場合: 日常仕訳） 例: `false`
   - txn_number (任意): string - 仕訳番号 例: `2CX05`
+  - ref_number (任意): string - 管理番号 例: `123-456`
   - details (必須): array[object] - 貸借行一覧（配列）: 貸借合わせて100行まで登録できます。
   - receipt_ids (任意): array[integer] - ファイルボックス（証憑ファイル）ID 例: `[1,2,3]`
 

@@ -90,7 +90,10 @@
     "other_costs": "other-costs",
     "quotations": "quotations",
     "procurements": "procurements",
-    "purchase_orders": "purchase-orders"
+    "purchase_orders": "purchase-orders",
+    "advance_receipts": "advance-receipts",
+    "periodic_sales": "periodic-sales",
+    "sales_schedules": "sales-schedules"
   },
   "it-management-api": {
     "it_management_application_accounts": "application-account",

@@ -19,7 +19,7 @@
 | invoice_number | query | いいえ | string | 請求書番号 |
 | subject | query | いいえ | string | 件名 |
 | partner_ids | query | いいえ | string | 取引先ID（半角数字のidを半角カンマ区切りスペースなしで指定してください。最大3件まで指定できます。） |
-| payment_status | query | いいえ | string | 決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル） (選択肢: settled, unsettled, canceled) |
+| payment_status | query | いいえ | string | 決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル, unprocessed: 決済依頼前, failed: 決済失敗） (選択肢: settled, unsettled, canceled, unprocessed, failed) |
 | deal_status | query | いいえ | string | 取引ステータス（registered: 登録済み、 unregistered: 登録待ち） (選択肢: registered, unregistered) |
 | sending_status | query | いいえ | string | 送付ステータス（sent: 送付済み、 unsent: 送付待ち） (選択肢: sent, unsent) |
 | cancel_status | query | いいえ | string | 取消済み（canceled: 該当する、 uncanceled: 該当しない） (選択肢: canceled, uncanceled) |
@@ -48,10 +48,11 @@ The request has succeeded.
 - payment_typeがtransferの場合、入金期日に該当します。
 - payment_typeがdirect_debitの場合、振替日に該当します。
 - payment_typeがcardの場合、カード支払期日に該当します。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
-    - payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit, カード: card) (選択肢: transfer, direct_debit, card)
+    - payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit, カード: card)
+- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。 (選択肢: transfer, direct_debit, card)
     - memo (必須): string - 社内メモ
     - sending_status (必須): string - 送付ステータス（sent: 送付済み、 unsent: 送付待ち） (選択肢: sent, unsent)
-    - payment_status (必須): string - 決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル） (選択肢: settled, unsettled, canceled)
+    - payment_status (必須): string - 決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル, unprocessed: 決済依頼前, failed: 決済失敗） (選択肢: settled, unsettled, canceled, unprocessed, failed)
     - cancel_status (必須): string - 取消済み（canceled: 該当する、 uncanceled: 該当しない） (選択肢: canceled, uncanceled)
     - deal_status (必須): string - 取引ステータス（registered: 登録済み、 unregistered: 登録待ち） (選択肢: registered, unregistered)
     - deal_id (任意): integer(int64) - 取引ID （deal_statusがunregisteredの場合、nullになります。） (最小: 1, 最大: 9223372036854775000)
@@ -95,8 +96,11 @@ The request has succeeded.
 - 入力がない場合、請求日が補完されます。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
 - payment_date (任意): string(date) - 期日
 - payment_typeがtransferの場合、入金期日に該当します。
-- payment_typeがdirect_debitの場合、振替日に該当します。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
-- payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit) (選択肢: transfer, direct_debit)
+- payment_typeがdirect_debitの場合、振替日に該当します。
+- payment_typeがcardの場合、カード支払期日に該当します。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
+- payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit, カード: card)
+- payment_typeがcardの場合、決済連携（M's PayBridge連携）の設定が必要です。
+- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。 (選択肢: transfer, direct_debit, card)
 - subject (任意): string - 件名
 - tax_entry_method (必須): string - 消費税の内税・外税区分（in: 税込表示（内税）、out: 税別表示（外税）） (選択肢: in, out)
 - tax_fraction (必須): string - 消費税端数の計算方法（omit: 切り捨て、round_up: 切り上げ、round: 四捨五入） (選択肢: omit, round_up, round)
@@ -207,12 +211,15 @@ The request has succeeded and a new resource has been created as a result.
   - issue_date (任意): string(date) - 発生日 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
   - payment_date (任意): string(date) - 期日
 - payment_typeがtransferの場合、入金期日に該当します。
-- payment_typeがdirect_debitの場合、振替日に該当します。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
-  - payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit) (選択肢: transfer, direct_debit)
+- payment_typeがdirect_debitの場合、振替日に該当します。
+- payment_typeがcardの場合、カード支払期日に該当します。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
+  - payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit, カード: card)
+- payment_typeがcardの場合、決済連携（M's PayBridge連携）の設定が必要です。
+- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。 (選択肢: transfer, direct_debit, card)
   - invoice_note (必須): string - 備考
   - memo (必須): string - 社内メモ
   - sending_status (必須): string - 送付ステータス（sent: 送付済み、 unsent: 送付待ち） (選択肢: sent, unsent)
-  - payment_status (必須): string - 決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル） (選択肢: settled, unsettled, canceled)
+  - payment_status (必須): string - 決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル, unprocessed: 決済依頼前, failed: 決済失敗） (選択肢: settled, unsettled, canceled, unprocessed, failed)
   - cancel_status (必須): string - 取消済み（canceled: 該当する、 uncanceled: 該当しない） (選択肢: canceled, uncanceled)
   - deal_status (必須): string - 取引ステータス（registered: 登録済み、 unregistered: 登録待ち） (選択肢: registered, unregistered)
   - deal_id (任意): integer(int64) - 取引ID （deal_statusがunregisteredの場合、nullになります。） (最小: 1, 最大: 9223372036854775000)
@@ -318,11 +325,12 @@ The request has succeeded.
 - payment_typeがtransferの場合、入金期日に該当します。
 - payment_typeがdirect_debitの場合、振替日に該当します。
 - payment_typeがcardの場合、カード支払期日に該当します。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
-  - payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit, カード: card) (選択肢: transfer, direct_debit, card)
+  - payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit, カード: card)
+- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。 (選択肢: transfer, direct_debit, card)
   - invoice_note (必須): string - 備考
   - memo (必須): string - 社内メモ
   - sending_status (必須): string - 送付ステータス（sent: 送付済み、 unsent: 送付待ち） (選択肢: sent, unsent)
-  - payment_status (必須): string - 決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル） (選択肢: settled, unsettled, canceled)
+  - payment_status (必須): string - 決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル, unprocessed: 決済依頼前, failed: 決済失敗） (選択肢: settled, unsettled, canceled, unprocessed, failed)
   - cancel_status (必須): string - 取消済み（canceled: 該当する、 uncanceled: 該当しない） (選択肢: canceled, uncanceled)
   - deal_status (必須): string - 取引ステータス（registered: 登録済み、 unregistered: 登録待ち） (選択肢: registered, unregistered)
   - deal_id (任意): integer(int64) - 取引ID （deal_statusがunregisteredの場合、nullになります。） (最小: 1, 最大: 9223372036854775000)
@@ -402,8 +410,11 @@ The request has succeeded.
 - 入力がない場合、請求日が補完されます。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
 - payment_date (任意): string(date) - 期日
 - payment_typeがtransferの場合、入金期日に該当します。
-- payment_typeがdirect_debitの場合、振替日に該当します。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
-- payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit) (選択肢: transfer, direct_debit)
+- payment_typeがdirect_debitの場合、振替日に該当します。
+- payment_typeがcardの場合、カード支払期日に該当します。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
+- payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit, カード: card)
+- payment_typeがcardの場合、決済連携（M's PayBridge連携）の設定が必要です。
+- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。 (選択肢: transfer, direct_debit, card)
 - subject (任意): string - 件名
 - tax_entry_method (必須): string - 消費税の内税・外税区分（in: 税込表示（内税）、out: 税別表示（外税）） (選択肢: in, out)
 - tax_fraction (必須): string - 消費税端数の計算方法（omit: 切り捨て、round_up: 切り上げ、round: 四捨五入） (選択肢: omit, round_up, round)
@@ -514,12 +525,15 @@ The request has succeeded.
   - issue_date (任意): string(date) - 発生日 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
   - payment_date (任意): string(date) - 期日
 - payment_typeがtransferの場合、入金期日に該当します。
-- payment_typeがdirect_debitの場合、振替日に該当します。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
-  - payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit) (選択肢: transfer, direct_debit)
+- payment_typeがdirect_debitの場合、振替日に該当します。
+- payment_typeがcardの場合、カード支払期日に該当します。 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
+  - payment_type (任意): string - 入金方法 (振込: transfer, 振替: direct_debit, カード: card)
+- payment_typeがcardの場合、決済連携（M's PayBridge連携）の設定が必要です。
+- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。 (選択肢: transfer, direct_debit, card)
   - invoice_note (必須): string - 備考
   - memo (必須): string - 社内メモ
   - sending_status (必須): string - 送付ステータス（sent: 送付済み、 unsent: 送付待ち） (選択肢: sent, unsent)
-  - payment_status (必須): string - 決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル） (選択肢: settled, unsettled, canceled)
+  - payment_status (必須): string - 決済ステータス（unsettled: 決済待ち, settled: 決済済み, canceled: 決済キャンセル, unprocessed: 決済依頼前, failed: 決済失敗） (選択肢: settled, unsettled, canceled, unprocessed, failed)
   - cancel_status (必須): string - 取消済み（canceled: 該当する、 uncanceled: 該当しない） (選択肢: canceled, uncanceled)
   - deal_status (必須): string - 取引ステータス（registered: 登録済み、 unregistered: 登録待ち） (選択肢: registered, unregistered)
   - deal_id (任意): integer(int64) - 取引ID （deal_statusがunregisteredの場合、nullになります。） (最小: 1, 最大: 9223372036854775000)

@@ -1588,204 +1588,214 @@
       "project": {
         "type": "object",
         "description": "プロジェクト",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "プロジェクトID",
-            "example": 1
-          },
-          "name": {
-            "type": "string",
-            "description": "プロジェクト名",
-            "example": "PJ-AAA"
-          },
-          "code": {
-            "type": "string",
-            "description": "プロジェクトコード",
-            "example": "PJ-AAA"
-          },
-          "description": {
-            "type": "string",
-            "description": "プロジェクト概要",
-            "example": "プロジェクトの概要",
-            "nullable": true
-          },
-          "manager": {
+        "allOf": [
+          {
             "type": "object",
-            "description": "プロジェクトマネージャー",
             "properties": {
-              "person_id": {
+              "id": {
                 "type": "integer",
-                "description": "ユーザID",
+                "description": "プロジェクトID",
                 "example": 1
               },
-              "person_name": {
+              "name": {
                 "type": "string",
-                "description": "氏名",
-                "example": "テスト太郎"
-              }
-            }
-          },
-          "color": {
-            "type": "string",
-            "description": "カラー",
-            "example": "#c8790f"
-          },
-          "from_date": {
-            "type": "string",
-            "description": "期間from",
-            "example": "2021-01-01"
-          },
-          "thru_date": {
-            "type": "string",
-            "description": "期間to",
-            "example": "2021-12-31"
-          },
-          "publish_to_employee": {
-            "type": "boolean",
-            "description": "従業員への公開設定",
-            "example": true
-          },
-          "assignment_url_enabled": {
-            "type": "boolean",
-            "description": "招待リンク",
-            "example": false
-          },
-          "operational_status": {
-            "type": "string",
-            "description": "運用ステータス",
-            "example": "in_progress"
-          },
-          "sales_order_status": {
-            "type": "string",
-            "description": "受注ステータス",
-            "example": "受注済み"
-          },
-          "members": {
-            "type": "array",
-            "description": "プロジェクトメンバー",
-            "items": {
-              "type": "object",
-              "properties": {
-                "person_id": {
-                  "type": "integer",
-                  "description": "ユーザID",
-                  "example": 1
-                },
-                "person_name": {
-                  "type": "string",
-                  "description": "氏名",
-                  "example": "田中太郎"
+                "description": "プロジェクト名",
+                "example": "PJ-AAA"
+              },
+              "code": {
+                "type": "string",
+                "description": "プロジェクトコード",
+                "example": "PJ-AAA"
+              },
+              "description": {
+                "type": "string",
+                "description": "プロジェクト概要",
+                "example": "プロジェクトの概要",
+                "nullable": true
+              },
+              "manager": {
+                "type": "object",
+                "description": "プロジェクトマネージャー",
+                "properties": {
+                  "person_id": {
+                    "type": "integer",
+                    "description": "ユーザID",
+                    "example": 1
+                  },
+                  "person_name": {
+                    "type": "string",
+                    "description": "氏名",
+                    "example": "テスト太郎"
+                  }
+                }
+              },
+              "color": {
+                "type": "string",
+                "description": "カラー",
+                "example": "#c8790f"
+              },
+              "from_date": {
+                "type": "string",
+                "description": "期間from",
+                "example": "2021-01-01"
+              },
+              "thru_date": {
+                "type": "string",
+                "description": "期間to",
+                "example": "2021-12-31"
+              },
+              "publish_to_employee": {
+                "type": "boolean",
+                "description": "従業員への公開設定",
+                "example": true
+              },
+              "assignment_url_enabled": {
+                "type": "boolean",
+                "description": "招待リンク",
+                "example": false
+              },
+              "operational_status": {
+                "type": "string",
+                "description": "運用ステータス",
+                "example": "in_progress"
+              },
+              "sales_order_status": {
+                "type": "string",
+                "description": "受注ステータス",
+                "example": "受注済み"
+              },
+              "members": {
+                "type": "array",
+                "description": "プロジェクトメンバー",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "person_id": {
+                      "type": "integer",
+                      "description": "ユーザID",
+                      "example": 1
+                    },
+                    "person_name": {
+                      "type": "string",
+                      "description": "氏名",
+                      "example": "田中太郎"
+                    }
+                  }
+                }
+              },
+              "orderers": {
+                "type": "array",
+                "description": "発注元",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "partner_id": {
+                      "type": "integer",
+                      "description": "取引先ID",
+                      "example": 1
+                    },
+                    "partner_name": {
+                      "type": "string",
+                      "description": "取引先名",
+                      "example": "XX株式会社"
+                    },
+                    "partner_code": {
+                      "type": "string",
+                      "description": "取引先コード",
+                      "example": "CORP-XX",
+                      "nullable": true
+                    }
+                  }
+                }
+              },
+              "contractors": {
+                "type": "array",
+                "description": "発注先",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "partner_id": {
+                      "type": "integer",
+                      "description": "取引先ID",
+                      "example": 2
+                    },
+                    "partner_name": {
+                      "type": "string",
+                      "description": "取引先名",
+                      "example": "CORP-YY"
+                    },
+                    "partner_code": {
+                      "type": "string",
+                      "description": "取引先コード",
+                      "example": "YY株式会社",
+                      "nullable": true
+                    }
+                  }
                 }
               }
             }
           },
-          "orderers": {
-            "type": "array",
-            "description": "発注元",
-            "items": {
-              "type": "object",
-              "properties": {
-                "partner_id": {
-                  "type": "integer",
-                  "description": "取引先ID",
-                  "example": 1
-                },
-                "partner_name": {
-                  "type": "string",
-                  "description": "取引先名",
-                  "example": "XX株式会社"
-                },
-                "partner_code": {
-                  "type": "string",
-                  "description": "取引先コード",
-                  "example": "CORP-XX",
-                  "nullable": true
+          {
+            "type": "object",
+            "properties": {
+              "project_tags": {
+                "type": "array",
+                "description": "プロジェクトタグ",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "tag_group_name": {
+                      "type": "string",
+                      "description": "タググループ名",
+                      "example": "タググループA"
+                    },
+                    "tag_name": {
+                      "type": "string",
+                      "description": "タグ名",
+                      "example": "タグA",
+                      "nullable": true
+                    }
+                  }
                 }
-              }
-            }
-          },
-          "contractors": {
-            "type": "array",
-            "description": "発注先",
-            "items": {
-              "type": "object",
-              "properties": {
-                "partner_id": {
-                  "type": "integer",
-                  "description": "取引先ID",
-                  "example": 2
-                },
-                "partner_name": {
-                  "type": "string",
-                  "description": "取引先名",
-                  "example": "CORP-YY"
-                },
-                "partner_code": {
-                  "type": "string",
-                  "description": "取引先コード",
-                  "example": "YY株式会社",
-                  "nullable": true
-                }
-              }
-            }
-          },
-          "project_tags": {
-            "type": "array",
-            "description": "プロジェクトタグ",
-            "items": {
-              "type": "object",
-              "properties": {
-                "tag_group_name": {
-                  "type": "string",
-                  "description": "タググループ名",
-                  "example": "タググループA"
-                },
-                "tag_name": {
-                  "type": "string",
-                  "description": "タグ名",
-                  "example": "タグA",
-                  "nullable": true
-                }
-              }
-            }
-          },
-          "workload_tag_groups": {
-            "type": "array",
-            "description": "プロジェクトで使える工数タグのグループ",
-            "items": {
-              "type": "object",
-              "properties": {
-                "tag_group_id": {
-                  "type": "integer",
-                  "description": "タググループID",
-                  "example": 1
-                },
-                "tag_group_name": {
-                  "type": "string",
-                  "description": "タググループ名",
-                  "example": "タググループA"
-                },
-                "required": {
-                  "type": "boolean",
-                  "description": "工数登録時に必須かどうかのフラグ",
-                  "example": true
-                },
-                "tags": {
-                  "type": "array",
-                  "description": "タグ",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "integer",
-                        "description": "タグID",
-                        "example": 1
-                      },
-                      "name": {
-                        "type": "string",
-                        "description": "タグ名",
-                        "example": "タグA"
+              },
+              "workload_tag_groups": {
+                "type": "array",
+                "description": "プロジェクトで使える工数タグのグループ",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "tag_group_id": {
+                      "type": "integer",
+                      "description": "タググループID",
+                      "example": 1
+                    },
+                    "tag_group_name": {
+                      "type": "string",
+                      "description": "タググループ名",
+                      "example": "タググループA"
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "description": "工数登録時に必須かどうかのフラグ",
+                      "example": true
+                    },
+                    "tags": {
+                      "type": "array",
+                      "description": "タグ",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "description": "タグID",
+                            "example": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "タグ名",
+                            "example": "タグA"
+                          }
+                        }
                       }
                     }
                   }
@@ -1793,7 +1803,7 @@
               }
             }
           }
-        }
+        ]
       },
       "create_project_param": {
         "type": "object",
@@ -1810,7 +1820,7 @@
             "type": "string"
           },
           "code": {
-            "description": "プロジェクトコード",
+            "description": "プロジェクトコード\n案件マスタの自動採番機能が利用可能な場合、指定は任意です。",
             "type": "string"
           },
           "description": {
@@ -1911,12 +1921,19 @@
               "example": 10
             },
             "type": "array"
+          },
+          "common_business_id": {
+            "description": "案件マスタの案件ID（ULID形式）\n指定した場合は既存案件にプロジェクトを紐付けます。指定しない場合は新規案件を作成します。",
+            "type": "string",
+            "nullable": true,
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01KF06JSKZ8TXZZVG7842F0VEM"
           }
         },
         "required": [
           "company_id",
           "name",
-          "code",
           "from_date",
           "thru_date",
           "pm_budgets_cost"
@@ -1925,289 +1942,304 @@
       "project_detail": {
         "type": "object",
         "description": "プロジェクト",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "description": "プロジェクトID",
-            "example": 1
-          },
-          "name": {
-            "type": "string",
-            "description": "プロジェクト名",
-            "example": "PJ-AAA"
-          },
-          "code": {
-            "type": "string",
-            "description": "プロジェクトコード",
-            "example": "PJ-AAA"
-          },
-          "description": {
-            "type": "string",
-            "description": "プロジェクト概要",
-            "example": "プロジェクトの概要",
-            "nullable": true
-          },
-          "manager": {
+        "allOf": [
+          {
             "type": "object",
-            "description": "プロジェクトマネージャー",
             "properties": {
-              "person_id": {
+              "id": {
                 "type": "integer",
-                "description": "ユーザID",
+                "description": "プロジェクトID",
                 "example": 1
               },
-              "person_name": {
+              "name": {
                 "type": "string",
-                "description": "氏名",
-                "example": "テスト太郎"
-              }
-            }
-          },
-          "color": {
-            "type": "string",
-            "description": "カラー",
-            "example": "#c8790f"
-          },
-          "from_date": {
-            "type": "string",
-            "description": "期間from",
-            "example": "2021-01-01"
-          },
-          "thru_date": {
-            "type": "string",
-            "description": "期間to",
-            "example": "2021-12-31"
-          },
-          "publish_to_employee": {
-            "type": "boolean",
-            "description": "従業員への公開設定",
-            "example": true
-          },
-          "assignment_url_enabled": {
-            "type": "boolean",
-            "description": "招待リンク",
-            "example": false
-          },
-          "operational_status": {
-            "type": "string",
-            "description": "運用ステータス",
-            "example": "in_progress"
-          },
-          "sales_order_status": {
-            "type": "string",
-            "description": "受注ステータス",
-            "example": "受注済み"
-          },
-          "members": {
-            "type": "array",
-            "description": "プロジェクトメンバー",
-            "items": {
-              "type": "object",
-              "properties": {
-                "person_id": {
-                  "type": "integer",
-                  "description": "ユーザID",
-                  "example": 1
-                },
-                "person_name": {
-                  "type": "string",
-                  "description": "氏名",
-                  "example": "田中太郎"
-                }
-              }
-            }
-          },
-          "orderers": {
-            "type": "array",
-            "description": "発注元",
-            "items": {
-              "type": "object",
-              "properties": {
-                "partner_id": {
-                  "type": "integer",
-                  "description": "取引先ID",
-                  "example": 1
-                },
-                "partner_name": {
-                  "type": "string",
-                  "description": "取引先名",
-                  "example": "XX株式会社"
-                },
-                "code": {
-                  "type": "string",
-                  "description": "取引先コード",
-                  "example": "CORP-XX",
-                  "nullable": true
-                }
-              }
-            }
-          },
-          "contractors": {
-            "type": "array",
-            "description": "発注先",
-            "items": {
-              "type": "object",
-              "properties": {
-                "partner_id": {
-                  "type": "integer",
-                  "description": "取引先ID",
-                  "example": 2
-                },
-                "partner_name": {
-                  "type": "string",
-                  "description": "取引先名",
-                  "example": "CORP-YY"
-                },
-                "code": {
-                  "type": "string",
-                  "description": "取引先コード",
-                  "example": "YY株式会社",
-                  "nullable": true
-                }
-              }
-            }
-          },
-          "balance": {
-            "type": "object",
-            "description": "収支管理詳細",
-            "properties": {
-              "labor_costs": {
+                "description": "プロジェクト名",
+                "example": "PJ-AAA"
+              },
+              "code": {
+                "type": "string",
+                "description": "プロジェクトコード",
+                "example": "PJ-AAA"
+              },
+              "description": {
+                "type": "string",
+                "description": "プロジェクト概要",
+                "example": "プロジェクトの概要",
+                "nullable": true
+              },
+              "manager": {
                 "type": "object",
-                "description": "人件費",
+                "description": "プロジェクトマネージャー",
                 "properties": {
-                  "total": {
+                  "person_id": {
+                    "type": "integer",
+                    "description": "ユーザID",
+                    "example": 1
+                  },
+                  "person_name": {
+                    "type": "string",
+                    "description": "氏名",
+                    "example": "テスト太郎"
+                  }
+                }
+              },
+              "color": {
+                "type": "string",
+                "description": "カラー",
+                "example": "#c8790f"
+              },
+              "from_date": {
+                "type": "string",
+                "description": "期間from",
+                "example": "2021-01-01"
+              },
+              "thru_date": {
+                "type": "string",
+                "description": "期間to",
+                "example": "2021-12-31"
+              },
+              "publish_to_employee": {
+                "type": "boolean",
+                "description": "従業員への公開設定",
+                "example": true
+              },
+              "assignment_url_enabled": {
+                "type": "boolean",
+                "description": "招待リンク",
+                "example": false
+              },
+              "operational_status": {
+                "type": "string",
+                "description": "運用ステータス",
+                "example": "in_progress"
+              },
+              "sales_order_status": {
+                "type": "string",
+                "description": "受注ステータス",
+                "example": "受注済み"
+              },
+              "members": {
+                "type": "array",
+                "description": "プロジェクトメンバー",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "person_id": {
+                      "type": "integer",
+                      "description": "ユーザID",
+                      "example": 1
+                    },
+                    "person_name": {
+                      "type": "string",
+                      "description": "氏名",
+                      "example": "田中太郎"
+                    }
+                  }
+                }
+              },
+              "orderers": {
+                "type": "array",
+                "description": "発注元",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "partner_id": {
+                      "type": "integer",
+                      "description": "取引先ID",
+                      "example": 1
+                    },
+                    "partner_name": {
+                      "type": "string",
+                      "description": "取引先名",
+                      "example": "XX株式会社"
+                    },
+                    "partner_code": {
+                      "type": "string",
+                      "description": "取引先コード",
+                      "example": "CORP-XX",
+                      "nullable": true
+                    }
+                  }
+                }
+              },
+              "contractors": {
+                "type": "array",
+                "description": "発注先",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "partner_id": {
+                      "type": "integer",
+                      "description": "取引先ID",
+                      "example": 2
+                    },
+                    "partner_name": {
+                      "type": "string",
+                      "description": "取引先名",
+                      "example": "CORP-YY"
+                    },
+                    "partner_code": {
+                      "type": "string",
+                      "description": "取引先コード",
+                      "example": "YY株式会社",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "common_business_id": {
+                "type": "string",
+                "description": "紐づいている案件マスタの案件ID",
+                "example": "01KRFQNTZAWSQF1284WE58ZS5K"
+              },
+              "balance": {
+                "type": "object",
+                "description": "収支管理詳細",
+                "properties": {
+                  "labor_costs": {
                     "type": "object",
-                    "description": "全体",
+                    "description": "人件費",
                     "properties": {
-                      "budget": {
-                        "type": "integer",
-                        "description": "予算",
-                        "example": 100000
-                      },
-                      "actual_result": {
-                        "type": "integer",
-                        "description": "実績",
-                        "example": 100000
-                      }
-                    }
-                  },
-                  "monthly": {
-                    "type": "array",
-                    "description": "各月",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "year_month": {
-                          "type": "string",
-                          "description": "年月（YYYY-MM）",
-                          "example": "2021-01"
-                        },
-                        "budget": {
-                          "type": "integer",
-                          "description": "予算",
-                          "example": 100000
-                        },
-                        "actual_result": {
-                          "type": "integer",
-                          "description": "実績",
-                          "example": 100000
+                      "total": {
+                        "type": "object",
+                        "description": "全体",
+                        "properties": {
+                          "budget": {
+                            "type": "integer",
+                            "description": "予算",
+                            "example": 100000
+                          },
+                          "actual_result": {
+                            "type": "integer",
+                            "description": "実績",
+                            "example": 100000
+                          }
                         }
-                      }
-                    }
-                  },
-                  "details": {
-                    "type": "array",
-                    "description": "各メンバーの内訳",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "person_id": {
-                          "type": "integer",
-                          "description": "ユーザーID",
-                          "example": 1
-                        },
-                        "person_name": {
-                          "type": "string",
-                          "description": "ユーザー名",
-                          "example": "テスト太郎"
-                        },
-                        "total": {
+                      },
+                      "monthly": {
+                        "type": "array",
+                        "description": "各月",
+                        "items": {
                           "type": "object",
                           "properties": {
+                            "year_month": {
+                              "type": "string",
+                              "description": "年月（YYYY-MM）",
+                              "example": "2021-01"
+                            },
                             "budget": {
-                              "type": "object",
+                              "type": "integer",
                               "description": "予算",
+                              "example": 100000
+                            },
+                            "actual_result": {
+                              "type": "integer",
+                              "description": "実績",
+                              "example": 100000
+                            }
+                          }
+                        }
+                      },
+                      "details": {
+                        "type": "array",
+                        "description": "各メンバーの内訳",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "person_id": {
+                              "type": "integer",
+                              "description": "ユーザーID",
+                              "example": 1
+                            },
+                            "person_name": {
+                              "type": "string",
+                              "description": "ユーザー名",
+                              "example": "テスト太郎"
+                            },
+                            "total": {
+                              "type": "object",
                               "properties": {
-                                "cost": {
-                                  "type": "integer",
-                                  "description": "金額",
-                                  "example": 100000
+                                "budget": {
+                                  "type": "object",
+                                  "description": "予算",
+                                  "properties": {
+                                    "cost": {
+                                      "type": "integer",
+                                      "description": "金額",
+                                      "example": 100000
+                                    },
+                                    "minutes": {
+                                      "type": "integer",
+                                      "description": "時間",
+                                      "example": 9600
+                                    }
+                                  }
                                 },
-                                "minutes": {
-                                  "type": "integer",
-                                  "description": "時間",
-                                  "example": 9600
+                                "actual_result": {
+                                  "type": "object",
+                                  "description": "実績",
+                                  "properties": {
+                                    "cost": {
+                                      "type": "integer",
+                                      "description": "金額",
+                                      "example": 100000
+                                    },
+                                    "minutes": {
+                                      "type": "integer",
+                                      "description": "時間",
+                                      "example": 9600
+                                    }
+                                  }
                                 }
                               }
                             },
-                            "actual_result": {
-                              "type": "object",
-                              "description": "実績",
-                              "properties": {
-                                "cost": {
-                                  "type": "integer",
-                                  "description": "金額",
-                                  "example": 100000
-                                },
-                                "minutes": {
-                                  "type": "integer",
-                                  "description": "時間",
-                                  "example": 9600
-                                }
-                              }
-                            }
-                          }
-                        },
-                        "monthly": {
-                          "type": "array",
-                          "description": "各月",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "year_month": {
-                                "type": "string",
-                                "description": "年月（YYYY-MM）",
-                                "example": "2021-01"
-                              },
-                              "budget": {
+                            "monthly": {
+                              "type": "array",
+                              "description": "各月",
+                              "items": {
                                 "type": "object",
-                                "description": "予算",
                                 "properties": {
-                                  "cost": {
-                                    "type": "integer",
-                                    "description": "金額",
-                                    "example": 100000
+                                  "year_month": {
+                                    "type": "string",
+                                    "description": "年月（YYYY-MM）",
+                                    "example": "2021-01"
                                   },
-                                  "minutes": {
-                                    "type": "integer",
-                                    "description": "時間",
-                                    "example": 9600
-                                  }
-                                }
-                              },
-                              "actual_result": {
-                                "type": "object",
-                                "description": "実績",
-                                "properties": {
-                                  "cost": {
-                                    "type": "integer",
-                                    "description": "金額",
-                                    "example": 100000
+                                  "budget": {
+                                    "type": "object",
+                                    "description": "予算",
+                                    "properties": {
+                                      "cost": {
+                                        "type": "integer",
+                                        "description": "金額",
+                                        "example": 100000
+                                      },
+                                      "minutes": {
+                                        "type": "integer",
+                                        "description": "時間",
+                                        "example": 9600
+                                      }
+                                    }
                                   },
-                                  "minutes": {
-                                    "type": "integer",
-                                    "description": "時間",
-                                    "example": 9600
+                                  "actual_result": {
+                                    "type": "object",
+                                    "description": "実績",
+                                    "properties": {
+                                      "cost": {
+                                        "type": "integer",
+                                        "description": "金額",
+                                        "example": 100000
+                                      },
+                                      "minutes": {
+                                        "type": "integer",
+                                        "description": "時間",
+                                        "example": 9600
+                                      }
+                                    }
                                   }
                                 }
                               }
@@ -2221,7 +2253,7 @@
               }
             }
           }
-        }
+        ]
       },
       "unit_cost": {
         "type": "object",
