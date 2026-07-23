@@ -1,5 +1,19 @@
 # freee-mcp
 
+## 0.31.0
+
+### Minor Changes
+
+- [`1cf7eef`](https://github.com/freee/freee-mcp/commit/1cf7eef0500181dbe15fdbd47b30a8e35577f850): サインのファイルアップロード対応とガイド整備 ([#210](https://github.com/freee/freee-mcp/pull/210))
+
+  - sign_file_upload ツールを追加（ローカルファイルから文書を作成）
+  - サイン文書作成のレシピを追加（エンドポイントの使い分け・uploader_id の取得・大容量ファイルの注意）
+  - SIGN-GUIDE.md に API ベース URL と大容量ファイルの送信制限を追記
+
+### Patch Changes
+
+- [`b97f8bc`](https://github.com/freee/freee-mcp/commit/b97f8bc42ec2c5f659882931584435a68b2adca3): OpenAPI スキーマを最新版に同期 ( 11 files changed, 9567 insertions(+), 5321 deletions(-)) ([#223](https://github.com/freee/freee-mcp/pull/223))
+
 ## 0.30.4
 
 ### Patch Changes
