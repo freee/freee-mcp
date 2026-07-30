@@ -39,6 +39,7 @@ vi.mock('./schema-loader.js', () => ({
     baseUrl: undefined,
   })),
   listAllAvailablePaths: vi.fn(() => ''),
+  isMcpOnlyPath: vi.fn(() => false),
 }));
 
 vi.mock('../api/client.js', () => ({

@@ -141,6 +141,19 @@
         "freee_api_get を service=accounting、path=/api/1/reports/trial_bs で呼び出す計画を示している",
         "MCPツール（freee_api_get 等）を実際には呼び出していない"
       ]
+    },
+    {
+      "id": 12,
+      "prompt": "実施中のサーベイの未回答者を教えて\n\n注意: これはドライランです。実際にMCPツールは呼び出さず、どのツールをどのパラメータで呼び出すべきかを手順として説明してください。レシピやリファレンスの参照は実際に行ってください。",
+      "expected_output": "recipes/survey-operations.md を参照し、freee-mcp（リモート版）限定である点を踏まえて transport を確認し、freee_get_current_company → base_surveys → surveys → surveys/{survey_id} のドリルダウンで survey_targets の未回答状況を確認する手順を説明する。",
+      "assertions": [
+        "recipes/survey-operations.md を実際に参照している",
+        "このAPIが freee-mcp（リモート版）限定であり、freee_server_info の transport 確認が必要なことに言及している",
+        "freee_get_current_company を呼び出す手順を説明している",
+        "base_surveys → surveys → surveys/{survey_id} のドリルダウンで実施回を特定する計画を示している",
+        "survey_targets の answered_at / consecutive_unanswered_count で未回答者を判定する計画を示している",
+        "MCPツール（freee_api_get 等）を実際には呼び出していない"
+      ]
     }
   ]
 }

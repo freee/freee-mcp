@@ -20,6 +20,22 @@ const OUTPUT_DIR = join(PROJECT_ROOT, "skills", "freee-api-skill", "references")
 const SIGN_OUTPUT_DIR = join(PROJECT_ROOT, "skills", "freee-api-skill", "sign-references");
 const MAPPINGS_FILE = join(OPENAPI_DIR, "tag-mappings.json");
 
+// mcp-only（freee-mcp リモート版でのみ利用可）区分のエンドポイントを集約したスキーマ。
+// このファイルに含まれるパスは「mcp-only」とみなし、該当タグのリファレンス冒頭に
+// MCP_ONLY_BANNER を自動挿入する。将来 mcp-only 指定されるエンドポイントもこのファイルに
+// 集約される想定なので、ドメイン固有の分岐は書かない（provenance = mcponly.yml 由来か）。
+const MCPONLY_SCHEMA_FILE = join(OPENAPI_DIR, "mcponly-api-schema.json");
+
+// リファレンス冒頭に挿入する mcp-only 注記。文言は recipe・実行時エラーと揃える。
+const MCP_ONLY_BANNER =
+  "⚠ freee-mcp（リモート版） 限定: このAPIは 「freee-mcp（リモート版）」でのみ利用できます。" +
+  "freee_server_info の transport が stdio の場合は呼び出せません。" +
+  "その際はユーザーに freee-mcp（リモート版）の設定" +
+  "（https://support.freee.co.jp/hc/ja/articles/56390747520537）を案内してください。";
+
+// mcp-only なパス集合。main() で mcponly-api-schema.json から読み込む。
+const mcpOnlyPaths = new Set<string>();
+
 // Type definitions
 interface Parameter {
   $ref?: string;
@@ -472,6 +488,11 @@ async function generateReference(
   // Extract endpoints for this tag
   const endpoints = extractEndpointsByTag(schema, tagName);
 
+  // mcp-only（freee-mcp リモート版限定）判定: このタグのいずれかのパスが
+  // mcponly-api-schema.json 由来なら、リファレンス冒頭にバナーを挿入する。
+  const isMcpOnly = endpoints.some(({ path }) => mcpOnlyPaths.has(path));
+  const banner = isMcpOnly ? `\n${MCP_ONLY_BANNER}\n` : "";
+
   // Build endpoints markdown
   let endpointsMd = "";
   for (const { path, operations } of endpoints) {
@@ -519,7 +540,7 @@ async function generateReference(
 
   // Generate markdown document
   const markdown = `# ${tagName}
-
+${banner}
 ## 概要
 
 ${tagDesc}
@@ -667,6 +688,9 @@ const API_CONFIGS = [
   { apiKey: "pm-api", schemaFile: join(OPENAPI_DIR, "pm-api-schema.json"), prefix: "pm", outputDir: OUTPUT_DIR },
   { apiKey: "sm-api", schemaFile: join(OPENAPI_DIR, "sm-api-schema.json"), prefix: "sm", outputDir: OUTPUT_DIR },
   { apiKey: "it-management-api", schemaFile: join(OPENAPI_DIR, "it-management-api-schema.json"), prefix: "it-management", outputDir: OUTPUT_DIR },
+  // mcp-only 集約スキーマ。現状は survey のみ。ここ由来のパスは mcp-only とみなされ、
+  // 生成される各リファレンス冒頭に MCP_ONLY_BANNER が自動挿入される（generateReference 参照）。
+  { apiKey: "mcponly-api", schemaFile: MCPONLY_SCHEMA_FILE, prefix: "survey", outputDir: OUTPUT_DIR },
   { apiKey: "sign-api", schemaFile: join(OPENAPI_DIR, "sign-api-schema.json"), prefix: "sign", outputDir: SIGN_OUTPUT_DIR },
 ];
 
@@ -687,6 +711,20 @@ async function main(): Promise<void> {
     // Read mappings
     const mappingsText = await readFile(MAPPINGS_FILE, "utf-8");
     const mappings: TagMappings = JSON.parse(mappingsText);
+
+    // Load the mcp-only path set from the aggregated mcponly schema (if present).
+    // These paths drive the "freee-mcp（リモート版） 限定" banner in generateReference().
+    if (existsSync(MCPONLY_SCHEMA_FILE)) {
+      const mcpOnlySchema: OpenAPISchema = JSON.parse(
+        await readFile(MCPONLY_SCHEMA_FILE, "utf-8")
+      );
+      for (const path of Object.keys(mcpOnlySchema.paths ?? {})) {
+        mcpOnlyPaths.add(path);
+      }
+      console.log(`Loaded ${mcpOnlyPaths.size} mcp-only path(s) from mcponly-api-schema.json`);
+    } else {
+      console.log("mcponly-api-schema.json not found; no mcp-only banner will be injected.");
+    }
 
     // Sync tag mappings from schemas
     console.log("");

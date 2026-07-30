@@ -100,6 +100,9 @@
     "it_management_assets": "assets",
     "it_management_members": "members"
   },
+  "mcponly-api": {
+    "survey": "surveys"
+  },
   "sign-api": {
     "文書": "documents",
     "ユーザー": "users",

@@ -1,6 +1,6 @@
 ---
 name: freee-api-skill
-description: "freee-mcp / freee-sign-mcp と連携するスキル。会計・人事労務・請求書・工数管理・販売・IT管理・サイン（電子契約）の詳細APIリファレンスと使い方ガイドを提供。freee の経費申請・取引登録・勤怠打刻・給与明細・見積書・試算表・仕訳・従業員管理・工数登録・売上管理・SaaSアカウント管理・備品管理・電子契約の文書管理などの操作やAPI仕様を調べたいときに使う。ユーザーが freee のデータ操作、会計処理、人事労務管理、請求・見積、プロジェクト工数管理、販売管理、IT管理、電子契約について質問や操作を依頼してきた場合は、明示的に freee と言及していなくても、このスキルの利用を検討すること。サインは別途 freee-sign-mcp の設定が必要。"
+description: "freee-mcp / freee-sign-mcp と連携するスキル。会計・人事労務・請求書・工数管理・販売・IT管理・サーベイ・サイン（電子契約）の詳細APIリファレンスと使い方ガイドを提供。freee の経費申請・取引登録・勤怠打刻・給与明細・見積書・試算表・仕訳・従業員管理・工数登録・売上管理・SaaSアカウント管理・備品管理・サーベイ企画/実施回の取得・電子契約の文書管理などの操作やAPI仕様を調べたいときに使う。ユーザーが freee のデータ操作、会計処理、人事労務管理、請求・見積、プロジェクト工数管理、販売管理、IT管理、サーベイ、電子契約について質問や操作を依頼してきた場合は、明示的に freee と言及していなくても、このスキルの利用を検討すること。サインは別途 freee-sign-mcp の設定が必要。"
 license: Apache-2.0
 metadata:
   author: freee_jp
@@ -11,7 +11,7 @@ metadata:
 
 ## 概要
 
-freee の会計・人事労務・請求書・工数管理・販売・IT管理のデータを AI から直接操作できるスキルです。
+freee の会計・人事労務・請求書・工数管理・販売・IT管理・サーベイのデータを AI から直接操作できるスキルです。
 
 [freee-mcp](https://www.npmjs.com/package/freee-mcp) (MCP サーバー) を通じて freee API と連携。
 
@@ -104,6 +104,7 @@ serviceパラメータ (必須):
 | `pm` | freee工数管理 (プロジェクト、工数など) | `/projects` |
 | `sm` | freee販売 (見積、受注、売上など) | `/businesses` |
 | `it_management` | freeeIT管理 (SaaSアカウント、備品、メンバー) | `/hub/it_management/members` |
+| `survey` | freeeサーベイ (サーベイ企画、実施回) ※ freee-mcp（リモート版） 限定 | `/hub/survey/base_surveys` |
 
 ### 基本ワークフロー
 
@@ -137,6 +138,7 @@ serviceパラメータ (必須):
 - `recipes/pm-workload-registration.md` - 工数の安全な登録（PM・HR連携ワークフロー）
 - `recipes/sm-operations.md` - 販売管理（案件・受注）
 - `recipes/it-management-operations.md` - IT管理（メンバー・SaaSアカウント・備品）
+- `recipes/survey-operations.md` - サーベイ（サーベイ企画・実施回の取得）
 - `recipes/report-operations.md` - 試算表・総勘定元帳（レポート取得・未承認仕訳の確認）
 - `recipes/freee-mcp-tag.md` - メモタグ「freee-mcp」の付与ガイド
 
@@ -162,6 +164,12 @@ freee のデータを表示・可視化する際は、以下の色を使用し�
 - 認証エラー（ローカル）: `freee_auth_status` で確認 → `freee_clear_auth` → `freee_authenticate`
 - 事業所エラー: `freee_list_companies` → `freee_set_current_company`
 - 詳細: `recipes/troubleshooting.md` 参照
+
+## freee-mcp（リモート版） 限定のエンドポイントについて
+
+一部のAPIエンドポイントは freee-mcp（リモート版）でのみ利用可能で、ローカルモードでは利用できない。該当する `recipes/` `references/` には「⚠ freee-mcp（リモート版） 限定」の注記がある。
+
+該当エンドポイントを呼び出す前に `freee_server_info` で transport を確認し、`stdio`（ローカルモード）の場合は呼び出さず、ユーザーに freee-mcp（リモート版）への切り替え（[設定方法](https://support.freee.co.jp/hc/ja/articles/56390747520537)）を案内すること。
 
 ## API の機能制限について
 

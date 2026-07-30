@@ -62,7 +62,7 @@ export const FREEE_TOKEN_ENDPOINT = 'https://accounts.secure.freee.co.jp/public_
 export const FREEE_OAUTH_SCOPE = 'read write';
 
 export const SERVER_INSTRUCTIONS =
-  'freee APIと連携するMCPサーバー。会計・人事労務・請求書・工数管理・販売・IT管理APIをサポート。詳細ガイドはfreee-api-skill skillを参照。skillが未インストールの場合は npx skills add freee/freee-mcp で追加';
+  'freee APIと連携するMCPサーバー。会計・人事労務・請求書・工数管理・販売・IT管理・サーベイAPIをサポート。詳細ガイドはfreee-api-skill skillを参照。skillが未インストールの場合は npx skills add freee/freee-mcp で追加';
 
 export const REFRESH_TOKEN_TTL_SECONDS = 90 * 24 * 60 * 60; // 90 days
 
