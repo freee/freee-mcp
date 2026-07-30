@@ -1,6 +1,6 @@
 # 販売管理の操作
 
-freee販売(sm)APIを使った案件・見積・受注・納品・売上・原価の管理ガイド。
+freee販売(sm)APIを使った案件・見積・受注・納品・売上（売上予定・定期売上・前受金）・発注・仕入・原価の管理ガイド。
 
 ## 重要: company_id は全リクエストで必須
 
@@ -24,6 +24,11 @@ company_id が無いと初回から400になります。GETの使用例でも必
 | 受注 | `/sales_orders` |
 | 納品 | `/deliveries` |
 | 売上 | `/sales` |
+| 売上予定 | `/sales_schedules` |
+| 定期売上 | `/periodic_sales` |
+| 前受金 | `/advance_receipts` |
+| 発注 | `/purchase_orders` |
+| 仕入 | `/procurements` |
 | 原価予算（仕入・外部仕入・その他原価） | `/cost_budgets` |
 | その他原価 | `/other_costs` |
 
@@ -35,25 +40,57 @@ company_id が無いと初回から400になります。GETの使用例でも必
 |------|------|
 | `/businesses` | 案件一覧・作成 |
 | `/businesses/{id}` | 案件詳細・更新 |
+| `/businesses/{id}/cancellation` | 案件取消 |
+| `/businesses/{id}/close` | 案件ロック |
+| `/businesses/{id}/reopen` | 案件ロック解除 |
 | `/quotations` | 見積一覧・作成 |
 | `/quotations/{id}` | 見積詳細・更新 |
+| `/quotations/{id}/cancellation` | 見積取消 |
+| `/quotations/{id}/quotation_status` | 見積ステータス変更 |
 | `/sales_orders` | 受注一覧・作成 |
 | `/sales_orders/{id}` | 受注詳細・更新 |
+| `/sales_orders/{id}/cancellation` | 受注取消 |
 | `/deliveries` | 納品一覧・作成 |
 | `/deliveries/{id}` | 納品詳細・更新 |
+| `/deliveries/{id}/cancellation` | 納品取消 |
+| `/deliveries/{id}/delivery_status` | 納品ステータス変更 |
+| `/deliveries/{id}/acceptance_status` | 検収ステータス変更 |
 | `/sales` | 売上一覧・作成 |
 | `/sales/{id}` | 売上詳細・更新 |
+| `/sales/{id}/cancellation` | 売上取消 |
+| `/sales_schedules` | 売上予定一覧 |
+| `/sales_schedules/{id}` | 売上予定詳細・更新・削除 |
+| `/sales_schedules/{id}/actualization` | 売上予定を売上として計上 |
+| `/periodic_sales` | 定期売上一覧・作成 |
+| `/periodic_sales/{id}` | 定期売上詳細・更新 |
+| `/periodic_sales/{id}/cancellation` | 定期売上取消 |
+| `/periodic_sales/{id}/sales_entries` | 定期売上の売上計上状況 |
+| `/advance_receipts` | 前受金一覧・作成 |
+| `/advance_receipts/{id}` | 前受金詳細・更新 |
+| `/advance_receipts/{id}/cancellation` | 前受金取消 |
+| `/advance_receipts/{id}/reduction` | 前受金取崩（売上を登録） |
+| `/advance_receipts/{id}/periodic_reduction` | 前受金取崩（定期売上を登録） |
+| `/purchase_orders` | 発注一覧・作成 |
+| `/purchase_orders/{id}` | 発注詳細・更新 |
+| `/purchase_orders/{id}/cancellation` | 発注取消 |
+| `/procurements` | 仕入一覧・作成 |
+| `/procurements/{id}` | 仕入詳細・更新 |
+| `/procurements/{id}/cancellation` | 仕入取消 |
 | `/cost_budgets` | 原価予算一覧・作成 |
 | `/cost_budgets/{id}` | 原価予算詳細・更新 |
+| `/cost_budgets/{id}/cancellation` | 原価予算取消 |
 | `/other_costs` | その他原価一覧・作成 |
 | `/other_costs/{id}` | その他原価詳細・更新 |
+| `/other_costs/{id}/cancellation` | その他原価取消 |
+| `/other_costs/{id}/restoration` | その他原価復元 |
 | `/master/items` | 商品マスタ一覧（要 `type`: sales / procurement） |
 | `/master/deal_line_types` | 明細取引タイプ一覧（要 `type`: sales / procurement） |
 | `/master/business_phases` | 案件フェーズマスタ一覧 |
 | `/master/sales_progressions` | 受注確度マスタ一覧 |
 | `/master/employees` | 従業員一覧 |
+| `/master/custom_fields/business/definitions` | 案件カスタムフィールド定義一覧 |
 
-取消・復元・ロックなどの操作は各リソースのサブパス（`/{id}/cancellation` 等）で提供されます。下記Tips参照。
+取消・復元・ロックとステータス変更の違いは下記Tips参照。
 
 ## 使用例
 
@@ -156,6 +193,33 @@ freee_api_get {
 }
 ```
 
+### 仕入を作成
+
+```
+freee_api_post {
+  "service": "sm",
+  "path": "/procurements",
+  "body": {
+    "company_id": 123456,
+    "procurement_date": "2026-06-30",
+    "supplier_id": 1,
+    "payments_on": "2026-07-31",
+    "payment_method_type": "transfer",
+    "payment_partner_id": 1,
+    "lines": [
+      {
+        "deal_line_type_id": "01XXXXXXXXXXXXXXXXXXXXXXXX",
+        "quantity": 1,
+        "unit_price": 5000,
+        "withholding_enabled": false,
+        "is_manual_tax_entry": false,
+        "purchase_order_id": "01YYYYYYYYYYYYYYYYYYYYYYYY"
+      }
+    ]
+  }
+}
+```
+
 ## Tips
 
 ### ID は ULID 形式
@@ -207,6 +271,11 @@ freee_api_get {
 - `references/sm-sales-orders.md` - 受注
 - `references/sm-deliveries.md` - 納品
 - `references/sm-sales.md` - 売上
+- `references/sm-sales-schedules.md` - 売上予定
+- `references/sm-periodic-sales.md` - 定期売上
+- `references/sm-advance-receipts.md` - 前受金
+- `references/sm-purchase-orders.md` - 発注
+- `references/sm-procurements.md` - 仕入
 - `references/sm-cost-budgets.md` - 原価予算
 - `references/sm-other-costs.md` - その他原価
 - `references/sm-master.md` - マスタ
