@@ -1,5 +1,31 @@
 # freee-mcp
 
+## 0.32.0
+
+### Minor Changes
+
+- [`ae0ba95`](https://github.com/freee/freee-mcp/commit/ae0ba95057b944208d9bf740f9da5db0f6109056): freee サーベイ API (`service: "survey"`) をサポートしました。 ([#233](https://github.com/freee/freee-mcp/pull/233))
+
+  - サーベイ企画一覧・実施回一覧・実施回詳細（回答対象者含む）の取得が可能です
+  - 現時点では参照系（GET）のみで、作成・更新・削除には対応していません
+  - サーベイ API は freee-mcp（リモート版）でのみ利用できます。ローカルモードでは呼び出せません
+
+### Patch Changes
+
+- [`2145c35`](https://github.com/freee/freee-mcp/commit/2145c35e990e776f03a041f53a82875759a866f1): Remote モードの CORS 設定に MCP のリクエストメタデータヘッダーを追加 ([#237](https://github.com/freee/freee-mcp/pull/237))
+
+  - `Mcp-Protocol-Version`（spec 2025-06-18 以降必須）が preflight で拒否され、ブラウザ経由のクライアントが接続できない問題を修正
+  - spec 2026-07-28 で Streamable HTTP の POST に必須となる `Mcp-Method` / `Mcp-Name` も先行して許可
+  - 対象は freee MCP サーバーと freee サイン MCP サーバーの両方
+
+- [`3e0cd28`](https://github.com/freee/freee-mcp/commit/3e0cd28f4ba0e11d19b76db817dd271df13017a3): 販売(sm)の前受金 API リリースに追従し、レシピ・リファレンス・スキーマを同期 ([#236](https://github.com/freee/freee-mcp/pull/236))
+
+  - 前受金(`/advance_receipts`)の一覧・詳細・取消・取崩・定期取崩を追加
+  - 売上予定(`/sales_schedules`)・定期売上(`/periodic_sales`)・発注(`/purchase_orders`)・仕入(`/procurements`)をパス一覧に追記
+  - 各リソースの取消・復元・ステータス変更のサブパスを網羅し、仕入登録の使用例を追加
+
+- [`d6b5021`](https://github.com/freee/freee-mcp/commit/d6b502184a7bbd11d3ad96dc18c8e439ff0cedce): OpenAPI スキーマを最新版に同期 ( 9 files changed, 3247 insertions(+), 289 deletions(-)) ([#229](https://github.com/freee/freee-mcp/pull/229))
+
 ## 0.31.0
 
 ### Minor Changes
