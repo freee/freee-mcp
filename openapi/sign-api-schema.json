@@ -1344,6 +1344,208 @@
         }
       }
     },
+    "/v1/documents/{document_id}/comments": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "description": "文書のID"
+        }
+      ],
+      "get": {
+        "summary": "文書コメント一覧の取得",
+        "operationId": "get-v1-documents-document_id-comments",
+        "description": "指定した文書のコメント一覧を取得する。\n取得者はアクセストークンの保有者（OAuth 連携の認可ユーザー）である必要がある。\nコメント機能を含むプランの契約が必要。",
+        "tags": [
+          "文書"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/PaginationParameters-page"
+            },
+            "in": "query",
+            "name": "page"
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/PaginationParameters-per_page"
+            },
+            "in": "query",
+            "name": "per_page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "取得成功",
+            "headers": {
+              "Link": {
+                "$ref": "#/components/headers/Link"
+              },
+              "Current-Page": {
+                "$ref": "#/components/headers/Current-Page"
+              },
+              "Page-Items": {
+                "$ref": "#/components/headers/Page-Items"
+              },
+              "Total-Page": {
+                "$ref": "#/components/headers/Total-Page"
+              },
+              "Total-Count": {
+                "$ref": "#/components/headers/Total-Count"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "文書コメントの一覧",
+                  "items": {
+                    "$ref": "#/components/schemas/OwnerDocumentComment"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー\n- アクセストークンに紐づく team_user が存在しない（Auth0 経路）\n- アクセス権限がない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "プランによる機能制限\n- コメント機能を含まないプランを契約している",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "対象リソースが存在しない\n- 指定された document_id が current_team の文書に存在しない、または削除済み",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "その他のエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "文書コメントの投稿",
+        "operationId": "post-v1-documents-document_id-comments",
+        "description": "指定した文書にコメントを投稿する。\n投稿者はアクセストークンの保有者（OAuth 連携の認可ユーザー）に固定される。\nコメント機能を含むプランの契約が必要。",
+        "tags": [
+          "文書"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "body": {
+                    "type": "string",
+                    "description": "コメント本文",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "body"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "投稿成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnerDocumentComment"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "リクエストになんらかの問題がある場合\n- body が空文字、または必須項目が欠落",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "認証エラー\n- アクセストークンに紐づく team_user が存在しない（Auth0 経路）\n- アクセストークンに紐づくユーザーが無効\n- アクセス権限がない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "プランによる機能制限\n- コメント機能を含まないプランを契約している",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "対象リソースが存在しない\n- 指定された document_id が current_team の文書に存在しない、または削除済み",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "その他のエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/documents/{document_id}/conclusion": {
       "parameters": [
         {
@@ -1580,7 +1782,7 @@
                             "order": {
                               "type": "integer",
                               "minimum": 1,
-                              "description": "署名者のスロット番号（1始まり）。文書の入力項目の order と一致させ、どの署名者の position に対面署名が紐づくかを決める\n\n※order は署名時の順位で、復路合意側の順番とは独立"
+                              "description": "対面契約の相手が、文書に設定された署名順で何番目にあたるかを表す番号（1始まり）。\n相手方の人数分、1から順に重複なく連番で指定してください。"
                             },
                             "label_name": {
                               "type": "string",
@@ -1951,6 +2153,12 @@
                     "minimum": 1,
                     "example": 1,
                     "description": "入力タイプが印鑑かつマイ印鑑を設定したい場合のみ、マイ印鑑のIDを設定してください。\nマイ印鑑のIDは「マイ印鑑一覧の取得」で取得可能です。\n\n※ マイ印鑑のIDが指定された場合、マイ印鑑を有効にするためvalueに任意の文字列を指定してもマイ印鑑のnameが登録されます。"
+                  },
+                  "signatures": {
+                    "description": "入力項目のPDF上の配置座標リスト。\n配列でない値を指定した場合は無視され、入力項目のみ作成される。\n配列の要素が不正な場合（Hash でない、座標が不足しているなど）は 400 を返す。",
+                    "items": {
+                      "$ref": "#/components/schemas/SignatureInput"
+                    }
                   }
                 },
                 "required": [
@@ -1967,7 +2175,23 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DocumentItem"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/DocumentItem"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "signatures": {
+                          "type": "array",
+                          "description": "付与された配置座標一覧",
+                          "items": {
+                            "$ref": "#/components/schemas/SignaturePlacement"
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -2125,6 +2349,399 @@
             }
           }
         }
+      }
+    },
+    "/v1/documents/{document_id}/document_items/{document_item_id}/signatures": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "description": "文書のID（作成中ステータスのみ）"
+        },
+        {
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": "document_item_id",
+          "in": "path",
+          "required": true,
+          "description": "入力項目のID"
+        }
+      ],
+      "get": {
+        "summary": "配置座標の一覧取得",
+        "operationId": "get-v1-documents-document_id-document_items-document_item_id-signatures",
+        "description": "入力項目に紐づくPDF上の配置座標一覧を取得する。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。",
+        "tags": [
+          "文書"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "required": false,
+            "name": "page",
+            "schema": {
+              "$ref": "#/components/schemas/PaginationParameters-page"
+            }
+          },
+          {
+            "in": "query",
+            "required": false,
+            "name": "per_page",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "description": "取得件数\n1〜100 の範囲外や不正な値を指定した場合はエラーにせず 1〜100 に丸めて処理する。"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "取得成功",
+            "headers": {
+              "Link": {
+                "$ref": "#/components/headers/Link"
+              },
+              "Current-Page": {
+                "$ref": "#/components/headers/Current-Page"
+              },
+              "Page-Items": {
+                "$ref": "#/components/headers/Page-Items"
+              },
+              "Total-Page": {
+                "$ref": "#/components/headers/Total-Page"
+              },
+              "Total-Count": {
+                "$ref": "#/components/headers/Total-Count"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "maxItems": 100,
+                  "items": {
+                    "$ref": "#/components/schemas/SignaturePlacement"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "文書または入力項目が存在しない、もしくは機能が無効",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "アップロード文書以外（テンプレート / Google Docs）への操作",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "配置座標の追加",
+        "operationId": "post-v1-documents-document_id-document_items-document_item_id-signatures",
+        "description": "入力項目のPDF上の配置座標を追加する。\n1つの入力項目に対して複数の配置座標を指定可能（複数ページにまたがる場合等）。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。",
+        "tags": [
+          "文書"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignatureInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "追加成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignaturePlacement"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "リクエストパラメータがスキーマに違反している場合\n- 必須項目欠落、型不一致\n- 座標値が範囲外（page < 1、x < 0、y < 0）\n- formatting の形式が不正",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "アクセス権限がない場合\n- 作成中以外のステータス（送信予約中・ワークフロー申請中・署名済み等）への操作",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "文書または入力項目が存在しない、もしくは機能が無効",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "バリデーションエラー\n- アップロード文書以外（テンプレート / Google Docs）への操作\n- page が PDF の実ページ数を超える\n- x + テキストボックス幅（formatting.width）が PDF の横幅を超える\n- y が PDF の高さを超える",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/documents/{document_id}/document_items/{document_item_id}/signatures/{signature_id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "description": "文書のID（作成中ステータスのみ）"
+        },
+        {
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": "document_item_id",
+          "in": "path",
+          "required": true,
+          "description": "入力項目のID"
+        },
+        {
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": "signature_id",
+          "in": "path",
+          "required": true,
+          "description": "配置座標ID"
+        }
+      ],
+      "patch": {
+        "summary": "配置座標の更新",
+        "operationId": "patch-v1-documents-document_id-document_items-document_item_id-signatures-signature_id",
+        "description": "入力項目のPDF上の配置座標を更新する。\n`formatting` キーを省略した場合、既存の formatting 設定はそのまま残る。\n`formatting: null` を明示的に指定した場合のみ、既存の formatting が削除される。\n`formatting: { ... }` を指定した場合は、既存の formatting が置き換えられる。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。",
+        "tags": [
+          "文書"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignatureInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignaturePlacement"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "リクエストパラメータがスキーマに違反している場合\n- 必須項目欠落、型不一致\n- 座標値が範囲外（page < 1、x < 0、y < 0）\n- formatting の形式が不正",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "アクセス権限がない場合\n- 作成中以外のステータス（送信予約中・ワークフロー申請中・署名済み等）への操作",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "文書・入力項目・配置座標が存在しない、もしくは機能が無効",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "バリデーションエラー\n- アップロード文書以外（テンプレート / Google Docs）への操作\n- page が PDF の実ページ数を超える\n- x + テキストボックス幅（formatting.width）が PDF の横幅を超える\n- y が PDF の高さを超える",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "配置座標の削除",
+        "operationId": "delete-v1-documents-document_id-document_items-document_item_id-signatures-signature_id",
+        "description": "入力項目のPDF上の配置座標を削除する。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。",
+        "tags": [
+          "文書"
+        ],
+        "responses": {
+          "200": {
+            "description": "削除成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignaturePlacement"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "アクセス権限がない場合\n- 作成中以外のステータス（送信予約中・ワークフロー申請中・署名済み等）への操作",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "文書・入力項目・配置座標が存在しない、もしくは機能が無効",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "アップロード文書以外（テンプレート / Google Docs）への操作",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/documents/{document_id}/face_to_face_extension": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": "document_id",
+          "in": "path",
+          "required": true,
+          "description": "有効期限を延長する文書のID"
+        }
+      ],
+      "post": {
+        "summary": "対面契約の有効期限の延長",
+        "operationId": "post-v1-documents-document_id-face-to-face-extension",
+        "responses": {
+          "200": {
+            "description": "延長成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "なんらかのエラーが発生した場合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "確認待ちの対面契約の有効期限を延長する。\n\n対象文書は以下の条件を満たす必要があります。\n- ステータスが確認待ちであること\n- 対面契約として送信された文書であること\n- 対面契約プランが有効なチームの文書であること\n- 実行ユーザーが対面契約を開始できる権限（対面契約開始可能ロール）を持つこと",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sender_id": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Sender-id"
+                      }
+                    ],
+                    "description": "送信するユーザーのID (APIクライアントを利用する場合は必須)\n\nOAuthアクセストークンを利用する場合は、アクセストークンに紐づくユーザーと同じIDを指定してください。異なるIDを指定すると 403 エラーとなります。"
+                  }
+                }
+              }
+            }
+          },
+          "description": "対面契約有効期限延長パラメーター"
+        },
+        "tags": [
+          "文書"
+        ]
       }
     },
     "/v1/documents/{document_id}/meta": {
@@ -4294,6 +4911,11 @@
             "title": "受領者確認済みかどうか",
             "description": "配付文書の受領者が文書を確認済みかどうか。\n配付文書でない場合は常にfalse。"
           },
+          "approve_on_signing": {
+            "type": "boolean",
+            "title": "合意タイミングの設定が「署名と同時に行う」かどうか",
+            "description": "trueの場合は三者間以上の契約での合意タイミングの設定が「署名と同時に行う」になっており、署名完了後の復路合意ステップを省略する。\nfalseの場合は三者間以上の契約での合意タイミングの設定が「署名とは別に行う」になっており、署名完了後に受領者による合意操作が必要になる。"
+          },
           "face_to_face_url": {
             "type": "string",
             "format": "uri",
@@ -5318,6 +5940,172 @@
           }
         },
         "nullable": true
+      },
+      "OwnerDocumentComment": {
+        "type": "object",
+        "description": "文書コメント",
+        "required": [
+          "id",
+          "body",
+          "category",
+          "user",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "コメントID"
+          },
+          "body": {
+            "type": "string",
+            "description": "コメント本文"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "comment",
+              "confirmation",
+              "reconfirmation",
+              "cancel",
+              "forward",
+              "cancel_forward",
+              "send_back_forward",
+              "signing",
+              "approval",
+              "rejection",
+              "conclusion",
+              "share",
+              "send_back_approval",
+              "url_issued",
+              "signer_email_verified"
+            ],
+            "description": "アクティビティの種別\n* comment - コメント\n* confirmation - 送信\n* reconfirmation - 再送\n* cancel - 依頼取消\n* forward - 転送\n* cancel_forward - 転送キャンセル\n* send_back_forward - 転送差し戻し\n* signing - 署名\n* approval - 合意\n* rejection - 却下\n* conclusion - 締結完了\n* share - 共有\n* send_back_approval - 署名差し戻し\n* url_issued - 署名URL発行\n* signer_email_verified - 署名URL受領"
+          },
+          "user": {
+            "type": "object",
+            "description": "投稿者",
+            "required": [
+              "id",
+              "full_name",
+              "email"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "description": "ユーザーID"
+              },
+              "full_name": {
+                "type": "string",
+                "description": "ユーザーのフルネーム"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "メールアドレス"
+              }
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "コメント投稿日時"
+          }
+        }
+      },
+      "SignatureInput": {
+        "title": "配置座標（入力）",
+        "type": "object",
+        "description": "PDF上の配置座標（リクエスト用）",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "配置するページ番号（1始まり）"
+          },
+          "x": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "X座標（左上端起点、右方向に正、Web画面ピクセル単位）"
+          },
+          "y": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Y座標（左上端起点、下方向に正、Web画面ピクセル単位）"
+          },
+          "formatting": {
+            "type": "object",
+            "nullable": true,
+            "description": "テキスト表示のフォーマット設定（SignatureFormatting に対応、input_type=string の場合のみ有効）",
+            "properties": {
+              "alignment": {
+                "type": "string",
+                "nullable": true,
+                "enum": [
+                  "left",
+                  "right",
+                  "center"
+                ],
+                "default": "left",
+                "description": "テキスト配置"
+              },
+              "width": {
+                "type": "integer",
+                "nullable": true,
+                "minimum": 0,
+                "default": 0,
+                "description": "テキストボックス幅（Web画面ピクセル単位）"
+              },
+              "word_wrap": {
+                "type": "boolean",
+                "nullable": true,
+                "default": false,
+                "description": "テキスト折り返しの有無"
+              }
+            }
+          }
+        },
+        "required": [
+          "page",
+          "x",
+          "y"
+        ]
+      },
+      "SignaturePlacement": {
+        "title": "配置座標",
+        "description": "PDF上の配置座標",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SignatureInput"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "description": "配置座標ID"
+              },
+              "created_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "作成日時"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "更新日時"
+              }
+            },
+            "required": [
+              "id",
+              "created_at",
+              "updated_at"
+            ]
+          }
+        ]
       }
     },
     "securitySchemes": {

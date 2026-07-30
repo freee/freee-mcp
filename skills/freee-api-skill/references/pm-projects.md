@@ -41,6 +41,11 @@ Projectsの操作
     - use_standard_unit_cost (任意): boolean - 標準の従業員単価マスタの単価を利用（デフォルト：false） 例: `true`
 - orderer_ids (任意): array[integer] - 発注元として指定する取引先IDの配列
 - contractor_ids (任意): array[integer] - 発注先として指定する取引先IDの配列
+- workload_tag_groups (任意): array[object] - プロジェクトに指定可能な工数タグリスト
+  配列の要素:
+    - tag_group_id (必須): integer - 工数タググループID 例: `1`
+    - required (必須): boolean - 工数登録時の入力を必須とするか 例: `true`
+    - tag_ids (必須): array[integer] - 当該タググループ配下で指定可能とする工数タグIDの配列（1件以上必要）
 - common_business_id (任意): string - 案件マスタの案件ID（ULID形式）
 指定した場合は既存案件にプロジェクトを紐付けます。指定しない場合は新規案件を作成します。 例: `01KF06JSKZ8TXZZVG7842F0VEM`
 

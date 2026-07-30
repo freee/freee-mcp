@@ -170,6 +170,29 @@
         "description": "指定した添付ファイルを取得する。\n\nこのエンドポイントはセキュリティ保護のため、`APIクライアント` でのご利用を制限しております。`OAuth 2.0 APIクライアント` をご利用ください。"
       }
     },
+    "/v1/documents/{document_id}/comments": {
+      "get": {
+        "summary": "文書コメント一覧の取得",
+        "description": "指定した文書のコメント一覧を取得する。\n取得者はアクセストークンの保有者（OAuth 連携の認可ユーザー）である必要がある。\nコメント機能を含むプランの契約が必要。",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "type": "string"
+          }
+        ]
+      },
+      "post": {
+        "summary": "文書コメントの投稿",
+        "description": "指定した文書にコメントを投稿する。\n投稿者はアクセストークンの保有者（OAuth 連携の認可ユーザー）に固定される。\nコメント機能を含むプランの契約が必要。",
+        "hasJsonBody": true
+      }
+    },
     "/v1/documents/{document_id}/conclusion": {
       "post": {
         "summary": "文書締結",
@@ -205,6 +228,49 @@
       "patch": {
         "summary": "入力項目に値を設定",
         "description": "文書に付与した入力項目の値を設定する。",
+        "hasJsonBody": true
+      }
+    },
+    "/v1/documents/{document_id}/document_items/{document_item_id}/signatures": {
+      "get": {
+        "summary": "配置座標の一覧取得",
+        "description": "入力項目に紐づくPDF上の配置座標一覧を取得する。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "type": "integer",
+            "required": false
+          }
+        ]
+      },
+      "post": {
+        "summary": "配置座標の追加",
+        "description": "入力項目のPDF上の配置座標を追加する。\n1つの入力項目に対して複数の配置座標を指定可能（複数ページにまたがる場合等）。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。",
+        "hasJsonBody": true
+      }
+    },
+    "/v1/documents/{document_id}/document_items/{document_item_id}/signatures/{signature_id}": {
+      "delete": {
+        "summary": "配置座標の削除",
+        "description": "入力項目のPDF上の配置座標を削除する。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。"
+      },
+      "patch": {
+        "summary": "配置座標の更新",
+        "description": "入力項目のPDF上の配置座標を更新する。\n`formatting` キーを省略した場合、既存の formatting 設定はそのまま残る。\n`formatting: null` を明示的に指定した場合のみ、既存の formatting が削除される。\n`formatting: { ... }` を指定した場合は、既存の formatting が置き換えられる。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。",
+        "hasJsonBody": true
+      }
+    },
+    "/v1/documents/{document_id}/face_to_face_extension": {
+      "post": {
+        "summary": "対面契約の有効期限の延長",
+        "description": "確認待ちの対面契約の有効期限を延長する。\n\n対象文書は以下の条件を満たす必要があります。\n- ステータスが確認待ちであること\n- 対面契約として送信された文書であること\n- 対面契約プランが有効なチームの文書であること\n- 実行ユーザーが対面契約を開始できる権限（対面契約開始可能ロール）を持つこと",
         "hasJsonBody": true
       }
     },

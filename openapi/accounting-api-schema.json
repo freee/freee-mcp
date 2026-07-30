@@ -16461,7 +16461,7 @@
           "Approval requests"
         ],
         "summary": "各種申請の作成",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の各種申請を作成する</p>\n\n<p>各種申請APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-approval-requests\" target=\"_blank\">freee会計の各種申請APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、各種申請を作成することができます。</li>\n  <li>\n    申請項目(request_items)については、申請フォームで設定された項目のIDとそれに対応する値を入力してください。\n    <ul>\n      <li>タイトル(title)：文字列(必須項目, 255文字まで, 改行なし) 例)予算申請</li>\n      <li>1行コメント(single_line)：文字列(255文字まで, 改行なし) 例)予算に関する申請</li>\n      <li>複数行コメント(multi_line)：文字列(1000文字まで, 改行あり)\n      <br>\n      &nbsp;&nbsp;例)<br>\n      &nbsp;&nbsp;予算に関する申請<br>\n      &nbsp;&nbsp;申請日 2019-12-17<br>\n      </li>\n      <li>プルダウン(select)： プルダウンの選択肢の名前(改行なし) 例)開発部</li>\n      <li>日付(date)： 日付形式 例)2019-12-17</li>\n      <li>金額(amount)： 数値(申請フォームで設定した上限・下限金額内の値, 改行なし) 例)10000</li>\n      <li>添付ファイル(receipt)： ファイルボックス（証憑ファイル）APIのID 例)1\n        <ul>\n          <li>ファイルボックスを参照できる権限が必要</li>\n          <li>自分のアップロードしたファイルのみ参照可能な権限のユーザーの場合、他ユーザーがアップロードしたファイルを指定できません</li>\n        </ul>\n      </li>\n      <li>部門ID(section)： 部門APIのID 例)1</li>\n        <ul>\n          <li>親部門は入力できません</li>\n          <li>ユーザーの所属するグループで利用不可な部門は入力できません</li>\n        </ul>\n      <li>取引先ID(partner)： 取引先APIのID 例)1</li>\n    </ul>\n  </li>\n  <li>申請項目に項目ID, 項目タイプの組み合わせが重複したものを入力できません</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している各種申請は本API経由で作成ができません。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n  </li>\n  <li>\n    申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。\n  </li>\n  <li>Web画面やAPIを通じて申請フォームが変更されると、本APIで使用する項目ID（request_itemsで指定するid）も変更されます。本API利用前に各種申請の取得APIを利用し、最新の申請フォームを取得することを推奨します。</li>\n  <li>申請中の申請を作成に成功した場合、申請者へメール、モバイルプッシュ、slack による通知をします\n    <ul>\n      <li>Webhook を有効にした事業所の場合は Webhook にも通知をします</li>\n    </ul>\n  </li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の各種申請を作成する</p>\n\n<p>各種申請APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-approval-requests\" target=\"_blank\">freee会計の各種申請APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、各種申請を作成することができます。</li>\n  <li>\n    申請項目(request_items)については、申請フォームで設定された項目のIDとそれに対応する値を入力してください。\n    <ul>\n      <li>タイトル(title)：文字列(必須項目, 255文字まで, 改行なし) 例)予算申請</li>\n      <li>1行コメント(single_line)：文字列(255文字まで, 改行なし) 例)予算に関する申請</li>\n      <li>複数行コメント(multi_line)：文字列(1000文字まで, 改行あり)\n      <br>\n      &nbsp;&nbsp;例)<br>\n      &nbsp;&nbsp;予算に関する申請<br>\n      &nbsp;&nbsp;申請日 2019-12-17<br>\n      </li>\n      <li>プルダウン(select)： プルダウンの選択肢の名前(改行なし) 例)開発部</li>\n      <li>日付(date)： 日付形式 例)2019-12-17</li>\n      <li>金額(amount)： 数値(申請フォームで設定した上限・下限金額内の値, 改行なし) 例)10000</li>\n      <li>添付ファイル(receipt)： ファイルボックス（証憑ファイル）APIのID 例)1\n        <ul>\n          <li>ファイルボックスを参照できる権限が必要</li>\n          <li>自分のアップロードしたファイルのみ参照可能な権限のユーザーの場合、他ユーザーがアップロードしたファイルを指定できません</li>\n        </ul>\n      </li>\n      <li>部門ID(section)： 部門APIのID 例)1</li>\n        <ul>\n          <li>親部門は入力できません</li>\n          <li>ユーザーの所属するグループで利用不可な部門は入力できません</li>\n        </ul>\n      <li>取引先ID(partner)： 取引先APIのID 例)1</li>\n    </ul>\n  </li>\n  <li>申請項目に項目ID, 項目タイプの組み合わせが重複したものを入力できません</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している各種申請は本API経由で作成ができません。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n  </li>\n  <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した各種申請は作成できません。</li>\n  <li>\n    申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。\n  </li>\n  <li>Web画面やAPIを通じて申請フォームが変更されると、本APIで使用する項目ID（request_itemsで指定するid）も変更されます。本API利用前に各種申請の取得APIを利用し、最新の申請フォームを取得することを推奨します。</li>\n  <li>申請中の申請を作成に成功した場合、申請者へメール、モバイルプッシュ、slack による通知をします\n    <ul>\n      <li>Webhook を有効にした事業所の場合は Webhook にも通知をします</li>\n    </ul>\n  </li>\n</ul>",
         "operationId": "create_approval_request",
         "requestBody": {
           "content": {
@@ -16642,7 +16642,7 @@
           "Approval requests"
         ],
         "summary": "各種申請の更新",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の各種申請を更新する</p>\n\n<p>各種申請APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-approval-requests\" target=\"_blank\">freee会計の各種申請APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、各種申請を更新することができます。</li>\n  <li>\n    申請項目(request_items)については、各種申請の取得APIで取得したrequest_items.idとそれに対応する値を入力してください。\n    <ul>\n      <li>タイトル(title)：文字列(必須項目, 255文字まで, 改行なし) 例)予算申請</li>\n      <li>1行コメント(single_line)：文字列(255文字まで, 改行なし) 例)予算に関する申請</li>\n      <li>複数行コメント(multi_line)：文字列(1000文字まで, 改行あり)\n      <br>\n      &nbsp;&nbsp;例)<br>\n      &nbsp;&nbsp;予算に関する申請<br>\n      &nbsp;&nbsp;申請日 2019-12-17<br>\n      </li>\n      <li>プルダウン(select)： プルダウンの選択肢の名前(改行なし) 例)開発部</li>\n      <li>日付(date)： 日付形式 例)2019-12-17</li>\n      <li>金額(amount)： 数値(申請フォームで設定した上限・下限金額内の値, 改行なし) 例)10000</li>\n      <li>添付ファイル(receipt)： ファイルボックス（証憑ファイル）APIのID 例)1\n        <ul>\n          <li>ファイルボックスを参照できる権限が必要</li>\n          <li>自分のアップロードしたファイルのみ参照可能な権限のユーザーの場合、他ユーザーがアップロードしたファイルを指定できません</li>\n        </ul>\n      </li>\n      <li>部門ID(section)： 部門APIのID 例)1</li>\n        <ul>\n          <li>親部門は入力できません</li>\n          <li>ユーザーの所属するグループで利用不可な部門は入力できません</li>\n        </ul>\n      <li>取引先ID(partner)： 取引先APIのID 例)1</li>\n    </ul>\n  </li>\n  <li>申請項目に項目ID, 項目タイプの組み合わせが重複したものを入力できません</li>\n  <li>本APIでは、status(申請ステータス): draft:下書き, feedback:差戻しのみ更新可能です。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している各種申請は本API経由で更新ができません。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n  </li>\n  <li>\n    申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。\n  </li>\n  <li>Web画面やAPIを通じて申請フォームが変更されると、本APIで使用する項目ID（request_itemsで指定するid）も変更されます。本APIで使用する項目IDは申請作成時点の項目IDです。本API利用前に各種申請の取得APIを利用し、申請作成時点の項目IDを取得することを推奨します。</li>\n  <li>申請中の申請を作成に成功した場合、申請者へメール、モバイルプッシュ、slack による通知をします\n    <ul>\n      <li>申請を共有している場合、共有者へメール、slack による通知をします</li>\n      <li>Webhook を有効にした事業所の場合は Webhook にも通知をします</li>\n    </ul>\n  </li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の各種申請を更新する</p>\n\n<p>各種申請APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-approval-requests\" target=\"_blank\">freee会計の各種申請APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、各種申請を更新することができます。</li>\n  <li>\n    申請項目(request_items)については、各種申請の取得APIで取得したrequest_items.idとそれに対応する値を入力してください。\n    <ul>\n      <li>タイトル(title)：文字列(必須項目, 255文字まで, 改行なし) 例)予算申請</li>\n      <li>1行コメント(single_line)：文字列(255文字まで, 改行なし) 例)予算に関する申請</li>\n      <li>複数行コメント(multi_line)：文字列(1000文字まで, 改行あり)\n      <br>\n      &nbsp;&nbsp;例)<br>\n      &nbsp;&nbsp;予算に関する申請<br>\n      &nbsp;&nbsp;申請日 2019-12-17<br>\n      </li>\n      <li>プルダウン(select)： プルダウンの選択肢の名前(改行なし) 例)開発部</li>\n      <li>日付(date)： 日付形式 例)2019-12-17</li>\n      <li>金額(amount)： 数値(申請フォームで設定した上限・下限金額内の値, 改行なし) 例)10000</li>\n      <li>添付ファイル(receipt)： ファイルボックス（証憑ファイル）APIのID 例)1\n        <ul>\n          <li>ファイルボックスを参照できる権限が必要</li>\n          <li>自分のアップロードしたファイルのみ参照可能な権限のユーザーの場合、他ユーザーがアップロードしたファイルを指定できません</li>\n        </ul>\n      </li>\n      <li>部門ID(section)： 部門APIのID 例)1</li>\n        <ul>\n          <li>親部門は入力できません</li>\n          <li>ユーザーの所属するグループで利用不可な部門は入力できません</li>\n        </ul>\n      <li>取引先ID(partner)： 取引先APIのID 例)1</li>\n    </ul>\n  </li>\n  <li>申請項目に項目ID, 項目タイプの組み合わせが重複したものを入力できません</li>\n  <li>本APIでは、status(申請ステータス): draft:下書き, feedback:差戻しのみ更新可能です。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している各種申請は本API経由で更新ができません。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n  </li>\n  <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した各種申請は更新できません。</li>\n  <li>\n    申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。\n  </li>\n  <li>Web画面やAPIを通じて申請フォームが変更されると、本APIで使用する項目ID（request_itemsで指定するid）も変更されます。本APIで使用する項目IDは申請作成時点の項目IDです。本API利用前に各種申請の取得APIを利用し、申請作成時点の項目IDを取得することを推奨します。</li>\n  <li>申請中の申請を作成に成功した場合、申請者へメール、モバイルプッシュ、slack による通知をします\n    <ul>\n      <li>申請を共有している場合、共有者へメール、slack による通知をします</li>\n      <li>Webhook を有効にした事業所の場合は Webhook にも通知をします</li>\n    </ul>\n  </li>\n</ul>",
         "operationId": "update_approval_request",
         "parameters": [
           {
@@ -16830,7 +16830,7 @@
           "Approval requests"
         ],
         "summary": "各種申請の承認操作",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の各種申請の承認操作を行う</p>\n\n<p>各種申請APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-approval-requests\" target=\"_blank\">freee会計の各種申請APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、各種申請の承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）を行うことができます。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n　<li>\n    申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している各種申請はAPI経由で承認ステータスの変更ができません。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n  </li>\n  <li>\n    申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。\n  </li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の各種申請の承認操作を行う</p>\n\n<p>各種申請APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-approval-requests\" target=\"_blank\">freee会計の各種申請APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、各種申請の承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）を行うことができます。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n　<li>\n    申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している各種申請はAPI経由で承認ステータスの変更ができません。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n  </li>\n  <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した各種申請は承認操作できません。</li>\n  <li>\n    申請フォームの項目に契約書（freeeサイン連携）が利用されている各種申請については、API経由で参照は可能ですが、作成と更新ができません。\n  </li>\n</ul>",
         "operationId": "update_approval_request_action",
         "parameters": [
           {
@@ -21469,13 +21469,10 @@
       },
       "transferParams": {
         "required": [
-          "amount",
           "company_id",
           "date",
           "from_walletable_id",
-          "from_walletable_type",
-          "to_walletable_id",
-          "to_walletable_type"
+          "from_walletable_type"
         ],
         "type": "object",
         "properties": {
@@ -21483,12 +21480,14 @@
             "type": "integer",
             "format": "int64",
             "minimum": 1,
-            "description": "振替先口座ID",
+            "deprecated": true,
+            "description": "振替先口座ID（単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。",
             "example": 1
           },
           "to_walletable_type": {
             "type": "string",
-            "description": "振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet)",
+            "deprecated": true,
+            "description": "振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet)。単一振替先の場合に指定。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。",
             "example": "bank_account",
             "enum": [
               "bank_account",
@@ -21518,7 +21517,8 @@
             "format": "int64",
             "minimum": -9223372036854776000,
             "maximum": 9223372036854776000,
-            "description": "金額",
+            "deprecated": true,
+            "description": "金額（単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行amountを利用してください。",
             "example": 5000
           },
           "date": {
@@ -21535,8 +21535,55 @@
           },
           "description": {
             "type": "string",
-            "description": "備考",
+            "deprecated": true,
+            "description": "備考（単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行descriptionを利用してください。",
             "example": "備考"
+          },
+          "to_walletables": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 50,
+            "description": "振替先口座行（振替先が複数の場合に指定・最大50行）。単一のto_walletable_id / to_walletable_type / amount / descriptionと同時に指定することはできません。振替元はfrom_walletable_id / from_walletable_typeで共通指定。",
+            "items": {
+              "type": "object",
+              "required": [
+                "type",
+                "id",
+                "amount"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet)",
+                  "example": "bank_account",
+                  "enum": [
+                    "bank_account",
+                    "credit_card",
+                    "wallet"
+                  ]
+                },
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "振替先口座ID",
+                  "example": 1
+                },
+                "amount": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": -9223372036854776000,
+                  "maximum": 9223372036854776000,
+                  "description": "振替先口座への金額",
+                  "example": 3000
+                },
+                "description": {
+                  "type": "string",
+                  "description": "備考",
+                  "example": "備考"
+                }
+              }
+            }
           }
         }
       },
@@ -39804,7 +39851,7 @@
                     },
                     "resource_type": {
                       "type": "string",
-                      "description": "承認方法( predefined_user: メンバー指定 (1人), selected_user: 申請時にメンバー指定,unspecified: 指定なし, and_resource: メンバー指定 (複数、全員の承認), or_resource: メンバー指定 (複数、1人の承認), and_position: 役職指定 (複数、全員の承認), or_position: 役職指定 (複数、1人の承認) ) ",
+                      "description": "承認方法( predefined_user: メンバー指定 (1人), selected_user: 申請時にメンバー指定,unspecified: 指定なし, and_resource: メンバー指定 (複数、全員の承認), or_resource: メンバー指定 (複数、1人の承認), and_position: 役職指定 (複数、全員の承認), or_position: 役職指定 (複数、1人の承認), switchable: 条件分岐（金額・役職などの評価値で承認ステップが分岐する） ) ",
                       "enum": [
                         "predefined_user",
                         "selected_user",
@@ -39812,7 +39859,8 @@
                         "and_resource",
                         "or_resource",
                         "and_position",
-                        "or_position"
+                        "or_position",
+                        "switchable"
                       ],
                       "example": "predefined_user"
                     },

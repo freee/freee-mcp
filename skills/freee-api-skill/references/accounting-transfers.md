@@ -51,14 +51,20 @@ amount : 振替金額 from_walletable_type, to_walletable_type bank_account : �
 
 ### リクエストボディ
 
-- to_walletable_id (必須): integer(int64) - 振替先口座ID 例: `1` (最小: 1)
-- to_walletable_type (必須): string - 振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet) (選択肢: bank_account, credit_card, wallet) 例: `bank_account`
+- to_walletable_id (任意): integer(int64) - 振替先口座ID（単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。 例: `1` (最小: 1)
+- to_walletable_type (任意): string - 振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet)。単一振替先の場合に指定。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。 (選択肢: bank_account, credit_card, wallet) 例: `bank_account`
 - from_walletable_id (必須): integer(int64) - 振替元口座ID 例: `1` (最小: 1)
 - from_walletable_type (必須): string - 振替元口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet) (選択肢: bank_account, credit_card, wallet) 例: `credit_card`
-- amount (必須): integer(int64) - 金額 例: `5000` (最小: -9223372036854776000, 最大: 9223372036854776000)
+- amount (任意): integer(int64) - 金額（単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行amountを利用してください。 例: `5000` (最小: -9223372036854776000, 最大: 9223372036854776000)
 - date (必須): string - 振替日 (yyyy-mm-dd) 例: `2019-12-17`
 - company_id (必須): integer(int64) - 事業所ID 例: `1` (最小: 1)
-- description (任意): string - 備考 例: `備考`
+- description (任意): string - 備考（単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行descriptionを利用してください。 例: `備考`
+- to_walletables (任意): array[object] - 振替先口座行（振替先が複数の場合に指定・最大50行）。単一のto_walletable_id / to_walletable_type / amount / descriptionと同時に指定することはできません。振替元はfrom_walletable_id / from_walletable_typeで共通指定。
+  配列の要素:
+    - type (必須): string - 振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet) (選択肢: bank_account, credit_card, wallet) 例: `bank_account`
+    - id (必須): integer(int64) - 振替先口座ID 例: `1` (最小: 1)
+    - amount (必須): integer(int64) - 振替先口座への金額 例: `3000` (最小: -9223372036854776000, 最大: 9223372036854776000)
+    - description (任意): string - 備考 例: `備考`
 
 ### レスポンス (201)
 
@@ -123,14 +129,20 @@ amount : 振替金額 from_walletable_type, to_walletable_type bank_account : �
 
 (必須)
 
-- to_walletable_id (必須): integer(int64) - 振替先口座ID 例: `1` (最小: 1)
-- to_walletable_type (必須): string - 振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet) (選択肢: bank_account, credit_card, wallet) 例: `bank_account`
+- to_walletable_id (任意): integer(int64) - 振替先口座ID（単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。 例: `1` (最小: 1)
+- to_walletable_type (任意): string - 振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet)。単一振替先の場合に指定。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。 (選択肢: bank_account, credit_card, wallet) 例: `bank_account`
 - from_walletable_id (必須): integer(int64) - 振替元口座ID 例: `1` (最小: 1)
 - from_walletable_type (必須): string - 振替元口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet) (選択肢: bank_account, credit_card, wallet) 例: `credit_card`
-- amount (必須): integer(int64) - 金額 例: `5000` (最小: -9223372036854776000, 最大: 9223372036854776000)
+- amount (任意): integer(int64) - 金額（単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行amountを利用してください。 例: `5000` (最小: -9223372036854776000, 最大: 9223372036854776000)
 - date (必須): string - 振替日 (yyyy-mm-dd) 例: `2019-12-17`
 - company_id (必須): integer(int64) - 事業所ID 例: `1` (最小: 1)
-- description (任意): string - 備考 例: `備考`
+- description (任意): string - 備考（単一振替先の場合に指定）。to_walletablesと同時に指定することはできません。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行descriptionを利用してください。 例: `備考`
+- to_walletables (任意): array[object] - 振替先口座行（振替先が複数の場合に指定・最大50行）。単一のto_walletable_id / to_walletable_type / amount / descriptionと同時に指定することはできません。振替元はfrom_walletable_id / from_walletable_typeで共通指定。
+  配列の要素:
+    - type (必須): string - 振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet) (選択肢: bank_account, credit_card, wallet) 例: `bank_account`
+    - id (必須): integer(int64) - 振替先口座ID 例: `1` (最小: 1)
+    - amount (必須): integer(int64) - 振替先口座への金額 例: `3000` (最小: -9223372036854776000, 最大: 9223372036854776000)
+    - description (任意): string - 備考 例: `備考`
 
 ### レスポンス (200)
 

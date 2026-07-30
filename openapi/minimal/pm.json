@@ -468,6 +468,35 @@
         ],
         "hasJsonBody": true
       }
+    },
+    "/workload_tag_groups": {
+      "get": {
+        "summary": "工数タグの取得",
+        "description": "事業所の工数タググループと、その配下に属する工数タグの一覧を取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得レコードの件数（デフォルト：50, 最小：1, 最大：100）"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得レコードのオフセット（デフォルト：0）"
+          }
+        ]
+      }
     }
   }
 }

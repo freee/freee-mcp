@@ -2,4 +2,4 @@
 "freee-mcp": patch
 ---
 
-OpenAPIスキーマを最新版に同期 ( 4 files changed, 1049 insertions(+), 6 deletions(-))
+OpenAPIスキーマを最新版に同期 ( 9 files changed, 3247 insertions(+), 289 deletions(-))

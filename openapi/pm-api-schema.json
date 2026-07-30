@@ -1775,6 +1775,116 @@
           }
         }
       }
+    },
+    "/workload_tag_groups": {
+      "get": {
+        "operationId": "/workload_tag_groups/index",
+        "summary": "工数タグの取得",
+        "description": "事業所の工数タググループと、その配下に属する工数タグの一覧を取得します。",
+        "tags": [
+          "WorkloadTagGroups"
+        ],
+        "parameters": [
+          {
+            "description": "事業所ID",
+            "in": "query",
+            "name": "company_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "取得レコードの件数（デフォルト：50, 最小：1, 最大：100）",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "description": "取得レコードのオフセット（デフォルト：0）",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9223372036854776000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功時",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "workload_tag_groups": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/workload_tag_group"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/paths/~1projects/get/responses/200/content/application~1json/schema/properties/meta"
+                    }
+                  },
+                  "required": [
+                    "workload_tag_groups",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1workload_tag_groups/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1workload_tag_groups/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1workload_tag_groups/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1968,6 +2078,49 @@
                   }
                 }
               },
+              "workload_tag_groups": {
+                "type": "array",
+                "description": "プロジェクトで使える工数タグのグループ",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "tag_group_id": {
+                      "type": "integer",
+                      "description": "タググループID",
+                      "example": 1
+                    },
+                    "tag_group_name": {
+                      "type": "string",
+                      "description": "タググループ名",
+                      "example": "タググループA"
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "description": "工数登録時に必須かどうかのフラグ",
+                      "example": true
+                    },
+                    "tags": {
+                      "type": "array",
+                      "description": "タグ",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "description": "タグID",
+                            "example": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "タグ名",
+                            "example": "タグA"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
               "orderers": {
                 "type": "array",
                 "description": "発注元",
@@ -2039,49 +2192,6 @@
                       "description": "タグ名",
                       "example": "タグA",
                       "nullable": true
-                    }
-                  }
-                }
-              },
-              "workload_tag_groups": {
-                "type": "array",
-                "description": "プロジェクトで使える工数タグのグループ",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "tag_group_id": {
-                      "type": "integer",
-                      "description": "タググループID",
-                      "example": 1
-                    },
-                    "tag_group_name": {
-                      "type": "string",
-                      "description": "タググループ名",
-                      "example": "タググループA"
-                    },
-                    "required": {
-                      "type": "boolean",
-                      "description": "工数登録時に必須かどうかのフラグ",
-                      "example": true
-                    },
-                    "tags": {
-                      "type": "array",
-                      "description": "タグ",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer",
-                            "description": "タグID",
-                            "example": 1
-                          },
-                          "name": {
-                            "type": "string",
-                            "description": "タグ名",
-                            "example": "タグA"
-                          }
-                        }
-                      }
                     }
                   }
                 }
@@ -2207,6 +2317,39 @@
             },
             "type": "array"
           },
+          "workload_tag_groups": {
+            "description": "プロジェクトに指定可能な工数タグリスト",
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "object",
+              "properties": {
+                "tag_group_id": {
+                  "description": "工数タググループID",
+                  "type": "integer",
+                  "example": 1
+                },
+                "required": {
+                  "description": "工数登録時の入力を必須とするか",
+                  "type": "boolean",
+                  "example": true
+                },
+                "tag_ids": {
+                  "description": "当該タググループ配下で指定可能とする工数タグIDの配列（1件以上必要）",
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "example": 10
+                  }
+                }
+              },
+              "required": [
+                "tag_group_id",
+                "required",
+                "tag_ids"
+              ]
+            }
+          },
           "common_business_id": {
             "description": "案件マスタの案件ID（ULID形式）\n指定した場合は既存案件にプロジェクトを紐付けます。指定しない場合は新規案件を作成します。",
             "type": "string",
@@ -2318,6 +2461,49 @@
                       "type": "string",
                       "description": "氏名",
                       "example": "田中太郎"
+                    }
+                  }
+                }
+              },
+              "workload_tag_groups": {
+                "type": "array",
+                "description": "プロジェクトで使える工数タグのグループ",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "tag_group_id": {
+                      "type": "integer",
+                      "description": "タググループID",
+                      "example": 1
+                    },
+                    "tag_group_name": {
+                      "type": "string",
+                      "description": "タググループ名",
+                      "example": "タググループA"
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "description": "工数登録時に必須かどうかのフラグ",
+                      "example": true
+                    },
+                    "tags": {
+                      "type": "array",
+                      "description": "タグ",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "description": "タグID",
+                            "example": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "タグ名",
+                            "example": "タグA"
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -3098,6 +3284,50 @@
           "id",
           "name",
           "member_count"
+        ]
+      },
+      "workload_tag_group": {
+        "type": "object",
+        "description": "工数タググループ（配下の工数タグを含む）",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "工数タググループID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "工数タググループ名",
+            "example": "工程"
+          },
+          "workload_tags": {
+            "type": "array",
+            "description": "配下の工数タグ",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "description": "工数タグID",
+                  "example": 10
+                },
+                "name": {
+                  "type": "string",
+                  "description": "工数タグ名",
+                  "example": "設計"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "workload_tags"
         ]
       },
       "error": {
