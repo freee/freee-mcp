@@ -1490,6 +1490,291 @@
           }
         }
       }
+    },
+    "/labor_budgets": {
+      "get": {
+        "operationId": "/labor_budgets/index",
+        "summary": "人件費予算一覧の取得",
+        "description": "この事業所の人件費予算の一覧を返します。プロジェクト・従業員・年月範囲 で絞り込みができます。対象プロジェクト数が一定値を超えるとエラーとなります。その場合はプロジェクトIDまたは従業員IDを指定して絞り込む必要があります。",
+        "tags": [
+          "LaborBudgets"
+        ],
+        "parameters": [
+          {
+            "description": "事業所ID",
+            "in": "query",
+            "name": "company_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "プロジェクトID",
+            "in": "query",
+            "name": "project_id",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "従業員ID",
+            "in": "query",
+            "name": "person_id",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "取得対象の開始年月（YYYY-MM）。指定した年月を含みます。",
+            "in": "query",
+            "name": "from",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "2026-01"
+            }
+          },
+          {
+            "description": "取得対象の終了年月（YYYY-MM）。指定した年月を含みます。",
+            "in": "query",
+            "name": "to",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "2026-06"
+            }
+          },
+          {
+            "description": "取得レコードの件数（デフォルト：50, 最小：1, 最大：100）",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "description": "取得レコードのオフセット（デフォルト：0）",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功時",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "labor_budgets": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/labor_budget"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/paths/~1projects/get/responses/200/content/application~1json/schema/properties/meta"
+                    }
+                  },
+                  "required": [
+                    "labor_budgets",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1labor_budgets/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1labor_budgets/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1labor_budgets/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1labor_budgets/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/labor_budgets/projects/{project_id}/people/{person_id}/year_month/{year_month}": {
+      "put": {
+        "operationId": "/labor_budgets/update",
+        "summary": "人件費予算の更新",
+        "description": "指定したプロジェクト・従業員・年月の予定工数（時間）と人件費予算の金額を更新します。金額は従業員の単価に基づき、自動で更新されます。",
+        "tags": [
+          "LaborBudgets"
+        ],
+        "parameters": [
+          {
+            "description": "プロジェクトID",
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "対象従業員ID",
+            "in": "path",
+            "name": "person_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "対象年月（YYYY-MM）",
+            "in": "path",
+            "name": "year_month",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/update_labor_budget_param"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功時",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "labor_budget": {
+                      "$ref": "#/paths/~1labor_budgets/get/responses/200/content/application~1json/schema/properties/labor_budgets/items"
+                    }
+                  },
+                  "required": [
+                    "labor_budget"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1labor_budgets~1projects~1%7Bproject_id%7D~1people~1%7Bperson_id%7D~1year_month~1%7Byear_month%7D/put/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1labor_budgets~1projects~1%7Bproject_id%7D~1people~1%7Bperson_id%7D~1year_month~1%7Byear_month%7D/put/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1labor_budgets~1projects~1%7Bproject_id%7D~1people~1%7Bperson_id%7D~1year_month~1%7Byear_month%7D/put/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1labor_budgets~1projects~1%7Bproject_id%7D~1people~1%7Bperson_id%7D~1year_month~1%7Byear_month%7D/put/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/paths/~1labor_budgets~1projects~1%7Bproject_id%7D~1people~1%7Bperson_id%7D~1year_month~1%7Byear_month%7D/put/responses/400/content/application~1json/schema"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2692,6 +2977,67 @@
             "example": 6000
           }
         }
+      },
+      "labor_budget": {
+        "type": "object",
+        "description": "人件費予算",
+        "properties": {
+          "project_id": {
+            "type": "integer",
+            "description": "対象プロジェクトID",
+            "example": 100
+          },
+          "person_id": {
+            "type": "integer",
+            "description": "対象従業員ID",
+            "example": 1
+          },
+          "year_month": {
+            "type": "string",
+            "description": "対象年月（YYYY-MM）",
+            "example": "2026-06"
+          },
+          "cost": {
+            "type": "integer",
+            "description": "人件費予算の金額（円）",
+            "example": 40000
+          },
+          "hours": {
+            "type": "integer",
+            "description": "予定工数（時間）",
+            "example": 8
+          }
+        },
+        "required": [
+          "project_id",
+          "person_id",
+          "year_month",
+          "cost",
+          "hours"
+        ]
+      },
+      "update_labor_budget_param": {
+        "type": "object",
+        "description": "人件費予算更新情報",
+        "properties": {
+          "company_id": {
+            "description": "事業所ID",
+            "format": "int32",
+            "type": "integer",
+            "example": 1
+          },
+          "hours": {
+            "description": "予定工数（時間）",
+            "format": "int32",
+            "type": "integer",
+            "minimum": 0,
+            "example": 8
+          }
+        },
+        "required": [
+          "company_id",
+          "hours"
+        ]
       },
       "team": {
         "type": "object",

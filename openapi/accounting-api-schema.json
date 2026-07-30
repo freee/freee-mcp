@@ -18946,6 +18946,192 @@
                     "active": {
                       "type": "boolean",
                       "description": "有効/無効\n* true: 有効\n* false: 無効\n"
+                    },
+                    "user_matcher_diff_deals": {
+                      "type": "array",
+                      "description": "消込差額行の配列\nact=6(未決済取引の消込を推測する), 8(一括振込ファイル消込を推測する), 9(一括振込ファイル消込を登録する) の場合のみ差額行が入ります。\nそれ以外の act では空配列です。\nFeatureFlag `ai_agent_user_matcher_scrub` off の事業所ではフィールド自体がレスポンスに含まれません。\n",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "diff_amount_type",
+                          "adjust_type"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "description": "消込差額行ID"
+                          },
+                          "diff_amount_type": {
+                            "type": "string",
+                            "description": "差額タイプ\n* over: 過大\n* under: 過小\n* under_composite_diff: 複合差額(過小)\n",
+                            "enum": [
+                              "over",
+                              "under",
+                              "under_composite_diff"
+                            ]
+                          },
+                          "adjust_type": {
+                            "type": "string",
+                            "description": "調整タイプ\n* within: 範囲内\n* over: 範囲外\n",
+                            "enum": [
+                              "within",
+                              "over"
+                            ]
+                          },
+                          "tax_code": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "税区分コード"
+                          },
+                          "tax_name": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "税区分名"
+                          },
+                          "threshold_amount": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "しきい値金額"
+                          },
+                          "deal_description": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "取引の備考"
+                          },
+                          "account_item": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "勘定科目",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "勘定科目ID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "勘定科目名"
+                              }
+                            }
+                          },
+                          "item": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "品目",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "品目ID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "品目名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "section": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "部門",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "部門ID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "部門名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "division_tag_1": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "セグメント1タグ",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "セグメント1タグID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "セグメント1タグ名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "division_tag_2": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "セグメント2タグ",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "セグメント2タグID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "セグメント2タグ名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "division_tag_3": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "セグメント3タグ",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "セグメント3タグID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "セグメント3タグ名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "tags": {
+                            "type": "array",
+                            "description": "メモタグの配列",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "description": "メモタグID"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "メモタグ名"
+                                },
+                                "category_name": {
+                                  "type": "string",
+                                  "description": "カテゴリ名"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -19252,6 +19438,192 @@
                     "active": {
                       "type": "boolean",
                       "description": "有効/無効\n* true: 有効\n* false: 無効\n"
+                    },
+                    "user_matcher_diff_deals": {
+                      "type": "array",
+                      "description": "消込差額行の配列\nact=6(未決済取引の消込を推測する), 8(一括振込ファイル消込を推測する), 9(一括振込ファイル消込を登録する) の場合のみ差額行が入ります。\nそれ以外の act では空配列です。\nFeatureFlag `ai_agent_user_matcher_scrub` off の事業所ではフィールド自体がレスポンスに含まれません。\n",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "diff_amount_type",
+                          "adjust_type"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "description": "消込差額行ID"
+                          },
+                          "diff_amount_type": {
+                            "type": "string",
+                            "description": "差額タイプ\n* over: 過大\n* under: 過小\n* under_composite_diff: 複合差額(過小)\n",
+                            "enum": [
+                              "over",
+                              "under",
+                              "under_composite_diff"
+                            ]
+                          },
+                          "adjust_type": {
+                            "type": "string",
+                            "description": "調整タイプ\n* within: 範囲内\n* over: 範囲外\n",
+                            "enum": [
+                              "within",
+                              "over"
+                            ]
+                          },
+                          "tax_code": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "税区分コード"
+                          },
+                          "tax_name": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "税区分名"
+                          },
+                          "threshold_amount": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "しきい値金額"
+                          },
+                          "deal_description": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "取引の備考"
+                          },
+                          "account_item": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "勘定科目",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "勘定科目ID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "勘定科目名"
+                              }
+                            }
+                          },
+                          "item": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "品目",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "品目ID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "品目名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "section": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "部門",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "部門ID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "部門名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "division_tag_1": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "セグメント1タグ",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "セグメント1タグID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "セグメント1タグ名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "division_tag_2": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "セグメント2タグ",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "セグメント2タグID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "セグメント2タグ名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "division_tag_3": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "セグメント3タグ",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "セグメント3タグID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "セグメント3タグ名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "tags": {
+                            "type": "array",
+                            "description": "メモタグの配列",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "description": "メモタグID"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "メモタグ名"
+                                },
+                                "category_name": {
+                                  "type": "string",
+                                  "description": "カテゴリ名"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -19729,6 +20101,192 @@
                     "active": {
                       "type": "boolean",
                       "description": "有効/無効\n* true: 有効\n* false: 無効\n"
+                    },
+                    "user_matcher_diff_deals": {
+                      "type": "array",
+                      "description": "消込差額行の配列\nact=6(未決済取引の消込を推測する), 8(一括振込ファイル消込を推測する), 9(一括振込ファイル消込を登録する) の場合のみ差額行が入ります。\nそれ以外の act では空配列です。\nFeatureFlag `ai_agent_user_matcher_scrub` off の事業所ではフィールド自体がレスポンスに含まれません。\n",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "diff_amount_type",
+                          "adjust_type"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "description": "消込差額行ID"
+                          },
+                          "diff_amount_type": {
+                            "type": "string",
+                            "description": "差額タイプ\n* over: 過大\n* under: 過小\n* under_composite_diff: 複合差額(過小)\n",
+                            "enum": [
+                              "over",
+                              "under",
+                              "under_composite_diff"
+                            ]
+                          },
+                          "adjust_type": {
+                            "type": "string",
+                            "description": "調整タイプ\n* within: 範囲内\n* over: 範囲外\n",
+                            "enum": [
+                              "within",
+                              "over"
+                            ]
+                          },
+                          "tax_code": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "税区分コード"
+                          },
+                          "tax_name": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "税区分名"
+                          },
+                          "threshold_amount": {
+                            "type": "integer",
+                            "nullable": true,
+                            "description": "しきい値金額"
+                          },
+                          "deal_description": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "取引の備考"
+                          },
+                          "account_item": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "勘定科目",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "勘定科目ID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "勘定科目名"
+                              }
+                            }
+                          },
+                          "item": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "品目",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "品目ID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "品目名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "section": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "部門",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "部門ID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "部門名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "division_tag_1": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "セグメント1タグ",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "セグメント1タグID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "セグメント1タグ名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "division_tag_2": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "セグメント2タグ",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "セグメント2タグID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "セグメント2タグ名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "division_tag_3": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "セグメント3タグ",
+                            "properties": {
+                              "id": {
+                                "type": "integer",
+                                "description": "セグメント3タグID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "セグメント3タグ名"
+                              },
+                              "category_name": {
+                                "type": "string",
+                                "description": "カテゴリ名"
+                              }
+                            }
+                          },
+                          "tags": {
+                            "type": "array",
+                            "description": "メモタグの配列",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "integer",
+                                  "description": "メモタグID"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "メモタグ名"
+                                },
+                                "category_name": {
+                                  "type": "string",
+                                  "description": "カテゴリ名"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -35235,7 +35793,8 @@
           "from_walletable_type",
           "id",
           "to_walletable_id",
-          "to_walletable_type"
+          "to_walletable_type",
+          "to_walletables"
         ],
         "properties": {
           "id": {
@@ -35257,7 +35816,8 @@
             "format": "int64",
             "minimum": -9223372036854776000,
             "maximum": 9223372036854776000,
-            "description": "金額",
+            "deprecated": true,
+            "description": "金額。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行amountを利用してください。",
             "example": 5000
           },
           "date": {
@@ -35285,7 +35845,8 @@
           },
           "to_walletable_type": {
             "type": "string",
-            "description": "振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet)",
+            "deprecated": true,
+            "description": "振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet)。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。",
             "example": "bank_account",
             "enum": [
               "bank_account",
@@ -35298,14 +35859,62 @@
             "type": "integer",
             "format": "int64",
             "minimum": 1,
-            "description": "振替先口座ID",
+            "deprecated": true,
+            "description": "振替先口座ID。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesを利用してください。",
             "example": 201
           },
           "description": {
             "type": "string",
-            "description": "備考",
+            "deprecated": true,
+            "description": "備考。将来廃止予定。振替先の複数指定に対応していないため、to_walletablesの各行descriptionを利用してください。",
             "example": "備考",
             "nullable": true
+          },
+          "to_walletables": {
+            "type": "array",
+            "description": "振替先口座行（複数）。各行に振替先口座・金額・備考を持つ。",
+            "items": {
+              "type": "object",
+              "required": [
+                "type",
+                "id",
+                "amount",
+                "description"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "振替先口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet)",
+                  "example": "bank_account",
+                  "enum": [
+                    "bank_account",
+                    "wallet",
+                    "credit_card"
+                  ]
+                },
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "振替先口座ID",
+                  "example": 201
+                },
+                "amount": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": -9223372036854776000,
+                  "maximum": 9223372036854776000,
+                  "description": "金額",
+                  "example": 5000
+                },
+                "description": {
+                  "type": "string",
+                  "description": "備考",
+                  "example": "備考",
+                  "nullable": true
+                }
+              }
+            }
           }
         }
       },

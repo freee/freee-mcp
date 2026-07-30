@@ -78,7 +78,8 @@
     "Projects": "projects",
     "Teams": "teams",
     "UnitCosts": "unit-costs",
-    "Workloads": "workloads"
+    "Workloads": "workloads",
+    "LaborBudgets": "labor-budgets"
   },
   "sm-api": {
     "businesses": "businesses",
