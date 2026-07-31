@@ -18,6 +18,9 @@ freee工数管理APIを使ったプロジェクト・工数の管理ガイド。
 | `/workloads` | GET, POST | 工数実績一覧・登録 |
 | `/workloads/{id}` | PATCH, DELETE | 工数実績編集・削除 |
 | `/workload_summaries` | GET | 工数サマリ取得 |
+| `/workload_tag_groups` | GET | 工数タグ一覧 |
+| `/labor_budgets` | GET | 人件費予算一覧 |
+| `/labor_budgets/projects/{project_id}/people/{person_id}/year_month/{year_month}` | PUT | 人件費予算の更新 |
 | `/people` | GET | 従業員一覧（payroll_employee_id でHR連携可） |
 | `/teams` | GET | チーム一覧 |
 | `/partners` | GET | 取引先一覧 |
@@ -112,6 +115,8 @@ freee_api_get {
 
 - `references/pm-projects.md` - プロジェクト
 - `references/pm-workloads.md` - 工数実績
+- `references/pm-workload-tag-groups.md` - 工数タグ
+- `references/pm-labor-budgets.md` - 人件費予算
 - `references/pm-people.md` - 従業員
 - `references/pm-teams.md` - チーム
 - `references/pm-partners.md` - 取引先
