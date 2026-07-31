@@ -1,5 +1,17 @@
 # freee-mcp
 
+## 0.32.1
+
+### Patch Changes
+
+- [`5520400`](https://github.com/freee/freee-mcp/commit/552040061cb9831f009800a1fcf15e5329b544af): [工数管理] pm-operations レシピの利用可能なパス表に不足していたエンドポイントを追加 ([#241](https://github.com/freee/freee-mcp/pull/241))
+
+  - `/workload_tag_groups`（工数タグ）
+  - `/labor_budgets`（人件費予算一覧）
+  - `/labor_budgets/projects/{project_id}/people/{person_id}/year_month/{year_month}`（人件費予算の更新）
+
+- [`848761b`](https://github.com/freee/freee-mcp/commit/848761b15d623c6629a81294fee15a8e14fc51e6): OpenAPI スキーマを最新版に同期 ( 3 files changed, 17348 insertions(+), 14627 deletions(-))
+
 ## 0.32.0
 
 ### Minor Changes
