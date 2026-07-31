@@ -121,6 +121,10 @@
       "description": "<p>各種申請</p>"
     },
     {
+      "name": "Purchase requests",
+      "description": "<p>購買申請</p>"
+    },
+    {
       "name": "Approval flow routes",
       "description": "<p>申請経路</p>"
     },
@@ -17048,6 +17052,789 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/approvalRequestFormResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/1/purchase_requests": {
+      "get": {
+        "tags": [
+          "Purchase requests"
+        ],
+        "summary": "購買申請一覧の取得",
+        "description": "<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の購買申請一覧を取得する</p>\n\n<h2 id=\"_2\">注意点</h2>",
+        "operationId": "get_purchase_requests",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "description": "事業所ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "1ページあたりの取得件数（20, 50, 100, 200, 500）",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "取得開始位置（0から始まる）",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/purchaseRequestsIndexResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Purchase requests"
+        ],
+        "summary": "購買申請の作成",
+        "description": "<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の購買申請を作成する</p>",
+        "operationId": "create_purchase_request",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/purchaseRequestCreateParams"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/purchaseRequestCreateParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/purchaseRequestDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/1/purchase_requests/{id}": {
+      "get": {
+        "tags": [
+          "Purchase requests"
+        ],
+        "summary": "購買申請の取得",
+        "description": "<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の購買申請を取得する</p>",
+        "operationId": "get_purchase_request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "購買申請ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "description": "事業所ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/purchaseRequestDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Purchase requests"
+        ],
+        "summary": "購買申請の更新",
+        "description": "<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の購買申請を更新する</p>",
+        "operationId": "update_purchase_request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "購買申請ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/purchaseRequestUpdateParams"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/purchaseRequestUpdateParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/purchaseRequestDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Purchase requests"
+        ],
+        "summary": "購買申請の削除",
+        "description": "<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の購買申請を削除する</p>",
+        "operationId": "destroy_purchase_request",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "購買申請ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "description": "事業所ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "",
+            "content": {}
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/1/purchase_requests/forms": {
+      "get": {
+        "tags": [
+          "Purchase requests"
+        ],
+        "summary": "購買申請の申請フォーム一覧の取得",
+        "description": "<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の購買申請の申請フォーム一覧を取得する</p>\n\n<h2 id=\"_2\">注意点</h2>",
+        "operationId": "get_purchase_requests_forms",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "description": "事業所ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "ステータス(draft: 申請で使用しない、active: 申請で使用する、deleted: 削除済み)。未指定の場合はすべてのステータスの申請フォームを返します。",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "active",
+                "deleted"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "1ページあたりの取得件数（1〜500）",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "取得開始位置（0から始まる）",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/purchaseRequestFormIndexResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/1/purchase_requests/forms/{id}": {
+      "get": {
+        "tags": [
+          "Purchase requests"
+        ],
+        "summary": "購買申請の申請フォーム詳細の取得",
+        "description": "<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の購買申請の申請フォーム詳細を取得する</p>\n\n<h2 id=\"_2\">注意点</h2>",
+        "operationId": "get_purchase_requests_form",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "申請フォームID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "description": "事業所ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/purchaseRequestFormDetailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/1/purchase_requests/{id}/actions": {
+      "post": {
+        "tags": [
+          "Purchase requests"
+        ],
+        "summary": "購買申請の承認操作",
+        "description": "<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の購買申請の承認操作を行う</p>",
+        "operationId": "create_purchase_request_action",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "購買申請ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/purchaseRequestActionCreateParams"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/purchaseRequestActionCreateParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/purchaseRequestDetailResponse"
                 }
               }
             }
@@ -39654,6 +40441,1775 @@
                 "maximum": 2147483647,
                 "description": "適用された経路数（ユーザーが利用できない経路を除く）",
                 "example": 1
+              }
+            }
+          }
+        }
+      },
+      "purchaseRequestsIndexResponse": {
+        "type": "object",
+        "required": [
+          "purchase_requests"
+        ],
+        "properties": {
+          "purchase_requests": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "company_id",
+                "application_date",
+                "title",
+                "applicant_id",
+                "application_number",
+                "status",
+                "form_id",
+                "amount",
+                "budget_amount"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "購買申請ID",
+                  "example": 1
+                },
+                "company_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "事業所ID",
+                  "example": 1
+                },
+                "application_date": {
+                  "type": "string",
+                  "description": "申請日 (yyyy-mm-dd)",
+                  "example": "2019-12-17"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "申請タイトル",
+                  "example": "大阪出張"
+                },
+                "applicant_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "申請者のユーザーID",
+                  "example": 1
+                },
+                "application_number": {
+                  "type": "string",
+                  "description": "申請No.",
+                  "example": "2"
+                },
+                "status": {
+                  "type": "string",
+                  "description": "申請ステータス(draft:下書き, in_progress:申請中, approved:承認済, rejected:却下, feedback:差戻し)",
+                  "example": "draft",
+                  "enum": [
+                    "draft",
+                    "in_progress",
+                    "approved",
+                    "rejected",
+                    "feedback"
+                  ]
+                },
+                "form_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "申請フォームID",
+                  "example": 1
+                },
+                "amount": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "maximum": 2147483647,
+                  "description": "金額（非推奨。budget_amount を使用してください）",
+                  "example": 1000,
+                  "deprecated": true
+                },
+                "budget_amount": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "maximum": 2147483647,
+                  "description": "金額",
+                  "example": 1000
+                },
+                "applicant": {
+                  "type": "object",
+                  "required": [
+                    "id"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "description": "申請者のユーザーID",
+                      "example": 1
+                    },
+                    "user_name": {
+                      "type": "string",
+                      "description": "申請者のユーザー名"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "total_count": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "description": "検索結果の総件数",
+            "example": 1
+          }
+        }
+      },
+      "purchaseRequestDetailResponse": {
+        "type": "object",
+        "required": [
+          "purchase_request"
+        ],
+        "properties": {
+          "purchase_request": {
+            "type": "object",
+            "required": [
+              "id",
+              "user_id",
+              "title",
+              "application_date",
+              "purchase_request_code",
+              "status",
+              "approvable",
+              "purchase_request_lines",
+              "purchase_request_custom_values",
+              "approval_flow_approvers"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "description": "購買申請ID",
+                "example": 1
+              },
+              "user_id": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "description": "申請者のユーザーID",
+                "example": 1
+              },
+              "title": {
+                "type": "string",
+                "description": "申請タイトル",
+                "example": "大阪出張"
+              },
+              "application_date": {
+                "type": "string",
+                "description": "申請日 (yyyy-mm-dd)",
+                "example": "2019-12-17"
+              },
+              "occurrence_start_date": {
+                "type": "string",
+                "nullable": true,
+                "description": "発生開始日 (yyyy-mm-dd)",
+                "example": "2019-12-17"
+              },
+              "occurrence_end_date": {
+                "type": "string",
+                "nullable": true,
+                "description": "発生終了日 (yyyy-mm-dd)",
+                "example": "2019-12-20"
+              },
+              "purchase_request_code": {
+                "type": "string",
+                "description": "申請No.",
+                "example": "2"
+              },
+              "description": {
+                "type": "string",
+                "nullable": true,
+                "description": "申請の説明",
+                "example": "出張に伴う備品購入"
+              },
+              "budget_amount": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "金額",
+                "example": 1000
+              },
+              "current_step_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "現在の承認ステップID",
+                "example": 1
+              },
+              "status": {
+                "type": "string",
+                "description": "申請ステータス(draft:下書き, in_progress:申請中, approved:承認済, rejected:却下, feedback:差戻し)",
+                "example": "draft",
+                "enum": [
+                  "draft",
+                  "in_progress",
+                  "approved",
+                  "rejected",
+                  "feedback"
+                ]
+              },
+              "approvable": {
+                "type": "boolean",
+                "description": "現在のユーザーが承認操作可能か",
+                "example": false
+              },
+              "default_route_src_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "デフォルト申請経路のsrc ID",
+                "example": 1
+              },
+              "from_resubmission_purchase_request_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "再決裁元の購買申請ID",
+                "example": 1
+              },
+              "to_resubmission_purchase_request_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "再決裁先の購買申請ID",
+                "example": 1
+              },
+              "purchase_request_lines": {
+                "type": "array",
+                "description": "購買申請明細行",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "purchase_request_id",
+                    "line_order"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "description": "明細行ID",
+                      "example": 1
+                    },
+                    "purchase_request_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "description": "購買申請ID",
+                      "example": 1
+                    },
+                    "line_order": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "行番号",
+                      "example": 0
+                    },
+                    "amount": {
+                      "type": "integer",
+                      "format": "int64",
+                      "nullable": true,
+                      "description": "金額",
+                      "example": 1000
+                    },
+                    "selected_payment_methods": {
+                      "type": "array",
+                      "nullable": true,
+                      "description": "選択された支払方法",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "content": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "内容",
+                      "example": "備品購入"
+                    },
+                    "scheduled_purchase_date": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "購入予定日 (yyyy-mm-dd)",
+                      "example": "2019-12-17"
+                    },
+                    "scheduled_purchase_end_date": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "購入予定終了日 (yyyy-mm-dd)",
+                      "example": "2019-12-20"
+                    },
+                    "section": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "部門タグ",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 1
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "開発部"
+                        },
+                        "category_name": {
+                          "type": "string",
+                          "example": "section"
+                        }
+                      }
+                    },
+                    "partner": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "取引先タグ",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 1
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "freee"
+                        },
+                        "category_name": {
+                          "type": "string",
+                          "example": "partner"
+                        }
+                      }
+                    },
+                    "item": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "品目タグ",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 1
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "消耗品"
+                        },
+                        "category_name": {
+                          "type": "string",
+                          "example": "item"
+                        }
+                      }
+                    },
+                    "segment_1_tag": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "セグメント1タグ",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 1
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "セグメント1"
+                        },
+                        "category_name": {
+                          "type": "string",
+                          "example": "segment_1"
+                        }
+                      }
+                    },
+                    "segment_2_tag": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "セグメント2タグ",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 1
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "セグメント2"
+                        },
+                        "category_name": {
+                          "type": "string",
+                          "example": "segment_2"
+                        }
+                      }
+                    },
+                    "segment_3_tag": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "セグメント3タグ",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "example": 1
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "セグメント3"
+                        },
+                        "category_name": {
+                          "type": "string",
+                          "example": "segment_3"
+                        }
+                      }
+                    },
+                    "tags": {
+                      "type": "array",
+                      "description": "メモタグ",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 1
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "タグ"
+                          },
+                          "category_name": {
+                            "type": "string",
+                            "example": "default"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "purchase_request_custom_values": {
+                "type": "array",
+                "description": "カスタム項目の値",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "purchase_request_id",
+                    "custom_form_id",
+                    "custom_form_part_id"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "description": "カスタム項目値ID",
+                      "example": 1
+                    },
+                    "purchase_request_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "description": "購買申請ID",
+                      "example": 1
+                    },
+                    "custom_form_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "カスタムフォームID",
+                      "example": 1
+                    },
+                    "custom_form_part_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "カスタムフォーム項目ID",
+                      "example": 1
+                    },
+                    "json_value": {
+                      "nullable": true,
+                      "description": "カスタム項目の値(項目種別により形式が異なる)"
+                    }
+                  }
+                }
+              },
+              "approval_flow_approvers": {
+                "type": "array",
+                "description": "承認フローの承認者",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "step_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "nullable": true,
+                      "description": "承認ステップID",
+                      "example": 1
+                    },
+                    "user_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "承認者のユーザーID",
+                      "example": 1
+                    },
+                    "is_force_action": {
+                      "type": "boolean",
+                      "description": "強制承認かどうか",
+                      "example": false
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "承認者の承認ステータス",
+                      "example": "approved"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "purchaseRequestFormIndexResponse": {
+        "type": "object",
+        "required": [
+          "purchase_request_forms",
+          "total_count"
+        ],
+        "properties": {
+          "total_count": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "description": "検索条件に合致する申請フォームの総数（limit / offset による絞り込みの影響を受けません）",
+            "example": 1
+          },
+          "purchase_request_forms": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "name",
+                "description",
+                "status",
+                "form_order",
+                "route_setting_count"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "申請フォームID",
+                  "example": 1
+                },
+                "name": {
+                  "type": "string",
+                  "description": "申請フォームの名前",
+                  "example": "申請フォームの名前"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "申請フォームの説明",
+                  "example": "申請フォームの説明"
+                },
+                "status": {
+                  "type": "string",
+                  "description": "ステータス(draft: 申請で使用しない、active: 申請で使用する、deleted: 削除済み)",
+                  "example": "active",
+                  "enum": [
+                    "draft",
+                    "active",
+                    "deleted"
+                  ]
+                },
+                "form_order": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "maximum": 1000,
+                  "description": "表示順（申請者が選択する申請フォームの表示順を設定できます。小さい数ほど上位に表示されます。（0を除く整数のみ。マイナス不可）未入力の場合、表示順が後ろになります。同じ数字が入力された場合、登録順で表示されます。）",
+                  "example": 1,
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "purchaseRequestFormDetailResponse": {
+        "type": "object",
+        "required": [
+          "type",
+          "purchase_request_setting",
+          "custom_form",
+          "flow_routes"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "フォーム種別",
+            "example": "PurchaseRequest"
+          },
+          "purchase_request_setting": {
+            "type": "object",
+            "description": "申請フォームの設定",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "description": "申請フォームID",
+                "nullable": true
+              },
+              "status": {
+                "type": "string",
+                "description": "ステータス(draft: 申請で使用しない、active: 申請で使用する)",
+                "example": "active"
+              },
+              "form_order": {
+                "type": "integer",
+                "format": "int64",
+                "description": "表示順",
+                "nullable": true
+              },
+              "default_flow_route_src_id": {
+                "type": "integer",
+                "format": "int64",
+                "description": "デフォルトの承認経路ID",
+                "nullable": true
+              },
+              "default_title": {
+                "type": "string",
+                "description": "デフォルトのタイトル",
+                "nullable": true
+              },
+              "default_content": {
+                "type": "string",
+                "description": "デフォルトの内容",
+                "nullable": true
+              },
+              "name": {
+                "type": "string",
+                "description": "申請フォームの名前"
+              },
+              "title_annotation": {
+                "type": "string",
+                "description": "タイトルの注釈",
+                "nullable": true
+              },
+              "description": {
+                "type": "string",
+                "description": "申請フォームの説明",
+                "nullable": true
+              },
+              "description_setting": {
+                "type": "string",
+                "description": "説明の入力設定"
+              },
+              "content_setting": {
+                "type": "string",
+                "description": "内容の入力設定"
+              },
+              "payment_method_setting": {
+                "type": "string",
+                "description": "支払方法の入力設定"
+              },
+              "receipt_setting": {
+                "type": "string",
+                "description": "証憑の入力設定"
+              },
+              "section_setting": {
+                "type": "string",
+                "description": "部門の入力設定"
+              },
+              "section_annotation": {
+                "type": "string",
+                "description": "部門の注釈",
+                "nullable": true
+              },
+              "partner_setting": {
+                "type": "string",
+                "description": "取引先の入力設定"
+              },
+              "partner_annotation": {
+                "type": "string",
+                "description": "取引先の注釈",
+                "nullable": true
+              },
+              "item_setting": {
+                "type": "string",
+                "description": "品目の入力設定"
+              },
+              "item_annotation": {
+                "type": "string",
+                "description": "品目の注釈",
+                "nullable": true
+              },
+              "tag_setting": {
+                "type": "string",
+                "description": "メモタグの入力設定"
+              },
+              "tag_annotation": {
+                "type": "string",
+                "description": "メモタグの注釈",
+                "nullable": true
+              },
+              "segment_1_tag_setting": {
+                "type": "string",
+                "description": "セグメント1の入力設定"
+              },
+              "segment_1_tag_annotation": {
+                "type": "string",
+                "description": "セグメント1の注釈",
+                "nullable": true
+              },
+              "segment_2_tag_setting": {
+                "type": "string",
+                "description": "セグメント2の入力設定"
+              },
+              "segment_2_tag_annotation": {
+                "type": "string",
+                "description": "セグメント2の注釈",
+                "nullable": true
+              },
+              "segment_3_tag_setting": {
+                "type": "string",
+                "description": "セグメント3の入力設定"
+              },
+              "segment_3_tag_annotation": {
+                "type": "string",
+                "description": "セグメント3の注釈",
+                "nullable": true
+              },
+              "scheduled_purchase_date_setting": {
+                "type": "string",
+                "description": "購入予定日の入力設定"
+              },
+              "observer_addition": {
+                "type": "string",
+                "description": "観察者の追加設定"
+              },
+              "content_display_name": {
+                "type": "string",
+                "description": "内容の表示名"
+              },
+              "content_annotation": {
+                "type": "string",
+                "description": "内容の注釈",
+                "nullable": true
+              },
+              "scheduled_purchase_date_display_name": {
+                "type": "string",
+                "description": "購入予定日の表示名"
+              },
+              "scheduled_purchase_date_annotation": {
+                "type": "string",
+                "description": "購入予定日の注釈",
+                "nullable": true
+              },
+              "enable_scheduled_purchase_date_range": {
+                "type": "boolean",
+                "description": "購入予定日を期間で入力できるか"
+              },
+              "specified_payment_methods": {
+                "type": "array",
+                "description": "指定された支払方法",
+                "nullable": true,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "payment_method_display_name": {
+                "type": "string",
+                "description": "支払方法の表示名"
+              },
+              "payment_method_annotation": {
+                "type": "string",
+                "description": "支払方法の注釈",
+                "nullable": true
+              },
+              "receipt_display_name": {
+                "type": "string",
+                "description": "証憑の表示名"
+              },
+              "receipt_annotation": {
+                "type": "string",
+                "description": "証憑の注釈",
+                "nullable": true
+              },
+              "description_annotation": {
+                "type": "string",
+                "description": "説明の注釈",
+                "nullable": true
+              },
+              "amount_display_name": {
+                "type": "string",
+                "description": "金額の表示名"
+              },
+              "amount_annotation": {
+                "type": "string",
+                "description": "金額の注釈",
+                "nullable": true
+              },
+              "occurrence_date_setting": {
+                "type": "string",
+                "description": "発生日の入力設定"
+              },
+              "occurrence_date_display_name": {
+                "type": "string",
+                "description": "発生日の表示名"
+              },
+              "occurrence_date_annotation": {
+                "type": "string",
+                "description": "発生日の注釈",
+                "nullable": true
+              },
+              "enable_occurrence_date_range": {
+                "type": "boolean",
+                "description": "発生日を期間で入力できるか"
+              },
+              "receipt_fields": {
+                "type": "array",
+                "description": "証憑フィールドの設定",
+                "nullable": true,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "nullable": true
+                    },
+                    "display_name": {
+                      "type": "string"
+                    },
+                    "annotation": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "line_order": {
+                      "type": "integer"
+                    },
+                    "setting": {
+                      "type": "string",
+                      "description": "optional または required"
+                    }
+                  }
+                }
+              },
+              "tax_exclusive_setting": {
+                "type": "string",
+                "description": "税抜経理の設定"
+              },
+              "freee_card_issue_setting": {
+                "type": "string",
+                "description": "freeeカード発行の設定"
+              },
+              "default_observers": {
+                "type": "array",
+                "description": "デフォルトの観察者",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "user_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "nullable": true
+                    },
+                    "user_name": {
+                      "type": "string"
+                    },
+                    "user_deleted": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "virtual_card_issuance_setting": {
+                "type": "object",
+                "description": "バーチャルカード発行設定",
+                "nullable": true,
+                "properties": {
+                  "card_name_annotation": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "amount_limit_setting": {
+                    "type": "string"
+                  },
+                  "amount_limit_type_options": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "monthly_amount_limit": {
+                    "type": "integer",
+                    "format": "int64",
+                    "nullable": true
+                  },
+                  "total_amount_limit": {
+                    "type": "integer",
+                    "format": "int64",
+                    "nullable": true
+                  },
+                  "total_amount_limit_annotation": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "ends_at_setting": {
+                    "type": "string"
+                  },
+                  "ends_at_annotation": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "memo_setting": {
+                    "type": "string"
+                  },
+                  "memo_annotation": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "notification_setting": {
+                    "type": "string"
+                  },
+                  "notification_threshold_amount": {
+                    "type": "integer",
+                    "format": "int64",
+                    "nullable": true
+                  },
+                  "use_usage_report": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          "custom_form": {
+            "type": "object",
+            "description": "カスタムフォーム（フォーム項目の定義）",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "parts": {
+                "type": "array",
+                "description": "カスタムフォームの項目",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "nullable": true
+                    },
+                    "display_name": {
+                      "type": "string"
+                    },
+                    "setting": {
+                      "type": "string",
+                      "description": "optional または required"
+                    },
+                    "type_name": {
+                      "type": "string",
+                      "description": "single_line_string, multi_line_string, number, single_date, date_range, pulldown, checkbox, radio_button のいずれか"
+                    },
+                    "default_value": {
+                      "type": "object",
+                      "description": "項目の初期値（type_name により構造が異なる）",
+                      "nullable": true
+                    },
+                    "unit": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "annotation": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "line_order": {
+                      "type": "integer"
+                    },
+                    "selectable_value": {
+                      "type": "array",
+                      "description": "選択肢（pulldown/checkbox/radio_button のとき）",
+                      "nullable": true,
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "flow_routes": {
+            "type": "array",
+            "description": "利用可能な承認経路（詳細は `/api/1/approval_flow_routes` を参照。同 API のレスポンス id は本レスポンスの src_id に対応）",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "承認経路ID（購買申請作成時の approval_flow_route_id に指定する値）"
+                },
+                "src_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "承認経路の元ID（`/api/1/approval_flow_routes` のレスポンス id と同じ値）"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "承認経路名"
+                }
+              }
+            }
+          }
+        }
+      },
+      "purchaseRequestActionCreateParams": {
+        "type": "object",
+        "required": [
+          "company_id",
+          "do_action"
+        ],
+        "properties": {
+          "company_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "事業所ID",
+            "example": 1
+          },
+          "do_action": {
+            "type": "string",
+            "description": "操作(apply: 申請する、approve: 承認する、reject: 却下する、feedback: 申請者へ差し戻す)",
+            "example": "approve",
+            "enum": [
+              "apply",
+              "approve",
+              "reject",
+              "feedback"
+            ]
+          },
+          "next_approver_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "次の承認ステップの承認者のユーザーID",
+            "example": 1,
+            "nullable": true
+          },
+          "next_group_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "次の承認ステップの承認グループID",
+            "example": 1,
+            "nullable": true
+          }
+        }
+      },
+      "purchaseRequestCreateParams": {
+        "type": "object",
+        "required": [
+          "company_id",
+          "status",
+          "purchase_request_form_id"
+        ],
+        "properties": {
+          "company_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "事業所ID",
+            "example": 1
+          },
+          "purchase_request_form_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "購買申請の申請フォームID",
+            "example": 1
+          },
+          "status": {
+            "type": "string",
+            "description": "申請ステータス<br>\ndraft を指定した時は下書きで購買申請を作成します。<br>\nin_progress を指定した時は申請中で購買申請を作成します。\n",
+            "example": "draft",
+            "enum": [
+              "draft",
+              "in_progress"
+            ]
+          },
+          "applicant_group_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請者グループID",
+            "example": 1,
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "description": "申請タイトル",
+            "example": "大阪出張",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "description": "申請の説明",
+            "example": "出張に伴う備品購入",
+            "nullable": true
+          },
+          "occurrence_start_date": {
+            "type": "string",
+            "description": "発生開始日 (yyyy-mm-dd)",
+            "example": "2019-12-17",
+            "nullable": true
+          },
+          "occurrence_end_date": {
+            "type": "string",
+            "description": "発生終了日 (yyyy-mm-dd)",
+            "example": "2019-12-20",
+            "nullable": true
+          },
+          "approval_flow_route_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請経路ID",
+            "example": 1,
+            "nullable": true
+          },
+          "approval_flow_approver_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請経路の承認者ユーザーID",
+            "example": 1,
+            "nullable": true
+          },
+          "approval_flow_group_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請経路の承認グループID",
+            "example": 1,
+            "nullable": true
+          },
+          "observer_user_ids": {
+            "type": "array",
+            "description": "閲覧者のユーザーID",
+            "items": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1,
+              "example": 1
+            }
+          },
+          "parent_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "親申請ID",
+            "example": 1,
+            "nullable": true
+          },
+          "parent_type": {
+            "type": "string",
+            "description": "親申請の種別",
+            "example": "PurchaseRequest",
+            "nullable": true
+          },
+          "resubmission_from_purchase_request_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "再決裁元の購買申請ID",
+            "example": 1,
+            "nullable": true
+          },
+          "purchase_request_lines": {
+            "type": "array",
+            "description": "購買申請の項目行一覧（配列）",
+            "items": {
+              "type": "object",
+              "required": [
+                "amount"
+              ],
+              "properties": {
+                "line_order": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "description": "行番号",
+                  "example": 0
+                },
+                "amount": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "金額",
+                  "example": 1000
+                },
+                "content": {
+                  "type": "string",
+                  "description": "内容",
+                  "example": "備品購入"
+                },
+                "selected_payment_methods": {
+                  "type": "array",
+                  "description": "選択された支払方法",
+                  "items": {
+                    "type": "string",
+                    "example": "cash"
+                  }
+                },
+                "receipt_ids": {
+                  "type": "array",
+                  "description": "ファイルボックス（証憑ファイル）ID（配列）",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "example": 1
+                  }
+                },
+                "receipt_field_values": {
+                  "type": "array",
+                  "description": "ファイル添付項目の値一覧（配列）",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "field_id"
+                    ],
+                    "properties": {
+                      "field_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1,
+                        "description": "ファイル添付項目ID",
+                        "example": 1
+                      },
+                      "receipt_ids": {
+                        "type": "array",
+                        "description": "ファイルボックス（証憑ファイル）ID（配列）",
+                        "items": {
+                          "type": "integer",
+                          "format": "int64",
+                          "minimum": 1,
+                          "example": 1
+                        }
+                      }
+                    }
+                  }
+                },
+                "section_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "部門ID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "partner_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "取引先ID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "item_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "品目ID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "tag_ids": {
+                  "type": "array",
+                  "description": "メモタグID（配列）",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "example": 1
+                  }
+                },
+                "segment_1_tag_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "セグメント1タグID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "segment_2_tag_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "セグメント2タグID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "segment_3_tag_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "セグメント3タグID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "scheduled_purchase_date": {
+                  "type": "string",
+                  "description": "購入予定日 (yyyy-mm-dd)",
+                  "example": "2019-12-17",
+                  "nullable": true
+                },
+                "scheduled_purchase_end_date": {
+                  "type": "string",
+                  "description": "購入予定終了日 (yyyy-mm-dd)",
+                  "example": "2019-12-20",
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "purchase_request_custom_values": {
+            "type": "array",
+            "description": "カスタム項目の値一覧（配列）",
+            "items": {
+              "type": "object",
+              "required": [
+                "custom_form_part_id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "カスタム項目値ID",
+                  "example": 1
+                },
+                "custom_form_part_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "カスタムフォーム項目ID",
+                  "example": 1
+                },
+                "json_value": {
+                  "type": "object",
+                  "description": "カスタム項目の値(項目種別により形式が異なる)",
+                  "properties": {
+                    "single_line_string": {
+                      "type": "string",
+                      "description": "1行テキスト",
+                      "nullable": true
+                    },
+                    "multi_line_string": {
+                      "type": "string",
+                      "description": "複数行テキスト",
+                      "nullable": true
+                    },
+                    "single_date": {
+                      "type": "string",
+                      "description": "日付 (yyyy-mm-dd)",
+                      "example": "2019-12-17",
+                      "nullable": true
+                    },
+                    "date_range": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "日付期間",
+                      "properties": {
+                        "start_date": {
+                          "type": "string",
+                          "description": "開始日 (yyyy-mm-dd)",
+                          "example": "2019-12-17",
+                          "nullable": true
+                        },
+                        "end_date": {
+                          "type": "string",
+                          "description": "終了日 (yyyy-mm-dd)",
+                          "example": "2019-12-20",
+                          "nullable": true
+                        }
+                      }
+                    },
+                    "number": {
+                      "type": "number",
+                      "description": "数値",
+                      "nullable": true
+                    },
+                    "pulldown": {
+                      "type": "string",
+                      "description": "プルダウン値",
+                      "nullable": true
+                    },
+                    "checkbox": {
+                      "type": "array",
+                      "description": "チェックボックス値（配列）",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "radio_button": {
+                      "type": "string",
+                      "description": "ラジオボタン値",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "purchaseRequestUpdateParams": {
+        "type": "object",
+        "required": [
+          "company_id",
+          "status",
+          "purchase_request_form_id"
+        ],
+        "properties": {
+          "company_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "事業所ID",
+            "example": 1
+          },
+          "purchase_request_form_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "購買申請の申請フォームID",
+            "example": 1
+          },
+          "status": {
+            "type": "string",
+            "description": "申請ステータス<br>\ndraft を指定した時は下書きで購買申請を更新します。<br>\nin_progress を指定した時は申請中で購買申請を更新します。\n",
+            "example": "draft",
+            "enum": [
+              "draft",
+              "in_progress"
+            ]
+          },
+          "applicant_group_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請者グループID",
+            "example": 1,
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "description": "申請タイトル",
+            "example": "大阪出張"
+          },
+          "description": {
+            "type": "string",
+            "description": "申請の説明",
+            "example": "出張に伴う備品購入",
+            "nullable": true
+          },
+          "occurrence_start_date": {
+            "type": "string",
+            "description": "発生開始日 (yyyy-mm-dd)",
+            "example": "2019-12-17",
+            "nullable": true
+          },
+          "occurrence_end_date": {
+            "type": "string",
+            "description": "発生終了日 (yyyy-mm-dd)",
+            "example": "2019-12-20",
+            "nullable": true
+          },
+          "approval_flow_route_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請経路ID",
+            "example": 1,
+            "nullable": true
+          },
+          "approval_flow_approver_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請経路の承認者ユーザーID",
+            "example": 1,
+            "nullable": true
+          },
+          "approval_flow_group_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "申請経路の承認グループID",
+            "example": 1,
+            "nullable": true
+          },
+          "purchase_request_lines": {
+            "type": "array",
+            "description": "購買申請の項目行一覧（配列）",
+            "items": {
+              "type": "object",
+              "required": [
+                "amount"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "購買申請の項目行ID（新規行の場合は指定しない）",
+                  "example": 1
+                },
+                "line_order": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "description": "行番号",
+                  "example": 0
+                },
+                "amount": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "金額",
+                  "example": 1000
+                },
+                "content": {
+                  "type": "string",
+                  "description": "内容",
+                  "example": "備品購入"
+                },
+                "selected_payment_methods": {
+                  "type": "array",
+                  "description": "選択された支払方法",
+                  "items": {
+                    "type": "string",
+                    "example": "cash"
+                  }
+                },
+                "receipt_ids": {
+                  "type": "array",
+                  "description": "ファイルボックス（証憑ファイル）ID（配列）",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "example": 1
+                  }
+                },
+                "receipt_field_values": {
+                  "type": "array",
+                  "description": "ファイル添付項目の値一覧（配列）",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "field_id"
+                    ],
+                    "properties": {
+                      "field_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1,
+                        "description": "ファイル添付項目ID",
+                        "example": 1
+                      },
+                      "receipt_ids": {
+                        "type": "array",
+                        "description": "ファイルボックス（証憑ファイル）ID（配列）",
+                        "items": {
+                          "type": "integer",
+                          "format": "int64",
+                          "minimum": 1,
+                          "example": 1
+                        }
+                      }
+                    }
+                  }
+                },
+                "section_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "部門ID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "partner_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "取引先ID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "item_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "品目ID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "tag_ids": {
+                  "type": "array",
+                  "description": "メモタグID（配列）",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "example": 1
+                  }
+                },
+                "segment_1_tag_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "セグメント1タグID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "segment_2_tag_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "セグメント2タグID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "segment_3_tag_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "セグメント3タグID",
+                  "example": 1,
+                  "nullable": true
+                },
+                "scheduled_purchase_date": {
+                  "type": "string",
+                  "description": "購入予定日 (yyyy-mm-dd)",
+                  "example": "2019-12-17",
+                  "nullable": true
+                },
+                "scheduled_purchase_end_date": {
+                  "type": "string",
+                  "description": "購入予定終了日 (yyyy-mm-dd)",
+                  "example": "2019-12-20",
+                  "nullable": true
+                }
+              }
+            }
+          },
+          "purchase_request_custom_values": {
+            "type": "array",
+            "description": "カスタム項目の値一覧（配列）",
+            "items": {
+              "type": "object",
+              "required": [
+                "custom_form_part_id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "カスタム項目値ID",
+                  "example": 1
+                },
+                "custom_form_part_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1,
+                  "description": "カスタムフォーム項目ID",
+                  "example": 1
+                },
+                "json_value": {
+                  "type": "object",
+                  "description": "カスタム項目の値(項目種別により形式が異なる)",
+                  "properties": {
+                    "single_line_string": {
+                      "type": "string",
+                      "description": "1行テキスト",
+                      "nullable": true
+                    },
+                    "multi_line_string": {
+                      "type": "string",
+                      "description": "複数行テキスト",
+                      "nullable": true
+                    },
+                    "single_date": {
+                      "type": "string",
+                      "description": "日付 (yyyy-mm-dd)",
+                      "example": "2019-12-17",
+                      "nullable": true
+                    },
+                    "date_range": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "日付期間",
+                      "properties": {
+                        "start_date": {
+                          "type": "string",
+                          "description": "開始日 (yyyy-mm-dd)",
+                          "example": "2019-12-17",
+                          "nullable": true
+                        },
+                        "end_date": {
+                          "type": "string",
+                          "description": "終了日 (yyyy-mm-dd)",
+                          "example": "2019-12-20",
+                          "nullable": true
+                        }
+                      }
+                    },
+                    "number": {
+                      "type": "number",
+                      "description": "数値",
+                      "nullable": true
+                    },
+                    "pulldown": {
+                      "type": "string",
+                      "description": "プルダウン値",
+                      "nullable": true
+                    },
+                    "checkbox": {
+                      "type": "array",
+                      "description": "チェックボックス値（配列）",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "radio_button": {
+                      "type": "string",
+                      "description": "ラジオボタン値",
+                      "nullable": true
+                    }
+                  }
+                }
               }
             }
           }
