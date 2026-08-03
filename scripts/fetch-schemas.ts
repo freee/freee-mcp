@@ -32,6 +32,7 @@ interface MinimalOperation {
   description?: string;
   parameters?: MinimalParameter[];
   hasJsonBody?: boolean;
+  accept?: "application/xml" | "text/xml";
 }
 
 interface MinimalPathItem {
@@ -48,6 +49,7 @@ interface MinimalSchema {
 
 // Types for OpenAPI schema (subset needed for minimization)
 interface OpenAPIParameter {
+  $ref?: string;
   name: string;
   in: string;
   schema?: { type: string };
@@ -65,6 +67,12 @@ interface OpenAPIOperation {
       "application/json"?: unknown;
     };
   };
+  responses?: Record<
+    string,
+    {
+      content?: Record<string, unknown>;
+    }
+  >;
 }
 
 interface OpenAPIPathItem {
@@ -77,6 +85,33 @@ interface OpenAPIPathItem {
 
 interface OpenAPISchema {
   paths: Record<string, OpenAPIPathItem>;
+  components?: {
+    parameters?: Record<string, OpenAPIParameter>;
+  };
+}
+
+function resolveParameter(
+  schema: OpenAPISchema,
+  parameter: OpenAPIParameter,
+): OpenAPIParameter | undefined {
+  if (!parameter.$ref) return parameter;
+
+  const prefix = "#/components/parameters/";
+  if (!parameter.$ref.startsWith(prefix)) return undefined;
+
+  const name = parameter.$ref.slice(prefix.length);
+  return schema.components?.parameters?.[name];
+}
+
+function getXmlAcceptType(
+  responses: OpenAPIOperation["responses"],
+): "application/xml" | "text/xml" | undefined {
+  const successResponse = responses?.["200"] ?? responses?.["201"];
+  const content = successResponse?.content;
+  if (!content) return undefined;
+  if (content["application/xml"]) return "application/xml";
+  if (content["text/xml"]) return "text/xml";
+  return undefined;
 }
 
 /**
@@ -104,6 +139,8 @@ function minimizeSchema(schema: OpenAPISchema): MinimalSchema {
 
       if (operation.parameters && operation.parameters.length > 0) {
         minimalOperation.parameters = operation.parameters
+          .map((p) => resolveParameter(schema, p))
+          .filter((p): p is OpenAPIParameter => p !== undefined)
           .filter((p) => p.in === "path" || p.in === "query")
           .map((p) => {
             const param: MinimalParameter = {
@@ -127,6 +164,11 @@ function minimizeSchema(schema: OpenAPISchema): MinimalSchema {
 
       if (operation.requestBody?.content?.["application/json"]) {
         minimalOperation.hasJsonBody = true;
+      }
+
+      const accept = getXmlAcceptType(operation.responses);
+      if (accept) {
+        minimalOperation.accept = accept;
       }
 
       minimalPathItem[method] = minimalOperation;
@@ -177,6 +219,16 @@ const SCHEMA_SOURCES = [
     url: "https://api-schema.freee.co.jp/it_management.yml",
     outputFile: "it-management-api-schema.json",
     minimalFile: "it-management.json",
+  },
+  {
+    // Expected to be published from api-hub's public tax_return.yml artifact.
+    // Until the URL is available, use the reviewed committed schema only for
+    // local development. URL availability is a release gate. Keep fetch
+    // failures visible instead of silently retaining an unknown stale schema.
+    name: "tax-return-api",
+    url: "https://api-schema.freee.co.jp/tax_return.yml",
+    outputFile: "tax-return-api-schema.json",
+    minimalFile: "tax-return.json",
   },
   {
     // mcp-only（freee-mcp リモート版でのみ利用可）区分のエンドポイントを集約した

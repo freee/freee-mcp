@@ -46,7 +46,15 @@ function loadSchema(filename: string): MinimalSchema {
   return result.data;
 }
 
-export type ApiType = 'accounting' | 'hr' | 'invoice' | 'pm' | 'sm' | 'it_management' | 'survey';
+export type ApiType =
+  | 'accounting'
+  | 'hr'
+  | 'invoice'
+  | 'pm'
+  | 'sm'
+  | 'it_management'
+  | 'survey'
+  | 'tax_return';
 
 interface ApiConfig {
   schema: MinimalSchema;
@@ -108,6 +116,12 @@ const API_METADATA: Record<ApiType, ApiMetadata> = {
     baseUrl: 'https://api.freee.co.jp',
     prefix: 'survey',
     name: 'freee-survey API',
+  },
+  tax_return: {
+    schemaFile: 'tax-return.json',
+    baseUrl: 'https://api.freee.co.jp',
+    prefix: 'tax-return',
+    name: 'freee申告 API',
   },
 };
 

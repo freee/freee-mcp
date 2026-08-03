@@ -26,6 +26,7 @@ const MinimalOperationSchema = z.object({
   description: z.string().optional(),
   parameters: z.array(MinimalParameterSchema).optional(),
   hasJsonBody: z.boolean().optional(),
+  accept: z.enum(['application/xml', 'text/xml']).optional(),
 });
 
 export interface MinimalOperation {
@@ -33,6 +34,7 @@ export interface MinimalOperation {
   description?: string;
   parameters?: MinimalParameter[];
   hasJsonBody?: boolean;
+  accept?: 'application/xml' | 'text/xml';
 }
 
 const MinimalPathItemSchema = z.object({

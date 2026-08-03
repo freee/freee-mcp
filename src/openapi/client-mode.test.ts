@@ -10,6 +10,18 @@ function collectIssueMessages(issues: ZodIssue[]): string[] {
   );
 }
 
+function encodeUtf32(value: string, littleEndian: boolean): Buffer {
+  const bytes: number[] = [];
+  for (const character of value) {
+    const codePoint = character.codePointAt(0) as number;
+    const encoded = littleEndian
+      ? [codePoint & 0xff, (codePoint >>> 8) & 0xff, (codePoint >>> 16) & 0xff, 0]
+      : [0, (codePoint >>> 16) & 0xff, (codePoint >>> 8) & 0xff, codePoint & 0xff];
+    bytes.push(...encoded);
+  }
+  return Buffer.from(bytes);
+}
+
 // Privacy regression tests: query values and request bodies must never appear
 // in the canonical log payload emitted by RequestRecorder.
 
@@ -245,6 +257,254 @@ describe('generateClientModeTool - privacy', () => {
     const errors = payload.errors as Array<{ source: string; error_type?: string }>;
     expect(errors[0].source).toBe('validation');
     expect(errors[0].error_type).toBe('path_validation_failed');
+  });
+
+  it('requests XML from the schema metadata and returns the original XML text', async () => {
+    const path = '/hub/tax_return/corporate/sheet/national/10/10100100';
+    const xml = '<?xml version="1.0" encoding="UTF-8"?><sheet><label>法人税額</label></sheet>';
+    const schemaLoader = await import('./schema-loader.js');
+    const clientModule = await import('../api/client.js');
+
+    vi.mocked(schemaLoader.validatePathForService).mockReturnValueOnce({
+      isValid: true,
+      message: 'Valid path and method',
+      actualPath: path,
+      baseUrl: 'https://api.freee.co.jp',
+      operation: { accept: 'application/xml' },
+    });
+    vi.mocked(clientModule.makeApiRequest).mockResolvedValueOnce({
+      type: 'binary',
+      data: Buffer.from(xml, 'utf-8'),
+      mimeType: 'application/xml; charset=utf-8',
+      size: Buffer.byteLength(xml, 'utf-8'),
+    });
+    vi.mocked(clientModule.isBinaryFileResponse).mockReturnValueOnce(true);
+
+    const { generateClientModeTool } = await import('./client-mode.js');
+    generateClientModeTool(stubServer);
+    const getHandler = capturedHandlers.get('freee_api_get');
+
+    const result = (await getHandler?.({ service: 'tax_return', path }, undefined)) as {
+      content: Array<{ type: string; text: string }>;
+    };
+
+    expect(clientModule.makeApiRequest).toHaveBeenCalledWith(
+      'GET',
+      path,
+      undefined,
+      undefined,
+      'https://api.freee.co.jp',
+      expect.objectContaining({ userId: 'test-user' }),
+      'application/xml',
+    );
+    expect(result.content).toEqual([{ type: 'text', text: xml }]);
+  });
+
+  it('accepts a UTF-8 BOM and returns XML text without the BOM', async () => {
+    const path = '/hub/tax_return/corporate/sheet/national/10/10100100';
+    const xml = '<?xml version="1.0" encoding="UTF-8"?><sheet><label>法人税額</label></sheet>';
+    const data = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(xml, 'utf-8')]);
+    const schemaLoader = await import('./schema-loader.js');
+    const clientModule = await import('../api/client.js');
+
+    vi.mocked(schemaLoader.validatePathForService).mockReturnValueOnce({
+      isValid: true,
+      actualPath: path,
+      baseUrl: 'https://api.freee.co.jp',
+      operation: { accept: 'application/xml' },
+    });
+    vi.mocked(clientModule.makeApiRequest).mockResolvedValueOnce({
+      type: 'binary',
+      data,
+      mimeType: 'application/xml; charset=utf-8',
+      size: data.byteLength,
+    });
+    vi.mocked(clientModule.isBinaryFileResponse).mockReturnValueOnce(true);
+
+    const { generateClientModeTool } = await import('./client-mode.js');
+    generateClientModeTool(stubServer);
+    const getHandler = capturedHandlers.get('freee_api_get');
+
+    const result = (await getHandler?.({ service: 'tax_return', path }, undefined)) as {
+      content: Array<{ type: string; text: string }>;
+    };
+
+    expect(result.content).toEqual([{ type: 'text', text: xml }]);
+    expect(result.content[0].text.charCodeAt(0)).not.toBe(0xfeff);
+  });
+
+  it('rejects invalid UTF-8 XML without exposing decoded body fragments', async () => {
+    const path = '/hub/tax_return/corporate/sheet/national/10/10100100';
+    const sensitivePrefix = '<sheet><bank_account>MCP_STG_TAX_SENTINEL_20260803</bank_account>';
+    const invalidXml = Buffer.concat([
+      Buffer.from(sensitivePrefix, 'utf-8'),
+      Buffer.from([0xff]),
+      Buffer.from('</sheet>', 'utf-8'),
+    ]);
+    const schemaLoader = await import('./schema-loader.js');
+    const clientModule = await import('../api/client.js');
+    const { RequestRecorder, withRequestRecorder } = await import('../server/request-context.js');
+
+    vi.mocked(schemaLoader.validatePathForService).mockReturnValueOnce({
+      isValid: true,
+      actualPath: path,
+      baseUrl: 'https://api.freee.co.jp',
+      operation: { accept: 'application/xml' },
+    });
+    vi.mocked(clientModule.makeApiRequest).mockResolvedValueOnce({
+      type: 'binary',
+      data: invalidXml,
+      mimeType: 'application/xml; charset=utf-8',
+      size: invalidXml.byteLength,
+    });
+    vi.mocked(clientModule.isBinaryFileResponse).mockReturnValueOnce(true);
+
+    const { generateClientModeTool } = await import('./client-mode.js');
+    generateClientModeTool(stubServer);
+    const getHandler = capturedHandlers.get('freee_api_get');
+    const recorder = new RequestRecorder({
+      request_id: 'req-invalid-utf8-xml',
+      source_ip: '127.0.0.1',
+      method: 'POST',
+      path: '/mcp',
+    });
+
+    const result = (await withRequestRecorder(recorder, () =>
+      getHandler?.({ service: 'tax_return', path }, undefined),
+    )) as { isError?: boolean; content: Array<{ type: string; text: string }> };
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain('XMLレスポンスをUTF-8として読み取れませんでした。');
+    expect(result.content[0].text).not.toContain('MCP_STG_TAX_SENTINEL_20260803');
+    expect(result.content[0].text).not.toContain('bank_account');
+    expect(result.content[0].text).not.toContain('�');
+
+    const payload = recorder.buildPayload({ status: 200, duration_ms: 1 });
+    expect(payload.mcp.tool_calls).toEqual([
+      expect.objectContaining({ tool: 'freee_api_get', status: 'error' }),
+    ]);
+    const serialized = JSON.stringify(payload);
+    expect(serialized).not.toContain('MCP_STG_TAX_SENTINEL_20260803');
+    expect(serialized).not.toContain('bank_account');
+  });
+
+  it.each([
+    ['application/xml; charset=shift_jis', '<?xml version="1.0"?><sheet />'],
+    ['application/xml', '<?xml version="1.0" encoding="UTF-16"?><sheet />'],
+  ])('rejects XML that declares a non-UTF-8 encoding (%s)', async (mimeType, xml) => {
+    const path = '/hub/tax_return/corporate/sheet/national/10/10100100';
+    const schemaLoader = await import('./schema-loader.js');
+    const clientModule = await import('../api/client.js');
+
+    vi.mocked(schemaLoader.validatePathForService).mockReturnValueOnce({
+      isValid: true,
+      actualPath: path,
+      baseUrl: 'https://api.freee.co.jp',
+      operation: { accept: 'application/xml' },
+    });
+    vi.mocked(clientModule.makeApiRequest).mockResolvedValueOnce({
+      type: 'binary',
+      data: Buffer.from(xml, 'utf-8'),
+      mimeType,
+      size: Buffer.byteLength(xml, 'utf-8'),
+    });
+    vi.mocked(clientModule.isBinaryFileResponse).mockReturnValueOnce(true);
+
+    const { generateClientModeTool } = await import('./client-mode.js');
+    generateClientModeTool(stubServer);
+    const getHandler = capturedHandlers.get('freee_api_get');
+
+    const result = (await getHandler?.({ service: 'tax_return', path }, undefined)) as {
+      isError?: boolean;
+      content: Array<{ type: string; text: string }>;
+    };
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain('XMLレスポンスをUTF-8として読み取れませんでした。');
+  });
+
+  const sensitiveEncodedXml =
+    '<?xml version="1.0"?><sheet><bank_account>MCP_STG_TAX_SENTINEL_20260803</bank_account></sheet>';
+
+  it.each([
+    ['BOM-less UTF-16LE', Buffer.from(sensitiveEncodedXml, 'utf16le')],
+    ['BOM-less UTF-16BE', Buffer.from(sensitiveEncodedXml, 'utf16le').swap16()],
+    [
+      'UTF-16LE BOM',
+      Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(sensitiveEncodedXml, 'utf16le')]),
+    ],
+    [
+      'UTF-16BE BOM',
+      Buffer.concat([
+        Buffer.from([0xfe, 0xff]),
+        Buffer.from(sensitiveEncodedXml, 'utf16le').swap16(),
+      ]),
+    ],
+    [
+      'UTF-32LE BOM',
+      Buffer.concat([
+        Buffer.from([0xff, 0xfe, 0x00, 0x00]),
+        encodeUtf32(sensitiveEncodedXml, true),
+      ]),
+    ],
+    [
+      'UTF-32BE BOM',
+      Buffer.concat([
+        Buffer.from([0x00, 0x00, 0xfe, 0xff]),
+        encodeUtf32(sensitiveEncodedXml, false),
+      ]),
+    ],
+    [
+      'NUL control byte',
+      Buffer.from(
+        '<sheet><bank_account>MCP_STG_TAX_SENTINEL_20260803</bank_account>\u0000</sheet>',
+        'utf-8',
+      ),
+    ],
+  ] satisfies Array<
+    [string, Buffer]
+  >)('rejects XML bytes that are not valid UTF-8 XML (%s)', async (_caseName, data) => {
+    const path = '/hub/tax_return/corporate/sheet/national/10/10100100';
+    const schemaLoader = await import('./schema-loader.js');
+    const clientModule = await import('../api/client.js');
+    const { RequestRecorder, withRequestRecorder } = await import('../server/request-context.js');
+
+    vi.mocked(schemaLoader.validatePathForService).mockReturnValueOnce({
+      isValid: true,
+      actualPath: path,
+      baseUrl: 'https://api.freee.co.jp',
+      operation: { accept: 'application/xml' },
+    });
+    vi.mocked(clientModule.makeApiRequest).mockResolvedValueOnce({
+      type: 'binary',
+      data,
+      mimeType: 'application/xml',
+      size: data.byteLength,
+    });
+    vi.mocked(clientModule.isBinaryFileResponse).mockReturnValueOnce(true);
+
+    const { generateClientModeTool } = await import('./client-mode.js');
+    generateClientModeTool(stubServer);
+    const getHandler = capturedHandlers.get('freee_api_get');
+    const recorder = new RequestRecorder({
+      request_id: 'req-invalid-encoded-xml',
+      source_ip: '127.0.0.1',
+      method: 'POST',
+      path: '/mcp',
+    });
+
+    const result = (await withRequestRecorder(recorder, () =>
+      getHandler?.({ service: 'tax_return', path }, undefined),
+    )) as { isError?: boolean; content: Array<{ type: string; text: string }> };
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain('XMLレスポンスをUTF-8として読み取れませんでした。');
+    expect(result.content[0].text).not.toContain('MCP_STG_TAX_SENTINEL_20260803');
+    expect(result.content[0].text).not.toContain('bank_account');
+
+    const payload = JSON.stringify(recorder.buildPayload({ status: 200, duration_ms: 1 }));
+    expect(payload).not.toContain('MCP_STG_TAX_SENTINEL_20260803');
+    expect(payload).not.toContain('bank_account');
   });
 });
 

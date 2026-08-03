@@ -19,6 +19,27 @@ export interface BinaryFileResponse {
   size: number;
 }
 
+export type ApiResponseMediaType = 'application/xml' | 'text/xml';
+
+export const MAX_XML_RESPONSE_BYTES = 1_048_576;
+
+const XML_RESPONSE_TOO_LARGE_MESSAGE = 'XMLレスポンスが安全上限（1,048,576 bytes）を超えています。';
+const XML_RESPONSE_CONTENT_TYPE_ERROR_MESSAGE = 'XMLレスポンスのContent-Typeが不正です。';
+
+class XmlResponseTooLargeError extends Error {
+  constructor() {
+    super(XML_RESPONSE_TOO_LARGE_MESSAGE);
+    this.name = 'XmlResponseTooLargeError';
+  }
+}
+
+class XmlResponseContentTypeError extends Error {
+  constructor() {
+    super(XML_RESPONSE_CONTENT_TYPE_ERROR_MESSAGE);
+    this.name = 'XmlResponseContentTypeError';
+  }
+}
+
 /**
  * Type guard for BinaryFileResponse
  */
@@ -35,8 +56,72 @@ export function isBinaryFileResponse(result: unknown): result is BinaryFileRespo
  * Check if Content-Type indicates binary response
  */
 function isBinaryContentType(contentType: string): boolean {
-  const binaryTypes = ['application/pdf', 'application/octet-stream', 'image/', 'text/csv'];
-  return binaryTypes.some((type) => contentType.includes(type));
+  const baseMimeType = contentType.split(';')[0].trim().toLowerCase();
+  return (
+    baseMimeType === 'application/pdf' ||
+    baseMimeType === 'application/octet-stream' ||
+    baseMimeType === 'text/csv' ||
+    baseMimeType === 'application/xml' ||
+    baseMimeType === 'text/xml' ||
+    baseMimeType.startsWith('image/')
+  );
+}
+
+function isXmlContentType(contentType: string): boolean {
+  const baseMimeType = contentType.split(';')[0].trim().toLowerCase();
+  return baseMimeType === 'application/xml' || baseMimeType === 'text/xml';
+}
+
+function isJsonContentType(contentType: string): boolean {
+  const baseMimeType = contentType.split(';')[0].trim().toLowerCase();
+  return baseMimeType === 'application/json' || baseMimeType.endsWith('+json');
+}
+
+async function readBinaryResponse(response: Response, maxBytes?: number): Promise<Buffer> {
+  if (maxBytes !== undefined) {
+    const contentLength = response.headers.get('content-length');
+    if (contentLength && /^\d+$/.test(contentLength.trim())) {
+      const declaredBytes = Number(contentLength);
+      if (Number.isSafeInteger(declaredBytes) && declaredBytes > maxBytes) {
+        await response.body?.cancel().catch(() => undefined);
+        throw new XmlResponseTooLargeError();
+      }
+    }
+  }
+
+  if (maxBytes !== undefined && response.body) {
+    const reader = response.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let totalBytes = 0;
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (!value) continue;
+
+        totalBytes += value.byteLength;
+        if (totalBytes > maxBytes) {
+          await reader.cancel().catch(() => undefined);
+          throw new XmlResponseTooLargeError();
+        }
+        chunks.push(value);
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    return Buffer.concat(
+      chunks.map((chunk) => Buffer.from(chunk)),
+      totalBytes,
+    );
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  if (maxBytes !== undefined && buffer.byteLength > maxBytes) {
+    throw new XmlResponseTooLargeError();
+  }
+  return buffer;
 }
 
 /**
@@ -68,6 +153,7 @@ export async function makeApiRequest(
   body?: Record<string, unknown>,
   baseUrl?: string,
   tokenContext?: TokenContext,
+  accept?: ApiResponseMediaType,
 ): Promise<unknown | BinaryFileResponse> {
   const recorder = getCurrentRecorder();
   const startTime = Date.now();
@@ -151,6 +237,9 @@ export async function makeApiRequest(
   };
   if (companyId) {
     headers['x-freee-company-id'] = String(companyId);
+  }
+  if (accept) {
+    headers.Accept = accept;
   }
 
   let response: Response;
@@ -303,8 +392,51 @@ export async function makeApiRequest(
     query_keys: queryKeys,
   };
 
+  const expectsXml = accept !== undefined;
+  const responseIsXml = isXmlContentType(contentType);
+  const responseIsJson = isJsonContentType(contentType);
+
+  if (expectsXml && !responseIsXml && !responseIsJson) {
+    await response.body?.cancel().catch(() => undefined);
+    const contentTypeError = new XmlResponseContentTypeError();
+    recorder?.recordApiCall({
+      ...successApiCall,
+      duration_ms: Date.now() - startTime,
+      error_type: 'invalid_response_content_type',
+    });
+    recorder?.recordError({
+      source: 'api_client',
+      status_code: response.status,
+      error_type: 'invalid_response_content_type',
+      chain: serializeErrorChain(contentTypeError),
+    });
+    throw contentTypeError;
+  }
+
+  let xmlSafetyBuffer: Buffer | undefined;
+  if (expectsXml || responseIsXml) {
+    try {
+      xmlSafetyBuffer = await readBinaryResponse(response, MAX_XML_RESPONSE_BYTES);
+    } catch (error) {
+      if (error instanceof XmlResponseTooLargeError) {
+        recorder?.recordApiCall({
+          ...successApiCall,
+          duration_ms: Date.now() - startTime,
+          error_type: 'response_too_large',
+        });
+        recorder?.recordError({
+          source: 'api_client',
+          status_code: response.status,
+          error_type: 'response_too_large',
+          chain: serializeErrorChain(error),
+        });
+      }
+      throw error;
+    }
+  }
+
   if (isBinaryContentType(contentType)) {
-    const buffer = Buffer.from(await response.arrayBuffer());
+    const buffer = xmlSafetyBuffer ?? (await readBinaryResponse(response));
     recorder?.recordApiCall({ ...successApiCall, duration_ms: Date.now() - startTime });
     return {
       type: 'binary',
@@ -320,7 +452,7 @@ export async function makeApiRequest(
     return null;
   }
 
-  const text = await response.text();
+  const text = xmlSafetyBuffer?.toString('utf-8') ?? (await response.text());
   if (!text) {
     recorder?.recordApiCall({ ...successApiCall, duration_ms: Date.now() - startTime });
     return null;
@@ -332,7 +464,7 @@ export async function makeApiRequest(
     return parsed;
   } catch {
     const parseError = new Error(
-      `Failed to parse API response as JSON. Status: ${response.status}, Content-Type: ${contentType}, Body preview: ${text.slice(0, 200)}`,
+      `Failed to parse API response as JSON. Status: ${response.status}, Content-Type: ${contentType}, Body size: ${Buffer.byteLength(text, 'utf-8')} bytes`,
     );
     recorder?.recordApiCall({
       method,

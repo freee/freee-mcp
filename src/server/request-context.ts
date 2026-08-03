@@ -27,7 +27,9 @@ export type ApiCallErrorType =
   | 'forbidden'
   | 'rate_limit'
   | 'http_error'
-  | 'json_parse_error';
+  | 'json_parse_error'
+  | 'response_too_large'
+  | 'invalid_response_content_type';
 
 /**
  * Canonical log line: outgoing HTTP API call sub-event.

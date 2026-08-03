@@ -103,6 +103,9 @@
     "it_management_assets": "assets",
     "it_management_members": "members"
   },
+  "tax-return-api": {
+    "tax_return_corporate": "corporate"
+  },
   "mcponly-api": {
     "survey": "surveys"
   },

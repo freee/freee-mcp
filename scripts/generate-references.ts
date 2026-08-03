@@ -242,7 +242,11 @@ function formatSchemaProperties(
     result += `${indent}- ${propName}${requiredMark}: ${typeDesc}`;
 
     if (resolvedSchema.description) {
-      result += ` - ${resolvedSchema.description}`;
+      const description =
+        maxDepth > 2
+          ? resolvedSchema.description.replace(/\s+/g, " ").trim()
+          : resolvedSchema.description;
+      result += ` - ${description}`;
     }
 
     // Add enum values
@@ -333,13 +337,16 @@ function formatParameters(
     const name = param.name || "";
     const location = param.in || "";
     const required = param.required ? "はい" : "いいえ";
-    const type = param.schema ? getTypeDescription(param.schema) : "";
-    const description = param.schema?.description || param.description || "";
+    const parameterSchema = param.schema
+      ? resolveSchema(apiSchema, param.schema)
+      : undefined;
+    const type = parameterSchema ? getTypeDescription(parameterSchema) : "";
+    const description = parameterSchema?.description || param.description || "";
 
     // Add enum values to description
     let descWithEnum = description;
-    if (param.schema?.enum) {
-      descWithEnum += ` (選択肢: ${param.schema.enum.join(", ")})`;
+    if (parameterSchema?.enum) {
+      descWithEnum += ` (選択肢: ${parameterSchema.enum.join(", ")})`;
     }
 
     result += `| ${name} | ${location} | ${required} | ${type} | ${descWithEnum} |\n`;
@@ -389,7 +396,8 @@ function formatRequestBody(
  */
 function formatSuccessResponse(
   apiSchema: OpenAPISchema,
-  responses: { [statusCode: string]: Response }
+  responses: { [statusCode: string]: Response },
+  maxDepth: number = 2
 ): string {
   if (!responses) {
     return "";
@@ -418,16 +426,25 @@ function formatSuccessResponse(
     result += `${successResponse.description}\n\n`;
   }
 
+  if (successResponse.content?.["application/xml"]) {
+    result += "レスポンス形式: `application/xml`（推奨）\n\n";
+  }
+
   // Get JSON schema
   const jsonContent = successResponse.content?.["application/json"];
   if (!jsonContent || !jsonContent.schema) {
     return result;
   }
 
+  if (successResponse.content?.["application/xml"]) {
+    result +=
+      "参考: 以下は互換性のためOpenAPIに残っている `application/json`（廃止予定）のschemaです。新しい処理ではXMLを利用してください。\n\n";
+  }
+
   // Resolve $ref or `allOf: [{ $ref }]` wrapper.
   const schema = resolveSchema(apiSchema, jsonContent.schema);
 
-  result += formatSchemaProperties(apiSchema, schema);
+  result += formatSchemaProperties(apiSchema, schema, "", maxDepth);
   result += "\n";
 
   return result;
@@ -533,7 +550,8 @@ async function generateReference(
 
       // Add response
       if (responses) {
-        endpointsMd += formatSuccessResponse(schema, responses);
+        const responseDepth = apiName === "tax-return-api" ? 3 : 2;
+        endpointsMd += formatSuccessResponse(schema, responses, responseDepth);
       }
     }
   }
@@ -688,6 +706,7 @@ const API_CONFIGS = [
   { apiKey: "pm-api", schemaFile: join(OPENAPI_DIR, "pm-api-schema.json"), prefix: "pm", outputDir: OUTPUT_DIR },
   { apiKey: "sm-api", schemaFile: join(OPENAPI_DIR, "sm-api-schema.json"), prefix: "sm", outputDir: OUTPUT_DIR },
   { apiKey: "it-management-api", schemaFile: join(OPENAPI_DIR, "it-management-api-schema.json"), prefix: "it-management", outputDir: OUTPUT_DIR },
+  { apiKey: "tax-return-api", schemaFile: join(OPENAPI_DIR, "tax-return-api-schema.json"), prefix: "tax-return", outputDir: OUTPUT_DIR },
   // mcp-only 集約スキーマ。現状は survey のみ。ここ由来のパスは mcp-only とみなされ、
   // 生成される各リファレンス冒頭に MCP_ONLY_BANNER が自動挿入される（generateReference 参照）。
   { apiKey: "mcponly-api", schemaFile: MCPONLY_SCHEMA_FILE, prefix: "survey", outputDir: OUTPUT_DIR },

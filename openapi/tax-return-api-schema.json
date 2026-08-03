@@ -1,0 +1,2094 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "freee申告 API",
+    "termsOfService": "https://app.secure.freee.co.jp/terms-freee-api.html",
+    "license": {
+      "name": "© Since 2013 freee K.K."
+    },
+    "description": "<h2 id=\"start_guide\">スタートガイド</h2>\n<p>freee API開発がはじめての方は<a href=\"https://developer.freee.co.jp/getting-started\">freee APIスタートガイド</a>を参照してください。</p>\n<hr />\n<h2 id=\"specification\">仕様</h2>\n<h3 id=\"api_endpoint\">APIエンドポイント</h3>\n<p>https://api.freee.co.jp/hub/</p>\n<h3 id=\"about_authorize\">認証について</h3>\n<p>OAuth2.0を利用します。詳細は<a href=\"https://developer.freee.co.jp/reference/#%e8%aa%8d%e8%a8%bc\" target=\"_blank\">リファレンスの認証に関する記載</a>を参照してください。</p>\n<h3 id=\"data_format\">データフォーマット</h3>\n<p>リクエスト、レスポンスともにJSON形式をサポートしていますが、詳細は、API毎の説明欄（application/jsonなど）を確認してください。</p>\n<h3 id=\"compatibility\">後方互換性ありの変更</h3>\n<p>freeeでは、APIを改善していくために以下のような変更は後方互換性ありとして通知なく変更を入れることがあります。アプリケーション実装者は以下を踏まえて開発を行ってください。</p>\n<ul>\n<li>新しいAPIリソース・エンドポイントの追加</li>\n<li>既存のAPIに対して必須ではない新しいリクエストパラメータの追加</li>\n<li>既存のAPIレスポンスに対する新しいプロパティの追加</li>\n<li>既存のAPIレスポンスに対するプロパティの順番の入れ変え</li>\n<li>keyとなっているidやcodeの長さの変更（長くする）</li>\n<li>エラーメッセージの変更</li>\n</ul>\n<h3 id=\"common_response_header\">共通レスポンスヘッダー</h3>\n<p>すべてのAPIのレスポンスには以下のHTTPヘッダーが含まれます。</p>\n<ul>\n<li>\n<p>Freee-Request-Id</p>\n<ul>\n<li>各リクエスト毎に発行されるID</li>\n</ul>\n</li>\n</ul>\n<h3 id=\"common_error_response\">共通エラーレスポンス</h3>\n<p>APIリクエストでエラーが発生した場合は、エラー原因に応じたステータスコードおよびメッセージを返します。</p>\n<table border=\"1\">\n<tbody>\n<tr>\n<th style=\"padding: 10px\"><strong>ステータスコード</strong></th>\n<th style=\"padding: 10px\"><strong>原因</strong></th>\n</tr>\n<tr><td style=\"padding: 10px\">400</td><td style=\"padding: 10px\">リクエストパラメータが不正</td></tr>\n<tr><td style=\"padding: 10px\">401</td><td style=\"padding: 10px\">アクセストークンが無効</td></tr>\n<tr><td style=\"padding: 10px\">403</td><td style=\"padding: 10px\">アクセス権限がない</td></tr>\n<tr><td style=\"padding: 10px\">404</td><td style=\"padding: 10px\">リソースが存在しない</td></tr>\n<tr><td style=\"padding: 10px\">429</td><td style=\"padding: 10px\">リクエスト回数制限を超えた</td></tr>\n<tr><td style=\"padding: 10px\">500</td><td style=\"padding: 10px\">システム内で予期しないエラーが発生</td></tr>\n</tbody>\n</table>\n<p>エラーレスポンスは以下の形式で返されます。</p>\n<pre><code>{\n&nbsp;&nbsp;\"code\": \"AHB-3003-0002\",\n&nbsp;&nbsp;\"message\": \"リクエストの形式が正しくありません。\",\n&nbsp;&nbsp;\"fields\": [\n&nbsp;&nbsp;&nbsp;&nbsp;{\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"name\": \"company_id\",\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"message\": \"事業所IDは必須です。\"\n&nbsp;&nbsp;&nbsp;&nbsp;}\n&nbsp;&nbsp;]\n}</code></pre>\n<h3 id=\"api_rate_limit\">API使用制限</h3>\n<p>APIリクエストは1分あたり60回、1時間あたり1500回、1日あたり3000回を上限としています。<br>\nAPI使用ステータスはRFC準拠のレスポンスヘッダに付与されます。各ヘッダの意味は次のとおりです。</p>\n<table>\n<thead>\n<tr>\n<th>ヘッダ名</th>\n<th>説明</th>\n<th>例</th>\n</tr>\n</thead>\n<tbody>\n<tr><td>RateLimit-Policy</td><td>ポリシー情報（上限と期間）</td><td><code>\"base_rate_limit_minute\";q=60;w=60</code></td></tr>\n<tr><td>RateLimit</td><td>残り回数とリセットまでの秒数</td><td><code>\"base_rate_limit_minute\";r=59;t=45</code></td></tr>\n</tbody>\n</table>\n<p>この上限を超えた場合APIアクセスは制限され、http status codeは429となります。</p>\n<p>また、上記に加えfreeeは一定期間に過度のアクセスを検知した場合、APIアクセスをコントロールする場合があります。<br>\nその際のhttp status codeは403となります。制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>",
+    "version": "0.0.0"
+  },
+  "tags": [
+    {
+      "name": "tax_return_corporate"
+    }
+  ],
+  "paths": {
+    "/hub/tax_return/corporate": {
+      "get": {
+        "operationId": "list_tax_returns",
+        "summary": "申告一覧取得",
+        "description": "事業所に紐づく法人税の申告一覧をカーソルページネーションで取得します。\n各申告データには利用可能な帳票一覧（available_sheets）が含まれており、帳票取得APIで使用するtax_return_idとsheet_keyを取得できます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.ListTaxReturnCorporateRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.ListTaxReturnCorporateRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.ListTaxReturnCorporateRequest.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "申告一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TaxReturn.Corporate.TaxReturn"
+                      },
+                      "description": "申告データの一覧"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull",
+                      "example": "eyJpZCI6M30"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "申告一覧": {
+                    "summary": "申告一覧",
+                    "value": {
+                      "data": [
+                        {
+                          "id": 4,
+                          "tax_type": "corporate",
+                          "org_type": "corporate",
+                          "start_date": "2025-01-01",
+                          "end_date": "2025-12-31",
+                          "status": "working",
+                          "current": true,
+                          "synchronized_at": "2026-04-15T01:30:00Z",
+                          "payroll_synchronized_at": "2026-04-15T01:30:00Z",
+                          "prev_tax_return_id": 3,
+                          "created_at": "2026-01-05T00:00:00Z",
+                          "updated_at": "2026-04-20T09:45:12Z",
+                          "available_sheets": [
+                            {
+                              "sheet_key": "schedule_1_blue",
+                              "title": "別表一青色申告",
+                              "category": "national",
+                              "sheet_code": "10100100"
+                            },
+                            {
+                              "sheet_key": "local_form_6",
+                              "title": "第六号様式",
+                              "category": "local",
+                              "sheet_code": "206000000"
+                            },
+                            {
+                              "sheet_key": "bs",
+                              "title": "貸借対照表",
+                              "category": "financial_statements",
+                              "sheet_code": "balance_sheet"
+                            }
+                          ]
+                        }
+                      ],
+                      "next_page_token": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "リクエスト回数制限を超過",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tax_return_corporate"
+        ]
+      }
+    },
+    "/hub/tax_return/corporate/office_info/{tax_return_id}": {
+      "get": {
+        "operationId": "get_tax_return_corporate_office_info",
+        "summary": "事業所情報一覧取得",
+        "description": "申告に紐づく事業所情報の一覧をカーソルページネーションで取得します。\n地方税帳票取得APIで必要となる自治体コード（prefecture_government_code、city_government_code）は、このAPIから取得できます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetOfficeInfoRequest.tax_return_id"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetOfficeInfoRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetOfficeInfoRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetOfficeInfoRequest.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "事業所情報取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TaxReturn.Corporate.OfficeInfo"
+                      },
+                      "description": "事業所情報の一覧"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull",
+                      "example": "eyJpZCI6M30"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "事業所情報一覧": {
+                    "summary": "事業所情報一覧",
+                    "value": {
+                      "data": [
+                        {
+                          "id": 1,
+                          "name": "freee株式会社 本店",
+                          "head_office": true,
+                          "prefecture_code": "13",
+                          "prefecture_government_code": "13000",
+                          "city_government_code": "13109"
+                        },
+                        {
+                          "id": 2,
+                          "name": "freee株式会社 大阪支店",
+                          "head_office": false,
+                          "prefecture_code": "27",
+                          "prefecture_government_code": "27000",
+                          "city_government_code": "27100"
+                        }
+                      ],
+                      "next_page_token": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "リクエスト回数制限を超過",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tax_return_corporate"
+        ]
+      }
+    },
+    "/hub/tax_return/corporate/sheet/national/{tax_return_id}/{sheet_key}": {
+      "get": {
+        "operationId": "get_tax_return_corporate_national_sheet",
+        "summary": "国税帳票取得",
+        "description": "指定した申告データの国税帳票を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetNationalSheetRequest.tax_return_id"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetNationalSheetRequest.sheet_key"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetNationalSheetRequest.company_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "帳票データ（XML形式）。\n国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。\nレスポンスボディは api-hub では検証・加工せずそのまま透過します。",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/TaxReturn.Corporate.NationalSheetData"
+                        }
+                      ],
+                      "description": "帳票データ（JSON形式・廃止予定）",
+                      "deprecated": true
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "別表一青色申告": {
+                    "summary": "別表一青色申告",
+                    "value": {
+                      "data": {
+                        "tax_data": {
+                          "sheet_key": "schedule_1_blue",
+                          "title": "別表一青色申告",
+                          "version": 202512
+                        },
+                        "xtx": {
+                          "HOA112": {
+                            "pages": [
+                              {
+                                "BGA00160": {
+                                  "kubun_CD": "2"
+                                },
+                                "BGA00220": {
+                                  "kubun_CD": "1"
+                                },
+                                "BGA00230": {
+                                  "kubun_CD": "1"
+                                },
+                                "BGA00240": {
+                                  "kubun_CD": "1"
+                                },
+                                "BGA00250": {
+                                  "kubun_CD": "1"
+                                },
+                                "BGA00260": {
+                                  "kubun_CD": "1"
+                                },
+                                "BGA00410": {
+                                  "era": 5,
+                                  "yy": "7",
+                                  "mm": "12",
+                                  "dd": "31"
+                                },
+                                "BGA00070": "株式会社サンプル",
+                                "BGA00060": "カブシキガイシャサンプル",
+                                "BGA00130": {
+                                  "kubun_CD": "1"
+                                },
+                                "BGA00340": {
+                                  "era": 5,
+                                  "yy": "07",
+                                  "mm": "01",
+                                  "dd": "01",
+                                  "yyyymmdd": "20250101"
+                                },
+                                "BGA00350": {
+                                  "era": 5,
+                                  "yy": "07",
+                                  "mm": "12",
+                                  "dd": "31",
+                                  "yyyymmdd": "20251231"
+                                },
+                                "BGF00000": {
+                                  "kubun_CD": "2",
+                                  "kubun_NM": "非該当"
+                                },
+                                "BGG00000": {
+                                  "kubun_CD": "2",
+                                  "kubun_NM": "非該当"
+                                },
+                                "BGA00030": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
+                                "BGA00420": {
+                                  "bank_type": "1",
+                                  "kinyukikan_NM": "フリー",
+                                  "shiten_NM": "五反田",
+                                  "kinyukikan_KB": "1",
+                                  "shiten_KB": "1",
+                                  "yokin": "1",
+                                  "koza": "998877",
+                                  "yubinkyoku_NM": "",
+                                  "kigobango1": "",
+                                  "kigobango2": ""
+                                },
+                                "BGA00120": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
+                                "BGA00110": "てすと太郎",
+                                "BGA00100": "テストタロウ",
+                                "BGA00400": {
+                                  "era": null,
+                                  "yy": null,
+                                  "mm": null,
+                                  "dd": null
+                                },
+                                "BGA00430": "太郎税理士事務所 税理士太郎",
+                                "BGA00040": {
+                                  "tel1": "03",
+                                  "tel2": "XXXX",
+                                  "tel3": "XXXX"
+                                },
+                                "BGA00020": {
+                                  "zeimusho_CD": "01123",
+                                  "zeimusho_NM": "品川"
+                                },
+                                "BGA00360": {
+                                  "kubun_CD": 30,
+                                  "kubun_NM": ""
+                                },
+                                "BGA00290": "2000000",
+                                "BGB00020": "102750",
+                                "BGC00140": "8500",
+                                "BGC00120": "9700",
+                                "BGC00100": "1000",
+                                "BGC00240": "0",
+                                "BGB00080": "1300",
+                                "BGC00060": "10712",
+                                "BGC00280": "0",
+                                "BGB00100": "2000",
+                                "BGB00010": "685758",
+                                "BGC00030": "104150",
+                                "BGB00150": "104050",
+                                "BGB00180": "104150",
+                                "BGC00080": "10712",
+                                "BGB00340": "12300",
+                                "BGB00190": "0",
+                                "BGC00050": "104000",
+                                "BGC00130": "1200",
+                                "BGB00200": "12300",
+                                "BGB00070": "222000",
+                                "BGB00140": "100",
+                                "BGA00300": {
+                                  "kubun_CD": "2"
+                                },
+                                "BGA00310": {
+                                  "kubun_CD": "2"
+                                },
+                                "BGA00320": {
+                                  "kubun_CD": "1"
+                                },
+                                "BGB00240": "200",
+                                "BGB00260": "104150",
+                                "BGB00270": "787716",
+                                "BGB00250": "891866",
+                                "BGB00330": "787716",
+                                "BGB00400": "800016",
+                                "BGB00230": "891666",
+                                "BGA00010": {
+                                  "era": 5,
+                                  "yy": "8",
+                                  "mm": "4",
+                                  "dd": "23"
+                                },
+                                "BGB00460": "300000",
+                                "BGA00380": {
+                                  "era": null,
+                                  "yy": null,
+                                  "mm": null,
+                                  "dd": null
+                                },
+                                "BGA00390": {
+                                  "era": null,
+                                  "yy": null,
+                                  "mm": null,
+                                  "dd": null
+                                },
+                                "BGA00080": {
+                                  "hojinbango": "1234567890123"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "envelope": {
+                          "ZEIMUSHO": {
+                            "zeimusho_CD": "01123",
+                            "zeimusho_NM": "品川"
+                          },
+                          "NOZEISHA_ID": "1234123412341234",
+                          "NOZEISHA_NM_KN": "カブシキガイシャサンプル",
+                          "NOZEISHA_NM": "株式会社サンプル",
+                          "NOZEISHA_ZIP": {
+                            "zip1": "141",
+                            "zip2": "0032"
+                          },
+                          "NOZEISHA_ADR": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
+                          "NOZEISHA_TEL": {
+                            "tel1": "03",
+                            "tel2": "XXXX",
+                            "tel3": "XXXX"
+                          },
+                          "SHIHON_KIN": 0,
+                          "DAIHYO_NM_KN": "テストタロウ",
+                          "DAIHYO_NM": "てすと太郎",
+                          "DAIHYO_ZIP": {
+                            "zip1": "141",
+                            "zip2": "0032"
+                          },
+                          "DAIHYO_ADR": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
+                          "DAIHYO_TEL": {
+                            "tel1": "03",
+                            "tel2": "XXXX",
+                            "tel3": "XXXX"
+                          },
+                          "DAIRI_ID": "****",
+                          "DAIRI_NM": "太郎税理士事務所 税理士太郎",
+                          "DAIRI_ZIP": {
+                            "zip1": "141",
+                            "zip2": "0032"
+                          },
+                          "DAIRI_ADR": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
+                          "DAIRI_TEL": {
+                            "tel1": "03",
+                            "tel2": "XXXX",
+                            "tel3": "XXXX"
+                          },
+                          "TETSUZUKI": {
+                            "procedure_CD": "RHO0012",
+                            "procedure_NM": "普通法人の確定申告(青色)"
+                          },
+                          "JIGYO_NENDO_FROM": {
+                            "era": 5,
+                            "yy": "07",
+                            "mm": "01",
+                            "dd": "01",
+                            "yyyymmdd": "20250101"
+                          },
+                          "JIGYO_NENDO_TO": {
+                            "era": 5,
+                            "yy": "07",
+                            "mm": "12",
+                            "dd": "31",
+                            "yyyymmdd": "20251231"
+                          },
+                          "KEIRI_SEKININSHA": "経理花子",
+                          "NOZEISHA_BANGO": {
+                            "hojinbango": "1234567890123"
+                          },
+                          "JIGYO_NAIYO": "",
+                          "TEISYUTSU_DAY": {
+                            "era": 5,
+                            "yy": 8,
+                            "mm": 4,
+                            "dd": 23
+                          },
+                          "SHINKOKU_KBN": {
+                            "kubun_CD": 30,
+                            "kubun_NM": ""
+                          },
+                          "KANPU_KINYUKIKAN": {
+                            "bank_type": "1",
+                            "kinyukikan_NM": "フリー",
+                            "shiten_NM": "五反田",
+                            "kinyukikan_KB": "1",
+                            "shiten_KB": "1",
+                            "yokin": "1",
+                            "koza": "998877",
+                            "yubinkyoku_NM": "",
+                            "kigobango1": "",
+                            "kigobango2": ""
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "リクエスト回数制限を超過",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tax_return_corporate"
+        ]
+      }
+    },
+    "/hub/tax_return/corporate/sheet/local/{tax_return_id}/{sheet_key}/{prefecture_government_code}/{city_government_code}": {
+      "get": {
+        "operationId": "get_tax_return_corporate_local_sheet",
+        "summary": "地方税帳票取得",
+        "description": "指定した申告データの地方税帳票を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\n帳票のreport_unit（prefecture/city）に応じて、prefecture_government_codeまたはcity_government_codeが使用されます。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetLocalSheetRequest.tax_return_id"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetLocalSheetRequest.sheet_key"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetLocalSheetRequest.prefecture_government_code"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetLocalSheetRequest.city_government_code"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetLocalSheetRequest.company_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "帳票データ（XML形式）。\n国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。\nレスポンスボディは api-hub では検証・加工せずそのまま透過します。",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/TaxReturn.Corporate.LocalSheetData"
+                        }
+                      ],
+                      "description": "帳票データ（JSON形式・廃止予定）",
+                      "deprecated": true
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "第六号様式": {
+                    "summary": "第六号様式",
+                    "value": {
+                      "data": {
+                        "tax_data": {
+                          "sheet_key": "local_form_6",
+                          "title": "第六号様式",
+                          "version": 202512,
+                          "prefecture_government_code": "01000",
+                          "city_government_code": "01100"
+                        },
+                        "xtx": {
+                          "R0102AA250": {
+                            "pages": [
+                              {
+                                "AAA_ADDR": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
+                                "AAA_RPT_KBN": "確定",
+                                "AAA00500": 1234567890123,
+                                "AAA_NAME": "株式会社サンプル",
+                                "AAA_KANA": "かぶしきがいしゃさんぷる",
+                                "AAA_DAIHYO_NAME": "てすと太郎",
+                                "AAA_DAIHYO_KANA": "てすとたろう",
+                                "AAA_KEIRI_NAME": "経理花子",
+                                "AAA_KEIRI_KANA": "けいりはなこ",
+                                "AAA_JIGYO_NAME": "",
+                                "AAA_SHIHON4": "0",
+                                "AAI00400": "1",
+                                "AAI00100": {
+                                  "era": 5,
+                                  "yy": 7,
+                                  "mm": 12,
+                                  "dd": 31
+                                },
+                                "AAA_JIGYO_SDATE": {
+                                  "era": 5,
+                                  "yy": 7,
+                                  "mm": "1",
+                                  "dd": "1",
+                                  "yyyymmdd": "20250101"
+                                },
+                                "AAA_JIGYO_EDATE": {
+                                  "era": 5,
+                                  "yy": 7,
+                                  "mm": "12",
+                                  "dd": "31",
+                                  "yyyymmdd": "20251231"
+                                },
+                                "AAA_HONTEN_ADDR": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
+                                "AAE00400": 0,
+                                "AAE00420": 0,
+                                "AAE00200": 150000,
+                                "AAE00220": 5200,
+                                "AAE00300": 0,
+                                "AAE00320": 0,
+                                "AAJ_DAIRI_NAME": "太郎税理士事務所　税理士太郎",
+                                "AAB01700": 12,
+                                "AAB01810": 20000,
+                                "AAB02000": 20000,
+                                "AAB01900": "",
+                                "AAB00700": 18000,
+                                "AAB00810": 180,
+                                "AAB01200": 100,
+                                "AAB01600": 100,
+                                "AAB00600": 104000,
+                                "AAB01300": "",
+                                "AAE01310": 5200,
+                                "AAE01320": "",
+                                "AAE01330": "",
+                                "AAE01340": "",
+                                "AAE01050": 5200,
+                                "AAE01300": 5200,
+                                "AAE01500": 5200,
+                                "AAE01100": "",
+                                "AAE01400": "",
+                                "AAE00500": 150000,
+                                "AAE00510": 5200,
+                                "AAB02100": 20100,
+                                "AAB02300": 20100,
+                                "AAB02200": "",
+                                "AAK00100": 5200,
+                                "AAK00300": 1900,
+                                "AAK00850": 1900,
+                                "AAK01100": 1900,
+                                "AAK01300": 1900,
+                                "AAK00900": "",
+                                "AAK01200": "",
+                                "AAK00700": 1900,
+                                "AAE00900": 5200,
+                                "AAF00800": 997092,
+                                "AAI00450": -1400,
+                                "AAA00900": "北海道札幌道税事務所長",
+                                "AAB00800": 1,
+                                "AAB01800": 20000,
+                                "AAE00210": 3.5,
+                                "AAE00310": 5.3,
+                                "AAE00410": 7,
+                                "AAK00200": 37,
+                                "AAA_SHIHON5": "",
+                                "AAA_SHIHON": "",
+                                "AAA_SHIHON6": "",
+                                "AAA_SHIHON2": "",
+                                "AAA_SHIHON3": 2500000,
+                                "AAE00100": 697092,
+                                "AAA00800": {
+                                  "era": 5,
+                                  "yy": 8,
+                                  "mm": 3,
+                                  "dd": 25
+                                },
+                                "AAF00100": 985758,
+                                "AAF00200": 11667,
+                                "AAF00300": 111,
+                                "AAF00500": 444,
+                                "AAF00700": 300000,
+                                "AAG00100": 685758,
+                                "AAI00600": "2",
+                                "AAI00500": "2",
+                                "AAI00700": "2",
+                                "AAA_HONTEN_ZIP": {
+                                  "zip1": "141",
+                                  "zip2": "0032"
+                                },
+                                "AAA_HONTEN_TEL_NUM": {
+                                  "tel1": "03",
+                                  "tel2": "XXXX",
+                                  "tel3": "XXXX"
+                                },
+                                "AAJ_DAIRI_TEL_NUM": "03XXXXXXXX"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "リクエスト回数制限を超過",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tax_return_corporate"
+        ]
+      }
+    },
+    "/hub/tax_return/corporate/sheet/financial_statements/{tax_return_id}/{sheet_key}": {
+      "get": {
+        "operationId": "get_tax_return_corporate_financial_statement_sheet",
+        "summary": "決算書取得",
+        "description": "指定した申告データの決算書を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetFinancialStatementSheetRequest.tax_return_id"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetFinancialStatementSheetRequest.sheet_key"
+          },
+          {
+            "$ref": "#/components/parameters/TaxReturn.Corporate.GetFinancialStatementSheetRequest.company_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "帳票データ（XML形式）。\n国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。\nレスポンスボディは api-hub では検証・加工せずそのまま透過します。",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/TaxReturn.Corporate.FinancialStatementSheetData"
+                        }
+                      ],
+                      "description": "帳票データ（JSON形式・廃止予定）",
+                      "deprecated": true
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                },
+                "examples": {
+                  "損益計算書 (一部抜粋)": {
+                    "summary": "損益計算書 (一部抜粋)",
+                    "value": {
+                      "data": {
+                        "tax_data": {
+                          "sheet_key": "pl",
+                          "title": "損益計算書",
+                          "ctax_return_id": 4
+                        },
+                        "xtx": {
+                          "jpfr-t-cte_StatementsOfIncomeAbstract": {
+                            "xbrl_id": "jpfr-t-cte_StatementsOfIncomeAbstract",
+                            "name": "損益計算書",
+                            "value": null,
+                            "children": [
+                              {
+                                "xbrl_id": "jpfr-t-cte_NetSalesAbstract",
+                                "name": "売上高",
+                                "value": null,
+                                "children": [
+                                  {
+                                    "xbrl_id": "jpfr-t-cte_GrossSalesRevOA",
+                                    "name": "総売上高",
+                                    "value": null,
+                                    "children": [],
+                                    "non_xbrl_lines": []
+                                  },
+                                  {
+                                    "xbrl_id": "jpfr-t-cte_NetSalesOfGoodsRevOA",
+                                    "name": "商品売上高",
+                                    "value": null,
+                                    "children": [
+                                      {
+                                        "xbrl_id": "jpfr-etax-t-cte_MerchandiseSalesGross",
+                                        "name": "商品総売上高",
+                                        "value": null,
+                                        "children": [],
+                                        "non_xbrl_lines": []
+                                      },
+                                      {
+                                        "xbrl_id": "jpfr-etax-t-cte_MerchandiseSalesReturnsAllowances",
+                                        "name": "売上値引及び戻り高",
+                                        "value": null,
+                                        "children": [],
+                                        "non_xbrl_lines": []
+                                      }
+                                    ],
+                                    "non_xbrl_lines": []
+                                  }
+                                ],
+                                "non_xbrl_lines": []
+                              },
+                              {
+                                "xbrl_id": "jpfr-t-cte_CostOfSalesAbstract",
+                                "name": "売上原価",
+                                "value": null,
+                                "children": [],
+                                "non_xbrl_lines": [
+                                  {
+                                    "name": null,
+                                    "value": 200000,
+                                    "balance": null,
+                                    "xbrl_look_up": {
+                                      "to_xbrl_id": "jpfr-t-cte_PurchaseOfFinishedGoodsCOS",
+                                      "to_name": "当期製品仕入高"
+                                    }
+                                  }
+                                ]
+                              }
+                            ],
+                            "non_xbrl_lines": []
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "リクエスト回数制限を超過",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "tax_return_corporate"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "OAuth2Auth": [
+        "write",
+        "read"
+      ]
+    }
+  ],
+  "components": {
+    "parameters": {
+      "TaxReturn.Corporate.ListTaxReturnCorporateRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "TaxReturn.Corporate.ListTaxReturnCorporateRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（10〜50、デフォルト10）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 10,
+          "maximum": 50
+        },
+        "explode": false
+      },
+      "TaxReturn.Corporate.ListTaxReturnCorporateRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "次のページを取得するためのカーソルトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "TaxReturn.Corporate.GetOfficeInfoRequest.tax_return_id": {
+        "name": "tax_return_id",
+        "in": "path",
+        "required": true,
+        "description": "申告書ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "TaxReturn.Corporate.GetOfficeInfoRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "TaxReturn.Corporate.GetOfficeInfoRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（10〜50、デフォルト10）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 10,
+          "maximum": 50
+        },
+        "explode": false
+      },
+      "TaxReturn.Corporate.GetOfficeInfoRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "次のページを取得するためのカーソルトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "TaxReturn.Corporate.GetNationalSheetRequest.tax_return_id": {
+        "name": "tax_return_id",
+        "in": "path",
+        "required": true,
+        "description": "申告ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "TaxReturn.Corporate.GetNationalSheetRequest.sheet_key": {
+        "name": "sheet_key",
+        "in": "path",
+        "required": true,
+        "description": "帳票キー",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "TaxReturn.Corporate.GetNationalSheetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "TaxReturn.Corporate.GetLocalSheetRequest.tax_return_id": {
+        "name": "tax_return_id",
+        "in": "path",
+        "required": true,
+        "description": "申告ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "TaxReturn.Corporate.GetLocalSheetRequest.sheet_key": {
+        "name": "sheet_key",
+        "in": "path",
+        "required": true,
+        "description": "帳票キー",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "TaxReturn.Corporate.GetLocalSheetRequest.prefecture_government_code": {
+        "name": "prefecture_government_code",
+        "in": "path",
+        "required": true,
+        "description": "都道府県の自治体コード",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "TaxReturn.Corporate.GetLocalSheetRequest.city_government_code": {
+        "name": "city_government_code",
+        "in": "path",
+        "required": true,
+        "description": "市区町村の自治体コード",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "TaxReturn.Corporate.GetLocalSheetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "TaxReturn.Corporate.GetFinancialStatementSheetRequest.tax_return_id": {
+        "name": "tax_return_id",
+        "in": "path",
+        "required": true,
+        "description": "申告ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "TaxReturn.Corporate.GetFinancialStatementSheetRequest.sheet_key": {
+        "name": "sheet_key",
+        "in": "path",
+        "required": true,
+        "description": "決算書種別キー",
+        "schema": {
+          "$ref": "#/components/schemas/TaxReturn.Corporate.FinancialStatementSheetKey"
+        }
+      },
+      "TaxReturn.Corporate.GetFinancialStatementSheetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      }
+    },
+    "schemas": {
+      "ErrorField": {
+        "type": "object",
+        "required": [
+          "name",
+          "message"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "エラーフィールド名"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          }
+        },
+        "description": "バリデーション情報",
+        "example": {
+          "name": "company_id",
+          "message": "事業所IDは必須です。"
+        },
+        "additionalProperties": false
+      },
+      "BadRequestErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorField"
+            },
+            "description": "失敗フィールド情報"
+          }
+        },
+        "description": "400 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-3003-0002",
+          "message": "リクエストの形式が正しくありません。",
+          "fields": [
+            {
+              "name": "company_id",
+              "message": "事業所IDは必須です。"
+            }
+          ]
+        },
+        "additionalProperties": false
+      },
+      "UnauthorizedErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          }
+        },
+        "description": "401 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-3002-0001",
+          "message": "無効なアクセストークンです。"
+        },
+        "additionalProperties": false
+      },
+      "ForbiddenErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          }
+        },
+        "description": "403 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-3002-0003",
+          "message": "このアプリケーションにはアクセス権限がないエンドポイントです。"
+        },
+        "additionalProperties": false
+      },
+      "NotFoundErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorField"
+            },
+            "description": "失敗フィールド情報"
+          }
+        },
+        "description": "404 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-1001-0001",
+          "message": "指定されたリソースが見つかりません。"
+        },
+        "additionalProperties": false
+      },
+      "TooManyRequestsErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          }
+        },
+        "description": "429 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-3001-0001",
+          "message": "一定時間内に多数のリクエストが検出されました。しばらく時間をおいてから再度お試しください。"
+        },
+        "additionalProperties": false
+      },
+      "InternalServerErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          }
+        },
+        "description": "500 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-0001-9001",
+          "message": "システムエラーが発生しました。時間をおいて再度お試しください。"
+        },
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.TaxType": {
+        "type": "string",
+        "enum": [
+          "corporate"
+        ],
+        "description": "税目"
+      },
+      "TaxReturn.Corporate.OrgType": {
+        "type": "string",
+        "enum": [
+          "corporate"
+        ],
+        "description": "事業所区分"
+      },
+      "TaxReturn.Corporate.TaxReturnStatus": {
+        "type": "string",
+        "enum": [
+          "waiting",
+          "working",
+          "fixed"
+        ],
+        "description": "申告ステータス"
+      },
+      "TaxReturn.Corporate.SheetCategory": {
+        "type": "string",
+        "enum": [
+          "national",
+          "local",
+          "financial_statements"
+        ],
+        "description": "帳票カテゴリ"
+      },
+      "TaxReturn.Corporate.AvailableSheet": {
+        "type": "object",
+        "required": [
+          "sheet_key",
+          "title",
+          "category"
+        ],
+        "properties": {
+          "sheet_key": {
+            "type": "string",
+            "description": "帳票キー（廃止予定。sheet_code を利用してください）",
+            "deprecated": true,
+            "example": "schedule_1_blue"
+          },
+          "title": {
+            "type": "string",
+            "description": "帳票タイトル",
+            "example": "別表一青色申告"
+          },
+          "category": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaxReturn.Corporate.SheetCategory"
+              }
+            ],
+            "description": "帳票カテゴリ"
+          },
+          "sheet_code": {
+            "type": "string",
+            "description": "帳票コード。\n- 国税・地方税: 帳票の sheet_code\n- 決算書: 識別キー（balance_sheet / profit_and_loss / cost_report / statements_of_shareholders / notes_to_financial_statements）",
+            "example": "10100100"
+          }
+        },
+        "description": "利用可能な帳票",
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.TaxReturn": {
+        "type": "object",
+        "required": [
+          "id",
+          "tax_type",
+          "org_type",
+          "start_date",
+          "end_date",
+          "status",
+          "current",
+          "synchronized_at",
+          "payroll_synchronized_at",
+          "prev_tax_return_id",
+          "created_at",
+          "updated_at",
+          "available_sheets"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "申告ID",
+            "example": 4
+          },
+          "tax_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaxReturn.Corporate.TaxType"
+              }
+            ],
+            "description": "税目"
+          },
+          "org_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaxReturn.Corporate.OrgType"
+              }
+            ],
+            "description": "事業所区分"
+          },
+          "start_date": {
+            "type": "string",
+            "description": "事業年度開始日(yyyy-mm-dd)",
+            "example": "2025-01-01"
+          },
+          "end_date": {
+            "type": "string",
+            "description": "事業年度終了日(yyyy-mm-dd)",
+            "example": "2025-12-31"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaxReturn.Corporate.TaxReturnStatus"
+              }
+            ],
+            "description": "申告ステータス"
+          },
+          "current": {
+            "type": "boolean",
+            "description": "現在の申告かどうか",
+            "example": true
+          },
+          "synchronized_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "会計連携日時(ISO8601)",
+            "example": "2026-04-15T01:30:00Z"
+          },
+          "payroll_synchronized_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "人事労務連携日時(ISO8601)",
+            "example": "2026-04-15T01:30:00Z"
+          },
+          "prev_tax_return_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "前年度の申告ID",
+            "example": 3
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時(ISO8601)",
+            "example": "2026-01-05T00:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新日時(ISO8601)",
+            "example": "2026-04-20T09:45:12Z"
+          },
+          "available_sheets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaxReturn.Corporate.AvailableSheet"
+            },
+            "description": "利用可能な帳票一覧"
+          }
+        },
+        "description": "申告データ",
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.OfficeInfo": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "head_office",
+          "prefecture_code",
+          "prefecture_government_code",
+          "city_government_code"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "事業所ID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "事業所名",
+            "example": "freee株式会社 本店"
+          },
+          "head_office": {
+            "type": "boolean",
+            "description": "本店かどうか",
+            "example": true
+          },
+          "prefecture_code": {
+            "type": "string",
+            "description": "都道府県コード",
+            "example": "13"
+          },
+          "prefecture_government_code": {
+            "type": "string",
+            "description": "都道府県庁コード",
+            "example": "13000"
+          },
+          "city_government_code": {
+            "type": "string",
+            "description": "市区町村コード",
+            "example": "13109"
+          }
+        },
+        "description": "事業所情報",
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.NationalTaxData": {
+        "type": "object",
+        "required": [
+          "sheet_key",
+          "title",
+          "version"
+        ],
+        "properties": {
+          "sheet_key": {
+            "type": "string",
+            "description": "帳票キー",
+            "example": "schedule_1_blue"
+          },
+          "title": {
+            "type": "string",
+            "description": "帳票タイトル",
+            "example": "別表一青色申告"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "帳票バージョン",
+            "example": 202512
+          }
+        },
+        "description": "国税帳票メタデータ",
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.NationalSheetData": {
+        "type": "object",
+        "required": [
+          "tax_data",
+          "xtx"
+        ],
+        "properties": {
+          "envelope": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "nullable": true,
+            "description": "IT部（エンベロープ）データ。e-Tax XML の IT 部に格納される共通情報。\n帳票シートの IDREF タグが参照する値を含む。\n国税帳票（e-Tax）の場合のみ返却される。"
+          },
+          "tax_data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaxReturn.Corporate.NationalTaxData"
+              }
+            ],
+            "description": "帳票メタデータ"
+          },
+          "xtx": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "description": "XTX形式の帳票データ。style_idをキーとした構造"
+          }
+        },
+        "description": "国税帳票データ",
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.LocalTaxData": {
+        "type": "object",
+        "required": [
+          "sheet_key",
+          "title",
+          "version",
+          "prefecture_government_code",
+          "city_government_code"
+        ],
+        "properties": {
+          "sheet_key": {
+            "type": "string",
+            "description": "帳票キー",
+            "example": "local_form_6"
+          },
+          "title": {
+            "type": "string",
+            "description": "帳票タイトル",
+            "example": "第六号様式"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "帳票バージョン",
+            "example": 202512
+          },
+          "prefecture_government_code": {
+            "type": "string",
+            "description": "都道府県の自治体コード（例: 13000）",
+            "example": "13000"
+          },
+          "city_government_code": {
+            "type": "string",
+            "description": "市区町村の自治体コード（例: 13100）",
+            "example": "13109"
+          }
+        },
+        "description": "地方税帳票メタデータ",
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.LocalSheetData": {
+        "type": "object",
+        "required": [
+          "tax_data",
+          "xtx"
+        ],
+        "properties": {
+          "tax_data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaxReturn.Corporate.LocalTaxData"
+              }
+            ],
+            "description": "帳票メタデータ"
+          },
+          "xtx": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "description": "XTX形式の帳票データ。style_idをキーとした構造"
+          }
+        },
+        "description": "地方税帳票データ",
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.FinancialStatementSheetKey": {
+        "type": "string",
+        "enum": [
+          "balance_sheet",
+          "profit_and_loss",
+          "cost_report",
+          "statements_of_shareholders",
+          "notes_to_financial_statements",
+          "bs",
+          "pl",
+          "cr",
+          "ss",
+          "ifs"
+        ],
+        "description": "決算書種別キー"
+      },
+      "TaxReturn.Corporate.FinancialStatementTaxData": {
+        "type": "object",
+        "required": [
+          "sheet_key",
+          "title",
+          "ctax_return_id"
+        ],
+        "properties": {
+          "sheet_key": {
+            "type": "string",
+            "description": "決算書種別キー",
+            "example": "pl"
+          },
+          "title": {
+            "type": "string",
+            "description": "決算書タイトル",
+            "example": "損益計算書"
+          },
+          "ctax_return_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "申告ID",
+            "example": 4
+          }
+        },
+        "description": "決算書帳票メタデータ",
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.BalanceType": {
+        "type": "string",
+        "enum": [
+          "debit",
+          "credit"
+        ],
+        "description": "貸借区分"
+      },
+      "TaxReturn.Corporate.XbrlLookUp": {
+        "type": "object",
+        "required": [
+          "to_xbrl_id",
+          "to_name"
+        ],
+        "properties": {
+          "to_xbrl_id": {
+            "type": "string",
+            "description": "連携先XBRL ID",
+            "example": "jpfr-t-cte_OtherExpensesNonOEOA"
+          },
+          "to_name": {
+            "type": "string",
+            "description": "連携先勘定科目名",
+            "example": "その他"
+          }
+        },
+        "description": "XBRL連携先情報",
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.NonXbrlLine": {
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "description": "独自科目名",
+            "example": "雑費"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "金額",
+            "example": 1000
+          },
+          "balance": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaxReturn.Corporate.BalanceType"
+              }
+            ],
+            "nullable": true,
+            "description": "貸借区分"
+          },
+          "xbrl_look_up": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaxReturn.Corporate.XbrlLookUp"
+              }
+            ],
+            "nullable": true,
+            "description": "XBRL連携先情報"
+          }
+        },
+        "description": "独自科目",
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.FinancialStatementTreeNode": {
+        "type": "object",
+        "required": [
+          "name",
+          "value",
+          "children",
+          "non_xbrl_lines"
+        ],
+        "properties": {
+          "xbrl_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "XBRL ID（現行仕様）。旧形式レスポンスには含まれない場合がある",
+            "example": "jpfr-t-cte_StatementsOfIncomeAbstract"
+          },
+          "name": {
+            "type": "string",
+            "description": "勘定科目名",
+            "example": "損益計算書"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "format": "int64"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "nullable": true,
+            "description": "金額または注記テキスト"
+          },
+          "children": {
+            "oneOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/TaxReturn.Corporate.FinancialStatementTreeNode"
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/TaxReturn.Corporate.FinancialStatementTreeNode"
+                }
+              }
+            ],
+            "description": "子ノード"
+          },
+          "non_xbrl_lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaxReturn.Corporate.NonXbrlLine"
+            },
+            "description": "XBRLにマッピングされていない独自科目"
+          }
+        },
+        "description": "決算書ツリーノード",
+        "additionalProperties": false
+      },
+      "TaxReturn.Corporate.FinancialStatementSheetData": {
+        "type": "object",
+        "required": [
+          "tax_data",
+          "xtx"
+        ],
+        "properties": {
+          "tax_data": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TaxReturn.Corporate.FinancialStatementTaxData"
+              }
+            ],
+            "description": "帳票メタデータ"
+          },
+          "xtx": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TaxReturn.Corporate.FinancialStatementTreeNode"
+            },
+            "description": "XBRL定義のツリー構造。xbrl_idをキーとしたネスト構造"
+          }
+        },
+        "description": "決算書帳票データ",
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "OAuth2Auth": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://accounts.secure.freee.co.jp/public_api/authorize",
+            "tokenUrl": "https://accounts.secure.freee.co.jp/public_api/token",
+            "scopes": {
+              "write": "",
+              "read": ""
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.freee.co.jp",
+      "description": "",
+      "variables": {}
+    }
+  ]
+}
