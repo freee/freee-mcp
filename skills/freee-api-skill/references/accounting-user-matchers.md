@@ -54,7 +54,7 @@
 
 - company_id*: integer(int64) - 事業所ID
 
-### リクエストボディ
+### リクエストボディ*
 
 - act*: integer - 登録タイプ
   * 0: 取引を推測する(manual_standard)
@@ -229,7 +229,7 @@ POST /api/1/user_matchers と同じ
 
 GET /api/1/user_matchers/{id} と同じ
 
-### リクエストボディ
+### リクエストボディ*
 
 POST /api/1/user_matchers と同じ
 

@@ -58,7 +58,7 @@ POST /api/1/receipts と同じ
 
 - id* (path): integer(int64) - ファイルボックス（証憑ファイル）ID
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - description: string - メモ (255文字以内) 例: `メモ`

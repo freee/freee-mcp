@@ -31,7 +31,7 @@ application_accounts
 
 - freee-using-beta* (header): string - オープンベータのエンドポイントのため `true` を指定（必須） (選択肢: true)
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1`
 - account*: string - アカウント名 例: `yamada.taro@example.com`
@@ -100,7 +100,7 @@ application_accounts
 - freee-using-beta* (header): string - オープンベータのエンドポイントのため `true` を指定（必須） (選択肢: true)
 - id* (path): string(uuid) - アカウントID
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id: integer(int64) - 事業所ID 例: `1`
 - account: string - アカウント名 例: `yamada.taro@example.com`

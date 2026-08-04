@@ -35,7 +35,7 @@ members
 
 - freee-using-beta* (header): string - オープンベータのエンドポイントのため `true` を指定（必須） (選択肢: true)
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1`
 - email*: string - メールアドレス 例: `yamada.taro@example.com`
@@ -120,7 +120,7 @@ members
 - freee-using-beta* (header): string - オープンベータのエンドポイントのため `true` を指定（必須） (選択肢: true)
 - id* (path): string(uuid) - メンバーID
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id: integer(int64) - 事業所ID 例: `1`
 - family_name: string - 姓 例: `山田`

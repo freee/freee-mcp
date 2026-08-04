@@ -16,7 +16,7 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
 
 - id* (path): integer(int64) - 取引ID
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - update_date*: string - 更新日 (yyyy-mm-dd) 例: `2019-12-17`
@@ -59,7 +59,7 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
 - id* (path): integer(int64) - 取引ID
 - renew_id* (path): integer(int64) - +更新ID
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - update_date*: string - 更新日 (yyyy-mm-dd) 例: `2019-12-17`

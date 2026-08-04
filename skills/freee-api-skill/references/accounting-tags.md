@@ -22,7 +22,7 @@
 
 概要 指定した事業所のメモタグを作成する
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - name*: string - メモタグ名 (30文字以内) 例: `メモタグ1`
@@ -56,7 +56,10 @@ POST /api/1/tags と同じ
 
 ### リクエストボディ
 
-POST /api/1/tags と同じ
+- company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
+- name*: string - メモタグ名 (30文字以内) 例: `メモタグ1`
+- shortcut1: string - ショートカット1 (20文字以内) 例: `tag1`
+- shortcut2: string - ショートカット2 (20文字以内) 例: `t1`
 
 ### レスポンス
 

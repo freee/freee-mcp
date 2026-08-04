@@ -30,7 +30,7 @@ The request has succeeded.
 
 支払通知書の作成をします。
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID (最小: 1, 最大: 9223372036854775000)
 - template_id: integer(int64) - 帳票テンプレートID（指定しない場合、事業所の既定のテンプレートが指定されます。） (最小: 1, 最大: 9223372036854775000)
@@ -138,7 +138,7 @@ The request has succeeded.
 
 - id* (path): integer - 支払通知書ID
 
-### リクエストボディ
+### リクエストボディ*
 
 POST /payment_notices と同じ
 
@@ -155,7 +155,7 @@ GET /payment_notices/{id} と同じ
 
 PUT /payment_notices/{id} と同じ
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID (最小: 1, 最大: 9223372036854775000)
 
@@ -172,7 +172,7 @@ GET /payment_notices/{id} と同じ
 
 PUT /payment_notices/{id} と同じ
 
-### リクエストボディ
+### リクエストボディ*
 
 PUT /payment_notices/{id}/cancel と同じ
 

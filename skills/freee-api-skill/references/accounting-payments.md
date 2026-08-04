@@ -13,7 +13,7 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
 
 - id* (path): integer(int64) - 取引ID
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - date*: string - 支払日 例: `2019-12-17`
@@ -37,7 +37,7 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
 - id* (path): integer(int64) - 取引ID
 - payment_id* (path): integer(int64) - 決済ID
 
-### リクエストボディ
+### リクエストボディ*
 
 POST /api/1/deals/{id}/payments と同じ
 

@@ -18,7 +18,7 @@
 
 ## POST /api/1/expense_application_line_templates — 経費科目の作成
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - name*: string - 経費科目名 (100文字以内) 例: `交通費`
@@ -56,7 +56,7 @@ POST /api/1/expense_application_line_templates と同じ
 
 - id* (path): integer(int64) - 経費科目ID
 
-### リクエストボディ
+### リクエストボディ*
 
 POST /api/1/expense_application_line_templates と同じ
 

@@ -31,7 +31,7 @@ The request has succeeded.
 
 見積書の作成をします。
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID (最小: 1, 最大: 9223372036854775000)
 - template_id: integer(int64) - 帳票テンプレートID（指定しない場合、事業所の既定のテンプレートが指定されます。） (最小: 1, 最大: 9223372036854775000)
@@ -150,7 +150,7 @@ The request has succeeded.
 
 - id* (path): integer - 見積書ID
 
-### リクエストボディ
+### リクエストボディ*
 
 POST /quotations と同じ
 
@@ -167,7 +167,7 @@ GET /quotations/{id} と同じ
 
 PUT /quotations/{id} と同じ
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID (最小: 1, 最大: 9223372036854775000)
 
@@ -184,7 +184,7 @@ GET /quotations/{id} と同じ
 
 PUT /quotations/{id} と同じ
 
-### リクエストボディ
+### リクエストボディ*
 
 PUT /quotations/{id}/cancel と同じ
 

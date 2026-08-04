@@ -31,7 +31,7 @@ assets
 
 - freee-using-beta* (header): string - オープンベータのエンドポイントのため `true` を指定（必須） (選択肢: true)
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1`
 - name*: string - 備品名 例: `MacBook Pro 14inch`
@@ -93,7 +93,7 @@ assets
 - freee-using-beta* (header): string - オープンベータのエンドポイントのため `true` を指定（必須） (選択肢: true)
 - id* (path): string(uuid) - 備品ID
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id: integer(int64) - 事業所ID 例: `1`
 - name: string - 備品名 例: `MacBook Pro 14inch`

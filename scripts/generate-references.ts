@@ -96,7 +96,7 @@ interface Operation {
   };
 }
 
-interface PathData {
+export interface PathData {
   path: string;
   operations: Operation[];
 }
@@ -107,7 +107,7 @@ interface TagMappings {
   };
 }
 
-interface OpenAPISchema {
+export interface OpenAPISchema {
   tags?: Array<{ name: string; description?: string }>;
   paths: {
     [path: string]: {
@@ -520,31 +520,14 @@ function extractEndpointsByTag(
 }
 
 /**
- * Generate reference document for a single tag
+ * Build the endpoint sections of a reference document.
+ *
+ * ファイル出力から切り離してあるので、単体テストから直接呼べる。
  */
-async function generateReference(
-  apiName: string,
+export function buildEndpointsMarkdown(
   schema: OpenAPISchema,
-  tagName: string,
-  englishName: string,
-  prefix: string,
-  outputDir: string
-): Promise<void> {
-  const outputFile = join(outputDir, `${prefix}-${englishName}.md`);
-
-  // Get tag description from schema.
-  // 説明がないタグは `${tagName}の操作` のような情報量ゼロの見出しになるだけなので出さない。
-  const tag = schema.tags?.find((t) => t.name === tagName);
-  const tagDesc = tag?.description ? cleanDescription(tag.description) : "";
-
-  // Extract endpoints for this tag
-  const endpoints = extractEndpointsByTag(schema, tagName);
-
-  // mcp-only（freee-mcp リモート版限定）判定: このタグのいずれかのパスが
-  // mcponly-api-schema.json 由来なら、リファレンス冒頭にバナーを挿入する。
-  const isMcpOnly = endpoints.some(({ path }) => mcpOnlyPaths.has(path));
-  const banner = isMcpOnly ? `\n${MCP_ONLY_BANNER}\n` : "";
-
+  endpoints: PathData[]
+): string {
   // 同一ファイル内でブロック本文が完全一致したら初出への参照に置き換える。
   // 同じパラメータ群を持つエンドポイントが並ぶタグ（試算表など）で効果が大きい。
   // キーは「セクション種別 + 本文」。値は初出エンドポイントの `METHOD path`。
@@ -600,10 +583,13 @@ async function generateReference(
       }
 
       if (requestBody) {
-        // requestBody.required は未指定のスキーマが多く、無指定を「任意」と書くと
-        // 実態と食い違う。必須かどうかは各フィールドの `*` で判断できるので出さない。
+        // body 自体の必須性は schema の `required`（本文内フィールドの必須性）から
+        // 推論できないので、見出しの `*` で表す。未指定の schema が多く、無指定を
+        // 「任意」と書くと実態と食い違うため、明示的に true のときだけ付ける。
+        // heading は重複判定キーにも入るので、同じ schema を使っていても
+        // required が異なるエンドポイントは「◯◯ と同じ」に潰れない。
         endpointsMd += emitSection(
-          "リクエストボディ",
+          requestBody.required ? "リクエストボディ*" : "リクエストボディ",
           formatRequestBody(schema, requestBody),
           endpointRef
         );
@@ -618,6 +604,37 @@ async function generateReference(
       }
     }
   }
+
+  return endpointsMd;
+}
+
+/**
+ * Generate reference document for a single tag
+ */
+async function generateReference(
+  apiName: string,
+  schema: OpenAPISchema,
+  tagName: string,
+  englishName: string,
+  prefix: string,
+  outputDir: string
+): Promise<void> {
+  const outputFile = join(outputDir, `${prefix}-${englishName}.md`);
+
+  // Get tag description from schema.
+  // 説明がないタグは `${tagName}の操作` のような情報量ゼロの見出しになるだけなので出さない。
+  const tag = schema.tags?.find((t) => t.name === tagName);
+  const tagDesc = tag?.description ? cleanDescription(tag.description) : "";
+
+  // Extract endpoints for this tag
+  const endpoints = extractEndpointsByTag(schema, tagName);
+
+  // mcp-only（freee-mcp リモート版限定）判定: このタグのいずれかのパスが
+  // mcponly-api-schema.json 由来なら、リファレンス冒頭にバナーを挿入する。
+  const isMcpOnly = endpoints.some(({ path }) => mcpOnlyPaths.has(path));
+  const banner = isMcpOnly ? `\n${MCP_ONLY_BANNER}\n` : "";
+
+  const endpointsMd = buildEndpointsMarkdown(schema, endpoints);
 
   const overview = tagDesc ? `\n${tagDesc}\n` : "";
 
@@ -831,5 +848,9 @@ async function main(): Promise<void> {
   }
 }
 
-// Run main function
-main();
+// Run main function.
+// テストから buildEndpointsMarkdown を import しても生成が走らないよう、
+// bun で直接実行されたときだけ main() を呼ぶ。
+if (import.meta.main) {
+  main();
+}

@@ -33,7 +33,7 @@
 
 概要 指定した事業所の取引先を作成する 取引先名称（name）は重複不可です。 codeを利用するには、事業所の設定から取引先コードの利用を有効にする必要があります。 取引先コードの利用を有効にしている場合は、 codeの指定は必須です。 name、codeそれぞれ重複不可です。 振込元口座ID（payer_walletable_id）, 振込手数料負担（transfer_fee_handling_side）, 支払期日設定（payment_term_attributes）, 請求の入金期日設定（invoice_payment_term_attributes）は法人スタータープラン（および旧法人プロフェッショナルプラン）以上で利用可能です。
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - name*: string - 取引先名 (255文字以内、重複不可) 例: `新しい取引先`
@@ -107,7 +107,7 @@ POST /api/1/partners と同じ
 
 - id* (path): integer(int64) - 取引先ID
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - name*: string - 取引先名 (255文字以内、重複不可) 例: `新しい取引先`
@@ -176,7 +176,7 @@ GET /api/1/partners/{id} と同じ
 
 - code* (path): string - 取引先コード
 
-### リクエストボディ
+### リクエストボディ*
 
 PUT /api/1/partners/{id} と同じ
 
@@ -188,7 +188,7 @@ POST /api/1/partners と同じ
 
 概要 取引先コードをキーに、指定した取引先の情報を更新（存在しない場合は作成）する このAPIを利用するには、事業所の設定から取引先コードの利用を有効にする必要があります。 取引先名称（name）は重複不可です。 振込元口座ID（payer_walletable_id）, 振込手数料負担（transfer_fee_handling_side）, 支払期日設定（payment_term_attributes）, 請求の入金期日設定（invoice_payment_term_attributes）は法人スタータープラン（および旧法人プロフェッショナルプラン）以上で利用可能です。 支払期日設定（payment_term_attributes）, 請求の入金期日設定（invoice_payment_term_attributes）にnull型を入力することにより、期日を未設定に変更可能です。
 
-### リクエストボディ
+### リクエストボディ*
 
 - code*: string - 取引先コード 例: `code001`
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)

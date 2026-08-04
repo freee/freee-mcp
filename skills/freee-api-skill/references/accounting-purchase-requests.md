@@ -21,7 +21,7 @@
 
 概要 指定した事業所の購買申請を作成する
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - purchase_request_form_id*: integer(int64) - 購買申請の申請フォームID 例: `1` (最小: 1)
@@ -90,7 +90,7 @@ POST /api/1/purchase_requests と同じ
 
 - id* (path): integer(int64) - 購買申請ID
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - purchase_request_form_id*: integer(int64) - 購買申請の申請フォームID 例: `1` (最小: 1)
@@ -183,7 +183,7 @@ GET /api/1/purchase_requests/{id} と同じ
 
 PUT /api/1/purchase_requests/{id} と同じ
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - do_action*: string - 操作(apply: 申請する、approve: 承認する、reject: 却下する、feedback: 申請者へ差し戻す) (選択肢: apply, approve, reject, feedback) 例: `approve`

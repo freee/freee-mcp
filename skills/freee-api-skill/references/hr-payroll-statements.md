@@ -51,7 +51,7 @@
 
 - employee_id* (path): integer - 従業員ID
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer - 事業所ID 例: `1` (最小: 1, 最大: 2147483647)
 - year*: integer - 更新対象の年 例: `2024` (最小: 2000, 最大: 2100)

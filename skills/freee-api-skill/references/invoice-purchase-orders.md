@@ -34,7 +34,7 @@ The request has succeeded.
 
 発注書の作成をします。 issue_date, account_item_id, tax_code, item_id, section_id, tag_ids, segment_1_tag_id, segment_2_tag_id, segment_3_tag_id は、取引登録の下書き保存で利用されます。 tag_idsは10個まで設定可能です。
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID (最小: 1, 最大: 9223372036854775000)
 - template_id: integer(int64) - 帳票テンプレートID（指定しない場合、事業所の既定のテンプレートが指定されます。） (最小: 1, 最大: 9223372036854775000)
@@ -177,7 +177,7 @@ The request has succeeded.
 
 - id* (path): integer - 発注書ID
 
-### リクエストボディ
+### リクエストボディ*
 
 POST /purchase_orders と同じ
 
@@ -194,7 +194,7 @@ GET /purchase_orders/{id} と同じ
 
 PUT /purchase_orders/{id} と同じ
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID (最小: 1, 最大: 9223372036854775000)
 
@@ -211,7 +211,7 @@ GET /purchase_orders/{id} と同じ
 
 PUT /purchase_orders/{id} と同じ
 
-### リクエストボディ
+### リクエストボディ*
 
 PUT /purchase_orders/{id}/cancel と同じ
 

@@ -90,7 +90,7 @@ POST /api/1/approval_requests と同じ
 
 - id* (path): integer(int64) - 各種申請ID
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - application_date: string - 申請日 (yyyy-mm-dd)
@@ -135,7 +135,7 @@ GET /api/1/approval_requests/{id} と同じ
 
 PUT /api/1/approval_requests/{id} と同じ
 
-### リクエストボディ
+### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
 - approval_action*: string - 操作(approve: 承認する、force_approve: 特権承認する、cancel: 申請を取り消す、reject: 却下する、feedback: 申請者へ差し戻す、force_feedback: 承認済み・却下済みを取り消す) (選択肢: approve, force_approve, cancel, reject, feedback, force_feedback) 例: `approve`
