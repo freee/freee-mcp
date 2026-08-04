@@ -1,101 +1,64 @@
 # sales
 
-## 概要
-
 売上
 
-## エンドポイント一覧
+## GET /sales — 売上一覧
 
-### GET /sales
-
-操作: 売上一覧
-
-説明: 概要 売上の一覧を取得します。 登録されている売上情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する売上のみを取得することが可能です。
+概要 売上の一覧を取得します。 登録されている売上情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する売上のみを取得することが可能です。
 
 定義
 start_registered_date : 売上登録日(絞り込み開始) end_registered_date : 売上登録日(絞り込み終了) start_last_updated_date : 売上更新日(絞り込み開始) end_last_updated_date : 売上更新日(絞り込み終了) start_revenue_recognition_date : 売上日(絞り込み開始) end_revenue_recognition_date : 売上日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) business_ids : 案件ID(複数指定可) sales_no : 売上No. billing_status : 請求書送付ステータス collection_status : 入金ステータス...
 
 ### パラメータ
 
-| 名前 | 位置 | 必須 | 型 | 説明 |
-|------|------|------|-----|------|
-| company_id | query | はい | integer(int64) | 事業所ID |
-| start_registered_date | query | いいえ | string(date) | 売上登録日で絞込：開始日(yyyy-mm-dd) |
-| end_registered_date | query | いいえ | string(date) | 売上登録日で絞込：終了日(yyyy-mm-dd) |
-| start_revenue_recognition_date | query | いいえ | string(date) | 売上日で絞込：開始日(yyyy-mm-dd) |
-| end_revenue_recognition_date | query | いいえ | string(date) | 売上日で絞込：終了日(yyyy-mm-dd) |
-| charge_employee_ids[] | query | いいえ | array[integer] | 社内担当者の従業員ID |
-| customer_ids[] | query | いいえ | array[integer] | 顧客の取引先ID |
-| billing_status | query | いいえ | string | 請求書送付ステータス (未送付: not_billed, 送付済: billed, 対象外: none) (選択肢: not_billed, billed, none) |
-| collection_status | query | いいえ | string | 決済ステータス (未決済: not_settled, 一部決済済: partially_settled, 決済済: settled, 対象外: none) (選択肢: not_settled, partially_settled, settled, none) |
-| canceled | query | いいえ | boolean | 取消状態 |
-| limit | query | いいえ | integer(int32) | 取得レコードの件数（デフォルト：20, 最小：1, 最大：100） |
-| offset | query | いいえ | integer(int32) | 取得レコードのオフセット（デフォルト：0） |
+- company_id*: integer(int64) - 事業所ID
+- start_registered_date: string(date) - 売上登録日で絞込：開始日(yyyy-mm-dd)
+- end_registered_date: string(date) - 売上登録日で絞込：終了日(yyyy-mm-dd)
+- start_revenue_recognition_date: string(date) - 売上日で絞込：開始日(yyyy-mm-dd)
+- end_revenue_recognition_date: string(date) - 売上日で絞込：終了日(yyyy-mm-dd)
+- charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
+- customer_ids[]: array[integer] - 顧客の取引先ID
+- billing_status: string - 請求書送付ステータス (未送付: not_billed, 送付済: billed, 対象外: none) (選択肢: not_billed, billed, none)
+- collection_status: string - 決済ステータス (未決済: not_settled, 一部決済済: partially_settled, 決済済: settled, 対象外: none) (選択肢: not_settled, partially_settled, settled, none)
+- canceled: boolean - 取消状態
+- limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
+- offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
-### レスポンス (200)
+## POST /sales — 売上登録
 
-### POST /sales
-
-操作: 売上登録
-
-説明: 概要 新しい売上を登録します。 受注や納品に紐づく売上、または独立した売上を登録できます。
+概要 新しい売上を登録します。 受注や納品に紐づく売上、または独立した売上を登録できます。
 
 定義
 必須項目 revenue_recognition_date : 売上日 customer_id : 顧客の取引先ID billing_partner_id : 請求先の取引先ID collecting_partner_id : 入金元の取引先ID collection_method_type : 入金方法 billing_creating_method_type : 請求の管理 lines : 明細リスト 任意項目 sales_order_id : 受注ID（受注に紐づける場合） delivery_id : 納品ID（納品に紐づける場合） business_id : 案件ID subject : 売上タイトル customer_order_no : 顧客注文No. bills_on : 請求日 ※billing_creating_method_typeがautomaticallyの場合は必須 invoice_template_id : 請求書テンプレートID ※指定しない場合はデフォルトの...
 
-### レスポンス (201)
+## GET /sales/{id} — 売上詳細取得
 
-### GET /sales/{id}
-
-操作: 売上詳細取得
-
-説明: 概要 指定されたIDの売上の詳細情報を取得します。 売上の基本情報に加えて、請求・入金情報などの詳細な進捗情報も取得できます。
+概要 指定されたIDの売上の詳細情報を取得します。 売上の基本情報に加えて、請求・入金情報などの詳細な進捗情報も取得できます。
 
 ### パラメータ
 
-| 名前 | 位置 | 必須 | 型 | 説明 |
-|------|------|------|-----|------|
-| company_id | query | はい | integer(int64) | 事業所ID |
-| id | path | はい | string | 売上ID |
+- company_id*: integer(int64) - 事業所ID
+- id* (path): string - 売上ID
 
-### レスポンス (200)
+### レスポンス
 
 売上詳細取得のレスポンス
 
+## PATCH /sales/{id} — 売上更新
 
-### PATCH /sales/{id}
-
-操作: 売上更新
-
-説明: 概要 指定されたIDの売上を更新します。 売上の基本情報、請求・入金情報などを部分的に更新できます。 送信したフィールドのみが更新され、送信しなかったフィールドは変更されません。
+概要 指定されたIDの売上を更新します。 売上の基本情報、請求・入金情報などを部分的に更新できます。 送信したフィールドのみが更新され、送信しなかったフィールドは変更されません。
 
 定義
 更新可能項目 subject : 売上タイトル revenue_recognition_date : 売上日 customer_order_no : 顧客注文No. customer_id : 顧客の取引先ID billing_partner_id : 請求先の取引先ID bills_on : 請求日 invoice_template_id : 請求書テンプレートID invoice_subject : 請求書件名 invoice_note : 請求書の備考欄に掲載する内容 collecting_partner_id : 入金元の取引先ID collection_method_type : 入金方法 collects_on : 入金期日 charge_employee_id : 社内担当者の従業員ID reporting_section_id : 担当部門ID internal_memo : 社内メモ ...
 
 ### パラメータ
 
-| 名前 | 位置 | 必須 | 型 | 説明 |
-|------|------|------|-----|------|
-| id | path | はい | string | 売上ID |
+- id* (path): string - 売上ID
 
-### レスポンス (200)
+## POST /sales/{id}/cancellation — 売上取消
 
-### POST /sales/{id}/cancellation
-
-操作: 売上取消
-
-説明: 概要 指定されたIDの売上を取り消します。
+概要 指定されたIDの売上を取り消します。
 
 ### パラメータ
 
-| 名前 | 位置 | 必須 | 型 | 説明 |
-|------|------|------|-----|------|
-| id | path | はい | string | 売上ID |
-
-### レスポンス (200)
-
-
-
-## 参考情報
-
-- freee API公式ドキュメント: https://developer.freee.co.jp/docs
+PATCH /sales/{id} と同じ

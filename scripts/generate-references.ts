@@ -135,10 +135,22 @@ interface OpenAPISchema {
 }
 
 /**
- * Strip HTML tags from text
+ * OpenAPI の description に含まれる HTML（`<br>`・リンク・テーブル等）を取り除いて
+ * プレーンテキストに正規化する。タグをそのまま残すとトークンの無駄なうえ、
+ * `<td>` を単純に除去すると隣接セルが連結して読めなくなるので空白に置き換える。
  */
-function stripHtmlTags(text: string): string {
-  return text.replace(/<[^>]*>/g, "");
+function cleanDescription(text: string): string {
+  return text
+    .replace(/<br\s*\/?>/gi, "\n")
+    // セル区切りは同一行に保つ（整形済み HTML で改行されていても連結する）
+    .replace(/<\/(td|th)>\s*/gi, " | ")
+    .replace(/<\/(li|tr|p|div|h[1-6]|table|thead|tbody)>/gi, "\n")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/[ \t]+/g, " ")
+    .replace(/ *\n */g, "\n")
+    .replace(/ *\| *\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 /**
@@ -214,15 +226,43 @@ function getTypeDescription(schema: SchemaObject): string {
 }
 
 /**
+ * Options for formatSchemaProperties
+ */
+interface FormatOptions {
+  indent?: string;
+  maxDepth?: number;
+  currentDepth?: number;
+  /**
+   * brief モードでは選択肢・例・制約を省き、名前・型・説明だけを出力する。
+   * レスポンスは「呼べば実物が返る」ため詳細を持たせず、トークンを節約する。
+   */
+  brief?: boolean;
+}
+
+/**
+ * 複数行の説明を箇条書きの中に埋め込むため、2行目以降をぶら下げインデントする。
+ * 空行にはインデントを付けない（インデントだけの行が残るのを避ける）。
+ */
+function hangingIndent(text: string, indent: string): string {
+  return text
+    .split("\n")
+    .map((line, i) => (i === 0 || line === "" ? line : `${indent}  ${line}`))
+    .join("\n");
+}
+
+/**
  * Format schema properties as markdown
+ *
+ * 必須フィールドは名前の直後に `*` を付ける（任意は無印）。
+ * 記法の凡例は SKILL.md の「リファレンス」セクションに置く。
  */
 function formatSchemaProperties(
   apiSchema: OpenAPISchema,
   schema: SchemaObject,
-  indent: string = "",
-  maxDepth: number = 2,
-  currentDepth: number = 0
+  options: FormatOptions = {}
 ): string {
+  const { indent = "", maxDepth = 2, currentDepth = 0, brief = false } = options;
+
   if (currentDepth >= maxDepth) {
     return "";
   }
@@ -232,8 +272,7 @@ function formatSchemaProperties(
   const required = schema.required || [];
 
   for (const [propName, propSchema] of Object.entries(properties)) {
-    const isRequired = required.includes(propName);
-    const requiredMark = isRequired ? " (必須)" : " (任意)";
+    const requiredMark = required.includes(propName) ? "*" : "";
 
     // Resolve $ref or `allOf: [{ $ref }]` wrapper.
     const resolvedSchema = resolveSchema(apiSchema, propSchema);
@@ -241,50 +280,54 @@ function formatSchemaProperties(
     const typeDesc = getTypeDescription(resolvedSchema);
     result += `${indent}- ${propName}${requiredMark}: ${typeDesc}`;
 
-    if (resolvedSchema.description) {
-      result += ` - ${resolvedSchema.description}`;
+    const propDesc = resolvedSchema.description
+      ? cleanDescription(resolvedSchema.description)
+      : "";
+    if (propDesc) {
+      result += ` - ${hangingIndent(propDesc, indent)}`;
     }
 
-    // Add enum values
-    if (resolvedSchema.enum) {
-      result += ` (選択肢: ${resolvedSchema.enum.join(", ")})`;
-    }
+    if (!brief) {
+      // Add enum values
+      if (resolvedSchema.enum) {
+        result += ` (選択肢: ${resolvedSchema.enum.join(", ")})`;
+      }
 
-    // Add example
-    if (resolvedSchema.example !== undefined) {
-      const exampleStr =
-        typeof resolvedSchema.example === "string"
-          ? resolvedSchema.example
-          : JSON.stringify(resolvedSchema.example);
-      result += ` 例: \`${exampleStr}\``;
-    }
+      // Add example
+      if (resolvedSchema.example !== undefined) {
+        const exampleStr =
+          typeof resolvedSchema.example === "string"
+            ? resolvedSchema.example
+            : JSON.stringify(resolvedSchema.example);
+        result += ` 例: \`${exampleStr}\``;
+      }
 
-    // Add constraints
-    const constraints: string[] = [];
-    if (resolvedSchema.minimum !== undefined) {
-      constraints.push(`最小: ${resolvedSchema.minimum}`);
-    }
-    if (resolvedSchema.maximum !== undefined) {
-      constraints.push(`最大: ${resolvedSchema.maximum}`);
-    }
-    if (resolvedSchema.pattern) {
-      constraints.push(`パターン: ${resolvedSchema.pattern}`);
-    }
-    if (constraints.length > 0) {
-      result += ` (${constraints.join(", ")})`;
+      // Add constraints
+      const constraints: string[] = [];
+      if (resolvedSchema.minimum !== undefined) {
+        constraints.push(`最小: ${resolvedSchema.minimum}`);
+      }
+      if (resolvedSchema.maximum !== undefined) {
+        constraints.push(`最大: ${resolvedSchema.maximum}`);
+      }
+      if (resolvedSchema.pattern) {
+        constraints.push(`パターン: ${resolvedSchema.pattern}`);
+      }
+      if (constraints.length > 0) {
+        result += ` (${constraints.join(", ")})`;
+      }
     }
 
     result += "\n";
 
     // Recursively format nested properties
     if (resolvedSchema.properties && currentDepth < maxDepth - 1) {
-      result += formatSchemaProperties(
-        apiSchema,
-        resolvedSchema,
-        indent + "  ",
+      result += formatSchemaProperties(apiSchema, resolvedSchema, {
+        indent: indent + "  ",
         maxDepth,
-        currentDepth + 1
-      );
+        currentDepth: currentDepth + 1,
+        brief,
+      });
     }
 
     // Handle array items
@@ -296,13 +339,12 @@ function formatSchemaProperties(
       const itemSchema = resolveSchema(apiSchema, resolvedSchema.items);
       if (itemSchema.properties) {
         result += `${indent}  配列の要素:\n`;
-        result += formatSchemaProperties(
-          apiSchema,
-          itemSchema,
-          indent + "    ",
+        result += formatSchemaProperties(apiSchema, itemSchema, {
+          indent: indent + "    ",
           maxDepth,
-          currentDepth + 1
-        );
+          currentDepth: currentDepth + 1,
+          brief,
+        });
       }
     }
   }
@@ -312,6 +354,9 @@ function formatSchemaProperties(
 
 /**
  * Format parameters as markdown
+ *
+ * markdown のテーブルはセル区切りとヘッダ行の固定コストが大きいため箇条書きで出す。
+ * 大半が query なので `in` は query 以外のときだけ明示する。
  */
 function formatParameters(
   apiSchema: OpenAPISchema,
@@ -321,9 +366,7 @@ function formatParameters(
     return "";
   }
 
-  let result = "### パラメータ\n\n";
-  result += "| 名前 | 位置 | 必須 | 型 | 説明 |\n";
-  result += "|------|------|------|-----|------|\n";
+  let result = "";
 
   for (const rawParam of parameters) {
     const param = rawParam.$ref
@@ -331,21 +374,22 @@ function formatParameters(
       : rawParam;
 
     const name = param.name || "";
-    const location = param.in || "";
-    const required = param.required ? "はい" : "いいえ";
+    const requiredMark = param.required ? "*" : "";
+    const location = param.in && param.in !== "query" ? ` (${param.in})` : "";
     const type = param.schema ? getTypeDescription(param.schema) : "";
-    const description = param.schema?.description || param.description || "";
+    const rawDescription = param.schema?.description || param.description || "";
+    const description = rawDescription ? cleanDescription(rawDescription) : "";
 
-    // Add enum values to description
-    let descWithEnum = description;
-    if (param.schema?.enum) {
-      descWithEnum += ` (選択肢: ${param.schema.enum.join(", ")})`;
+    result += `- ${name}${requiredMark}${location}: ${type}`;
+    if (description) {
+      result += ` - ${hangingIndent(description, "")}`;
     }
-
-    result += `| ${name} | ${location} | ${required} | ${type} | ${descWithEnum} |\n`;
+    if (param.schema?.enum) {
+      result += ` (選択肢: ${param.schema.enum.join(", ")})`;
+    }
+    result += "\n";
   }
 
-  result += "\n";
   return result;
 }
 
@@ -360,8 +404,6 @@ function formatRequestBody(
     return "";
   }
 
-  let result = "### リクエストボディ\n\n";
-
   // Get JSON schema (prefer application/json)
   const jsonContent =
     requestBody.content["application/json"] ||
@@ -374,18 +416,24 @@ function formatRequestBody(
   // Resolve $ref or `allOf: [{ $ref }]` wrapper.
   const schema = resolveSchema(apiSchema, jsonContent.schema);
 
-  if (requestBody.required) {
-    result += "(必須)\n\n";
-  }
-
-  result += formatSchemaProperties(apiSchema, schema);
-  result += "\n";
-
-  return result;
+  return formatSchemaProperties(apiSchema, schema);
 }
+
+// レスポンスの description が定型句のみの場合は情報量がないので落とす
+const GENERIC_RESPONSE_DESCRIPTIONS = new Set([
+  "成功時",
+  "正常終了",
+  "OK",
+  "Success",
+  "successful operation",
+  "No Content",
+]);
 
 /**
  * Format success response as markdown
+ *
+ * レスポンスは brief モード・深さ1で出力する。実際に API を呼べば全量が返るため、
+ * リファレンスとしては「何が返るか」のトップレベルだけ分かれば足りる。
  */
 function formatSuccessResponse(
   apiSchema: OpenAPISchema,
@@ -398,12 +446,10 @@ function formatSuccessResponse(
   // Find success response (200, 201, 204)
   const successCodes = ["200", "201", "204"];
   let successResponse: Response | undefined;
-  let statusCode: string | undefined;
 
   for (const code of successCodes) {
     if (responses[code]) {
       successResponse = responses[code];
-      statusCode = code;
       break;
     }
   }
@@ -412,10 +458,13 @@ function formatSuccessResponse(
     return "";
   }
 
-  let result = `### レスポンス (${statusCode})\n\n`;
+  let result = "";
 
-  if (successResponse.description) {
-    result += `${successResponse.description}\n\n`;
+  const description = successResponse.description
+    ? cleanDescription(successResponse.description)
+    : "";
+  if (description && !GENERIC_RESPONSE_DESCRIPTIONS.has(description)) {
+    result += `${description}\n`;
   }
 
   // Get JSON schema
@@ -427,8 +476,10 @@ function formatSuccessResponse(
   // Resolve $ref or `allOf: [{ $ref }]` wrapper.
   const schema = resolveSchema(apiSchema, jsonContent.schema);
 
-  result += formatSchemaProperties(apiSchema, schema);
-  result += "\n";
+  result += formatSchemaProperties(apiSchema, schema, {
+    maxDepth: 1,
+    brief: true,
+  });
 
   return result;
 }
@@ -481,9 +532,10 @@ async function generateReference(
 ): Promise<void> {
   const outputFile = join(outputDir, `${prefix}-${englishName}.md`);
 
-  // Get tag description from schema
+  // Get tag description from schema.
+  // 説明がないタグは `${tagName}の操作` のような情報量ゼロの見出しになるだけなので出さない。
   const tag = schema.tags?.find((t) => t.name === tagName);
-  const tagDesc = tag?.description ? stripHtmlTags(tag.description) : `${tagName}の操作`;
+  const tagDesc = tag?.description ? cleanDescription(tag.description) : "";
 
   // Extract endpoints for this tag
   const endpoints = extractEndpointsByTag(schema, tagName);
@@ -493,6 +545,24 @@ async function generateReference(
   const isMcpOnly = endpoints.some(({ path }) => mcpOnlyPaths.has(path));
   const banner = isMcpOnly ? `\n${MCP_ONLY_BANNER}\n` : "";
 
+  // 同一ファイル内でブロック本文が完全一致したら初出への参照に置き換える。
+  // 同じパラメータ群を持つエンドポイントが並ぶタグ（試算表など）で効果が大きい。
+  // キーは「セクション種別 + 本文」。値は初出エンドポイントの `METHOD path`。
+  const seenBlocks = new Map<string, string>();
+
+  function emitSection(heading: string, body: string, endpointRef: string): string {
+    const trimmed = body.trim();
+    if (!trimmed) return "";
+
+    const key = `${heading}\n${trimmed}`;
+    const firstSeen = seenBlocks.get(key);
+    if (firstSeen) {
+      return `### ${heading}\n\n${firstSeen} と同じ\n\n`;
+    }
+    seenBlocks.set(key, endpointRef);
+    return `### ${heading}\n\n${trimmed}\n\n`;
+  }
+
   // Build endpoints markdown
   let endpointsMd = "";
   for (const { path, operations } of endpoints) {
@@ -500,11 +570,11 @@ async function generateReference(
       const { method, summary, description, parameters, requestBody, responses } =
         operation;
 
-      endpointsMd += `### ${method} ${path}\n\n`;
-      endpointsMd += `操作: ${summary || ""}\n\n`;
+      const endpointRef = `${method} ${path}`;
+      endpointsMd += `## ${endpointRef}${summary ? ` — ${summary}` : ""}\n\n`;
 
       if (description) {
-        let cleanDesc = stripHtmlTags(description)
+        let cleanDesc = cleanDescription(description)
           .replace(/\s+/g, " ")
           .trim();
 
@@ -517,41 +587,44 @@ async function generateReference(
           cleanDesc = cleanDesc
             .replace(/\s*(定義)\s+/g, "\n\n$1\n")
             .replace(/\s*(注意点)\s+/g, "\n\n$1\n");
-          endpointsMd += `説明: ${cleanDesc}\n\n`;
+          endpointsMd += `${cleanDesc}\n\n`;
         }
       }
 
-      // Add parameters
       if (parameters && parameters.length > 0) {
-        endpointsMd += formatParameters(schema, parameters);
+        endpointsMd += emitSection(
+          "パラメータ",
+          formatParameters(schema, parameters),
+          endpointRef
+        );
       }
 
-      // Add request body
       if (requestBody) {
-        endpointsMd += formatRequestBody(schema, requestBody);
+        // requestBody.required は未指定のスキーマが多く、無指定を「任意」と書くと
+        // 実態と食い違う。必須かどうかは各フィールドの `*` で判断できるので出さない。
+        endpointsMd += emitSection(
+          "リクエストボディ",
+          formatRequestBody(schema, requestBody),
+          endpointRef
+        );
       }
 
-      // Add response
       if (responses) {
-        endpointsMd += formatSuccessResponse(schema, responses);
+        endpointsMd += emitSection(
+          "レスポンス",
+          formatSuccessResponse(schema, responses),
+          endpointRef
+        );
       }
     }
   }
 
+  const overview = tagDesc ? `\n${tagDesc}\n` : "";
+
   // Generate markdown document
   const markdown = `# ${tagName}
-${banner}
-## 概要
-
-${tagDesc}
-
-## エンドポイント一覧
-
-${endpointsMd}
-
-## 参考情報
-
-- freee API公式ドキュメント: https://developer.freee.co.jp/docs
+${banner}${overview}
+${endpointsMd.trimEnd()}
 `;
 
   await writeFile(outputFile, markdown, "utf-8");
