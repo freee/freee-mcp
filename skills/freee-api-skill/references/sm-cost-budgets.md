@@ -46,6 +46,10 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 定義
 全type共通フィールド type (必須) : 原価種別 (procurement: 仕入, external_procurement: 外部仕入, other_cost: その他原価) period_from_date (必須) : 期間開始日 period_to_date (必須) : 期間終了日。period_from_date と両方必須。 business_id : 案件ID memo : 備考 charge_employee_id : 社内担当者ID reporting_section_id : 担当部門ID type=procurement 固有フィールド quantity (必須) : 数量 unit_price (必須) : 単価 deal_line_type_id (必須) : 明細取...
 
+### リクエストボディ
+
+- company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+
 ## GET /cost_budgets/{id} — 原価予算詳細取得
 
 概要 指定されたIDの原価予算の詳細情報を取得します。
@@ -66,6 +70,30 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 
 - id* (path): string - 原価予算ID
 
+### リクエストボディ
+
+- company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- business_id: string - 案件ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- period_from_date: string(date) - 期間開始日 例: `2025-04-01`
+- period_to_date: string(date) - 期間終了日 例: `2025-06-30`
+- memo: string - 備考 例: `備考テキスト`
+- charge_employee_id: integer(int64) - 社内担当者ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- reporting_section_id: integer(int64) - 担当部門ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- amount_excluding_tax: integer(int64) - 税抜金額 例: `10000` (最小: -999999999999, 最大: 999999999999)
+- supplier_id: integer(int64) - 仕入先の取引先ID 例: `1001` (最小: 1, 最大: 9223372036854776000)
+- payment_partner_id: integer(int64) - 支払先の取引先ID 例: `1002` (最小: 1, 最大: 9223372036854776000)
+- quantity: number(float) - 数量 例: `10` (最小: -99999999, 最大: 99999999)
+- unit_price: number(float) - 単価 例: `10` (最小: -999999999999, 最大: 999999999999)
+- uom_name: string - 単位 例: `個`
+- master_item_id: string - 商品ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- deal_line_type_id: string - 明細取引タイプID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- accounting_reporting_section_id: integer(int64) - 会計計上部門ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- item_tag_id: integer(int64) - 会計品目タグID 例: `2001` (最小: 1, 最大: 9223372036854776000)
+- memo_tag_ids: array[integer] - メモタグID
+- segment_tag_1_id: integer(int64) - セグメントタグ1のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
+- segment_tag_2_id: integer(int64) - セグメントタグ2のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
+- segment_tag_3_id: integer(int64) - セグメントタグ3のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
+
 ## POST /cost_budgets/{id}/cancellation — 原価予算取消
 
 概要 指定されたIDの原価予算を取り消します。
@@ -73,3 +101,7 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 ### パラメータ
 
 PATCH /cost_budgets/{id} と同じ
+
+### リクエストボディ
+
+POST /cost_budgets と同じ

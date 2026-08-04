@@ -27,7 +27,7 @@
 
 ### リクエストボディ
 
-- inviter_id: object - 招待を実行するユーザーID
+- inviter_id: integer(int64) - 招待を実行するユーザーID 例: `1` (最小: 1)
 - email*: string(email) - 被招待者のメールアドレス
 - role: string - 被招待者の権限
   * admin - 全権管理
@@ -46,7 +46,7 @@
 ユーザーへ招待メール送付完了
 - id*: integer - ユーザー招待ID
 - team_id*: integer(int64) - 招待先のチームID
-- inviter_id*: object - 招待を実行するユーザーID
+- inviter_id*: integer(int64) - 招待を実行するユーザーID
 - email*: string(email) - 被招待者のメールアドレス
 - status*: string - 招待の状態
   * waiting - 被招待者の確認待ち
@@ -77,14 +77,14 @@
 
 ### リクエストボディ
 
-- inviter_id: object - 招待を実行するユーザーID
+- inviter_id: integer(int64) - 招待を実行するユーザーID 例: `1` (最小: 1)
 
 ### レスポンス
 
 ユーザーへの再招待メール送付完了
 - id*: integer - ユーザー招待ID
 - team_id*: integer(int64) - 招待先のチームID
-- inviter_id*: object - 招待を実行するユーザーID
+- inviter_id*: integer(int64) - 招待を実行するユーザーID
 - email*: string(email) - 被招待者のメールアドレス
 - status*: string - 招待の状態
   * waiting - 被招待者の確認待ち

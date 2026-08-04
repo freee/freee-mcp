@@ -9,16 +9,16 @@
 - document*: object
   - title*: string - 作成する文書のタイトル 例: `文書 忍者太郎様`
   - items: array[object] - 入力項目
-- template_id*: object - 使用する文書テンプレートのID
-- creator_id: object - 文書の作成者となるユーザーのID (APIクライアントを利用する場合は必須)
-- folder_id*: object - 作成した文書の保存先フォルダのID
+- template_id*: integer(int64) - 使用する文書テンプレートのID 例: `1` (最小: 1)
+- creator_id: integer(int64) - 文書の作成者となるユーザーのID (APIクライアントを利用する場合は必須) 例: `1` (最小: 1)
+- folder_id*: integer(int64) - 作成した文書の保存先フォルダのID
 
 ### レスポンス
 
 作成成功
 - id*: integer(int64) - 文書ID
 - title*: string - 文書のタイトル
-- owner_id*: object - 文書作成者ユーザーID
+- owner_id*: integer(int64) - 文書作成者ユーザーID
 - status*: string - 文書のステータス
   * draft - 作成中
   * in_progress - 確認待ち
@@ -28,7 +28,7 @@
   * rejected - 却下
   * expired - 有効期限切れ
   * trashed - 削除済み
-- folder_id*: object - 文書が保存されているフォルダのID
+- folder_id*: integer(int64) - 文書が保存されているフォルダのID
 - folder_name*: string - 文書が保存されているフォルダの名前
 - items: array[object] - 入力項目 設定されていない場合は無し。
 - meta_items: array[object] - 検索項目 設定されていない場合は無し。
@@ -125,7 +125,46 @@ PDF/Word/Excel/PowerPointから文書を作成する。作成された文書の�
 
 ### レスポンス
 
-GET /v1/documents と同じ
+取得成功
+- id*: integer(int64) - 文書ID
+- title*: string - 文書のタイトル
+- owner_id*: integer(int64) - 文書作成者ユーザーID
+- status*: string - 文書のステータス
+  * draft - 作成中
+  * in_progress - 確認待ち
+  * awaiting_receipt - 受け取り待ち
+  * approved - 要確認
+  * concluded - 完了
+  * rejected - 却下
+  * expired - 有効期限切れ
+  * trashed - 削除済み
+- folder_id*: integer(int64) - 文書が保存されているフォルダのID
+- folder_name*: string - 文書が保存されているフォルダの名前
+- items: array[object] - 入力項目 設定されていない場合は無し。
+- meta_items: array[object] - 検索項目 設定されていない場合は無し。
+- signers: array[object] - 文書に設定されている署名者
+  送信前は無し。
+- signer_url: object - 署名者用URLを受け取った相手は、そのURLから署名依頼の手続きを進めることができます
+- created_at*: string(date-time) - 作成日時。 ISO8601 形式を受け入れます。
+
+  入力例: 2022-01-01T00:00:00+09:00
+- updated_at*: string(date-time) - 更新日時。 ISO8601 形式を受け入れます。
+
+  入力例: 2022-02-01T00:00:00+09:00
+- timestamped*: boolean - タイムスタンプが付与されているかどうか
+- expires_at: string(date-time) - 有効期限日時
+- sent_at: string(date-time) - 送信日時
+- concluded_at: string(date-time) - 締結完了日時
+- skip_approval*: boolean - trueの場合、配付文書（署名合意をスキップする文書）。
+  falseの場合、署名・合意文書。
+- signer_document_confirmation*: boolean - 配付文書の受領者が文書を確認済みかどうか。
+  配付文書でない場合は常にfalse。
+- approve_on_signing: boolean - trueの場合は三者間以上の契約での合意タイミングの設定が「署名と同時に行う」になっており、署名完了後の復路合意ステップを省略する。
+  falseの場合は三者間以上の契約での合意タイミングの設定が「署名とは別に行う」になっており、署名完了後に受領者による合意操作が必要になる。
+- face_to_face_url: string(uri) - 対面契約（face_to_face）として送信した文書の対面署名画面URL。
+  このURLを署名者の端末で開くことで対面契約フローを開始できます。
+  対面契約以外の文書では含まれません。
+- cloud_file_updated_at*: string(date-time) - Google Doc または PDF 更新日時
 
 ## PATCH /v1/documents/{document_id} — 文書更新
 
@@ -141,7 +180,7 @@ GET /v1/documents と同じ
 
 - id*: integer(int64) - 文書ID
 - title*: string - 文書のタイトル
-- owner_id*: object - 文書作成者ユーザーID
+- owner_id*: integer(int64) - 文書作成者ユーザーID
 - status*: string - 文書のステータス
   * draft - 作成中
   * in_progress - 確認待ち
@@ -151,7 +190,7 @@ GET /v1/documents と同じ
   * rejected - 却下
   * expired - 有効期限切れ
   * trashed - 削除済み
-- folder_id*: object - 文書が保存されているフォルダのID
+- folder_id*: integer(int64) - 文書が保存されているフォルダのID
 - folder_name*: string - 文書が保存されているフォルダの名前
 - items: array[object] - 入力項目 設定されていない場合は無し。
 - meta_items: array[object] - 検索項目 設定されていない場合は無し。
@@ -191,7 +230,7 @@ GET /v1/documents と同じ
 削除成功
 - id*: integer(int64) - 文書ID
 - title*: string - 文書のタイトル
-- owner_id*: object - 文書作成者ユーザーID
+- owner_id*: integer(int64) - 文書作成者ユーザーID
 - status*: string - 文書のステータス
   * draft - 作成中
   * in_progress - 確認待ち
@@ -201,7 +240,7 @@ GET /v1/documents と同じ
   * rejected - 却下
   * expired - 有効期限切れ
   * trashed - 削除済み
-- folder_id*: object - 文書が保存されているフォルダのID
+- folder_id*: integer(int64) - 文書が保存されているフォルダのID
 - folder_name*: string - 文書が保存されているフォルダの名前
 - items: array[object] - 入力項目 設定されていない場合は無し。
 - meta_items: array[object] - 検索項目 設定されていない場合は無し。
@@ -308,7 +347,7 @@ GET /v1/documents と同じ
 
 ### リクエストボディ
 
-- signer_id: object - 締結するユーザーのID (APIクライアントを利用する場合は必須)
+- signer_id: integer(int64) - 締結するユーザーのID (APIクライアントを利用する場合は必須) 例: `1` (最小: 1)
 - message: string - メッセージ
   メッセージを送らない場合は無し。
 
@@ -341,7 +380,7 @@ PATCH /v1/documents/{document_id} と同じ
 
   face_to_face を指定した場合、レスポンスの `face_to_face_url` フィールドに対面署名画面のURLが返ります。
   このURLを署名者の端末で開くことで対面契約フローを開始してください。 (選択肢: email, sms, url, face_to_face)
-- sender_id: object - 送信するユーザーのID (APIクライアントを利用する場合は必須)
+- sender_id: integer(int64) - 送信するユーザーのID (APIクライアントを利用する場合は必須) 例: `1` (最小: 1)
 - to*: object
 - es_type: string - 署名方法
 
@@ -389,7 +428,7 @@ PATCH /v1/documents/{document_id} と同じ
 送信成功
 - id*: integer(int64) - 文書ID
 - title*: string - 文書のタイトル
-- owner_id*: object - 文書作成者ユーザーID
+- owner_id*: integer(int64) - 文書作成者ユーザーID
 - status*: string - 文書のステータス
   * draft - 作成中
   * in_progress - 確認待ち
@@ -399,7 +438,7 @@ PATCH /v1/documents/{document_id} と同じ
   * rejected - 却下
   * expired - 有効期限切れ
   * trashed - 削除済み
-- folder_id*: object - 文書が保存されているフォルダのID
+- folder_id*: integer(int64) - 文書が保存されているフォルダのID
 - folder_name*: string - 文書が保存されているフォルダの名前
 - items: array[object] - 入力項目 設定されていない場合は無し。
 - meta_items: array[object] - 検索項目 設定されていない場合は無し。
@@ -474,6 +513,24 @@ PATCH /v1/documents/{document_id} と同じ
 
 成功時
 入力項目を付与した文書を返す。
+- name*: string - 項目名
+- role*: string - どちら側の入力項目か
+  * owner 送信者側
+  * signer 承認側
+- order*: integer(int64) - 署名の順番。以下の順で表示
+  * ownerのアイテム群
+  * signer1のアイテム群
+  * signer2のアイテム群
+  …
+- required*: boolean - 必須項目かどうか
+- value: string - 入力された値
+  未入力の場合は無し。
+- user_id: integer(int64) - 文書入力項目入力ユーザーID
+  未入力の場合は無し。
+- seal_image_id: integer(int64) - マイ印鑑画像のID
+  入力項目が印鑑でなかった場合またはマイ印鑑機能を使用していない場合は無し。
+- item_id: integer(int64) - 入力項目のID
+- signatures: array[object] - 付与された配置座標一覧
 
 ## PATCH /v1/documents/{document_id}/document_items/{document_item_id} — 入力項目に値を設定
 
@@ -510,7 +567,7 @@ PATCH /v1/documents/{document_id} と同じ
 - required*: boolean - 必須項目かどうか
 - value: string - 入力された値
   未入力の場合は無し。
-- user_id: object - 文書入力項目入力ユーザーID
+- user_id: integer(int64) - 文書入力項目入力ユーザーID
   未入力の場合は無し。
 - seal_image_id: integer(int64) - マイ印鑑画像のID
   入力項目が印鑑でなかった場合またはマイ印鑑機能を使用していない場合は無し。
@@ -535,7 +592,7 @@ PATCH /v1/documents/{document_id} と同じ
 - required*: boolean - 必須項目かどうか
 - value: string - 入力された値
   未入力の場合は無し。
-- user_id: object - 文書入力項目入力ユーザーID
+- user_id: integer(int64) - 文書入力項目入力ユーザーID
   未入力の場合は無し。
 - seal_image_id: integer(int64) - マイ印鑑画像のID
   入力項目が印鑑でなかった場合またはマイ印鑑機能を使用していない場合は無し。
@@ -572,6 +629,13 @@ GET /v1/documents と同じ
 ### レスポンス
 
 追加成功
+- page*: integer - 配置するページ番号（1始まり）
+- x*: integer - X座標（左上端起点、右方向に正、Web画面ピクセル単位）
+- y*: integer - Y座標（左上端起点、下方向に正、Web画面ピクセル単位）
+- formatting: object - テキスト表示のフォーマット設定（SignatureFormatting に対応、input_type=string の場合のみ有効）
+- id*: integer(int64) - 配置座標ID
+- created_at*: string(date-time) - 作成日時
+- updated_at*: string(date-time) - 更新日時
 
 ## PATCH /v1/documents/{document_id}/document_items/{document_item_id}/signatures/{signature_id} — 配置座標の更新
 
@@ -584,6 +648,13 @@ POST /v1/documents/{document_id}/document_items/{document_item_id}/signatures �
 ### レスポンス
 
 更新成功
+- page*: integer - 配置するページ番号（1始まり）
+- x*: integer - X座標（左上端起点、右方向に正、Web画面ピクセル単位）
+- y*: integer - Y座標（左上端起点、下方向に正、Web画面ピクセル単位）
+- formatting: object - テキスト表示のフォーマット設定（SignatureFormatting に対応、input_type=string の場合のみ有効）
+- id*: integer(int64) - 配置座標ID
+- created_at*: string(date-time) - 作成日時
+- updated_at*: string(date-time) - 更新日時
 
 ## DELETE /v1/documents/{document_id}/document_items/{document_item_id}/signatures/{signature_id} — 配置座標の削除
 
@@ -592,6 +663,13 @@ POST /v1/documents/{document_id}/document_items/{document_item_id}/signatures �
 ### レスポンス
 
 削除成功
+- page*: integer - 配置するページ番号（1始まり）
+- x*: integer - X座標（左上端起点、右方向に正、Web画面ピクセル単位）
+- y*: integer - Y座標（左上端起点、下方向に正、Web画面ピクセル単位）
+- formatting: object - テキスト表示のフォーマット設定（SignatureFormatting に対応、input_type=string の場合のみ有効）
+- id*: integer(int64) - 配置座標ID
+- created_at*: string(date-time) - 作成日時
+- updated_at*: string(date-time) - 更新日時
 
 ## POST /v1/documents/{document_id}/face_to_face_extension — 対面契約の有効期限の延長
 
@@ -599,16 +677,16 @@ POST /v1/documents/{document_id}/document_items/{document_item_id}/signatures �
 
 ### リクエストボディ
 
-- sender_id: object - 送信するユーザーのID (APIクライアントを利用する場合は必須)
+- sender_id: integer(int64) - 送信するユーザーのID (APIクライアントを利用する場合は必須)
 
-  OAuthアクセストークンを利用する場合は、アクセストークンに紐づくユーザーと同じIDを指定してください。異なるIDを指定すると 403 エラーとなります。
+  OAuthアクセストークンを利用する場合は、アクセストークンに紐づくユーザーと同じIDを指定してください。異なるIDを指定すると 403 エラーとなります。 例: `1` (最小: 1)
 
 ### レスポンス
 
 延長成功
 - id*: integer(int64) - 文書ID
 - title*: string - 文書のタイトル
-- owner_id*: object - 文書作成者ユーザーID
+- owner_id*: integer(int64) - 文書作成者ユーザーID
 - status*: string - 文書のステータス
   * draft - 作成中
   * in_progress - 確認待ち
@@ -618,7 +696,7 @@ POST /v1/documents/{document_id}/document_items/{document_item_id}/signatures �
   * rejected - 却下
   * expired - 有効期限切れ
   * trashed - 削除済み
-- folder_id*: object - 文書が保存されているフォルダのID
+- folder_id*: integer(int64) - 文書が保存されているフォルダのID
 - folder_name*: string - 文書が保存されているフォルダの名前
 - items: array[object] - 入力項目 設定されていない場合は無し。
 - meta_items: array[object] - 検索項目 設定されていない場合は無し。
@@ -656,7 +734,7 @@ POST /v1/documents/{document_id}/document_items/{document_item_id}/signatures �
   すべてを置き換えるため、検索項目を追加したい場合は既存項目と追加したい項目を合わせてリクエストする。
   検索項目を削除する場合は既存項目から削除したい項目を除いたものをリクエストする。
   配列の要素:
-    - item_id*: object - 検索項目の項目ID
+    - item_id*: integer(int64) - 検索項目の項目ID
 
       チームで設定されているものの中から選んで指定する。
       検索項目以外に、文書に入力項目として設定する項目も指定可能。
@@ -682,7 +760,7 @@ GET /v1/documents と同じ
 
 ### リクエストボディ
 
-- sender_id: object - 送信するユーザーのID (APIクライアントを利用する場合は必須)
+- sender_id: integer(int64) - 送信するユーザーのID (APIクライアントを利用する場合は必須) 例: `1` (最小: 1)
 - message: string - メッセージ
   メッセージを送らない場合は無し。
 
@@ -698,7 +776,7 @@ POST /v1/documents/{document_id}/confirmations と同じ
 
 ### リクエストボディ
 
-- rejector_id: object - 文書の送信者となるユーザーのID
+- rejector_id: integer(int64) - 文書の送信者となるユーザーのID 例: `1` (最小: 1)
 - message: string - メッセージ
   メッセージを送らない場合は無し。
 
@@ -712,7 +790,7 @@ PATCH /v1/documents/{document_id} と同じ
 
 ### リクエストボディ
 
-- executor_id: object - 文書の送信者となるユーザーのID
+- executor_id: integer(int64) - 文書の送信者となるユーザーのID 例: `1` (最小: 1)
 - message: string - メッセージ
   メッセージを送らない場合は無し。
 
@@ -735,7 +813,7 @@ PATCH /v1/documents/{document_id} と同じ
 承認依頼キャンセル成功
 - id*: integer(int64) - 文書ID
 - title*: string - 文書のタイトル
-- owner_id*: object - 文書作成者ユーザーID
+- owner_id*: integer(int64) - 文書作成者ユーザーID
 - status*: string - 文書のステータス
   * draft - 作成中
   * in_progress - 確認待ち
@@ -745,7 +823,7 @@ PATCH /v1/documents/{document_id} と同じ
   * rejected - 却下
   * expired - 有効期限切れ
   * trashed - 削除済み
-- folder_id*: object - 文書が保存されているフォルダのID
+- folder_id*: integer(int64) - 文書が保存されているフォルダのID
 - folder_name*: string - 文書が保存されているフォルダの名前
 - items: array[object] - 入力項目 設定されていない場合は無し。
 - meta_items: array[object] - 検索項目 設定されていない場合は無し。

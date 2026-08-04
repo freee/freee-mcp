@@ -47,6 +47,7 @@ interface Parameter {
 }
 
 interface RequestBody {
+  $ref?: string;
   content?: {
     [mediaType: string]: {
       schema?: SchemaObject;
@@ -131,6 +132,9 @@ export interface OpenAPISchema {
     parameters?: {
       [key: string]: Parameter;
     };
+    requestBodies?: {
+      [key: string]: RequestBody;
+    };
   };
 }
 
@@ -184,28 +188,91 @@ function resolveParameterRef(
 }
 
 /**
- * Resolve a schema reference, handling both direct `$ref` and the
- * `allOf: [{ $ref: ... }]` wrapping that TypeSpec / OpenAPI emit when a
- * referenced enum/object needs an inline `description`.
+ * Resolve $ref to a request body in components.requestBodies
+ *
+ * 販売管理 API は requestBody を components.requestBodies に切り出しているため、
+ * 解決しないと `content` が読めずリクエストボディが丸ごと出力されない。
+ */
+function resolveRequestBody(
+  apiSchema: OpenAPISchema,
+  requestBody: RequestBody
+): RequestBody {
+  const prefix = "#/components/requestBodies/";
+  if (!requestBody.$ref?.startsWith(prefix)) return requestBody;
+  const name = requestBody.$ref.slice(prefix.length);
+  return apiSchema.components?.requestBodies?.[name] ?? requestBody;
+}
+
+// $ref / allOf を辿る深さの上限。循環参照で無限再帰しないための保険。
+const MAX_RESOLVE_DEPTH = 10;
+
+/**
+ * Merge an `allOf` composition into a single schema.
+ *
+ * 販売管理 API は共通項目を `allOf` で合成しているため、まとめないと
+ * `properties` が空になり中身が出力されない。properties は後勝ちで上書きし、
+ * required は和集合を取る。properties 以外の属性は先勝ち。
+ */
+function mergeAllOf(
+  apiSchema: OpenAPISchema,
+  members: SchemaObject[],
+  depth: number
+): SchemaObject {
+  const merged: SchemaObject = {};
+  const properties: { [key: string]: SchemaObject } = {};
+  const required: string[] = [];
+
+  for (const member of members) {
+    const resolved = resolveSchema(apiSchema, member, depth + 1);
+
+    Object.assign(properties, resolved.properties);
+    if (resolved.required) required.push(...resolved.required);
+
+    if (merged.type === undefined) merged.type = resolved.type;
+    if (merged.format === undefined) merged.format = resolved.format;
+    if (merged.description === undefined) merged.description = resolved.description;
+    if (merged.example === undefined) merged.example = resolved.example;
+    if (merged.enum === undefined) merged.enum = resolved.enum;
+    if (merged.items === undefined) merged.items = resolved.items;
+    if (merged.minimum === undefined) merged.minimum = resolved.minimum;
+    if (merged.maximum === undefined) merged.maximum = resolved.maximum;
+    if (merged.pattern === undefined) merged.pattern = resolved.pattern;
+  }
+
+  if (Object.keys(properties).length > 0) {
+    merged.properties = properties;
+    if (merged.type === undefined) merged.type = "object";
+  }
+  if (required.length > 0) {
+    merged.required = [...new Set(required)];
+  }
+
+  return merged;
+}
+
+/**
+ * Resolve a schema reference, handling direct `$ref` and `allOf` composition.
  *
  * Returns the original schema if no ref is present or cannot be resolved.
- * When the input was an `allOf` wrapper with a description, the wrapper's
- * description takes precedence over the referenced schema's description.
+ * `allOf` ラッパーが自前の description を持つ場合は、合成結果より優先する
+ * （referenced enum/object にインラインの説明を付ける TypeSpec の出力パターン）。
  */
 function resolveSchema(
   apiSchema: OpenAPISchema,
-  schema: SchemaObject
+  schema: SchemaObject,
+  depth: number = 0
 ): SchemaObject {
+  if (depth >= MAX_RESOLVE_DEPTH) return schema;
+
   if (schema.$ref) {
     const resolved = resolveRef(apiSchema, schema.$ref);
-    return resolved ?? schema;
+    return resolved ? resolveSchema(apiSchema, resolved, depth + 1) : schema;
   }
-  if (schema.allOf && schema.allOf.length === 1 && schema.allOf[0].$ref) {
-    const resolved = resolveRef(apiSchema, schema.allOf[0].$ref);
-    if (!resolved) return schema;
+  if (schema.allOf && schema.allOf.length > 0) {
+    const merged = mergeAllOf(apiSchema, schema.allOf, depth);
     return {
-      ...resolved,
-      description: schema.description ?? resolved.description,
+      ...merged,
+      description: schema.description ?? merged.description,
     };
   }
   return schema;
@@ -588,9 +655,10 @@ export function buildEndpointsMarkdown(
         // 「任意」と書くと実態と食い違うため、明示的に true のときだけ付ける。
         // heading は重複判定キーにも入るので、同じ schema を使っていても
         // required が異なるエンドポイントは「◯◯ と同じ」に潰れない。
+        const resolvedBody = resolveRequestBody(schema, requestBody);
         endpointsMd += emitSection(
-          requestBody.required ? "リクエストボディ*" : "リクエストボディ",
-          formatRequestBody(schema, requestBody),
+          resolvedBody.required ? "リクエストボディ*" : "リクエストボディ",
+          formatRequestBody(schema, resolvedBody),
           endpointRef
         );
       }

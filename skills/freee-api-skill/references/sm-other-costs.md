@@ -31,6 +31,14 @@ start_amount_excluding_tax : 金額(税抜)の絞り込み下限 end_amount_excl
 定義
 必須項目 company_id : 事業所ID amount_excluding_tax : 金額(税抜) incurred_date : 発生日 任意項目 business_id : 案件ID memo : メモ
 
+### リクエストボディ
+
+- company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- business_id: string - 案件ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- amount_excluding_tax*: integer(int64) - 税抜金額 例: `10000` (最小: -999999999999, 最大: 999999999999)
+- incurred_date*: string(date) - 発生日 例: `2025-04-01`
+- memo: string - メモ 例: `その他原価メモ`
+
 ## PATCH /other_costs/{id} — その他原価更新
 
 概要 指定されたIDのその他原価を更新します。 送信したフィールドのみが更新され、送信しなかったフィールドは変更されません。
@@ -44,6 +52,14 @@ freee会計の取引明細インポートから登録されたその他原価は
 ### パラメータ
 
 - id* (path): string - その他原価ID
+
+### リクエストボディ
+
+- company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- business_id: string - 案件ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- amount_excluding_tax: integer(int64) - 税抜金額 例: `10000` (最小: -999999999999, 最大: 999999999999)
+- incurred_date: string(date) - 発生日 例: `2025-04-01`
+- memo: string - メモ 例: `その他原価メモ`
 
 ## GET /other_costs/{id} — その他原価詳細取得
 
@@ -78,6 +94,10 @@ freee会計の取引明細インポートから登録されたその他原価は
 
 PATCH /other_costs/{id} と同じ
 
+### リクエストボディ
+
+- company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+
 ## POST /other_costs/{id}/cancellation — その他原価取消
 
 概要 指定されたIDのその他原価を取り消します。
@@ -85,3 +105,7 @@ PATCH /other_costs/{id} と同じ
 ### パラメータ
 
 PATCH /other_costs/{id} と同じ
+
+### リクエストボディ
+
+POST /other_costs/{id}/restoration と同じ

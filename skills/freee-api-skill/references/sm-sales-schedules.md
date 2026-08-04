@@ -48,6 +48,29 @@ periodic_sales_id : 定期売上IDで絞込 start_scheduled_date : 売上予定�
 
 - id* (path): string - 売上予定ID
 
+### リクエストボディ*
+
+- company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- customer_id: integer(int64) - 顧客の取引先ID 例: `1001` (最小: 1, 最大: 9223372036854776000)
+- subject: string - 件名 例: `サンプル案件売上の件`
+- customer_order_no: string - 顧客注文No. 例: `C-PO-20211212-001`
+- scheduled_date: string(date) - 売上予定日 例: `2025-04-30`
+- billing_creating_method_type: string - 請求作成方法区分 (自動作成: automatically, 手動作成: manually) (選択肢: automatically, manually) 例: `automatically`
+- bills_on: string(date) - 請求予定日 例: `2025-05-31`
+- billing_partner_id: integer(int64) - 請求先の取引先ID 例: `1002` (最小: 1, 最大: 9223372036854776000)
+- invoice_template_id: integer(int64) - 請求書テンプレートID 例: `10002` (最小: 1, 最大: 9223372036854776000)
+- invoice_subject: string - 請求書件名 例: `サンプル案件売上の件`
+- invoice_note: string - 請求書の備考欄に掲載する内容 例: `お振込期限は月末までとなります`
+- collects_on: string(date) - 入金予定日 例: `2025-06-30`
+- collecting_partner_id: integer(int64) - 入金元の取引先ID 例: `1003` (最小: 1, 最大: 9223372036854776000)
+- collection_method_type: string - 入金方法 (振込: transfer, 現金: cash, 手形: bill_payable, 振替: direct_debit) (選択肢: transfer, cash, bill_payable, direct_debit) 例: `transfer`
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- reporting_section_id: integer(int64) - 担当部門ID
+
+  ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
+- internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
+- lines: array[object] - 売上予定明細リスト（指定した場合、既存の明細は全て削除され、新しい明細に置き換えられます）
+
 ## DELETE /sales_schedules/{id} — 売上予定削除
 
 指定されたIDの売上予定を削除します。
@@ -63,3 +86,7 @@ GET /sales_schedules/{id} と同じ
 ### パラメータ
 
 PATCH /sales_schedules/{id} と同じ
+
+### リクエストボディ
+
+- company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
