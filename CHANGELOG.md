@@ -1,5 +1,14 @@
 # freee-mcp
 
+## 0.32.2
+
+### Patch Changes
+
+- [`c90a69c`](https://github.com/freee/freee-mcp/commit/c90a69c08b35dad0e0141c25b3f23260e9992bde): invoice-operations レシピに支払通知書（/payment_notices）の操作を追記
+
+  - パス一覧・作成例・取消/復元・Web 確認 URL・リファレンスに支払通知書を追加
+  - 支払通知書はメモタグ（lines[].tag_ids）非対応であることを明記
+
 ## 0.32.1
 
 ### Patch Changes
