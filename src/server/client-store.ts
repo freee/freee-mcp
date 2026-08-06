@@ -9,7 +9,26 @@ import { RedisUnavailableError, withRedis } from './errors.js';
 import { getLogger } from './logger.js';
 
 const CIMD_CACHE_TTL_SECONDS = 60 * 60; // 1 hour
+// The registration record's lifetime is the only clock: /register issues
+// non-expiring secrets (clientSecretExpirySeconds: 0 in http-server.ts), so a
+// credential stays usable for exactly as long as the record it belongs to.
 const CLIENT_TTL_SECONDS = 365 * 24 * 60 * 60; // 1 year
+
+// RFC 7591 §3.2.1: client_secret_expires_at = 0 means the secret never expires,
+// and it is absent for public clients (token_endpoint_auth_method=none). Both
+// cases are "not expired".
+//
+// This is exactly the SDK's authenticateClient check, so the Basic-auth adapter
+// and the SDK's body-credential path agree to the second. It still matters after
+// secrets became non-expiring: registrations issued earlier carry a finite
+// 30-day expiry, and this is what lets those recover.
+export function isClientSecretExpired(
+  client: Pick<OAuthClientInformationFull, 'client_secret_expires_at'>,
+  nowSeconds: number,
+): boolean {
+  if (!client.client_secret_expires_at) return false;
+  return client.client_secret_expires_at < nowSeconds;
+}
 
 // Stable fingerprint over RFC 7591 client metadata fields. Vendor-fronted
 // clients (e.g. claude.ai) repeat the same metadata for every user, so a
@@ -88,13 +107,34 @@ export class RedisClientStore implements OAuthRegisteredClientsStore {
   // Look up an existing DCR client by metadata fingerprint. Used by the
   // /register dedup middleware to skip rate-limit accounting when an
   // identical metadata payload arrives again from the same vendor.
+  //
+  // A registration whose client_secret has expired counts as a miss: handing it
+  // back would fail client authentication on every later /token call, and since
+  // re-registration replays the same metadata (hence the same fingerprint), the
+  // client would loop on the dead credential with no way to recover. Reporting
+  // a miss lets /register mint a fresh registration instead.
   async findClientByFingerprint(
     fingerprint: string,
   ): Promise<OAuthClientInformationFull | undefined> {
     const fpKey = `${this.prefix}:client-fp:${fingerprint}`;
     const clientId = await withRedis('findClientByFingerprint:lookup', () => this.redis.get(fpKey));
     if (!clientId) return undefined;
-    return this.getDcrClient(clientId);
+
+    const client = await this.getDcrClient(clientId);
+    if (!client) return undefined;
+
+    if (isClientSecretExpired(client, Math.floor(Date.now() / 1000))) {
+      // Drop the stale pointer now rather than waiting for registerClient to
+      // overwrite it: the caller may still be rejected by the rate limiter, and
+      // a fingerprint index aimed at a dead secret is never useful again.
+      getLogger().info(
+        { clientId },
+        'Fingerprint hit had an expired client_secret, re-registering',
+      );
+      await withRedis('findClientByFingerprint:expired-cleanup', () => this.redis.del(fpKey));
+      return undefined;
+    }
+    return client;
   }
 
   private async getCimdClient(

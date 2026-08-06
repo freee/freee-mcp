@@ -252,10 +252,20 @@ export async function startHttpServer(options?: {
       resourceServerUrl: mcpResourceUrl,
       scopesSupported: ['mcp:read', 'mcp:write'],
       resourceName: 'freee MCP Server',
-      // Disable the SDK's built-in /register limiter (1h/20, in-memory). The
-      // freee-mcp Redis-backed limiter mounted in setupRateLimiting() is the
-      // single source of truth for /register throttling.
-      clientRegistrationOptions: { rateLimit: false },
+      clientRegistrationOptions: {
+        // Disable the SDK's built-in /register limiter (1h/20, in-memory). The
+        // freee-mcp Redis-backed limiter mounted in setupRateLimiting() is the
+        // single source of truth for /register throttling.
+        rateLimit: false,
+        // 0 issues non-expiring secrets (client_secret_expires_at: 0), leaving
+        // the stored registration's TTL as the only lifetime. The SDK default of
+        // 30 days is shorter than both that TTL (1 year) and
+        // REFRESH_TOKEN_TTL_SECONDS (90 days), so the secret died while the
+        // registration was still live and still being handed out by the
+        // fingerprint dedup -- breaking every user of a vendor-fronted client at
+        // /token, since client authentication is evaluated before the grant.
+        clientSecretExpirySeconds: 0,
+      },
     }),
   );
 

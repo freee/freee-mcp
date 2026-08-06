@@ -4,7 +4,11 @@ import type {
 } from '@modelcontextprotocol/sdk/shared/auth.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CIMDFetcher } from './cimd-fetcher.js';
-import { computeClientFingerprint, RedisClientStore } from './client-store.js';
+import {
+  computeClientFingerprint,
+  isClientSecretExpired,
+  RedisClientStore,
+} from './client-store.js';
 import { RedisUnavailableError } from './errors.js';
 
 function createMockRedis() {
@@ -245,6 +249,92 @@ describe('RedisClientStore', () => {
       const found = await store.findClientByFingerprint('deadbeef'.repeat(8));
       expect(found).toBeUndefined();
     });
+
+    describe('expired client_secret', () => {
+      const nowSec = () => Math.floor(Date.now() / 1000);
+
+      // Registration metadata is identical on re-registration, so the
+      // fingerprint is identical too. Without an expiry check the dedup hands
+      // the same dead secret back forever and the client cannot recover.
+      const confidentialClient = (expiresAt: number | undefined): OAuthClientInformationFull =>
+        ({
+          client_id: 'cid-1',
+          client_id_issued_at: 1700000000,
+          client_secret: 'sec',
+          client_secret_expires_at: expiresAt,
+          redirect_uris: ['https://app.example.com/cb'],
+          client_name: 'Example',
+          token_endpoint_auth_method: 'client_secret_basic',
+        }) as OAuthClientInformationFull;
+
+      it('reports a miss and drops the fingerprint index when the secret expired', async () => {
+        const store = new RedisClientStore({ redis: redis as never });
+        const client = confidentialClient(nowSec() - 60);
+        await store.registerClient(client);
+        const fp = computeClientFingerprint(client);
+
+        expect(await store.findClientByFingerprint(fp)).toBeUndefined();
+        expect(redis._store.has(`freee-mcp:oauth:client-fp:${fp}`)).toBe(false);
+        // The registration itself survives so a client still holding the dead
+        // secret gets `Client secret has expired` rather than `Invalid client_id`.
+        expect(redis._store.has('freee-mcp:oauth:client:cid-1')).toBe(true);
+      });
+
+      // Legacy registrations issued before secrets became non-expiring still
+      // carry a finite expiry; those must keep working until it actually passes.
+      it('returns the client while a finite secret is still valid', async () => {
+        const store = new RedisClientStore({ redis: redis as never });
+        const client = confidentialClient(nowSec() + 60 * 60);
+        await store.registerClient(client);
+
+        const found = await store.findClientByFingerprint(computeClientFingerprint(client));
+        expect(found?.client_id).toBe('cid-1');
+      });
+
+      it('returns the client when client_secret_expires_at is 0 (never expires)', async () => {
+        const store = new RedisClientStore({ redis: redis as never });
+        const client = confidentialClient(0);
+        await store.registerClient(client);
+
+        const found = await store.findClientByFingerprint(computeClientFingerprint(client));
+        expect(found?.client_id).toBe('cid-1');
+      });
+
+      it('returns public clients, which carry no secret to expire', async () => {
+        const store = new RedisClientStore({ redis: redis as never });
+        const client = {
+          client_id: 'cid-public',
+          client_id_issued_at: 1700000000,
+          redirect_uris: ['https://app.example.com/cb'],
+          client_name: 'Example',
+          token_endpoint_auth_method: 'none',
+        } as OAuthClientInformationFull;
+        await store.registerClient(client);
+
+        const found = await store.findClientByFingerprint(computeClientFingerprint(client));
+        expect(found?.client_id).toBe('cid-public');
+      });
+    });
+  });
+});
+
+describe('isClientSecretExpired', () => {
+  it('treats an absent client_secret_expires_at as never expiring', () => {
+    expect(isClientSecretExpired({}, 1_000_000)).toBe(false);
+  });
+
+  it('treats client_secret_expires_at = 0 as never expiring (RFC 7591)', () => {
+    expect(isClientSecretExpired({ client_secret_expires_at: 0 }, 1_000_000)).toBe(false);
+  });
+
+  it('matches the SDK authenticateClient boundary exactly', () => {
+    // SDK: expires_at < now. Equal means still valid.
+    expect(isClientSecretExpired({ client_secret_expires_at: 1_000_000 }, 1_000_000)).toBe(false);
+    expect(isClientSecretExpired({ client_secret_expires_at: 999_999 }, 1_000_000)).toBe(true);
+  });
+
+  it('reports a future expiry as still valid', () => {
+    expect(isClientSecretExpired({ client_secret_expires_at: 1_000_001 }, 1_000_000)).toBe(false);
   });
 });
 
