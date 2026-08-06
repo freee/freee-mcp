@@ -1,5 +1,66 @@
 # freee-mcp
 
+## 0.32.2
+
+### Patch Changes
+
+- [`c90a69c`](https://github.com/freee/freee-mcp/commit/c90a69c08b35dad0e0141c25b3f23260e9992bde): invoice-operations レシピに支払通知書（/payment_notices）の操作を追記
+
+  - パス一覧・作成例・取消/復元・Web 確認 URL・リファレンスに支払通知書を追加
+  - 支払通知書はメモタグ（lines[].tag_ids）非対応であることを明記
+
+## 0.32.1
+
+### Patch Changes
+
+- [`5520400`](https://github.com/freee/freee-mcp/commit/552040061cb9831f009800a1fcf15e5329b544af): [工数管理] pm-operations レシピの利用可能なパス表に不足していたエンドポイントを追加 ([#241](https://github.com/freee/freee-mcp/pull/241))
+
+  - `/workload_tag_groups`（工数タグ）
+  - `/labor_budgets`（人件費予算一覧）
+  - `/labor_budgets/projects/{project_id}/people/{person_id}/year_month/{year_month}`（人件費予算の更新）
+
+- [`848761b`](https://github.com/freee/freee-mcp/commit/848761b15d623c6629a81294fee15a8e14fc51e6): OpenAPI スキーマを最新版に同期 ( 3 files changed, 17348 insertions(+), 14627 deletions(-))
+
+## 0.32.0
+
+### Minor Changes
+
+- [`ae0ba95`](https://github.com/freee/freee-mcp/commit/ae0ba95057b944208d9bf740f9da5db0f6109056): freee サーベイ API (`service: "survey"`) をサポートしました。 ([#233](https://github.com/freee/freee-mcp/pull/233))
+
+  - サーベイ企画一覧・実施回一覧・実施回詳細（回答対象者含む）の取得が可能です
+  - 現時点では参照系（GET）のみで、作成・更新・削除には対応していません
+  - サーベイ API は freee-mcp（リモート版）でのみ利用できます。ローカルモードでは呼び出せません
+
+### Patch Changes
+
+- [`2145c35`](https://github.com/freee/freee-mcp/commit/2145c35e990e776f03a041f53a82875759a866f1): Remote モードの CORS 設定に MCP のリクエストメタデータヘッダーを追加 ([#237](https://github.com/freee/freee-mcp/pull/237))
+
+  - `Mcp-Protocol-Version`（spec 2025-06-18 以降必須）が preflight で拒否され、ブラウザ経由のクライアントが接続できない問題を修正
+  - spec 2026-07-28 で Streamable HTTP の POST に必須となる `Mcp-Method` / `Mcp-Name` も先行して許可
+  - 対象は freee MCP サーバーと freee サイン MCP サーバーの両方
+
+- [`3e0cd28`](https://github.com/freee/freee-mcp/commit/3e0cd28f4ba0e11d19b76db817dd271df13017a3): 販売(sm)の前受金 API リリースに追従し、レシピ・リファレンス・スキーマを同期 ([#236](https://github.com/freee/freee-mcp/pull/236))
+
+  - 前受金(`/advance_receipts`)の一覧・詳細・取消・取崩・定期取崩を追加
+  - 売上予定(`/sales_schedules`)・定期売上(`/periodic_sales`)・発注(`/purchase_orders`)・仕入(`/procurements`)をパス一覧に追記
+  - 各リソースの取消・復元・ステータス変更のサブパスを網羅し、仕入登録の使用例を追加
+
+- [`d6b5021`](https://github.com/freee/freee-mcp/commit/d6b502184a7bbd11d3ad96dc18c8e439ff0cedce): OpenAPI スキーマを最新版に同期 ( 9 files changed, 3247 insertions(+), 289 deletions(-)) ([#229](https://github.com/freee/freee-mcp/pull/229))
+
+## 0.31.0
+
+### Minor Changes
+
+- [`1cf7eef`](https://github.com/freee/freee-mcp/commit/1cf7eef0500181dbe15fdbd47b30a8e35577f850): サインのファイルアップロード対応とガイド整備 ([#210](https://github.com/freee/freee-mcp/pull/210))
+
+  - sign_file_upload ツールを追加（ローカルファイルから文書を作成）
+  - サイン文書作成のレシピを追加（エンドポイントの使い分け・uploader_id の取得・大容量ファイルの注意）
+  - SIGN-GUIDE.md に API ベース URL と大容量ファイルの送信制限を追記
+
+### Patch Changes
+
+- [`b97f8bc`](https://github.com/freee/freee-mcp/commit/b97f8bc42ec2c5f659882931584435a68b2adca3): OpenAPI スキーマを最新版に同期 ( 11 files changed, 9567 insertions(+), 5321 deletions(-)) ([#223](https://github.com/freee/freee-mcp/pull/223))
+
 ## 0.30.4
 
 ### Patch Changes

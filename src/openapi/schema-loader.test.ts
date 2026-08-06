@@ -3,13 +3,22 @@ import {
   _resetApiConfigs,
   API_CONFIGS,
   type ApiType,
+  isMcpOnlyPath,
   listAllAvailablePaths,
   validatePathForService,
 } from './schema-loader.js';
 
 describe('schema-loader', () => {
   describe('API_CONFIGS', () => {
-    const apiTypes: ApiType[] = ['accounting', 'hr', 'invoice', 'pm', 'sm', 'it_management'];
+    const apiTypes: ApiType[] = [
+      'accounting',
+      'hr',
+      'invoice',
+      'pm',
+      'sm',
+      'it_management',
+      'survey',
+    ];
 
     const expectedPrefixes: Record<ApiType, string> = {
       accounting: 'accounting',
@@ -18,6 +27,7 @@ describe('schema-loader', () => {
       pm: 'pm',
       sm: 'sm',
       it_management: 'it-management',
+      survey: 'survey',
     };
 
     it.each(apiTypes)('should return config for %s API', (apiType) => {
@@ -87,6 +97,14 @@ describe('schema-loader', () => {
 
       expect(result.isValid).toBe(true);
       expect(result.apiType).toBe('it_management');
+      expect(result.baseUrl).toBe('https://api.freee.co.jp');
+    });
+
+    it('should validate survey API paths', () => {
+      const result = validatePathForService('GET', '/hub/survey/base_surveys', 'survey');
+
+      expect(result.isValid).toBe(true);
+      expect(result.apiType).toBe('survey');
       expect(result.baseUrl).toBe('https://api.freee.co.jp');
     });
 
@@ -199,6 +217,26 @@ describe('schema-loader', () => {
       const paths = listAllAvailablePaths();
 
       expect(paths).toContain('/api/1/deals');
+    });
+  });
+
+  describe('isMcpOnlyPath', () => {
+    it('should return true for mcp-only survey paths', () => {
+      expect(isMcpOnlyPath('/hub/survey/base_surveys')).toBe(true);
+    });
+
+    it('should match mcp-only paths with path parameters', () => {
+      expect(isMcpOnlyPath('/hub/survey/surveys/10')).toBe(true);
+      expect(isMcpOnlyPath('/hub/survey/base_surveys/1/surveys')).toBe(true);
+    });
+
+    it('should return false for non-mcp-only paths', () => {
+      expect(isMcpOnlyPath('/api/1/deals')).toBe(false);
+      expect(isMcpOnlyPath('/hub/it_management/members')).toBe(false);
+    });
+
+    it('should not match query-smuggling attempts against mcp-only paths', () => {
+      expect(isMcpOnlyPath('/hub/survey/surveys/10?company_id=999')).toBe(false);
     });
   });
 });

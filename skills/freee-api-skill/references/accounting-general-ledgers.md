@@ -21,7 +21,7 @@
 | end_date | query | はい | string(date) | 期間で絞込：終了日 (yyyy-mm-dd) |
 | account_item_name | query | いいえ | string | 勘定科目名で絞込 |
 | tax_name | query | いいえ | string | 税区分名で絞込 (選択肢: 課税, 対象外, 非課税, 不課税, 輸出等, 未選択, 課税売上, 輸出売上, 非課売上, 非資売上, 有価譲渡, 対外売上, 課税売返, 輸出売返, 非課売返, 非資売返, 課税売倒, 輸出売倒, 非課売倒, 非資売倒, 課税売回, 課対輸本, 非対輸本, 共対輸本, 課対輸税, 非対輸税, 共対輸税, 地消貨割, 課対仕入, 非対仕入, 共対仕入, 非課仕入, 対外仕入, 課対仕返, 非対仕返, 共対仕返, 非課仕返, 課売上一, 課売上二, 課売上三, 課売上四, 課売上五, 課売上六, 課対輸返, 非対輸返, 共対輸返, 課売返一, 課売返二, 課売返三, 課売返四, 課売返五, 課売返六) |
-| tax_rate | query | いいえ | string | 税率で絞込 (選択肢: tax_rate_5, tax_rate_8, tax_rate_10, tax_rate_r8, tax_rate_5_exempt_80, tax_rate_5_exempt_50, tax_rate_8_exempt_80, tax_rate_8_exempt_50, tax_rate_10_exempt_80, tax_rate_10_exempt_50, tax_rate_r8_exempt_80, tax_rate_r8_exempt_50) |
+| tax_rate | query | いいえ | string | 税率で絞込 (選択肢: tax_rate_5, tax_rate_8, tax_rate_10, tax_rate_r8, tax_rate_5_exempt_80, tax_rate_5_exempt_70, tax_rate_5_exempt_50, tax_rate_5_exempt_30, tax_rate_8_exempt_80, tax_rate_8_exempt_70, tax_rate_8_exempt_50, tax_rate_8_exempt_30, tax_rate_10_exempt_80, tax_rate_10_exempt_70, tax_rate_10_exempt_50, tax_rate_10_exempt_30, tax_rate_r8_exempt_80, tax_rate_r8_exempt_70, tax_rate_r8_exempt_50, tax_rate_r8_exempt_30) |
 | adjustment | query | いいえ | string | 決算整理仕訳で絞込（決算整理仕訳のみ：only, 決算整理仕訳以外：without）。指定されない場合、決算整理仕訳を含む金額が返却されます。 (選択肢: only, without) |
 | cost_allocation | query | いいえ | string | 配賦仕訳で絞込（配賦仕訳のみ：only,配賦仕訳以外：without）。指定されない場合、配賦仕訳を含む金額が返却されます。 (選択肢: only, without) |
 | partner_name | query | いいえ | string | 取引先で絞込（未選択を指定すると、取引先が未選択で絞り込めます） |

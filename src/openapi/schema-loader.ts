@@ -46,7 +46,7 @@ function loadSchema(filename: string): MinimalSchema {
   return result.data;
 }
 
-export type ApiType = 'accounting' | 'hr' | 'invoice' | 'pm' | 'sm' | 'it_management';
+export type ApiType = 'accounting' | 'hr' | 'invoice' | 'pm' | 'sm' | 'it_management' | 'survey';
 
 interface ApiConfig {
   schema: MinimalSchema;
@@ -99,6 +99,15 @@ const API_METADATA: Record<ApiType, ApiMetadata> = {
     baseUrl: 'https://api.freee.co.jp',
     prefix: 'it-management',
     name: 'freeeIT管理 API',
+  },
+  // freee サーベイ。スキーマは mcp-only 集約ファイル（mcponly.json）を使う。
+  // 現状 mcponly は survey のみのため一致する。survey のエンドポイントは
+  // freee-mcp（リモート版）限定で、stdio モードでは isMcpOnlyPath で弾かれる。
+  survey: {
+    schemaFile: 'mcponly.json',
+    baseUrl: 'https://api.freee.co.jp',
+    prefix: 'survey',
+    name: 'freee-survey API',
   },
 };
 
@@ -174,6 +183,43 @@ export function _resetApiConfigs(): void {
   }
   _pathRegexCache.clear();
   _cachedPathList = null;
+  _mcpOnlyPaths = null;
+}
+
+// mcp-only（freee-mcp リモート版でのみ利用可）なパスの集合。
+// 集約スキーマ mcponly.json 由来のパスをそのまま採用する（provenance = mcponly.yml）。
+// service ではなくパス単位で判定するため、どのサービス経由でも横断的に効く。
+let _mcpOnlyPaths: string[] | null = null;
+
+function getMcpOnlyPaths(): string[] {
+  if (_mcpOnlyPaths === null) {
+    try {
+      _mcpOnlyPaths = Object.keys(loadSchema('mcponly.json').paths);
+    } catch {
+      // mcponly スキーマが無い環境（未同期など）では mcp-only 判定を無効化する。
+      _mcpOnlyPaths = [];
+    }
+  }
+  return _mcpOnlyPaths;
+}
+
+/**
+ * Whether a concrete request path is an mcp-only endpoint (freee-mcp リモート版 限定).
+ *
+ * Matches against the aggregated mcponly schema, honoring path parameters
+ * (e.g. `/hub/survey/surveys/{survey_id}`). Used to block such calls in stdio
+ * (local) mode and to steer users toward freee-mcp（リモート版）.
+ */
+export function isMcpOnlyPath(path: string): boolean {
+  for (const schemaPath of getMcpOnlyPaths()) {
+    if (schemaPath === path) {
+      return true;
+    }
+    if (getPathRegex(schemaPath).test(path)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export const API_CONFIGS: Record<ApiType, ApiConfig> = new Proxy({} as Record<ApiType, ApiConfig>, {

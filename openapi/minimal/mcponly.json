@@ -1,0 +1,22 @@
+{
+  "paths": {
+    "/hub/survey/base_surveys": {
+      "get": {
+        "summary": "サーベイ企画一覧取得（リモート版freee-mcp限定）",
+        "description": "サーベイ企画の一覧を取得します。"
+      }
+    },
+    "/hub/survey/base_surveys/{base_survey_id}/surveys": {
+      "get": {
+        "summary": "実施回一覧取得（リモート版freee-mcp限定）",
+        "description": "指定したサーベイ企画に紐づく実施回の一覧を取得します。"
+      }
+    },
+    "/hub/survey/surveys/{survey_id}": {
+      "get": {
+        "summary": "実施回詳細取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の詳細と回答対象者を取得します。"
+      }
+    }
+  }
+}

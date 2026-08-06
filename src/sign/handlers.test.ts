@@ -30,10 +30,22 @@ vi.mock('../auth/server.js', () => ({
   getActualRedirectUri: (): string => 'http://127.0.0.1:54321/callback',
 }));
 
+vi.mock('./file-upload-tool.js', () => ({
+  addSignFileUploadTool: vi.fn(),
+}));
+
+const { addSignFileUploadTool } = await import('./file-upload-tool.js');
+
 describe('sign/handlers', () => {
   it('createSignMcpServer が sign_* ツールを登録する', () => {
     const server = createSignMcpServer();
     expect(server).toBeDefined();
+  });
+
+  it('ローカル (stdio) モードで sign_file_upload を登録する', () => {
+    vi.mocked(addSignFileUploadTool).mockClear();
+    createSignMcpServer();
+    expect(addSignFileUploadTool).toHaveBeenCalledTimes(1);
   });
 
   it('Sign server instructions が Sign API 固有の説明文を含む', async () => {
@@ -131,6 +143,15 @@ describe('sign/handlers', () => {
         destructiveHint: true,
         idempotentHint: true,
       });
+    });
+
+    it('sign_api_post の説明が sign_file_upload へ誘導する', () => {
+      addSignApiTools(mockServer);
+
+      const config = mockTool.mock.calls.find(
+        (call: unknown[]) => call[0] === 'sign_api_post',
+      )?.[1] as { description?: string } | undefined;
+      expect(config?.description).toContain('sign_file_upload');
     });
   });
 });

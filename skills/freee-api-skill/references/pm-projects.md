@@ -16,7 +16,8 @@ Projectsの操作
 
 - company_id (必須): integer(int32) - 事業所ID 例: `1`
 - name (必須): string - プロジェクト名
-- code (必須): string - プロジェクトコード
+- code (任意): string - プロジェクトコード
+案件マスタの自動採番機能が利用可能な場合、指定は任意です。
 - description (任意): string - プロジェクト概要
 - from_date (必須): string - プロジェクト開始日
 - thru_date (必須): string - プロジェクト終了日
@@ -40,28 +41,19 @@ Projectsの操作
     - use_standard_unit_cost (任意): boolean - 標準の従業員単価マスタの単価を利用（デフォルト：false） 例: `true`
 - orderer_ids (任意): array[integer] - 発注元として指定する取引先IDの配列
 - contractor_ids (任意): array[integer] - 発注先として指定する取引先IDの配列
+- workload_tag_groups (任意): array[object] - プロジェクトに指定可能な工数タグリスト
+  配列の要素:
+    - tag_group_id (必須): integer - 工数タググループID 例: `1`
+    - required (必須): boolean - 工数登録時の入力を必須とするか 例: `true`
+    - tag_ids (必須): array[integer] - 当該タググループ配下で指定可能とする工数タグIDの配列（1件以上必要）
+- common_business_id (任意): string - 案件マスタの案件ID（ULID形式）
+指定した場合は既存案件にプロジェクトを紐付けます。指定しない場合は新規案件を作成します。 例: `01KF06JSKZ8TXZZVG7842F0VEM`
 
 ### レスポンス (200)
 
 成功時
 
 - project (必須): object - プロジェクト
-  - id (任意): integer - プロジェクトID 例: `1`
-  - name (任意): string - プロジェクト名 例: `PJ-AAA`
-  - code (任意): string - プロジェクトコード 例: `PJ-AAA`
-  - description (任意): string - プロジェクト概要 例: `プロジェクトの概要`
-  - manager (任意): object - プロジェクトマネージャー
-  - color (任意): string - カラー 例: `#c8790f`
-  - from_date (任意): string - 期間from 例: `2021-01-01`
-  - thru_date (任意): string - 期間to 例: `2021-12-31`
-  - publish_to_employee (任意): boolean - 従業員への公開設定 例: `true`
-  - assignment_url_enabled (任意): boolean - 招待リンク 例: `false`
-  - operational_status (任意): string - 運用ステータス 例: `in_progress`
-  - sales_order_status (任意): string - 受注ステータス 例: `受注済み`
-  - members (任意): array[object] - プロジェクトメンバー
-  - orderers (任意): array[object] - 発注元
-  - contractors (任意): array[object] - 発注先
-  - balance (任意): object - 収支管理詳細
 
 ### GET /projects
 
@@ -94,24 +86,6 @@ Projectsの操作
   - total (任意): integer - 取得件数合計 例: `10`
   - by_status (任意): object
 - projects (必須): array[object]
-  配列の要素:
-    - id (任意): integer - プロジェクトID 例: `1`
-    - name (任意): string - プロジェクト名 例: `PJ-AAA`
-    - code (任意): string - プロジェクトコード 例: `PJ-AAA`
-    - description (任意): string - プロジェクト概要 例: `プロジェクトの概要`
-    - manager (任意): object - プロジェクトマネージャー
-    - color (任意): string - カラー 例: `#c8790f`
-    - from_date (任意): string - 期間from 例: `2021-01-01`
-    - thru_date (任意): string - 期間to 例: `2021-12-31`
-    - publish_to_employee (任意): boolean - 従業員への公開設定 例: `true`
-    - assignment_url_enabled (任意): boolean - 招待リンク 例: `false`
-    - operational_status (任意): string - 運用ステータス 例: `in_progress`
-    - sales_order_status (任意): string - 受注ステータス 例: `受注済み`
-    - members (任意): array[object] - プロジェクトメンバー
-    - orderers (任意): array[object] - 発注元
-    - contractors (任意): array[object] - 発注先
-    - project_tags (任意): array[object] - プロジェクトタグ
-    - workload_tag_groups (任意): array[object] - プロジェクトで使える工数タグのグループ
 
 ### GET /projects/{id}
 

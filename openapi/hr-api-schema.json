@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "freee人事労務 API",
-    "description": "\n<p>freee人事労務のAPI仕様です。</p>\n\n<hr />\n\n<h2 id=\"start_guide\">スタートガイド</h2>\n\n<p>freee API開発がはじめての方は<a href=\"https://developer.freee.co.jp/getting-started\">freee API スタートガイド</a>を参照してください。</p>\n\n<hr />\n<h2 id=\"specification\">仕様</h2>\n\n<h3 id=\"api_endpoint\">APIエンドポイント</h3>\n\n<p>https://api.freee.co.jp/hr</p>\n\n<h3 id=\"about_authorize\">認証について</h3>\n\n<p>OAuth2.0を利用します。<a href=\"https://developer.freee.co.jp/reference/#%e8%aa%8d%e8%a8%bc\" target=\"_blank\">詳細はリファレンスの認証に関する記載を参照してください。</a></p>\n\n<h3 id=\"data_format\">データフォーマット</h3>\n\n<p>リクエスト、レスポンスともにJSON形式をサポートしていますが、詳細は、API毎の説明欄（application/jsonなど）を確認してください。</p>\n\n<h3 id=\"compatibility\">後方互換性ありの変更</h3>\n\n<p>freeeでは、APIを改善していくために以下のような変更は後方互換性ありとして通知なく変更を入れることがあります。アプリケーション実装者は以下を踏まえて開発を行ってください。</p>\n\n<ul>\n<li>新しいAPIリソース・エンドポイントの追加</li>\n<li>既存のAPIに対して必須ではない新しいリクエストパラメータの追加</li>\n<li>既存のAPIレスポンスに対する新しいプロパティの追加</li>\n<li>既存のAPIレスポンスに対するプロパティの順番の入れ変え</li>\n<li>keyとなっているidやcodeの長さの変更（長くする）</li>\n<li>エラーメッセージの変更</li>\n</ul>\n\n<h3 id=\"common_response_header\">共通レスポンスヘッダー</h3>\n\n<p>すべてのAPIのレスポンスには以下のHTTPヘッダーが含まれます。</p>\n\n<ul>\n<li>\n<p>X-Request-Id</p>\n<ul>\n<li>各リクエスト毎に発行されるID</li>\n</ul>\n</li>\n</ul>\n\n<h3 id=\"error_response\">共通エラーレスポンス</h3>\n\n<p>APIリクエストでエラーが発生した場合は、エラー原因に応じたステータスコードおよびメッセージを返します。</p>\n\n  <table border=\"1\">\n  <tbody>\n    <tr>\n      <th style=\"padding: 10px\"><strong>ステータスコード</strong></th>\n      <th style=\"padding: 10px\"><strong>原因</strong></th>\n    </tr>\n    <tr><td style=\"padding: 10px\">400</td><td style=\"padding: 10px\">リクエストパラメータが不正</td></tr>\n    <tr><td style=\"padding: 10px\">401</td><td style=\"padding: 10px\">アクセストークンが無効</td></tr>\n    <tr><td style=\"padding: 10px\">403</td><td style=\"padding: 10px\">アクセス権限がない</td></tr>\n    <tr><td style=\"padding: 10px\">404</td><td style=\"padding: 10px\">リソースが存在しない</td></tr>\n    <tr><td style=\"padding: 10px\">429</td><td style=\"padding: 10px\">リクエスト回数制限を超えた</td></tr>\n    <tr><td style=\"padding: 10px\">503</td><td style=\"padding: 10px\">システム内で予期しないエラーが発生</td></tr>\n  </tbody>\n</table>\n\n<p>メッセージボディ内の <code>messages</code> にはエラー内容を説明する文字列が入ります。</p>\n<pre><code>  {\n    &quot;status_code&quot; : 400,\n    &quot;errors&quot; : [\n      {\n        &quot;type&quot; : &quot;bad_request&quot;,\n        &quot;messages&quot; : [\n          &quot;リクエストの形式が不正です。&quot;\n        ]\n      }\n    ]\n  }  </code></pre>\n\n</br>\n\n<h3 id=\"api_rate_limit\">API使用制限</h3> \n<p>APIリクエストは1時間で10000回を上限としています。API使用ステータスはレスポンスヘッダに付与されます。</p>\n<pre><code>X-Ratelimit-Limit:10000\nX-Ratelimit-Remaining:9998\nX-Ratelimit-Reset:2018-01-01T12:00:00.000000Z\n</code></pre>\n\n<br> 各ヘッダの意味は次のとおりです。</p>\n\n <table border=\"1\">\n  <tbody>\n    <tr>\n      <th style=\"padding: 10px\"><strong>ヘッダ名</strong></th>\n      <th style=\"padding: 10px\"><strong>説明</strong></th>\n    </tr>\n    <tr><td style=\"padding: 10px\">X-RateLimit-Limit</td><td style=\"padding: 10px\">使用回数の上限</td></tr>\n    <tr><td style=\"padding: 10px\">X-RateLimit-Remaining</td><td style=\"padding: 10px\">残り使用回数</td></tr>\n    <tr><td style=\"padding: 10px\">X-RateLimit-Reset</td><td style=\"padding: 10px\">使用回数がリセットされる時刻</td></tr>\n  </tbody>\n</table>\n\n<p>上記に加え、freeeは一定期間に過度のアクセスを検知した場合、APIアクセスをコントロールする場合があります。<br> その際のhttp status codeは403となります。制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>\n\n</br>\n\n<h3 id=\"api_rate_limit\">プランごとの利用可能API</h3> \n\n<p>契約プランごとに利用可能なfreee人事労務APIはfreee人事労務のWeb版でご利用できる機能と同様です。例えば、スタンダードプラン（または旧ベーシックプラン）を契約している場合、Web版では打刻機能をご利用いただけますので、APIでもタイムレコーダー(打刻)APIが利用可能です。<a href=\"https://support.freee.co.jp/hc/ja/articles/203309710\" target=\"_blank\">freee人事労務のWeb版のプラン別機能比較はfreee人事労務のプラン・料金についてのヘルプを参照してください。</a></p>\n\n</br>\n\n<hr />",
+    "description": "\n<p>freee人事労務のAPI仕様です。</p>\n\n<hr />\n\n<h2 id=\"start_guide\">スタートガイド</h2>\n\n<p>freee API開発がはじめての方は<a href=\"https://developer.freee.co.jp/getting-started\">freee API スタートガイド</a>を参照してください。</p>\n\n<hr />\n<h2 id=\"specification\">仕様</h2>\n\n<h3 id=\"api_endpoint\">APIエンドポイント</h3>\n\n<p>https://api.freee.co.jp/hr</p>\n\n<h3 id=\"about_authorize\">認証について</h3>\n\n<p>OAuth2.0を利用します。<a href=\"https://developer.freee.co.jp/reference/#%e8%aa%8d%e8%a8%bc\" target=\"_blank\">詳細はリファレンスの認証に関する記載を参照してください。</a></p>\n\n<h3 id=\"data_format\">データフォーマット</h3>\n\n<p>リクエスト、レスポンスともにJSON形式をサポートしていますが、詳細は、API毎の説明欄（application/jsonなど）を確認してください。</p>\n\n<h3 id=\"compatibility\">後方互換性ありの変更</h3>\n\n<p>freeeでは、APIを改善していくために以下のような変更は後方互換性ありとして通知なく変更を入れることがあります。アプリケーション実装者は以下を踏まえて開発を行ってください。</p>\n\n<ul>\n<li>新しいAPIリソース・エンドポイントの追加</li>\n<li>既存のAPIに対して必須ではない新しいリクエストパラメータの追加</li>\n<li>既存のAPIレスポンスに対する新しいプロパティの追加</li>\n<li>既存のAPIレスポンスに対するプロパティの順番の入れ変え</li>\n<li>keyとなっているidやcodeの長さの変更（長くする）</li>\n<li>エラーメッセージの変更</li>\n</ul>\n\n<h3 id=\"common_response_header\">共通レスポンスヘッダー</h3>\n\n<p>すべてのAPIのレスポンスには以下のHTTPヘッダーが含まれます。</p>\n\n<ul>\n<li>\n<p>X-Request-Id</p>\n<ul>\n<li>各リクエスト毎に発行されるID</li>\n</ul>\n</li>\n</ul>\n\n<h3 id=\"error_response\">共通エラーレスポンス</h3>\n\n<p>APIリクエストでエラーが発生した場合は、エラー原因に応じたステータスコードおよびメッセージを返します。</p>\n\n  <table border=\"1\">\n  <tbody>\n    <tr>\n      <th style=\"padding: 10px\"><strong>ステータスコード</strong></th>\n      <th style=\"padding: 10px\"><strong>原因</strong></th>\n    </tr>\n    <tr><td style=\"padding: 10px\">400</td><td style=\"padding: 10px\">リクエストパラメータが不正</td></tr>\n    <tr><td style=\"padding: 10px\">401</td><td style=\"padding: 10px\">アクセストークンが無効</td></tr>\n    <tr><td style=\"padding: 10px\">403</td><td style=\"padding: 10px\">アクセス権限がない</td></tr>\n    <tr><td style=\"padding: 10px\">404</td><td style=\"padding: 10px\">リソースが存在しない</td></tr>\n    <tr><td style=\"padding: 10px\">429</td><td style=\"padding: 10px\">リクエスト回数制限を超えた</td></tr>\n    <tr><td style=\"padding: 10px\">503</td><td style=\"padding: 10px\">システム内で予期しないエラーが発生</td></tr>\n  </tbody>\n</table>\n\n<p>メッセージボディ内の <code>messages</code> にはエラー内容を説明する文字列が入ります。</p>\n<pre><code>  {\n    &quot;status_code&quot; : 400,\n    &quot;errors&quot; : [\n      {\n        &quot;type&quot; : &quot;bad_request&quot;,\n        &quot;messages&quot; : [\n          &quot;リクエストの形式が不正です。&quot;\n        ]\n      }\n    ]\n  }  </code></pre>\n\n</br>\n\n<h3 id=\"api_rate_limit\">API使用制限</h3> \n<p>APIリクエストは1時間で10000回を上限としています。API使用ステータスはレスポンスヘッダに付与されます。</p>\n<pre><code>X-Ratelimit-Limit:10000\nX-Ratelimit-Remaining:9998\nX-Ratelimit-Reset:2018-01-01T12:00:00.000000Z\n</code></pre>\n\n<br> 各ヘッダの意味は次のとおりです。</p>\n\n <table border=\"1\">\n  <tbody>\n    <tr>\n      <th style=\"padding: 10px\"><strong>ヘッダ名</strong></th>\n      <th style=\"padding: 10px\"><strong>説明</strong></th>\n    </tr>\n    <tr><td style=\"padding: 10px\">X-RateLimit-Limit</td><td style=\"padding: 10px\">使用回数の上限</td></tr>\n    <tr><td style=\"padding: 10px\">X-RateLimit-Remaining</td><td style=\"padding: 10px\">残り使用回数</td></tr>\n    <tr><td style=\"padding: 10px\">X-RateLimit-Reset</td><td style=\"padding: 10px\">使用回数がリセットされる時刻</td></tr>\n  </tbody>\n</table>\n\n<p>上記に加え、freeeは一定期間に過度のアクセスを検知した場合、APIアクセスをコントロールする場合があります。<br> その際のhttp status codeは403となります。制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>\n\n</br>\n\n<h3 id=\"api_rate_limit\">プランごとの利用可能API</h3> \n\n<p>契約プランごとに利用可能なfreee人事労務APIはfreee人事労務のWeb版でご利用できる機能と同様です。例えば、スタンダードプラン（または旧ベーシックプラン）を契約している場合、Web版では打刻機能をご利用いただけますので、APIでもタイムレコーダー(打刻)APIが利用可能です。<a href=\"https://support.freee.co.jp/hc/ja/articles/203309710\" target=\"_blank\">freee人事労務のWeb版のプラン別機能比較はfreee人事労務のプラン・料金についてのヘルプを参照してください。</a></p>\n\n<hr />\n\n<h3 id=\"webhook\">Webhookについて</h3>\n\n<p>詳細は<a href=\"https://developer.freee.co.jp/reference/hr/webhook\" target=\"_blank\">人事労務Webhook概要</a>を参照してください。</p>\n\n<hr />",
     "termsOfService": "https://app.secure.freee.co.jp/terms-freee-api.html",
     "contact": {
       "name": "サポートデスクへのお問い合わせ",
@@ -2434,6 +2434,412 @@
             "name": "id",
             "in": "path",
             "description": "従業員手当ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/accessDeniedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/notfoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/employees/{employee_id}/deduction_rules": {
+      "get": {
+        "tags": [
+          "従業員控除"
+        ],
+        "summary": "従業員の控除情報の取得",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した従業員の控除情報をリストで返します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "operationId": "get_employee_deduction_rules",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "description": "事業所ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "description": "従業員情報を取得したい年",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 2000,
+              "maximum": 2100
+            },
+            "example": 2021
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "description": "従業員情報を取得したい月<br>\n締め日支払い日設定が翌月払いの従業員情報の場合は、 指定したmonth + 1の値が検索結果として返します。<br>\n翌月払いの従業員の2022/01の従業員情報を取得する場合は、year=2021,month=12を指定してください。<br>",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "example": 1
+          },
+          {
+            "name": "employee_id",
+            "in": "path",
+            "description": "従業員ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "employee_deduction_rules"
+                  ],
+                  "properties": {
+                    "employee_deduction_rules": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ApiV1EmployeesDeductionRuleSerializer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/accessDeniedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/notfoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "従業員控除"
+        ],
+        "summary": "従業員の控除情報の更新",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した従業員の控除情報を更新します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n  <li>賞与に紐づく控除（frequency=bonus）の場合、対象年月に賞与情報が登録されている必要があります。</li>\n</ul>",
+        "operationId": "update_employee_deduction_rules",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "description": "事業所ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "description": "更新対象の控除ルールを判定する締め年",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 2000,
+              "maximum": 2100
+            },
+            "example": 2021
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "description": "更新対象の控除ルールを判定する締め月<br>\n翌月払いの従業員でも、支給月ではなく締め年月を指定してください。<br>\n例: 翌月払い従業員の 2022/01 支給分を対象にする場合は year=2021, month=12 を指定します。<br>",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "example": 1
+          },
+          {
+            "name": "employee_id",
+            "in": "path",
+            "description": "従業員ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiV1EmployeesDeductionRulesController.update_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiV1EmployeesDeductionRulesController.update_response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/accessDeniedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/notfoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "body"
+      }
+    },
+    "/api/v1/employees/{employee_id}/deduction_rules/{id}": {
+      "delete": {
+        "tags": [
+          "従業員控除"
+        ],
+        "summary": "従業員の控除情報の削除",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した従業員の控除情報を削除します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "operationId": "destroy_employee_deduction_rule",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "description": "事業所ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "description": "削除対象の控除ルールを判定する締め年",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 2000,
+              "maximum": 2100
+            },
+            "example": 2021
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "description": "削除対象の控除ルールを判定する締め月<br>\n翌月払いの従業員でも、支給月ではなく締め年月を指定してください。<br>\n例: 翌月払い従業員の 2022/01 支給分を対象にする場合は year=2021, month=12 を指定します。<br>",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 12
+            },
+            "example": 1
+          },
+          {
+            "name": "employee_id",
+            "in": "path",
+            "description": "従業員ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "従業員控除ID",
             "required": true,
             "schema": {
               "type": "integer",
@@ -6030,6 +6436,329 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiV1AllowanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/accessDeniedError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/notfoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deductions": {
+      "get": {
+        "tags": [
+          "その他控除"
+        ],
+        "summary": "その他控除一覧の取得",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した事業所のその他控除情報をリストで返します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "operationId": "get_deductions",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": true,
+            "description": "事業所ID",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          },
+          {
+            "name": "frequency",
+            "in": "query",
+            "required": false,
+            "description": "支給頻度フィルタ（省略で全件取得）",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "salary",
+                "salary_monthly",
+                "salary_this_month",
+                "bonus"
+              ]
+            },
+            "example": "salary_monthly"
+          },
+          {
+            "name": "is_active",
+            "in": "query",
+            "required": false,
+            "description": "表示状態フィルタ（省略で全件取得）",
+            "schema": {
+              "type": "boolean"
+            },
+            "example": true
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 100)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "example": 50
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "description": "取得レコードのオフセット (デフォルト: 0)",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "example": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiV1DeductionsIndexResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/accessDeniedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "その他控除"
+        ],
+        "summary": "その他控除の作成",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した事業所のその他控除を新規作成します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "operationId": "create_deduction",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": true,
+            "description": "事業所ID",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiV1DeductionsController.create_body"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiV1DeductionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/accessDeniedError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/deductions/{id}": {
+      "get": {
+        "tags": [
+          "その他控除"
+        ],
+        "summary": "その他控除の取得",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定した事業所のその他控除情報を返します。</p>\n\n<h2 id=\"_1\">注意点</h2>\n<ul>\n  <li>管理者権限を持ったユーザーのみ実行可能です。</li>\n</ul>",
+        "operationId": "get_deduction",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "その他控除ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "required": true,
+            "description": "事業所ID",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiV1DeductionResponse"
                 }
               }
             }
@@ -22071,6 +22800,178 @@
           }
         }
       },
+      "ApiV1DeductionSerializer": {
+        "type": "object",
+        "required": [
+          "id",
+          "company_id",
+          "name",
+          "frequency",
+          "calc_type",
+          "is_active",
+          "amount",
+          "is_affect_income_tax"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "控除ID",
+            "format": "int64"
+          },
+          "company_id": {
+            "type": "integer",
+            "description": "事業所ID",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "控除名"
+          },
+          "description": {
+            "type": "string",
+            "description": "説明",
+            "nullable": true
+          },
+          "frequency": {
+            "type": "string",
+            "description": "控除タイミング",
+            "enum": [
+              "salary_this_month",
+              "salary_monthly",
+              "bonus"
+            ]
+          },
+          "calc_type": {
+            "type": "string",
+            "description": "計算タイプ",
+            "enum": [
+              "fixed",
+              "attendance_day_tag"
+            ]
+          },
+          "is_active": {
+            "type": "boolean",
+            "description": "表示状態"
+          },
+          "amount": {
+            "type": "integer",
+            "description": "金額",
+            "nullable": true
+          },
+          "is_affect_income_tax": {
+            "type": "boolean",
+            "description": "所得税の計算に含める"
+          },
+          "attendance_tag_id": {
+            "type": "integer",
+            "description": "勤怠タグID（calc_typeがattendance_day_tagの場合のみ）",
+            "format": "int64",
+            "nullable": true
+          }
+        }
+      },
+      "ApiV1DeductionsIndexResponse": {
+        "type": "object",
+        "required": [
+          "deductions",
+          "total_count"
+        ],
+        "properties": {
+          "deductions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1DeductionSerializer"
+            }
+          },
+          "total_count": {
+            "type": "integer",
+            "description": "合計件数",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "example": 1
+          }
+        }
+      },
+      "ApiV1DeductionResponse": {
+        "type": "object",
+        "required": [
+          "deduction"
+        ],
+        "properties": {
+          "deduction": {
+            "$ref": "#/components/schemas/ApiV1DeductionSerializer"
+          }
+        }
+      },
+      "ApiV1DeductionCreateRequestSerializer": {
+        "type": "object",
+        "required": [
+          "name",
+          "frequency",
+          "calc_type",
+          "amount",
+          "is_affect_income_tax"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "控除名。最大240文字、給与控除グループまたは賞与控除グループ内で重複不可",
+            "maxLength": 240
+          },
+          "description": {
+            "type": "string",
+            "description": "説明。最大255文字",
+            "maxLength": 255,
+            "nullable": true
+          },
+          "frequency": {
+            "type": "string",
+            "description": "控除タイミング",
+            "enum": [
+              "salary_this_month",
+              "salary_monthly",
+              "bonus"
+            ]
+          },
+          "calc_type": {
+            "type": "string",
+            "description": "計算タイプ",
+            "enum": [
+              "fixed"
+            ]
+          },
+          "amount": {
+            "type": "integer",
+            "description": "金額。-100,000,000 より大きく 100,000,000 未満",
+            "minimum": -99999999,
+            "maximum": 99999999
+          },
+          "is_affect_income_tax": {
+            "type": "boolean",
+            "description": "所得税の計算に含める"
+          }
+        }
+      },
+      "ApiV1DeductionsController.create_body": {
+        "type": "object",
+        "required": [
+          "company_id",
+          "deduction"
+        ],
+        "properties": {
+          "company_id": {
+            "type": "integer",
+            "description": "事業所ID",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "deduction": {
+            "$ref": "#/components/schemas/ApiV1DeductionCreateRequestSerializer"
+          }
+        }
+      },
       "ApiV1AllowanceCreateRequestSerializer": {
         "type": "object",
         "required": [
@@ -22222,6 +23123,130 @@
               "attendance_day_tag",
               "attendance_time_tag"
             ]
+          }
+        }
+      },
+      "ApiV1EmployeesDeductionRuleSerializer": {
+        "type": "object",
+        "required": [
+          "id",
+          "employee_id",
+          "deduction_id",
+          "deduction_name",
+          "frequency",
+          "calc_type"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "従業員控除ID",
+            "format": "int64"
+          },
+          "employee_id": {
+            "type": "integer",
+            "description": "従業員ID",
+            "format": "int64"
+          },
+          "deduction_id": {
+            "type": "integer",
+            "description": "控除ID",
+            "format": "int64"
+          },
+          "deduction_name": {
+            "type": "string",
+            "description": "控除名"
+          },
+          "amount": {
+            "type": "integer",
+            "description": "控除の金額"
+          },
+          "frequency": {
+            "type": "string",
+            "description": "控除タイミング",
+            "enum": [
+              "salary_this_month",
+              "salary_monthly",
+              "bonus"
+            ]
+          },
+          "calc_type": {
+            "type": "string",
+            "description": "計算タイプ",
+            "enum": [
+              "fixed",
+              "attendance_day_tag"
+            ]
+          }
+        }
+      },
+      "ApiV1EmployeesDeductionRuleUpdateRequestSerializer": {
+        "type": "object",
+        "required": [
+          "deduction_id",
+          "amount"
+        ],
+        "properties": {
+          "deduction_id": {
+            "type": "integer",
+            "description": "控除ID",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "example": 1
+          },
+          "amount": {
+            "type": "integer",
+            "description": "金額（数値のみ）",
+            "format": "int32",
+            "minimum": -99999999,
+            "maximum": 99999999,
+            "example": 30000
+          }
+        }
+      },
+      "ApiV1EmployeesDeductionRulesController.update_body": {
+        "type": "object",
+        "required": [
+          "company_id",
+          "year",
+          "month",
+          "employee_deduction_rule"
+        ],
+        "properties": {
+          "company_id": {
+            "type": "integer",
+            "description": "事業所ID",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "example": 1
+          },
+          "year": {
+            "type": "integer",
+            "description": "対象年",
+            "format": "int32",
+            "minimum": 2000,
+            "maximum": 2100,
+            "example": 2024
+          },
+          "month": {
+            "type": "integer",
+            "description": "対象月",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 12,
+            "example": 6
+          },
+          "employee_deduction_rule": {
+            "$ref": "#/components/schemas/ApiV1EmployeesDeductionRuleUpdateRequestSerializer"
+          }
+        }
+      },
+      "ApiV1EmployeesDeductionRulesController.update_response": {
+        "type": "object",
+        "properties": {
+          "employee_deduction_rule": {
+            "$ref": "#/components/schemas/ApiV1EmployeesDeductionRuleSerializer"
           }
         }
       },

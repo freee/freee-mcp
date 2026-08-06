@@ -344,6 +344,33 @@ act=0,1(取引を推測/登録)の場合のみ値が返ります。
 * true: 有効
 * false: 無効
 
+- user_matcher_diff_deals (任意): array[object] - 消込差額行の配列
+act=6(未決済取引の消込を推測する), 8(一括振込ファイル消込を推測する), 9(一括振込ファイル消込を登録する) の場合のみ差額行が入ります。
+それ以外の act では空配列です。
+FeatureFlag `ai_agent_user_matcher_scrub` off の事業所ではフィールド自体がレスポンスに含まれません。
+
+  配列の要素:
+    - id (必須): integer - 消込差額行ID
+    - diff_amount_type (必須): string - 差額タイプ
+* over: 過大
+* under: 過小
+* under_composite_diff: 複合差額(過小)
+ (選択肢: over, under, under_composite_diff)
+    - adjust_type (必須): string - 調整タイプ
+* within: 範囲内
+* over: 範囲外
+ (選択肢: within, over)
+    - tax_code (任意): integer - 税区分コード
+    - tax_name (任意): string - 税区分名
+    - threshold_amount (任意): integer - しきい値金額
+    - deal_description (任意): string - 取引の備考
+    - account_item (任意): object - 勘定科目
+    - item (任意): object - 品目
+    - section (任意): object - 部門
+    - division_tag_1 (任意): object - セグメント1タグ
+    - division_tag_2 (任意): object - セグメント2タグ
+    - division_tag_3 (任意): object - セグメント3タグ
+    - tags (任意): array[object] - メモタグの配列
 
 ### GET /api/1/user_matchers/{id}
 
@@ -452,6 +479,33 @@ act=0,1(取引を推測/登録)の場合のみ値が返ります。
 * true: 有効
 * false: 無効
 
+- user_matcher_diff_deals (任意): array[object] - 消込差額行の配列
+act=6(未決済取引の消込を推測する), 8(一括振込ファイル消込を推測する), 9(一括振込ファイル消込を登録する) の場合のみ差額行が入ります。
+それ以外の act では空配列です。
+FeatureFlag `ai_agent_user_matcher_scrub` off の事業所ではフィールド自体がレスポンスに含まれません。
+
+  配列の要素:
+    - id (必須): integer - 消込差額行ID
+    - diff_amount_type (必須): string - 差額タイプ
+* over: 過大
+* under: 過小
+* under_composite_diff: 複合差額(過小)
+ (選択肢: over, under, under_composite_diff)
+    - adjust_type (必須): string - 調整タイプ
+* within: 範囲内
+* over: 範囲外
+ (選択肢: within, over)
+    - tax_code (任意): integer - 税区分コード
+    - tax_name (任意): string - 税区分名
+    - threshold_amount (任意): integer - しきい値金額
+    - deal_description (任意): string - 取引の備考
+    - account_item (任意): object - 勘定科目
+    - item (任意): object - 品目
+    - section (任意): object - 部門
+    - division_tag_1 (任意): object - セグメント1タグ
+    - division_tag_2 (任意): object - セグメント2タグ
+    - division_tag_3 (任意): object - セグメント3タグ
+    - tags (任意): array[object] - メモタグの配列
 
 ### PUT /api/1/user_matchers/{id}
 
@@ -652,6 +706,33 @@ act=0,1(取引を推測/登録)の場合のみ値が返ります。
 * true: 有効
 * false: 無効
 
+- user_matcher_diff_deals (任意): array[object] - 消込差額行の配列
+act=6(未決済取引の消込を推測する), 8(一括振込ファイル消込を推測する), 9(一括振込ファイル消込を登録する) の場合のみ差額行が入ります。
+それ以外の act では空配列です。
+FeatureFlag `ai_agent_user_matcher_scrub` off の事業所ではフィールド自体がレスポンスに含まれません。
+
+  配列の要素:
+    - id (必須): integer - 消込差額行ID
+    - diff_amount_type (必須): string - 差額タイプ
+* over: 過大
+* under: 過小
+* under_composite_diff: 複合差額(過小)
+ (選択肢: over, under, under_composite_diff)
+    - adjust_type (必須): string - 調整タイプ
+* within: 範囲内
+* over: 範囲外
+ (選択肢: within, over)
+    - tax_code (任意): integer - 税区分コード
+    - tax_name (任意): string - 税区分名
+    - threshold_amount (任意): integer - しきい値金額
+    - deal_description (任意): string - 取引の備考
+    - account_item (任意): object - 勘定科目
+    - item (任意): object - 品目
+    - section (任意): object - 部門
+    - division_tag_1 (任意): object - セグメント1タグ
+    - division_tag_2 (任意): object - セグメント2タグ
+    - division_tag_3 (任意): object - セグメント3タグ
+    - tags (任意): array[object] - メモタグの配列
 
 ### DELETE /api/1/user_matchers/{id}
 

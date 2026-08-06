@@ -102,7 +102,7 @@ freee会計の取引明細インポートから登録されたその他原価は
   - name (必須): string - 案件名 例: `サンプル案件`
   - closed (必須): boolean - ロック状態 例: `false`
 - deal_line (任意): object - 会計連携情報
-  - deal_id (必須): integer(int64) - 会計取引ID 例: `1001` (最大: 9223372036854776000)
+  - deal_id (必須): integer(int64) - 会計の取引ID 例: `1001` (最大: 9223372036854776000)
   - deal_line_id (必須): integer(int64) - 会計取引明細ID 例: `2001` (最大: 9223372036854776000)
 
 ### POST /other_costs/{id}/restoration

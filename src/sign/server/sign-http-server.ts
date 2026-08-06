@@ -131,7 +131,18 @@ export async function startSignHttpServer(options?: {
     cors({
       origin: allowedOrigins,
       methods: ['GET', 'POST', 'DELETE'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'Mcp-Session-Id', 'Accept'],
+      // Headers missing from this list are blocked by the browser at preflight, so the
+      // request never reaches the server. Mcp-Protocol-Version is required by spec
+      // 2025-06-18; Mcp-Method / Mcp-Name by spec 2026-07-28 (SEP-2243).
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'Accept',
+        'Mcp-Session-Id',
+        'Mcp-Protocol-Version',
+        'Mcp-Method',
+        'Mcp-Name',
+      ],
     }),
   );
 

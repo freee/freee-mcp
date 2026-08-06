@@ -4,20 +4,34 @@ import { isBinaryFileResponse, makeApiRequest } from '../api/client.js';
 import { makeErrorChain, serializeErrorChain } from '../server/error-serializer.js';
 import { sanitizePath } from '../server/logger.js';
 import { getCurrentRecorder } from '../server/request-context.js';
+import { getTransportMode } from '../server/user-agent.js';
 import type { AuthExtra } from '../storage/context.js';
 import { extractTokenContext } from '../storage/context.js';
 import { registerTracedTool, setToolAttributes } from '../telemetry/tool-tracer.js';
 import { createTextResponse, formatErrorMessage } from '../utils/error.js';
 import { getHttpMethodToolAnnotations } from '../utils/http-method-annotations.js';
-import { type ApiType, listAllAvailablePaths, validatePathForService } from './schema-loader.js';
+import {
+  type ApiType,
+  isMcpOnlyPath,
+  listAllAvailablePaths,
+  validatePathForService,
+} from './schema-loader.js';
 
 const SUPPORTED_IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
 
-const SERVICE_HINT = 'service: accounting/hr/invoice/pm/sm/it_management';
+const SERVICE_HINT = 'service: accounting/hr/invoice/pm/sm/it_management/survey';
 const SKILL_HINT = '詳細ガイドはfreee-api-skill skillを参照';
 
+// mcp-only（freee-mcp リモート版限定）エンドポイントを stdio（ローカル）モードで
+// 呼んだときに返すメッセージ。文言は skill のバナー・reference と揃える。
+const MCP_ONLY_LOCAL_MESSAGE =
+  'このエンドポイントは freee-mcp（リモート版）でのみ利用できます。' +
+  '現在の接続はローカルモード（transport: stdio）のため呼び出せません。' +
+  'ユーザーに freee-mcp（リモート版）への切り替え' +
+  '（https://support.freee.co.jp/hc/ja/articles/56390747520537）を案内してください。';
+
 const serviceSchema = z
-  .enum(['accounting', 'hr', 'invoice', 'pm', 'sm', 'it_management'])
+  .enum(['accounting', 'hr', 'invoice', 'pm', 'sm', 'it_management', 'survey'])
   .describe('対象のfreeeサービス');
 
 const UTF8_BOM = String.fromCharCode(0xfeff);
@@ -113,6 +127,24 @@ function createMethodTool(method: string) {
       }
 
       const actualPath = validation.actualPath ?? path;
+
+      // mcp-only エンドポイントはローカル（stdio）モードでは freee API 側で拒否される。
+      // 往復を避け、ユーザーへの案内を確実にするため、ここで API を叩かずに弾く。
+      if (getTransportMode() === 'stdio' && isMcpOnlyPath(actualPath)) {
+        recorder?.recordToolCall({
+          tool: toolName,
+          service,
+          status: 'error',
+          duration_ms: Date.now() - startTime,
+        });
+        recorder?.recordError({
+          source: 'validation',
+          error_type: 'mcp_only_endpoint_local_mode',
+          chain: makeErrorChain('McpOnlyEndpointError', MCP_ONLY_LOCAL_MESSAGE),
+        });
+        return createTextResponse(MCP_ONLY_LOCAL_MESSAGE, { isError: true });
+      }
+
       const result = await makeApiRequest(
         method,
         actualPath,

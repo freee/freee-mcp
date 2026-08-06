@@ -31,7 +31,8 @@
     "Fixed assets": "fixed-assets",
     "General ledgers": "general-ledgers",
     "Account groups": "account-groups",
-    "User matchers": "user-matchers"
+    "User matchers": "user-matchers",
+    "Purchase requests": "purchase-requests"
   },
   "hr-api": {
     "ログインユーザー": "login-user",
@@ -78,7 +79,9 @@
     "Projects": "projects",
     "Teams": "teams",
     "UnitCosts": "unit-costs",
-    "Workloads": "workloads"
+    "Workloads": "workloads",
+    "LaborBudgets": "labor-budgets",
+    "WorkloadTagGroups": "workload-tag-groups"
   },
   "sm-api": {
     "businesses": "businesses",
@@ -90,12 +93,18 @@
     "other_costs": "other-costs",
     "quotations": "quotations",
     "procurements": "procurements",
-    "purchase_orders": "purchase-orders"
+    "purchase_orders": "purchase-orders",
+    "advance_receipts": "advance-receipts",
+    "periodic_sales": "periodic-sales",
+    "sales_schedules": "sales-schedules"
   },
   "it-management-api": {
     "it_management_application_accounts": "application-account",
     "it_management_assets": "assets",
     "it_management_members": "members"
+  },
+  "mcponly-api": {
+    "survey": "surveys"
   },
   "sign-api": {
     "文書": "documents",

@@ -57,7 +57,16 @@ async function createTestApp() {
     cors({
       origin: ['https://mcp.example.com'],
       methods: ['GET', 'POST', 'DELETE'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'Mcp-Session-Id', 'Accept'],
+      // Keep in sync with http-server.ts
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'Accept',
+        'Mcp-Session-Id',
+        'Mcp-Protocol-Version',
+        'Mcp-Method',
+        'Mcp-Name',
+      ],
     }),
   );
 
@@ -174,6 +183,25 @@ describe('middleware stack', () => {
       });
       expect(res.status).toBe(204);
       expect(res.headers['access-control-allow-methods']).toContain('POST');
+    });
+
+    it('should allow the MCP request metadata headers at preflight', async () => {
+      const res = await httpRequest(`${baseUrl}/test`, {
+        method: 'OPTIONS',
+        headers: {
+          Origin: 'https://mcp.example.com',
+          'Access-Control-Request-Method': 'POST',
+          'Access-Control-Request-Headers': 'Mcp-Protocol-Version,Mcp-Method,Mcp-Name',
+        },
+      });
+      expect(res.status).toBe(204);
+      const allowed = (res.headers['access-control-allow-headers'] ?? '')
+        .toString()
+        .split(',')
+        .map((h) => h.trim().toLowerCase());
+      expect(allowed).toContain('mcp-protocol-version');
+      expect(allowed).toContain('mcp-method');
+      expect(allowed).toContain('mcp-name');
     });
   });
 

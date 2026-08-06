@@ -247,7 +247,7 @@ export async function makeApiRequest(
     const errorInfo = await formatResponseErrorInfo(response);
     const retryMsg = formatRetryAfterMessage(retryAfter);
     const rateLimitError = new Error(
-      `レートリミットに達しました (429): ${errorInfo}\n` + `事業所ID: ${companyId}\n` + retryMsg,
+      `レートリミットに達しました (429): ${errorInfo}\n事業所ID: ${companyId}\n${retryMsg}`,
     );
     recorder?.recordApiCall({
       method,

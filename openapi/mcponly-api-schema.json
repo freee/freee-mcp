@@ -1,0 +1,726 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "freee MCP専用 API",
+    "termsOfService": "https://app.secure.freee.co.jp/terms-freee-api.html",
+    "license": {
+      "name": "© Since 2013 freee K.K."
+    },
+    "description": "<h2 id=\"start_guide\">スタートガイド</h2>\n<p>freee API開発がはじめての方は<a href=\"https://developer.freee.co.jp/getting-started\">freee APIスタートガイド</a>を参照してください。</p>\n<hr />\n<h2 id=\"specification\">仕様</h2>\n<h3 id=\"api_endpoint\">APIエンドポイント</h3>\n<p>https://api.freee.co.jp/hub/</p>\n<h3 id=\"about_authorize\">認証について</h3>\n<p>OAuth2.0を利用します。詳細は<a href=\"https://developer.freee.co.jp/reference/#%e8%aa%8d%e8%a8%bc\" target=\"_blank\">リファレンスの認証に関する記載</a>を参照してください。</p>\n<h3 id=\"data_format\">データフォーマット</h3>\n<p>リクエスト、レスポンスともにJSON形式をサポートしていますが、詳細は、API毎の説明欄（application/jsonなど）を確認してください。</p>\n<h3 id=\"compatibility\">後方互換性ありの変更</h3>\n<p>freeeでは、APIを改善していくために以下のような変更は後方互換性ありとして通知なく変更を入れることがあります。アプリケーション実装者は以下を踏まえて開発を行ってください。</p>\n<ul>\n<li>新しいAPIリソース・エンドポイントの追加</li>\n<li>既存のAPIに対して必須ではない新しいリクエストパラメータの追加</li>\n<li>既存のAPIレスポンスに対する新しいプロパティの追加</li>\n<li>既存のAPIレスポンスに対するプロパティの順番の入れ変え</li>\n<li>keyとなっているidやcodeの長さの変更（長くする）</li>\n<li>エラーメッセージの変更</li>\n</ul>\n<h3 id=\"common_response_header\">共通レスポンスヘッダー</h3>\n<p>すべてのAPIのレスポンスには以下のHTTPヘッダーが含まれます。</p>\n<ul>\n<li>\n<p>Freee-Request-Id</p>\n<ul>\n<li>各リクエスト毎に発行されるID</li>\n</ul>\n</li>\n</ul>\n<h3 id=\"common_error_response\">共通エラーレスポンス</h3>\n<p>APIリクエストでエラーが発生した場合は、エラー原因に応じたステータスコードおよびメッセージを返します。</p>\n<table border=\"1\">\n<tbody>\n<tr>\n<th style=\"padding: 10px\"><strong>ステータスコード</strong></th>\n<th style=\"padding: 10px\"><strong>原因</strong></th>\n</tr>\n<tr><td style=\"padding: 10px\">400</td><td style=\"padding: 10px\">リクエストパラメータが不正</td></tr>\n<tr><td style=\"padding: 10px\">401</td><td style=\"padding: 10px\">アクセストークンが無効</td></tr>\n<tr><td style=\"padding: 10px\">403</td><td style=\"padding: 10px\">アクセス権限がない</td></tr>\n<tr><td style=\"padding: 10px\">404</td><td style=\"padding: 10px\">リソースが存在しない</td></tr>\n<tr><td style=\"padding: 10px\">429</td><td style=\"padding: 10px\">リクエスト回数制限を超えた</td></tr>\n<tr><td style=\"padding: 10px\">500</td><td style=\"padding: 10px\">システム内で予期しないエラーが発生</td></tr>\n</tbody>\n</table>\n<p>エラーレスポンスは以下の形式で返されます。</p>\n<pre><code>{\n&nbsp;&nbsp;\"code\": \"AHB-3003-0002\",\n&nbsp;&nbsp;\"message\": \"リクエストの形式が正しくありません。\",\n&nbsp;&nbsp;\"fields\": [\n&nbsp;&nbsp;&nbsp;&nbsp;{\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"name\": \"company_id\",\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"message\": \"事業所IDは必須です。\"\n&nbsp;&nbsp;&nbsp;&nbsp;}\n&nbsp;&nbsp;]\n}</code></pre>\n<h3 id=\"api_rate_limit\">API使用制限</h3>\n<p>APIリクエストは1分あたり60回、1時間あたり1500回、1日あたり3000回を上限としています。<br>\nAPI使用ステータスはRFC準拠のレスポンスヘッダに付与されます。各ヘッダの意味は次のとおりです。</p>\n<table>\n<thead>\n<tr>\n<th>ヘッダ名</th>\n<th>説明</th>\n<th>例</th>\n</tr>\n</thead>\n<tbody>\n<tr><td>RateLimit-Policy</td><td>ポリシー情報（上限と期間）</td><td><code>\"base_rate_limit_minute\";q=60;w=60</code></td></tr>\n<tr><td>RateLimit</td><td>残り回数とリセットまでの秒数</td><td><code>\"base_rate_limit_minute\";r=59;t=45</code></td></tr>\n</tbody>\n</table>\n<p>この上限を超えた場合APIアクセスは制限され、http status codeは429となります。</p>\n<p>また、上記に加えfreeeは一定期間に過度のアクセスを検知した場合、APIアクセスをコントロールする場合があります。<br>\nその際のhttp status codeは403となります。制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>\n<h3 id=\"mcp_only\">リモート版freee-mcp限定のエンドポイントについて</h3> <p>本リファレンスに含まれるAPIエンドポイントは、リモート版freee-mcpからのリクエストに限定して提供されます。通常のアプリケーションからは利用できません。これらのエンドポイントには、タイトルに「（リモート版freee-mcp限定）」の表記があります。</p> <p>リモート版freee-mcpの設定・利用方法については <a href=\"https://support.freee.co.jp/hc/ja/articles/56390747520537-freee-mcp-%E3%83%AA%E3%83%A2%E3%83%BC%E3%83%88%E7%89%88-%E3%82%92%E8%A8%AD%E5%AE%9A%E3%81%97%E3%81%A6%E5%88%A9%E7%94%A8%E3%81%99%E3%82%8B\" target=\"_blank\">リモート版freee-mcpを設定して利用する</a> をご覧ください。</p>",
+    "version": "0.0.0"
+  },
+  "tags": [
+    {
+      "name": "survey",
+      "description": "survey",
+      "x-displayName": "サーベイ"
+    }
+  ],
+  "paths": {
+    "/hub/survey/base_surveys": {
+      "get": {
+        "operationId": "list_survey_base_surveys",
+        "summary": "サーベイ企画一覧取得（リモート版freee-mcp限定）",
+        "description": "サーベイ企画の一覧を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.ListBaseSurveysRequest"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "サーベイ企画一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "base_surveys": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.BaseSurvey"
+                      },
+                      "description": "サーベイ企画のリスト"
+                    }
+                  },
+                  "required": [
+                    "base_surveys"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
+    "/hub/survey/base_surveys/{base_survey_id}/surveys": {
+      "get": {
+        "operationId": "list_survey_surveys",
+        "summary": "実施回一覧取得（リモート版freee-mcp限定）",
+        "description": "指定したサーベイ企画に紐づく実施回の一覧を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveysRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveysRequest.base_survey_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveysRequest.include_hidden"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveysRequest.year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "実施回一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "surveys": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.SurveyItem"
+                      },
+                      "description": "実施回のリスト"
+                    }
+                  },
+                  "required": [
+                    "surveys"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
+    "/hub/survey/surveys/{survey_id}": {
+      "get": {
+        "operationId": "get_survey",
+        "summary": "実施回詳細取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の詳細と回答対象者を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.GetSurveyRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.GetSurveyRequest.survey_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "実施回詳細取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "survey": {
+                      "$ref": "#/components/schemas/Survey.SurveyDetails"
+                    },
+                    "survey_targets": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.SurveyTargetWithUnansweredCount"
+                      },
+                      "description": "回答対象者のリスト"
+                    },
+                    "estimated_time": {
+                      "type": "integer",
+                      "format": "int32",
+                      "description": "回答所要時間の目安(分)",
+                      "example": 5
+                    }
+                  },
+                  "required": [
+                    "survey",
+                    "survey_targets",
+                    "estimated_time"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "OAuth2Auth": [
+        "write",
+        "read"
+      ]
+    }
+  ],
+  "components": {
+    "parameters": {
+      "Survey.ListBaseSurveysRequest": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListSurveysRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListSurveysRequest.base_survey_id": {
+        "name": "base_survey_id",
+        "in": "path",
+        "required": true,
+        "description": "サーベイ企画ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "Survey.ListSurveysRequest.include_hidden": {
+        "name": "include_hidden",
+        "in": "query",
+        "required": false,
+        "description": "非表示の実施回も含めるか",
+        "schema": {
+          "type": "boolean"
+        },
+        "explode": false
+      },
+      "Survey.ListSurveysRequest.year": {
+        "name": "year",
+        "in": "query",
+        "required": false,
+        "description": "対象年でのフィルタ",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "explode": false
+      },
+      "Survey.GetSurveyRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.GetSurveyRequest.survey_id": {
+        "name": "survey_id",
+        "in": "path",
+        "required": true,
+        "description": "実施回ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "schemas": {
+      "Survey.SurveyType": {
+        "type": "string",
+        "enum": [
+          "retention"
+        ],
+        "description": "サーベイ種別"
+      },
+      "Survey.AnswerPeriodUnit": {
+        "type": "string",
+        "enum": [
+          "days",
+          "weeks"
+        ],
+        "description": "回答期間の単位"
+      },
+      "Survey.ReminderSetting": {
+        "type": "object",
+        "required": [
+          "id",
+          "base_survey_id",
+          "days_before",
+          "mail",
+          "slack",
+          "is_enabled",
+          "line_works"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "base_survey_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "days_before": {
+            "type": "integer",
+            "format": "int32",
+            "description": "何日前に通知するか",
+            "example": 3
+          },
+          "mail": {
+            "type": "boolean",
+            "description": "メール通知するか",
+            "example": true
+          },
+          "slack": {
+            "type": "boolean",
+            "description": "Slack通知するか",
+            "example": false
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "description": "有効か",
+            "example": true
+          },
+          "line_works": {
+            "type": "boolean",
+            "description": "LINE WORKS通知するか",
+            "example": false
+          }
+        },
+        "description": "リマインド設定",
+        "additionalProperties": false
+      },
+      "Survey.ScheduleType": {
+        "type": "string",
+        "enum": [
+          "date",
+          "weekday"
+        ],
+        "description": "繰り返しスケジュールの指定方法"
+      },
+      "Survey.RepeatFrequencySetting": {
+        "type": "object",
+        "required": [
+          "id",
+          "base_survey_id",
+          "month",
+          "schedule_type",
+          "date",
+          "week",
+          "weekday",
+          "is_enabled"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "base_survey_id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "month": {
+            "type": "integer",
+            "format": "int32",
+            "description": "繰り返し間隔(月数)",
+            "example": 1
+          },
+          "schedule_type": {
+            "$ref": "#/components/schemas/Survey.ScheduleType"
+          },
+          "date": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "開始日(schedule_typeがdateの場合)",
+            "example": 1
+          },
+          "week": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "第何週(schedule_typeがweekdayの場合)",
+            "example": 1
+          },
+          "weekday": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "曜日(schedule_typeがweekdayの場合)",
+            "example": 1
+          },
+          "is_enabled": {
+            "type": "boolean",
+            "description": "有効か",
+            "example": true
+          }
+        },
+        "description": "繰り返し設定",
+        "additionalProperties": false
+      },
+      "Survey.QuestionsSummary": {
+        "type": "object",
+        "required": [
+          "template_questions_count",
+          "additional_questions_count"
+        ],
+        "properties": {
+          "template_questions_count": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "テンプレート由来の質問数",
+            "example": 10
+          },
+          "additional_questions_count": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "追加された質問数",
+            "example": 3
+          }
+        },
+        "description": "質問数のサマリ",
+        "additionalProperties": false
+      },
+      "Survey.BaseSurvey": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "template_id",
+          "is_auto_add",
+          "next_start_date",
+          "is_pause",
+          "survey_type",
+          "answer_period",
+          "answer_period_unit",
+          "reminder_setting",
+          "repeat_frequency_setting",
+          "questions_summary",
+          "viewer_scope"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "サーベイ企画ID",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "description": "タイトル",
+            "example": "入社1ヶ月アンケート"
+          },
+          "description": {
+            "type": "string",
+            "description": "説明",
+            "example": "入社1ヶ月の従業員向けアンケートです"
+          },
+          "template_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "テンプレートID",
+            "example": 1
+          },
+          "is_auto_add": {
+            "type": "boolean",
+            "description": "対象者を自動追加するか",
+            "example": true
+          },
+          "next_start_date": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "次回開始日(ISO8601)",
+            "example": "2026-08-01T00:00:00Z"
+          },
+          "is_pause": {
+            "type": "boolean",
+            "description": "一時停止中か",
+            "example": false
+          },
+          "survey_type": {
+            "$ref": "#/components/schemas/Survey.SurveyType"
+          },
+          "answer_period": {
+            "type": "integer",
+            "format": "int32",
+            "description": "回答期間",
+            "example": 7
+          },
+          "answer_period_unit": {
+            "$ref": "#/components/schemas/Survey.AnswerPeriodUnit"
+          },
+          "reminder_setting": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Survey.ReminderSetting"
+              }
+            ],
+            "nullable": true
+          },
+          "repeat_frequency_setting": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Survey.RepeatFrequencySetting"
+              }
+            ],
+            "nullable": true
+          },
+          "questions_summary": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Survey.QuestionsSummary"
+              }
+            ],
+            "nullable": true
+          },
+          "viewer_scope": {
+            "type": "string",
+            "description": "閲覧範囲",
+            "example": "all"
+          }
+        },
+        "description": "サーベイ企画",
+        "additionalProperties": false
+      },
+      "Survey.SurveyStatus": {
+        "type": "string",
+        "enum": [
+          "in_progress",
+          "completed"
+        ],
+        "description": "実施回のステータス"
+      },
+      "Survey.SurveyItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "start_date",
+          "status",
+          "answered_ratio",
+          "target_count",
+          "unanswered_count",
+          "is_hidden"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "実施回ID",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "description": "タイトル",
+            "example": "2026年8月度"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "開始日(ISO8601)",
+            "example": "2026-08-01T00:00:00Z"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Survey.SurveyStatus"
+          },
+          "answered_ratio": {
+            "type": "number",
+            "format": "float",
+            "nullable": true,
+            "description": "回答率",
+            "example": 0.5
+          },
+          "target_count": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "対象者数",
+            "example": 20
+          },
+          "unanswered_count": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "未回答者数",
+            "example": 10
+          },
+          "is_hidden": {
+            "type": "boolean",
+            "description": "非表示か",
+            "example": false
+          }
+        },
+        "description": "実施回",
+        "additionalProperties": false
+      },
+      "Survey.SurveyDetails": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "description",
+          "start_date",
+          "end_date",
+          "status",
+          "answered_ratio",
+          "target_count",
+          "unanswered_count",
+          "viewer_scope"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "実施回ID",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "description": "タイトル",
+            "example": "2026年8月度"
+          },
+          "description": {
+            "type": "string",
+            "description": "説明",
+            "example": "入社1ヶ月の従業員向けアンケートです"
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "開始日(ISO8601)",
+            "example": "2026-08-01T00:00:00Z"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "終了日(ISO8601)",
+            "example": "2026-08-08T00:00:00Z"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Survey.SurveyStatus"
+          },
+          "answered_ratio": {
+            "type": "number",
+            "format": "float",
+            "nullable": true,
+            "description": "回答率",
+            "example": 0.5
+          },
+          "target_count": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "対象者数",
+            "example": 20
+          },
+          "unanswered_count": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "未回答者数",
+            "example": 10
+          },
+          "viewer_scope": {
+            "type": "string",
+            "description": "閲覧範囲",
+            "example": "all"
+          }
+        },
+        "description": "実施回の詳細",
+        "additionalProperties": false
+      },
+      "Survey.SurveyTargetWithUnansweredCount": {
+        "type": "object",
+        "required": [
+          "id",
+          "employee_id",
+          "answered_at",
+          "consecutive_unanswered_count"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "従業員ID",
+            "example": 100
+          },
+          "answered_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "回答日時(ISO8601)。未回答の場合はnull",
+            "example": "2026-08-02T10:00:00Z"
+          },
+          "consecutive_unanswered_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "連続未回答回数",
+            "example": 2
+          }
+        },
+        "description": "回答対象者(未回答回数付き)",
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "OAuth2Auth": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://accounts.secure.freee.co.jp/public_api/authorize",
+            "tokenUrl": "https://accounts.secure.freee.co.jp/public_api/token",
+            "scopes": {
+              "write": "",
+              "read": ""
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.freee.co.jp",
+      "description": "",
+      "variables": {}
+    }
+  ]
+}
