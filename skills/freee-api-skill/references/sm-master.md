@@ -1,103 +1,57 @@
 # master
 
-## 概要
-
 関連マスタ
 
-## エンドポイント一覧
+## GET /master/business_phases — 案件フェーズ一覧
 
-### GET /master/business_phases
-
-操作: 案件フェーズ一覧
-
-説明: 概要 案件フェーズ一覧を取得します。 使用可能なもののみを返却します。
+概要 案件フェーズ一覧を取得します。 使用可能なもののみを返却します。
 
 ### パラメータ
 
-| 名前 | 位置 | 必須 | 型 | 説明 |
-|------|------|------|-----|------|
-| company_id | query | はい | integer(int64) | 事業所ID |
+- company_id*: integer(int64) - 事業所ID
 
-### レスポンス (200)
+## GET /master/sales_progressions — 受注確度一覧
 
-### GET /master/sales_progressions
-
-操作: 受注確度一覧
-
-説明: 概要 受注確度情報を取得します。 使用可能なもののみを返却します。
+概要 受注確度情報を取得します。 使用可能なもののみを返却します。
 
 ### パラメータ
 
-| 名前 | 位置 | 必須 | 型 | 説明 |
-|------|------|------|-----|------|
-| company_id | query | はい | integer(int64) | 事業所ID |
+GET /master/business_phases と同じ
 
-### レスポンス (200)
+## GET /master/items — 商品一覧
 
-### GET /master/items
-
-操作: 商品一覧
-
-説明: 概要 商品情報を取得します。 使用可能なもののみを返却します。
+概要 商品情報を取得します。 使用可能なもののみを返却します。
 
 ### パラメータ
 
-| 名前 | 位置 | 必須 | 型 | 説明 |
-|------|------|------|-----|------|
-| company_id | query | はい | integer(int64) | 事業所ID |
-| offset | query | いいえ | integer(int32) | 取得レコードのオフセット（デフォルト：0） |
-| limit | query | いいえ | integer(int32) | 取得レコードの件数（デフォルト：100, 最小：1, 最大：500） |
-| type | query | はい | string | 業務区分 (sales: 販売系, procurement: 調達系) (選択肢: sales, procurement) |
+- company_id*: integer(int64) - 事業所ID
+- offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
+- limit: integer(int32) - 取得レコードの件数（デフォルト：100, 最小：1, 最大：500）
+- type*: string - 業務区分 (sales: 販売系, procurement: 調達系) (選択肢: sales, procurement)
 
-### レスポンス (200)
+## GET /master/deal_line_types — 明細取引タイプ一覧
 
-### GET /master/deal_line_types
-
-操作: 明細取引タイプ一覧
-
-説明: 概要 明細取引タイプ一覧を取得します。 使用停止中のものはレスポンスに含まれません。
+概要 明細取引タイプ一覧を取得します。 使用停止中のものはレスポンスに含まれません。
 
 ### パラメータ
 
-| 名前 | 位置 | 必須 | 型 | 説明 |
-|------|------|------|-----|------|
-| company_id | query | はい | integer(int64) | 事業所ID |
-| type | query | はい | string | 利用区分: 販売系、調達系どちらの明細取引タイプを取得するか (選択肢: sales, procurement) |
+- company_id*: integer(int64) - 事業所ID
+- type*: string - 利用区分: 販売系、調達系どちらの明細取引タイプを取得するか (選択肢: sales, procurement)
 
-### レスポンス (200)
+## GET /master/employees — 従業員一覧
 
-### GET /master/employees
-
-操作: 従業員一覧
-
-説明: 概要 従業員一覧を取得します。 使用可能なもののみを返却します。
+概要 従業員一覧を取得します。 使用可能なもののみを返却します。
 
 ### パラメータ
 
-| 名前 | 位置 | 必須 | 型 | 説明 |
-|------|------|------|-----|------|
-| company_id | query | はい | integer(int64) | 事業所ID |
-| offset | query | いいえ | integer(int32) | 取得レコードのオフセット（デフォルト：0） |
-| limit | query | いいえ | integer(int32) | 取得レコードの件数（デフォルト：100, 最小：1, 最大：500） |
+- company_id*: integer(int64) - 事業所ID
+- offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
+- limit: integer(int32) - 取得レコードの件数（デフォルト：100, 最小：1, 最大：500）
 
-### レスポンス (200)
+## GET /master/custom_fields/business/definitions — 案件カスタム項目定義一覧
 
-### GET /master/custom_fields/business/definitions
-
-操作: 案件カスタム項目定義一覧
-
-説明: 概要 カスタム項目定義の一覧を取得します。 使用可能なもののみを返却します。 入力形式の一覧 text: 一行テキスト textarea: 複数行テキスト amount: 金額 quantity: 数量 number: 数値 date: 日付 enum: プルダウン partner: 取引先 employee: 従業員 section: 部門 master_item: 商品
+概要 カスタム項目定義の一覧を取得します。 使用可能なもののみを返却します。 入力形式の一覧 text : 一行テキスト textarea : 複数行テキスト amount : 金額 quantity : 数量 number : 数値 date : 日付 enum : プルダウン partner : 取引先 employee : 従業員 section : 部門 master_item : 商品
 
 ### パラメータ
 
-| 名前 | 位置 | 必須 | 型 | 説明 |
-|------|------|------|-----|------|
-| company_id | query | はい | integer(int64) | 事業所ID |
-
-### レスポンス (200)
-
-
-
-## 参考情報
-
-- freee API公式ドキュメント: https://developer.freee.co.jp/docs
+GET /master/business_phases と同じ
