@@ -252,19 +252,20 @@ export async function startHttpServer(options?: {
       resourceServerUrl: mcpResourceUrl,
       scopesSupported: ['mcp:read', 'mcp:write'],
       resourceName: 'freee MCP Server',
-      // Disable the SDK's built-in /register limiter (1h/20, in-memory). The
-      // freee-mcp Redis-backed limiter mounted in setupRateLimiting() is the
-      // single source of truth for /register throttling.
-      //
-      // clientSecretExpirySeconds: 0 issues non-expiring secrets
-      // (client_secret_expires_at: 0). The SDK default is 30 days, but a DCR
-      // registration is reused for up to CLIENT_TTL_SECONDS (1 year) via the
-      // fingerprint dedup path, and vendor-fronted clients (claude.ai, ...)
-      // share a single registration across all their users. A 30-day secret
-      // therefore expires while the registration is still live, breaking every
-      // user of that vendor at /token until the client is re-registered. Match
-      // the secret lifetime to the registration lifetime by not expiring it.
-      clientRegistrationOptions: { rateLimit: false, clientSecretExpirySeconds: 0 },
+      clientRegistrationOptions: {
+        // Disable the SDK's built-in /register limiter (1h/20, in-memory). The
+        // freee-mcp Redis-backed limiter mounted in setupRateLimiting() is the
+        // single source of truth for /register throttling.
+        rateLimit: false,
+        // 0 issues non-expiring secrets (client_secret_expires_at: 0), leaving
+        // the stored registration's TTL as the only lifetime. The SDK default of
+        // 30 days is shorter than both that TTL (1 year) and
+        // REFRESH_TOKEN_TTL_SECONDS (90 days), so the secret died while the
+        // registration was still live and still being handed out by the
+        // fingerprint dedup -- breaking every user of a vendor-fronted client at
+        // /token, since client authentication is evaluated before the grant.
+        clientSecretExpirySeconds: 0,
+      },
     }),
   );
 

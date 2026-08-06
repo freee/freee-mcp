@@ -1,7 +1,9 @@
+import type { OAuthClientInformationFull } from '@modelcontextprotocol/sdk/shared/auth.js';
 import express from 'express';
 import { MemoryStore } from 'express-rate-limit';
 import request from 'supertest';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { RedisClientStore } from './client-store.js';
 import { setupRateLimiting } from './http-server.js';
 import { RequestRecorder, withRequestRecorder } from './request-context.js';
 
@@ -42,6 +44,109 @@ async function buildTokenApp(preMiddleware?: express.RequestHandler): Promise<ex
 
   return app;
 }
+
+// Exercises the real /register chain (dedup middleware -> rate limiter) against
+// a real RedisClientStore backed by an in-memory map, so the fingerprint is
+// computed and looked up exactly as it is in production. The stub registration
+// handler stands in for the SDK's clientRegistrationHandler: reaching it means
+// fresh credentials would be minted.
+async function buildRegisterApp(seed?: OAuthClientInformationFull): Promise<{
+  app: express.Express;
+  mintedRegistrations: () => number;
+}> {
+  const app = express();
+  const map = new Map<string, string>();
+  const redis = {
+    get: vi.fn(async (key: string) => map.get(key) ?? null),
+    set: vi.fn(async (key: string, value: string) => {
+      map.set(key, value);
+      return 'OK';
+    }),
+    del: vi.fn(async (key: string) => (map.delete(key) ? 1 : 0)),
+  };
+  const clientStore = new RedisClientStore({ redis: redis as never });
+  if (seed) await clientStore.registerClient(seed);
+
+  const logger = {
+    info: () => {},
+    warn: () => {},
+    error: () => {},
+    debug: () => {},
+  } as unknown as Parameters<typeof setupRateLimiting>[3];
+
+  await setupRateLimiting(app, redis as never, clientStore, logger, {
+    createStore: () => new MemoryStore(),
+  });
+
+  let minted = 0;
+  app.post('/register', (_req, res) => {
+    minted++;
+    res.status(201).json({ client_id: 'freshly-minted' });
+  });
+
+  return { app, mintedRegistrations: () => minted };
+}
+
+const registrationMetadata = {
+  redirect_uris: ['https://app.example.com/cb'],
+  client_name: 'Example',
+  scope: 'mcp:read mcp:write',
+  token_endpoint_auth_method: 'client_secret_basic',
+};
+
+function seededClient(expiresAt: number): OAuthClientInformationFull {
+  return {
+    ...registrationMetadata,
+    client_id: 'existing-cid',
+    client_id_issued_at: 1700000000,
+    client_secret: 'existing-secret',
+    client_secret_expires_at: expiresAt,
+  } as OAuthClientInformationFull;
+}
+
+describe('/register dedup (integration)', () => {
+  it('reuses a live registration without reaching the registration handler', async () => {
+    const nowSec = Math.floor(Date.now() / 1000);
+    const { app, mintedRegistrations } = await buildRegisterApp(
+      seededClient(nowSec + 30 * 24 * 60 * 60),
+    );
+
+    const res = await request(app).post('/register').send(registrationMetadata);
+
+    expect(res.status).toBe(201);
+    expect((res.body as { client_id: string }).client_id).toBe('existing-cid');
+    expect(mintedRegistrations()).toBe(0);
+  });
+
+  it('falls through to registration when the existing secret has expired', async () => {
+    // The re-registering client replays identical metadata, so the fingerprint
+    // still hits. Returning the dead registration would loop it on
+    // `invalid_client` forever, so the dedup must let it mint a new one.
+    const nowSec = Math.floor(Date.now() / 1000);
+    const { app, mintedRegistrations } = await buildRegisterApp(seededClient(nowSec - 60));
+
+    const res = await request(app).post('/register').send(registrationMetadata);
+
+    expect(res.status).toBe(201);
+    expect((res.body as { client_id: string }).client_id).toBe('freshly-minted');
+    expect(mintedRegistrations()).toBe(1);
+  });
+
+  it('caps repeated fall-through registrations at the /register IP limit', async () => {
+    // Once the dedup misses, requests hit the limiter. RATE_LIMITS.register.max
+    // is 3/hour/IP; the clients it 429s recover on retry via the dedup, because
+    // the first success repoints the fingerprint index at fresh credentials.
+    const { app } = await buildRegisterApp();
+
+    const statuses: number[] = [];
+    for (let i = 0; i < 5; i++) {
+      const res = await request(app).post('/register').send(registrationMetadata);
+      statuses.push(res.status);
+    }
+
+    expect(statuses).toEqual([201, 201, 201, 429, 429]);
+  });
+});
 
 describe('/token rate limiting (integration)', () => {
   it('does not throttle distinct credentials sharing one egress IP', async () => {
