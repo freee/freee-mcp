@@ -56,22 +56,20 @@ freee_api_get {
 
 ## 帳票識別子の選び方
 
-`available_sheets` の各要素には、少なくとも `sheet_key`、`title`、`category` が含まれ、環境と機能切替の状態により `sheet_code` も含まれる。
+`available_sheets` の各要素には `sheet_code`、`title`、`category` が含まれる。
+帳票を指定する識別子は `sheet_code` を使う。
 
-- `sheet_code` がある場合は、その値を帳票取得パスの `{sheet_key}` 部分へ渡す
-- `sheet_code` がない旧形式のレスポンスでは、`sheet_key` を使う
+- 帳票取得パスの帳票識別子の位置には、`available_sheets` から取得した `sheet_code` の値をそのまま渡す
 - 国税・地方税の `sheet_code` は数値文字列、決算書は `balance_sheet` などの固定識別子
-- `sheet_key` は廃止予定なので、新旧どちらも返る場合は `sheet_code` を優先する
 - 表示名から識別子を組み立てたり、過去に使えた固定値を決め打ちしたりしない
-
-パス変数名は互換性のため `{sheet_key}` のままだが、新しいXML経路では `sheet_code` の値を受け取る。
+- `sheet_code` が返らない場合は推測で別の識別子に切り替えず、APIの機能切替と反映versionを確認する
 
 ## category別の取得フロー
 
 ### national
 
 1. `available_sheets` から `category: national` の対象を選ぶ
-2. `GET /hub/tax_return/corporate/sheet/national/{tax_return_id}/{sheet_key}` を呼ぶ
+2. `GET /hub/tax_return/corporate/sheet/national/{tax_return_id}/{sheet_code}` を呼ぶ
 3. 返されたXML文字列から、質問に必要な項目だけを読み取る
 
 ### local
@@ -79,17 +77,17 @@ freee_api_get {
 1. `available_sheets` から `category: local` の対象を選ぶ
 2. `GET /hub/tax_return/corporate/office_info/{tax_return_id}` で対象拠点を特定する
 3. レスポンスから `prefecture_government_code` と `city_government_code` の両方を取得する
-4. `GET /hub/tax_return/corporate/sheet/local/{tax_return_id}/{sheet_key}/{prefecture_government_code}/{city_government_code}` を呼ぶ
+4. `GET /hub/tax_return/corporate/sheet/local/{tax_return_id}/{sheet_code}/{prefecture_government_code}/{city_government_code}` を呼ぶ
 
 都道府県名や市区町村名から自治体コードを推測しない。必ず事業所情報APIの値を使う。
 
 ### financial_statements
 
 1. `available_sheets` から `category: financial_statements` の対象を選ぶ
-2. `GET /hub/tax_return/corporate/sheet/financial_statements/{tax_return_id}/{sheet_key}` を呼ぶ
+2. `GET /hub/tax_return/corporate/sheet/financial_statements/{tax_return_id}/{sheet_code}` を呼ぶ
 3. 返されたXML文字列から必要な勘定科目や注記だけを読み取る
 
-決算書の新しい識別子は `balance_sheet`、`profit_and_loss`、`cost_report`、`statements_of_shareholders`、`notes_to_financial_statements`。旧識別子もあるため、固定値ではなく一覧に返った値を使う。
+決算書の `sheet_code` は `balance_sheet`、`profit_and_loss`、`cost_report`、`statements_of_shareholders`、`notes_to_financial_statements`。決め打ちせず、一覧に返った値を使う。
 
 ## 結果の伝え方
 
@@ -154,7 +152,7 @@ https://www.e-tax.nta.go.jp/shiyo/index.htm#anc05
 - 401/403: 認証状態、利用中clientの許可、利用者の権限、法人税プラン、対象事業所を確認する
 - 404: `tax_return_id` と `available_sheets` の最新値を取り直して確認する
 - 429: 再試行案内に従い、対象を絞ってから再実行する
-- `sheet_code` で400または404になる: 一覧を再取得し、`sheet_code` が消えていれば旧形式として `sheet_key` を使う。一覧に `sheet_code` があるのに失敗する場合は推測で切り替えず、APIの機能切替と反映versionを確認する
+- `sheet_code` で400または404になる: 一覧を再取得して最新の `sheet_code` を確認する。一覧にある `sheet_code` で失敗する場合は推測で切り替えず、APIの機能切替と反映versionを確認する
 - XMLが安全上限を超える: 全文取得を繰り返したり上限回避を試したりせず、対象帳票と必要項目を絞る。全文が必要なら別の安全な受け渡し設計を案内する
 
 403は過度なアクセスによる一時制限の場合もある。制限確認のために大量リクエストを送らない。
