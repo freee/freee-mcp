@@ -64,6 +64,11 @@ API リファレンスが `references/` に含まれます。各リファレン�
 - `invoice-invoices.md` - 請求書
 - `tax-return-corporate.md` - 法人税申告・帳票
 
+法人税の帳票 XML（XTX / XBRL）の各要素と紙の帳票の項目との対応は
+`tax-return-references/` にあります。索引と共通仕様は
+`tax-return-references/index.md`、個別の帳票は
+`tax-return-references/{sheet_code}_{帳票名}.md` です。
+
 ## 使い方
 
 ### MCP ツール
