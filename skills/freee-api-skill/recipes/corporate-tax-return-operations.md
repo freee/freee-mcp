@@ -9,14 +9,13 @@ freee申告 Public API を使い、法人税申告の状況、国税・地方税
 帳票XMLの各要素が紙の帳票のどの項目にあたるかは、以下を参照。
 
 - `tax-return-references/index.md` - 帳票一覧・xpath表記の規則・共通ヘッダ（envelope / 構成管理情報）
-- `tax-return-references/{sheet_code}_{帳票名}.md` - 帳票ごとの項目マッピング
+- `tax-return-references/{sheet_code}.md` - 帳票ごとの項目マッピング
 
 ## 前提
 
 - MCPの `service` は `tax_return`
 - 対象APIはすべてGETで、申告の作成・更新・削除・確定はできない
-- 申告一覧と事業所情報はJSON、帳票3種はXML文字列で返る
-- 帳票のJSON形式は廃止予定のため、新しい処理ではXMLを使う
+- 帳票3種はXML文字列で返る
 - API側で利用中のOAuth clientが許可されている必要があり、未許可の環境では403になる
 - すべての呼び出しで現在の事業所と同じ `company_id` を指定する
 
@@ -107,7 +106,7 @@ freee_api_get {
 XTXやXBRLの要素名だけでは意味を特定できない場合、まず `tax-return-references/` の項目マッピングを引く。
 
 1. 対象帳票の `sheet_code` を `available_sheets` から確認する
-2. `tax-return-references/{sheet_code}_{帳票名}.md` を開く（ファイル名の先頭が `sheet_code`）
+2. `tax-return-references/{sheet_code}.md` を開く（同じ `sheet_code` で様式が分かれる帳票のみ `{sheet_code}_{様式ID}.md`）
 3. 要素名またはxpathでファイル内を検索し、「項目名」列と「帳票項番」列を読む
 4. 共通ヘッダ（国税の `//IT/...`、地方税の `/SHINKOKU_UNIT/...`）は
    `tax-return-references/index.md` にある
@@ -155,7 +154,6 @@ https://www.e-tax.nta.go.jp/shiyo/index.htm#anc05
 - 401/403: 認証状態、利用中clientの許可、利用者の権限、法人税プラン、対象事業所を確認する
 - 404: `tax_return_id` と `available_sheets` の最新値を取り直して確認する
 - 429: 再試行案内に従い、対象を絞ってから再実行する
-- XMLではなくJSONが返る: 一覧の `sheet_code` ではなく旧 `sheet_key` を使っていないか確認する。`sheet_code` が返らない場合は機能切替の状態を確認する
 - `sheet_code` で400または404になる: 一覧を再取得し、`sheet_code` が消えていれば旧形式として `sheet_key` を使う。一覧に `sheet_code` があるのに失敗する場合は推測で切り替えず、APIの機能切替と反映versionを確認する
 - XMLが安全上限を超える: 全文取得を繰り返したり上限回避を試したりせず、対象帳票と必要項目を絞る。全文が必要なら別の安全な受け渡し設計を案内する
 
