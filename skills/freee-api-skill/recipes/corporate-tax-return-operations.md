@@ -6,7 +6,7 @@ freee申告 Public API を使い、法人税申告の状況、国税・地方税
 
 - `references/tax-return-corporate.md` - 法人税申告・帳票
 
-帳票XMLの各要素が紙の帳票のどの項目にあたるかは、以下を参照。
+帳票データの各要素（XMLのxpath、またはJSONのフィールドコード）が紙の帳票のどの項目にあたるかは、以下を参照。
 
 - `tax-return-references/index.md` - 帳票一覧・xpath表記の規則・共通ヘッダ（envelope / 構成管理情報）
 - `tax-return-references/{sheet_code}.md` - 帳票ごとの項目マッピング
@@ -15,7 +15,7 @@ freee申告 Public API を使い、法人税申告の状況、国税・地方税
 
 - MCPの `service` は `tax_return`
 - 対象APIはすべてGETで、申告の作成・更新・削除・確定はできない
-- 帳票3種はXML文字列で返る
+- 帳票3種は`application/xml`（推奨）をAcceptヘッダで要求しているが、freee API側の状況により非推奨のJSON形式（`data.tax_data`/`data.envelope`/`data.xtx`を持つオブジェクト）で返ることがある。レスポンスの実体（XML文字列かJSONオブジェクトか）を都度確認してから読み取る
 - API側で利用中のOAuth clientが許可されている必要があり、未許可の環境では403になる
 - すべての呼び出しで現在の事業所と同じ `company_id` を指定する
 
@@ -40,7 +40,7 @@ freee申告 Public API を使い、法人税申告の状況、国税・地方税
 3. `start_date` と `end_date` から対象年度を特定し、`id` を `tax_return_id` として使う
 4. `status`、`current`、`synchronized_at` を確認する
 5. 帳票が必要なら、同じ申告の `available_sheets` から対象を選ぶ
-6. `category` に応じた帳票APIを呼び、XML文字列から必要な項目だけを読み取る
+6. `category` に応じた帳票APIを呼び、返ってきた形式（XML文字列 or JSONオブジェクト）に応じて必要な項目だけを読み取る
 
 申告一覧の呼び出し例:
 
@@ -70,7 +70,7 @@ freee_api_get {
 
 1. `available_sheets` から `category: national` の対象を選ぶ
 2. `GET /hub/tax_return/corporate/sheet/national/{tax_return_id}/{sheet_code}` を呼ぶ
-3. 返されたXML文字列から、質問に必要な項目だけを読み取る
+3. 返り値がXML文字列ならxpathで、JSONオブジェクトなら `data.xtx.{様式ID}.pages[]` 配下のフィールドコードをキーに、質問に必要な項目だけを読み取る
 
 ### local
 
@@ -85,7 +85,7 @@ freee_api_get {
 
 1. `available_sheets` から `category: financial_statements` の対象を選ぶ
 2. `GET /hub/tax_return/corporate/sheet/financial_statements/{tax_return_id}/{sheet_code}` を呼ぶ
-3. 返されたXML文字列から必要な勘定科目や注記だけを読み取る
+3. 返り値がXML文字列ならxpathで、JSONオブジェクトなら `data.xtx.{xbrl_id}` 配下のフィールドコードをキーに、必要な勘定科目や注記だけを読み取る
 
 決算書の `sheet_code` は `balance_sheet`、`profit_and_loss`、`cost_report`、`statements_of_shareholders`、`notes_to_financial_statements`。決め打ちせず、一覧に返った値を使う。
 
@@ -96,8 +96,8 @@ freee_api_get {
 - 数値を報告するときは、対象年度、帳票名、`status`、`synchronized_at` を添える
 - 前年度比較では、一覧の `prev_tax_return_id` を使い、年度と帳票の対応を確認する
 - XTXやXBRLのコード名だけから項目の意味を推測しない。まず `tax-return-references/` を引き、そこにも無ければ意味を確認できない旨を伝える
-- XML全文をそのまま表示せず、質問に必要な箇所だけを要約または引用する
-- ユーザーがXML全文そのものを求めた場合は、会話履歴へ機微情報が残り得ることを説明し、表示前に確認する
+- 帳票データ（XML全文またはJSONオブジェクト全体）をそのまま表示せず、質問に必要な箇所だけを要約または引用する
+- ユーザーが帳票データの全文そのものを求めた場合は、会話履歴へ機微情報が残り得ることを説明し、表示前に確認する
 
 ## XTXフィールドの仕様を確認したい場合
 
@@ -108,6 +108,8 @@ XTXやXBRLの要素名だけでは意味を特定できない場合、まず `ta
 3. 要素名またはxpathでファイル内を検索し、「項目名」列と「帳票項番」列を読む
 4. 共通ヘッダ（国税の `//IT/...`、地方税の `/SHINKOKU_UNIT/...`）は
    `tax-return-references/index.md` にある
+
+レスポンスがJSONオブジェクトの場合、xpathの中間グループ要素（例: `ARB00000`）はJSONに現れず、末尾の要素名（例: `ARB00010`）がそのまま `data.xtx.{様式ID}.pages[n]` 直下のキーになる。マッピング表のxpathの最後のセグメントをJSONのキー名として照合する。国税帳票の共通ヘッダは `data.envelope` に対応する。
 
 このマッピングは freee社内の帳票定義と公式の様式仕様書から機械生成したもので、出所不明の対応表ではない。
 ただし様式のテンプレートであり、対象バージョンや前提は `index.md` の「出典と注意事項」に従って扱う。
