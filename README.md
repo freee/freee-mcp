@@ -168,15 +168,15 @@ codex plugin marketplace add freee/freee-mcp
 
 ## Agent Skills の内容
 
-| API      | 内容                                             | ファイル数 |
-| -------- | ------------------------------------------------ | ---------- |
-| 会計     | 取引、勘定科目、取引先、請求書、経費申請など     | 33         |
-| 人事労務 | 従業員、勤怠、給与明細、年末調整など             | 28         |
-| 請求書   | 請求書、見積書、納品書                           | 6          |
+| API      | 内容                                                 | ファイル数 |
+| -------- | ---------------------------------------------------- | ---------- |
+| 会計     | 取引、勘定科目、取引先、請求書、経費申請など         | 33         |
+| 人事労務 | 従業員、勤怠、給与明細、年末調整など                 | 28         |
+| 請求書   | 請求書、見積書、納品書、領収書、発注書、支払通知書   | 6          |
 | 工数管理 | プロジェクト、チーム、パートナー、工数、ユーザーなど | 9          |
-| 販売     | 案件、受注、マスタ                               | 13          |
-| IT管理   | メンバー、SaaSアカウント、備品                   | 4          |
-| サイン   | 文書、フォルダ、テンプレート、マイ印鑑など       | 8          |
+| 販売     | 案件、受注、マスタ                                   | 13         |
+| IT管理   | メンバー、SaaSアカウント、備品                       | 4          |
+| サイン   | 文書、フォルダ、テンプレート、マイ印鑑など           | 8          |
 
 AI Agent との会話中に freee API の操作を依頼すると、これらのリファレンスやレシピを参照して正確に実行します。
 
@@ -310,6 +310,7 @@ npx --package=freee-mcp -- freee-sign-mcp configure
 <a href="https://github.com/ryoya1122"><img src="https://github.com/ryoya1122.png" width="40" height="40" alt="@ryoya1122"></a>
 <a href="https://github.com/Kanahiro"><img src="https://github.com/Kanahiro.png" width="40" height="40" alt="@Kanahiro"></a>
 <a href="https://github.com/kagemeka"><img src="https://github.com/kagemeka.png" width="40" height="40" alt="@kagemeka"></a>
+<a href="https://github.com/carrotRakko"><img src="https://github.com/carrotRakko.png" width="40" height="40" alt="@carrotRakko"></a>
 <!-- CONTRIBUTORS-END -->
 
 ## 開発者向け

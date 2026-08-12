@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import type { OAuthRegisteredClientsStore } from '@modelcontextprotocol/sdk/server/auth/clients.js';
 import express, { type RequestHandler } from 'express';
+import { isClientSecretExpired } from './client-store.js';
 import { makeErrorChain } from './error-serializer.js';
 import { getCurrentRecorder } from './request-context.js';
 
@@ -167,10 +168,9 @@ export function decodeBasicAuth(options: DecodeBasicAuthOptions): RequestHandler
             reject401(res, realm, 'Invalid client_secret');
             return;
           }
-          if (
-            client.client_secret_expires_at &&
-            client.client_secret_expires_at < Math.floor(Date.now() / 1000)
-          ) {
+          // Shared with the /register dedup path so both agree on what "expired"
+          // means, and with the SDK's own body-credential check underneath.
+          if (isClientSecretExpired(client, Math.floor(Date.now() / 1000))) {
             reject401(res, realm, 'Client secret has expired');
             return;
           }

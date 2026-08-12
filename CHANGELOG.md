@@ -1,5 +1,40 @@
 # freee-mcp
 
+## 0.32.3
+
+### Patch Changes
+
+- [`e0610a2`](https://github.com/freee/freee-mcp/commit/e0610a2616640c06c21feeebeff1614bfc577a89): Remote モードで DCR クライアントの client_secret が 30 日で失効し、認可後の `/token` で `invalid_client: Client secret has expired` となる問題を修正。
+
+  - 発行する client_secret を無期限化（登録レコードの寿命と揃える）
+  - `/register` の dedup が失効済み client_secret を持つ登録を返さないようにした。失効時はヒットしなかったものとして扱い、fingerprint インデックスを削除して新規登録を発行する
+
+  claude.ai 等のベンダー経由クライアントは 1 つの登録を全ユーザーで共有するため、失効すると全ユーザーが同時に接続不能になっていた。さらに再登録しても metadata が同一で dedup が同じ失効登録を返すため、クライアント側からは復旧できなかった。修正前に発行済みの失効クライアントも、次回登録時に手動オペなしで自動回復する。
+
+- [`2ae0880`](https://github.com/freee/freee-mcp/commit/2ae0880e3634a13397daffdee5ca462a3ea00a3a): API リファレンスの冗長な表現を削減し、トークン消費を約 52% 削減しました。あわせて販売管理・サイン API のリファレンスで欠落・誤りがあった項目を修正しています。
+
+  軽量化:
+
+  - パラメータを markdown テーブルから箇条書きに変更
+  - 必須・任意の表記を `名前*`（必須）に簡素化。リクエストボディ自体の必須性は見出しの `### リクエストボディ*` で表現
+  - レスポンスをトップレベルの項目のみに簡略化（詳細は API を呼び出して確認）
+  - 同一ファイル内で内容が同一のブロックを初出への参照に置き換え
+  - description に残っていた HTML タグを除去
+
+  修正:
+
+  - `components.requestBodies` への `$ref` を解決するようにし、販売管理 API の 40 エンドポイントで丸ごと欠落していたリクエストボディを出力
+  - 複数要素の `allOf` を合成するようにし、サイン API などで `object` と誤表示されていた型・例・制約を正しく出力
+
+## 0.32.2
+
+### Patch Changes
+
+- [`c90a69c`](https://github.com/freee/freee-mcp/commit/c90a69c08b35dad0e0141c25b3f23260e9992bde): invoice-operations レシピに支払通知書（/payment_notices）の操作を追記
+
+  - パス一覧・作成例・取消/復元・Web 確認 URL・リファレンスに支払通知書を追加
+  - 支払通知書はメモタグ（lines[].tag_ids）非対応であることを明記
+
 ## 0.32.1
 
 ### Patch Changes
