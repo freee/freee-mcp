@@ -179,6 +179,12 @@ const SCHEMA_SOURCES = [
     minimalFile: "it-management.json",
   },
   {
+    name: "partner-management-api",
+    url: "https://api-schema.freee.co.jp/partner_management.yml",
+    outputFile: "partner-management-api-schema.json",
+    minimalFile: "partner-management.json",
+  },
+  {
     // mcp-only（freee-mcp リモート版でのみ利用可）区分のエンドポイントを集約した
     // スキーマ。どのドメインでも mcp-only 指定されたものはこの1ファイルに入る想定
     // （api-hub の schemas/openapi/public/mcponly.yml）。ここに含まれるパスは

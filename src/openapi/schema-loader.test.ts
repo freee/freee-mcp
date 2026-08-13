@@ -17,6 +17,7 @@ describe('schema-loader', () => {
       'pm',
       'sm',
       'it_management',
+      'partner_management',
       'survey',
     ];
 
@@ -27,6 +28,7 @@ describe('schema-loader', () => {
       pm: 'pm',
       sm: 'sm',
       it_management: 'it-management',
+      partner_management: 'partner-management',
       survey: 'survey',
     };
 
@@ -146,6 +148,7 @@ describe('schema-loader', () => {
       'FREEE_API_BASE_URL_PM',
       'FREEE_API_BASE_URL_SM',
       'FREEE_API_BASE_URL_IT_MANAGEMENT',
+      'FREEE_API_BASE_URL_PARTNER_MANAGEMENT',
     ];
 
     afterEach(() => {

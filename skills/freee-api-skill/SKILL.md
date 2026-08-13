@@ -1,6 +1,6 @@
 ---
 name: freee-api-skill
-description: "freee-mcp / freee-sign-mcp と連携するスキル。会計・人事労務・請求書・工数管理・販売・IT管理・サーベイ・サイン（電子契約）の詳細APIリファレンスと使い方ガイドを提供。freee の経費申請・取引登録・勤怠打刻・給与明細・見積書・試算表・仕訳・従業員管理・工数登録・売上管理・SaaSアカウント管理・備品管理・サーベイ企画/実施回の取得・電子契約の文書管理などの操作やAPI仕様を調べたいときに使う。ユーザーが freee のデータ操作、会計処理、人事労務管理、請求・見積、プロジェクト工数管理、販売管理、IT管理、サーベイ、電子契約について質問や操作を依頼してきた場合は、明示的に freee と言及していなくても、このスキルの利用を検討すること。サインは別途 freee-sign-mcp の設定が必要。"
+description: "freee-mcp / freee-sign-mcp と連携するスキル。会計・人事労務・請求書・工数管理・販売・IT管理・業務委託管理・サーベイ・サイン（電子契約）の詳細APIリファレンスと使い方ガイドを提供。freee の経費申請・取引登録・勤怠打刻・給与明細・見積書・試算表・仕訳・従業員管理・工数登録・売上管理・SaaSアカウント管理・備品管理・業務委託先の企業ユーザー/部門管理・サーベイ企画/実施回の取得・電子契約の文書管理などの操作やAPI仕様を調べたいときに使う。ユーザーが freee のデータ操作、会計処理、人事労務管理、請求・見積、プロジェクト工数管理、販売管理、IT管理、業務委託管理、サーベイ、電子契約について質問や操作を依頼してきた場合は、明示的に freee と言及していなくても、このスキルの利用を検討すること。サインは別途 freee-sign-mcp の設定が必要。"
 license: Apache-2.0
 metadata:
   author: freee_jp
@@ -11,7 +11,7 @@ metadata:
 
 ## 概要
 
-freee の会計・人事労務・請求書・工数管理・販売・IT管理・サーベイのデータを AI から直接操作できるスキルです。
+freee の会計・人事労務・請求書・工数管理・販売・IT管理・業務委託管理・サーベイのデータを AI から直接操作できるスキルです。
 
 [freee-mcp](https://www.npmjs.com/package/freee-mcp) (MCP サーバー) を通じて freee API と連携。
 
@@ -112,6 +112,7 @@ serviceパラメータ (必須):
 | `pm` | freee工数管理 (プロジェクト、工数など) | `/projects` |
 | `sm` | freee販売 (見積、受注、売上など) | `/businesses` |
 | `it_management` | freeeIT管理 (SaaSアカウント、備品、メンバー) | `/hub/it_management/members` |
+| `partner_management` | freee業務委託管理 (業務委託先の企業ユーザー・部門) | `/hub/partner_management/orderer/company_users` |
 | `survey` | freeeサーベイ (サーベイ企画、実施回) ※ freee-mcp（リモート版） 限定 | `/hub/survey/base_surveys` |
 
 ### 基本ワークフロー

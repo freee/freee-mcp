@@ -1,0 +1,22 @@
+{
+  "paths": {
+    "/hub/partner_management/orderer/company_users": {
+      "get": {
+        "summary": "企業ユーザー一覧取得（β版）",
+        "description": "企業ユーザーの一覧を取得する"
+      }
+    },
+    "/hub/partner_management/orderer/company_users/{id}": {
+      "get": {
+        "summary": "企業ユーザー詳細取得（β版）",
+        "description": "企業ユーザー情報を取得する"
+      }
+    },
+    "/hub/partner_management/orderer/sections": {
+      "get": {
+        "summary": "部門一覧取得（β版）",
+        "description": "部門一覧を取得する"
+      }
+    }
+  }
+}
