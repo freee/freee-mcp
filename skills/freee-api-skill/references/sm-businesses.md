@@ -30,7 +30,7 @@ start_business_date : 案件登録日(絞り込み開始) end_business_date : �
 概要 新しい案件を登録します。 顧客との商談や受注案件を管理するための案件情報を登録できます。
 
 定義
-必須項目 name : 案件名称 company_id : 事業所ID 任意項目 code : 案件コード business_date : 案件登録日 charge_employee_id : 社内担当者の従業員ID customer_id : 顧客の取引先ID prospect_sales_order : 受注見込 sales_progression_id : 受注確度ID scheduled_completion_date : 完了予定日 completion_date : 完了日 business_phase_id : 案件フェーズID reporting_section_id : 担当部門ID internal_memo : 社内メモ custom_fields : カスタム項目
+必須項目 name : 案件名称 company_id : 事業所ID 任意項目 code : 案件コード business_date : 案件登録日 charge_employee_id : 社内担当者の従業員ID customer_id : 顧客の取引先ID prospect_sales_order : 受注見込 sales_progression_id : 受注確度ID scheduled_completion_date : 完了予定日 completion_date : 完了日 business_phase_id : 案件フェーズID reporting_section_id : 担当部門ID internal_memo : 社内メモ common_business_id : 案件マスタID custom_fields : カスタム項目
 
 ### リクエストボディ
 
@@ -49,6 +49,7 @@ start_business_date : 案件登録日(絞り込み開始) end_business_date : �
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
+- common_business_id: string - 紐付ける案件マスタID（ULID形式）。案件登録時のみ指定可能で、案件更新では紐付けの変更はできません（紐付け済みの案件に対して既存と異なる値を指定した場合はエラー） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - custom_fields: array[object] - カスタム項目 例: `[{"definition_id":"01JPP4FD1CVQWCDSWA90VE1ZTM","value":"PJ-123456"},{"definition_id":"01JPP4FD1CVQWCDSWA90VE1ZTN","value":234}]`
   配列の要素:
     - definition_id*: string - カスタム項目ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
@@ -91,6 +92,7 @@ start_business_date : 案件登録日(絞り込み開始) end_business_date : �
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
+- common_business_id: string - 紐付ける案件マスタID（ULID形式）。案件登録時のみ指定可能で、案件更新では紐付けの変更はできません（紐付け済みの案件に対して既存と異なる値を指定した場合はエラー） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - custom_fields: array[object] - カスタム項目 例: `[{"definition_id":"01JPP4FD1CVQWCDSWA90VE1ZTM","value":"PJ-123456"},{"definition_id":"01JPP4FD1CVQWCDSWA90VE1ZTN","value":234}]`
   配列の要素:
     - definition_id*: string - カスタム項目ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`

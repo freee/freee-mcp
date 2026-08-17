@@ -104,7 +104,8 @@
     "it_management_members": "members"
   },
   "mcponly-api": {
-    "survey": "surveys"
+    "survey": "surveys",
+    "launch_kaigyo_application": "launch-kaigyo-application"
   },
   "sign-api": {
     "文書": "documents",

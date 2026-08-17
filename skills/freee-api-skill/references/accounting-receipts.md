@@ -4,18 +4,21 @@
 
 ## GET /api/1/receipts — ファイルボックス（証憑ファイル）一覧の取得
 
-概要 指定した事業所のファイルボックス（証憑ファイル）一覧を取得する
+概要 指定した事業所のファイルボックス（証憑ファイル）一覧を取得する アップロード日（start_date〜end_date）の期間を指定して取得します。ファイルの実体（バイナリ）は本APIでは取得できないため、ファイルボックス（証憑ファイル）のダウンロードAPI（GET /api/1/receipts/{id}/download）を利用してください。
+
+注意点
+一度に取得できる件数は最大3000件です（デフォルト: 50件）。それを超えるファイルを取得する場合は、offsetとlimitを利用してページングしてください。
 
 ### パラメータ
 
 - company_id*: integer(int64) - 事業所ID
-- start_date*: string - アップロード日 (yyyy-mm-dd)
-- end_date*: string - アップロード日 (yyyy-mm-dd)
-- user_name: string - アップロードしたユーザー名、メールアドレス
-- number: integer(int64) - アップロードファイルNo
-- comment_type: string - posted:コメントあり, raised:未解決, resolved:解決済 (選択肢: posted, raised, resolved)
-- comment_important: boolean - trueの時、お気に入りコメント付きが対象
-- category: string - all:すべて、without_deal:未登録、with_expense_application_line:経費申請中, with_deal:登録済み、ignored:無視 (選択肢: all, without_deal, with_expense_application_line, with_deal, ignored)
+- start_date*: string - アップロード日で絞込：開始日 (yyyy-mm-dd)
+- end_date*: string - アップロード日で絞込：終了日 (yyyy-mm-dd)
+- user_name: string - アップロードしたユーザーで絞込。ユーザーの表示名またはメールアドレスの部分一致で指定します。
+- number: integer(int64) - アップロードファイルNo（ファイルボックス上でファイルごとに表示される番号）で絞込
+- comment_type: string - ファイルに付けられたコメントの状態で絞込（posted:コメントあり, raised:未解決, resolved:解決済） (選択肢: posted, raised, resolved)
+- comment_important: boolean - trueを指定した場合、お気に入りコメントが付いたファイルのみが対象になります
+- category: string - ファイルの取引への登録状態で絞込（all:すべて, without_deal:未登録, with_expense_application_line:経費申請中, with_deal:登録済み, ignored:無視。デフォルト: all） (選択肢: all, without_deal, with_expense_application_line, with_deal, ignored)
 - offset: integer(int64) - 取得レコードのオフセット (デフォルト: 0)
 - limit: integer(int64) - 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 3000)
 
@@ -36,7 +39,7 @@
 
 ## GET /api/1/receipts/{id} — ファイルボックス（証憑ファイル）の取得
 
-概要 指定した事業所のファイルボックス（証憑ファイル）を取得する
+概要 指定した事業所のファイルボックス（証憑ファイル）を取得する ファイルの実体（バイナリ）は本APIでは取得できないため、ファイルボックス（証憑ファイル）のダウンロードAPI（GET /api/1/receipts/{id}/download）を利用してください。
 
 ### パラメータ
 
@@ -52,7 +55,7 @@ POST /api/1/receipts と同じ
 概要 ファイルボックス（証憑ファイル）を更新する
 
 注意点
-本APIでは、証憑ファイルの再アップロードはできません。
+本APIでは、証憑ファイルの再アップロードはできません。 リクエストボディに含めたフィールドのみが更新されます。含めなかったフィールドの値は変更されません。
 
 ### パラメータ
 
@@ -61,14 +64,14 @@ POST /api/1/receipts と同じ
 ### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
-- description: string - メモ (255文字以内) 例: `メモ`
-- receipt_metadatum: object
+- description: string - メモ (255文字以内) 例: `タクシー利用`
+- receipt_metadatum: object - 電子帳簿保存法の検索要件に対応するメタデータ（発行元・発行日・金額）
   - partner_name: string - 発行元 例: `freeeパートナー`
   - issue_date: string - 発行日 (yyyy-mm-dd) 例: `2019-12-17`
-  - amount: integer(int64) - 金額 例: `5250` (最小: -999999999999, 最大: 999999999999)
+  - amount: integer(int64) - 金額（円） 例: `5250` (最小: -999999999999, 最大: 999999999999)
 - qualified_invoice: string - 適格請求書等（qualified: 該当する、not_qualified: 該当しない、unselected: 未選択） (選択肢: qualified, not_qualified, unselected) 例: `qualified`
 - invoice_registration_number: string - インボイス制度適格請求書発行事業者登録番号
-  - 先頭T数字13桁の固定14桁の文字列
+  - 先頭T数字13桁の14桁の文字列。先頭のTは省略可能です（省略した場合もT付きの登録番号として登録され、レスポンスではT付きの14桁で返ります）
   国税庁インボイス制度適格請求書発行事業者公表サイト 例: `T1000000000001` (パターン: ^T?[1-9][0-9]{12}$)
 - document_type: string - 書類の種類（receipt: 領収書、invoice: 請求書、other: その他） (選択肢: receipt, invoice, other) 例: `receipt`
 
@@ -86,7 +89,7 @@ GET /api/1/receipts/{id} と同じ
 
 ## GET /api/1/receipts/{id}/download — ファイルボックス（証憑ファイル）のダウンロード
 
-概要 指定した事業所のファイルボックス（証憑ファイル）をダウンロードする
+概要 指定した事業所のファイルボックス（証憑ファイル）をダウンロードする レスポンスのContent-Typeは、アップロードされたファイルの形式（ファイルボックス（証憑ファイル）の取得APIで返るmime_type）に応じて返ります。
 
 ### パラメータ
 

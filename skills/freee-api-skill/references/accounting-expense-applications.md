@@ -22,8 +22,8 @@
 - end_issue_date: string - 申請日で絞込：終了日(yyyy-mm-dd)
 - applicant_id: integer(int64) - 申請者のユーザーID
 - approver_id: integer(int64) - 承認者のユーザーID
-- min_amount: integer(int64) - 金額で絞込 (下限金額)
-- max_amount: integer(int64) - 金額で絞込 (上限金額)
+- min_amount: integer(int64) - 経費申請の合計金額で絞込：下限金額 (単位:円、以上)
+- max_amount: integer(int64) - 経費申請の合計金額で絞込：上限金額 (単位:円、以下)
 - offset: integer(int64) - 取得レコードのオフセット (デフォルト: 0)
 - limit: integer(int64) - 取得レコードの件数 (デフォルト: 50, 最小: 1, 最大: 500)
 
@@ -76,6 +76,16 @@
   「承認者を指定」の経路を申請経路として使用する場合に指定してください。
 
   指定する承認者のユーザーIDは、申請経路APIを利用して取得してください。 例: `1` (最小: 1)
+- applicant_group_id: integer(int64) - 申請者の所属部門ID
+
+  「部門役職」の承認ステップを含む申請経路で、申請者がどの所属部門として申請するかを指定します。
+
+  申請者が複数の部門に所属している場合は必須です。省略すると400エラーになります。
+
+  申請者の所属部門が1つだけの場合は、省略するとその部門が採用されます。 例: `1` (最小: 1)
+- approval_flow_group_id: integer(int64) - 申請経路の承認部門ID
+
+  1段階目の承認ステップが部門選択型の場合に、承認させる部門を指定してください。 例: `1` (最小: 1)
 - draft: boolean - 経費申請のステータス
 
   falseを指定した時は申請中（in_progress）で経費申請を作成します。
@@ -87,7 +97,16 @@
 
   承認済みの既存各種申請IDのみ指定可能です。
 
-  各種申請一覧APIを利用して取得してください。 例: `2` (最小: 1)
+  各種申請一覧APIを利用して取得してください。
+
+  親申請の種別を購買申請にする場合は parent_type に PurchaseRequest を指定してください。 例: `2` (最小: 1)
+- parent_type: string - 親申請の種別 (parent_id を指定した場合のみ有効)
+
+  ApprovalRequest: 各種申請 (parent_type 未指定時のデフォルト)
+
+  PurchaseRequest: 購買申請
+
+  上記以外の値を指定するとバリデーションエラーになります。 例: `ApprovalRequest`
 - segment_1_tag_id: integer(int64) - セグメント１タグID
 
   セグメントタグ一覧の取得APIを利用して取得してください。
@@ -172,6 +191,16 @@ POST /api/1/expense_applications と同じ
 - approver_id: integer(int64) - 承認者のユーザーID
 
   指定する承認者のユーザーIDは、申請経路APIを利用して取得してください。 例: `1` (最小: 1)
+- applicant_group_id: integer(int64) - 申請者の所属部門ID
+
+  「部門役職」の承認ステップを含む申請経路で、申請者がどの所属部門として申請するかを指定します。
+
+  申請者が複数の部門に所属している場合は必須です。省略すると400エラーになります。
+
+  申請者の所属部門が1つだけの場合は、省略するとその部門が採用されます。 例: `1` (最小: 1)
+- approval_flow_group_id: integer(int64) - 申請経路の承認部門ID
+
+  1段階目の承認ステップが部門選択型の場合に、承認させる部門を指定してください。 例: `1` (最小: 1)
 - draft: boolean - 経費申請のステータス
 
   falseを指定した時は申請中（in_progress）で経費申請を更新します。
@@ -183,7 +212,20 @@ POST /api/1/expense_applications と同じ
 
   承認済みの既存各種申請IDのみ指定可能です。
 
-  各種申請一覧APIを利用して取得してください。 例: `2` (最小: 1)
+  各種申請一覧APIを利用して取得してください。
+
+  親申請の種別を購買申請にする場合は parent_type に PurchaseRequest を指定してください。
+
+  null を指定すると、現在設定されている親申請との関連付けを解除します。
+
+  キーを指定しない場合、親申請は更新されません（他のフィールドと同じキー未指定=更新なしの挙動）。 例: `2` (最小: 1)
+- parent_type: string - 親申請の種別 (parent_id を指定した場合のみ有効)
+
+  ApprovalRequest: 各種申請 (parent_type 未指定時のデフォルト)
+
+  PurchaseRequest: 購買申請
+
+  上記以外の値を指定するとバリデーションエラーになります。 例: `ApprovalRequest`
 - segment_1_tag_id: integer(int64) - セグメント１タグID
 
   セグメントタグ一覧の取得APIを利用して取得してください。
@@ -233,6 +275,9 @@ PUT /api/1/expense_applications/{id} と同じ
 - target_step_id*: integer(int64) - 対象承認ステップID 経費申請の取得APIレスポンス.current_step_idを送信してください。 例: `1` (最小: 1)
 - target_round*: integer(int64) - 対象round。差し戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。経費申請の取得APIレスポンス.current_roundを送信してください。 例: `1` (最小: 0, 最大: 2147483647)
 - next_approver_id: integer(int64) - 次ステップの承認者のユーザーID 例: `1` (最小: 1)
+- next_group_id: integer(int64) - 次ステップの承認部門ID
+
+  次の承認ステップが部門選択型の場合に、承認させる部門を指定してください。 例: `1` (最小: 1)
 
 ### レスポンス
 

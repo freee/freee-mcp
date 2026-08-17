@@ -86,7 +86,7 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 
 納品詳細取得のレスポンス
 - id*: string - 納品ID
-- sales_order_id: string - 紐づく受注ID
+- sales_order_id: string - 受注ID
 - delivery_status*: string - 納品ステータス (未納品: not_delivered, 納品済: delivered)
 - acceptance_status*: string - 検収ステータス (未検収: not_accepted, 検収済: accepted)
 - canceled*: boolean - 取消状態

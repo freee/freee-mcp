@@ -12,18 +12,18 @@
 ### パラメータ
 
 - company_id*: integer(int64) - 事業所ID
-- included_user_id: integer(int64) - 経路に含まれるユーザーのユーザーID
-- usage: string - 申請種別（各申請種別が使用できる申請経路に絞り込めます。例えば、ApprovalRequest を指定すると、各種申請が使用できる申請経路に絞り込めます。）
+- included_user_id: integer(int64) - 経路に含まれるユーザーのユーザーID（指定したユーザーが承認ステップの承認者に含まれる申請経路に絞り込めます）
+- usage: string - 申請種別（各申請種別が使用できる申請経路に絞り込めます。例えば、ApprovalRequest を指定すると、各種申請が使用できる申請経路に絞り込めます。未指定の場合は全ての申請種別の申請経路が対象になります。）
   * `TxnApproval` - 仕訳承認
   * `ExpenseApplication` - 経費精算
   * `PaymentRequest` - 支払依頼
   * `ApprovalRequest` - 各種申請
   * `DocApproval` - 請求書等 (見積書・納品書・請求書・発注書) (選択肢: TxnApproval, ExpenseApplication, PaymentRequest, ApprovalRequest, DocApproval)
-- request_form_id: integer - 申請フォームID request_form_id指定時はusage条件をApprovalRequestに指定してください。指定しない場合無効になります。
+- request_form_id: integer(int64) - 申請フォームID（指定した申請フォームが使用できる申請経路に絞り込めます。usage に ApprovalRequest を指定した場合のみ有効で、usage が ApprovalRequest 以外または未指定の場合、このパラメータは無視されます。指定した申請フォームが存在しない場合や無効な場合は空配列が返ります。）
 
 ### レスポンス
 
-- approval_flow_routes*: array[object]
+- approval_flow_routes*: array[object] - 申請経路の一覧
 
 ## GET /api/1/approval_flow_routes/{id} — 申請経路の取得
 
@@ -34,8 +34,8 @@
 
 ### パラメータ
 
-- id* (path): integer - 経路申請ID
-- company_id*: integer - 事業所ID
+- id* (path): integer(int64) - 申請経路ID
+- company_id*: integer(int64) - 事業所ID
 
 ### レスポンス
 

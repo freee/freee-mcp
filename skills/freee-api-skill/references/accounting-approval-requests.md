@@ -47,6 +47,16 @@
 - approval_flow_route_id*: integer(int64) - 申請経路ID 例: `1` (最小: 1)
 - form_id*: integer(int64) - 申請フォームID 例: `1` (最小: 1)
 - approver_id: integer(int64) - 承認者のユーザーID 例: `1` (最小: 1)
+- applicant_group_id: integer(int64) - 申請者の所属部門ID
+
+  「部門役職」の承認ステップを含む申請経路で、申請者がどの所属部門として申請するかを指定します。
+
+  申請者が複数の部門に所属している場合は必須です。省略すると400エラーになります。
+
+  申請者の所属部門が1つだけの場合は、省略するとその部門が採用されます。 例: `1` (最小: 1)
+- approval_flow_group_id: integer(int64) - 申請経路の承認部門ID
+
+  1段階目の承認ステップが部門選択型の場合に、承認させる部門を指定してください。 例: `1` (最小: 1)
 - draft*: boolean - 各種申請のステータス
 
   falseを指定した時は申請中（in_progress）で各種申請を作成します。
@@ -98,6 +108,16 @@ POST /api/1/approval_requests と同じ
   指定しない場合は当日の日付が登録されます。 例: `2019-12-17`
 - approval_flow_route_id*: integer(int64) - 申請経路ID 例: `1` (最小: 1)
 - approver_id: integer(int64) - 承認者のユーザーID 例: `1` (最小: 1)
+- applicant_group_id: integer(int64) - 申請者の所属部門ID
+
+  「部門役職」の承認ステップを含む申請経路で、申請者がどの所属部門として申請するかを指定します。
+
+  申請者が複数の部門に所属している場合は必須です。省略すると400エラーになります。
+
+  申請者の所属部門が1つだけの場合は、省略するとその部門が採用されます。 例: `1` (最小: 1)
+- approval_flow_group_id: integer(int64) - 申請経路の承認部門ID
+
+  1段階目の承認ステップが部門選択型の場合に、承認させる部門を指定してください。 例: `1` (最小: 1)
 - draft*: boolean - 各種申請のステータス
 
   falseを指定した時は申請中（in_progress）で各種申請を更新します。
@@ -142,6 +162,9 @@ PUT /api/1/approval_requests/{id} と同じ
 - target_step_id*: integer(int64) - 対象承認ステップID 各種申請の取得APIレスポンス.current_step_idを送信してください。 例: `1` (最小: 1)
 - target_round*: integer - 対象round。差し戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。各種申請の取得APIレスポンス.current_roundを送信してください。 例: `1` (最小: 0, 最大: 2147483647)
 - next_approver_id: integer(int64) - 次ステップの承認者のユーザーID 例: `1` (最小: 1)
+- next_group_id: integer(int64) - 次ステップの承認部門ID
+
+  次の承認ステップが部門選択型の場合に、承認させる部門を指定してください。 例: `1` (最小: 1)
 
 ### レスポンス
 
