@@ -3357,9 +3357,12 @@
                     "validate",
                     "error",
                     "unauthorized",
+                    "forbidden",
                     "record_not_found",
+                    "resource_not_found",
                     "payment_required",
-                    "bad_request"
+                    "bad_request",
+                    "internal_server_error"
                   ]
                 },
                 "codes": {

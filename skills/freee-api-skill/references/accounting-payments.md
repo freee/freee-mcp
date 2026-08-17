@@ -16,10 +16,10 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
 ### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1)
-- date*: string - 支払日 例: `2019-12-17`
-- from_walletable_type*: string - 口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet, プライベート資金: private_account_item)：payments指定時は必須 (選択肢: bank_account, credit_card, wallet, private_account_item) 例: `bank_account`
-- from_walletable_id*: integer(int64) - 口座ID（from_walletable_typeがprivate_account_itemの場合は勘定科目ID）：payments指定時は必須 例: `1` (最小: 1)
-- amount*: integer(int64) - 金額 例: `10000` (最小: 1, 最大: 9223372036854776000)
+- date*: string - 支払日 (yyyy-mm-dd) 例: `2019-12-17`
+- from_walletable_type*: string - 口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet, プライベート資金: private_account_item) (選択肢: bank_account, credit_card, wallet, private_account_item) 例: `bank_account`
+- from_walletable_id*: integer(int64) - 口座ID（from_walletable_typeがprivate_account_itemの場合は勘定科目ID） 例: `1` (最小: 1)
+- amount*: integer(int64) - 支払金額（円） 例: `10000` (最小: 1, 最大: 9223372036854776000)
 
 ### レスポンス
 
@@ -35,7 +35,7 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
 ### パラメータ
 
 - id* (path): integer(int64) - 取引ID
-- payment_id* (path): integer(int64) - 決済ID
+- payment_id* (path): integer(int64) - 支払行ID（取引のレスポンスのpayments配列のid）
 
 ### リクエストボディ*
 
@@ -55,5 +55,5 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
 ### パラメータ
 
 - id* (path): integer(int64) - 取引ID
-- payment_id* (path): integer(int64) - 決済ID
+- payment_id* (path): integer(int64) - 支払行ID（取引のレスポンスのpayments配列のid）
 - company_id*: integer(int64) - 事業所ID
