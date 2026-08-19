@@ -141,7 +141,7 @@ freee のデータをグラフ・表・HTML 等で可視化する場合は `COLO
 - 認証エラー（Remote MCP）: MCP クライアント（Claude Desktop 等）が自動的に再認証を促します。解決しない場合はカスタムコネクタを一度削除し、再度追加してください。
 - 認証エラー（ローカル）: `freee_auth_status` で確認 → `freee_clear_auth` → `freee_authenticate`
 - 事業所エラー: `freee_list_companies` → `freee_set_current_company`
-- 詳細: `recipes/troubleshooting/INDEX.md` 参照（症状別に auth / company / expense-errors / support へ分かれています）
+- 詳細: `troubleshooting/INDEX.md` 参照（症状別に auth / company / expense-errors / support へ分かれています）
 
 ## freee-mcp（リモート版） 限定のエンドポイントについて
 
@@ -151,4 +151,4 @@ freee のデータをグラフ・表・HTML 等で可視化する場合は `COLO
 
 ## API の機能制限について
 
-freee API 自体の機能制限に起因する問題は freee-mcp では解決できません。詳細は `recipes/troubleshooting/support.md` を参照してください。
+freee API 自体の機能制限に起因する問題は freee-mcp では解決できません。詳細は `troubleshooting/support.md` を参照してください。
