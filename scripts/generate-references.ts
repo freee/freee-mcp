@@ -554,6 +554,17 @@ function formatSuccessResponse(
 /**
  * Extract endpoints by tag from OpenAPI schema
  */
+/**
+ * INDEX.md の1行分。generateReference() が生成のついでに返す。
+ */
+interface IndexEntry {
+  prefix: string;
+  fileName: string;
+  tagName: string;
+  summary: string;
+  isMcpOnly: boolean;
+}
+
 function extractEndpointsByTag(
   schema: OpenAPISchema,
   tagName: string
@@ -686,8 +697,9 @@ async function generateReference(
   englishName: string,
   prefix: string,
   outputDir: string
-): Promise<void> {
-  const outputFile = join(outputDir, `${prefix}-${englishName}.md`);
+): Promise<IndexEntry> {
+  const fileName = `${prefix}-${englishName}.md`;
+  const outputFile = join(outputDir, fileName);
 
   // Get tag description from schema.
   // 説明がないタグは `${tagName}の操作` のような情報量ゼロの見出しになるだけなので出さない。
@@ -713,7 +725,16 @@ ${endpointsMd.trimEnd()}
 `;
 
   await writeFile(outputFile, markdown, "utf-8");
-  console.log(`Generated: ${prefix}-${englishName}.md`);
+  console.log(`Generated: ${fileName}`);
+
+  return {
+    prefix,
+    fileName,
+    tagName,
+    // タグ説明がない API（pm 等）は日本語ラベルが取れないのでタグ名で代用する。
+    summary: tagDesc || tagName,
+    isMcpOnly,
+  };
 }
 
 /**
@@ -811,7 +832,7 @@ async function processApi(
   prefix: string,
   mappings: TagMappings,
   outputDir: string
-): Promise<void> {
+): Promise<IndexEntry[]> {
   console.log("");
   console.log(`Processing ${apiKey}...`);
   console.log("================================");
@@ -824,18 +845,20 @@ async function processApi(
   const tagMappings = mappings[apiKey];
   if (!tagMappings) {
     console.log(`No mappings found for ${apiKey}`);
-    return;
+    return [];
   }
 
-  let count = 0;
+  const entries: IndexEntry[] = [];
   for (const [tagName, englishName] of Object.entries(tagMappings)) {
     if (englishName) {
-      await generateReference(apiKey, schema, tagName, englishName, prefix, outputDir);
-      count++;
+      entries.push(
+        await generateReference(apiKey, schema, tagName, englishName, prefix, outputDir)
+      );
     }
   }
 
-  console.log(`Generated ${count} files for ${apiKey}`);
+  console.log(`Generated ${entries.length} files for ${apiKey}`);
+  return entries;
 }
 
 // API configurations
@@ -851,6 +874,60 @@ const API_CONFIGS = [
   { apiKey: "mcponly-api", schemaFile: MCPONLY_SCHEMA_FILE, prefix: "survey", outputDir: OUTPUT_DIR },
   { apiKey: "sign-api", schemaFile: join(OPENAPI_DIR, "sign-api-schema.json"), prefix: "sign", outputDir: SIGN_OUTPUT_DIR },
 ];
+
+// ファイル名 prefix -> freee_api_* ツールの service パラメータと日本語ラベル。
+// prefix は API_CONFIGS のものと一致させること（新しいドメインを足したらここも足す）。
+const SERVICE_LABELS: Record<string, { service: string; label: string }> = {
+  accounting: { service: "accounting", label: "freee会計" },
+  hr: { service: "hr", label: "freee人事労務" },
+  invoice: { service: "invoice", label: "freee請求書" },
+  pm: { service: "pm", label: "freee工数管理" },
+  sm: { service: "sm", label: "freee販売" },
+  "it-management": { service: "it_management", label: "freeeIT管理" },
+  survey: { service: "survey", label: "freeeサーベイ" },
+};
+
+/**
+ * 索引の1行に埋め込める文字列にする（改行と区切り文字を潰す）
+ */
+function toIndexText(text: string): string {
+  return text.replace(/\s*\n\s*/g, " ").replace(/\s*—\s*/g, " ").trim();
+}
+
+/**
+ * Generate references/INDEX.md from the entries collected during generation.
+ *
+ * リファレンス本体と同じソース（tag-mappings.json + スキーマ）から作るので、
+ * スキーマ同期でタグが増減しても索引が自動で追従する。手編集しないこと。
+ */
+async function writeReferenceIndex(entries: IndexEntry[], outputDir: string): Promise<void> {
+  let markdown = `# API リファレンス索引
+
+\`freee_api_*\` ツールの service ごとに、\`references/\` 内の各リファレンスを
+「ファイル名 — 内容」の形式で列挙する。
+目的の API が分かっている場合はここからファイルを特定し、分からない場合は
+\`references/\` 全体をキーワード検索する。
+
+このファイルは \`scripts/generate-references.ts\` が自動生成する（手編集しないこと）。
+`;
+
+  // prefix の並びは SERVICE_LABELS の定義順（＝ドメインの提示順）に固定する。
+  for (const [prefix, { service, label }] of Object.entries(SERVICE_LABELS)) {
+    const rows = entries.filter((entry) => entry.prefix === prefix);
+    if (rows.length === 0) continue;
+
+    markdown += `\n## ${service} - ${label}\n\n`;
+
+    for (const entry of rows.sort((a, b) => a.fileName.localeCompare(b.fileName))) {
+      const mcpOnly = entry.isMcpOnly ? "⚠ freee-mcp（リモート版） 限定 / " : "";
+      markdown += `- ${entry.fileName} — ${mcpOnly}${toIndexText(entry.summary)}\n`;
+    }
+  }
+
+  const outputFile = join(outputDir, "INDEX.md");
+  await writeFile(outputFile, markdown, "utf-8");
+  console.log(`Generated: INDEX.md (${entries.length} references)`);
+}
 
 /**
  * Main execution
@@ -902,9 +979,18 @@ async function main(): Promise<void> {
     }
 
     // Process each API
+    const indexEntries: IndexEntry[] = [];
     for (const { apiKey, schemaFile, prefix, outputDir } of API_CONFIGS) {
-      await processApi(apiKey, schemaFile, prefix, mappings, outputDir);
+      const entries = await processApi(apiKey, schemaFile, prefix, mappings, outputDir);
+      // sign は SIGN-GUIDE.md がリファレンス一覧を持っているので索引の対象外。
+      if (outputDir === OUTPUT_DIR) {
+        indexEntries.push(...entries);
+      }
     }
+
+    // Generate references/INDEX.md
+    console.log("");
+    await writeReferenceIndex(indexEntries, OUTPUT_DIR);
 
     console.log("");
     console.log("========================================");

@@ -140,6 +140,8 @@ Common issues:
 - `skills/freee-api-skill/` 内の `VERSION.md` は npm publish 時に自動生成されるため、開発環境（ローカル）には存在しない
 - 開発環境では `freee_server_info` のバージョンが `dev` と返る（正常動作）。実際のバージョンは `package.json` の `version` を参照する
 - Skill の更新（レシピ・リファレンスの追加・修正など）は changeset で `patch` バージョンとする
+- `skills/freee-api-skill/references/INDEX.md` は `scripts/generate-references.ts` が自動生成する（手編集しないこと）。新しいドメインを追加する場合は同スクリプトの `SERVICE_LABELS` にも prefix を足す
+- `SKILL.md` は実行時に毎回読まれるので、セットアップ手順（`SETUP.md`）や配色定義（`COLORS.md`）のように条件が揃ったときだけ必要な情報は別ファイルに置き、`SKILL.md` からは参照条件だけ書く
 
 ## Skill レシピの書き方
 
