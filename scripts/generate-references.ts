@@ -562,7 +562,6 @@ interface IndexEntry {
   fileName: string;
   tagName: string;
   summary: string;
-  paths: string[];
   isMcpOnly: boolean;
 }
 
@@ -734,7 +733,6 @@ ${endpointsMd.trimEnd()}
     tagName,
     // タグ説明がない API（pm 等）は日本語ラベルが取れないのでタグ名で代用する。
     summary: tagDesc || tagName,
-    paths: endpoints.map(({ path }) => path),
     isMcpOnly,
   };
 }
@@ -889,22 +887,11 @@ const SERVICE_LABELS: Record<string, { service: string; label: string }> = {
   survey: { service: "survey", label: "freeeサーベイ" },
 };
 
-// 索引に載せるパスの上限。全件並べると1行が長くなり索引としての一覧性が落ちるため、
-// 短い（＝ベースに近い）パスから数件だけ載せ、残りは件数で示す。
-const INDEX_MAX_PATHS = 3;
-
 /**
- * Markdown テーブルのセルに埋め込める1行文字列にする
+ * 索引の1行に埋め込める文字列にする（改行と区切り文字を潰す）
  */
-function toTableCell(text: string): string {
-  return text.replace(/\|/g, "\\|").replace(/\s*\n\s*/g, " ").trim();
-}
-
-function formatIndexPaths(paths: string[]): string {
-  const sorted = [...new Set(paths)].sort((a, b) => a.length - b.length || a.localeCompare(b));
-  const shown = sorted.slice(0, INDEX_MAX_PATHS).map((path) => `\`${path}\``);
-  const rest = sorted.length - shown.length;
-  return rest > 0 ? `${shown.join(", ")} ほか${rest}件` : shown.join(", ");
+function toIndexText(text: string): string {
+  return text.replace(/\s*\n\s*/g, " ").replace(/\s*—\s*/g, " ").trim();
 }
 
 /**
@@ -916,8 +903,9 @@ function formatIndexPaths(paths: string[]): string {
 async function writeReferenceIndex(entries: IndexEntry[], outputDir: string): Promise<void> {
   let markdown = `# API リファレンス索引
 
-\`freee_api_*\` ツールの service と、\`references/\` 内の各リファレンスの対応表。
-目的の API が分かっている場合はこの表からファイルを特定し、分からない場合は
+\`freee_api_*\` ツールの service ごとに、\`references/\` 内の各リファレンスを
+「ファイル名 — 内容」の形式で列挙する。
+目的の API が分かっている場合はここからファイルを特定し、分からない場合は
 \`references/\` 全体をキーワード検索する。
 
 このファイルは \`scripts/generate-references.ts\` が自動生成する（手編集しないこと）。
@@ -929,12 +917,10 @@ async function writeReferenceIndex(entries: IndexEntry[], outputDir: string): Pr
     if (rows.length === 0) continue;
 
     markdown += `\n## ${service} - ${label}\n\n`;
-    markdown += "| ファイル | 内容 | 主なパス |\n";
-    markdown += "| --- | --- | --- |\n";
 
     for (const entry of rows.sort((a, b) => a.fileName.localeCompare(b.fileName))) {
       const mcpOnly = entry.isMcpOnly ? "⚠ freee-mcp（リモート版） 限定 / " : "";
-      markdown += `| \`${entry.fileName}\` | ${mcpOnly}${toTableCell(entry.summary)} | ${formatIndexPaths(entry.paths)} |\n`;
+      markdown += `- ${entry.fileName} — ${mcpOnly}${toIndexText(entry.summary)}\n`;
     }
   }
 
