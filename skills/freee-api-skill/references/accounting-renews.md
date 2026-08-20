@@ -25,12 +25,12 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
   配列の要素:
     - account_item_id*: integer(int64) - 勘定科目ID 例: `1` (最小: 1)
     - tax_code*: integer(int64) - 税区分コード 例: `1` (最小: 0, 最大: 2147483647)
-    - amount*: integer(int64) - 取引金額（税込で指定してください）
+    - amount*: integer(int64) - 取引金額（円・税込で指定してください）
 
       マイナスの値を指定した場合、控除・マイナス行として登録されます。
 
       上記以外の値を指定した場合、通常行として登録されます。 例: `1080` (最小: -9223372036854776000, 最大: 9223372036854776000)
-    - vat: integer(int64) - 消費税額（指定しない場合は自動で計算されます） 例: `80` (最小: -9223372036854776000, 最大: 9223372036854776000)
+    - vat: integer(int64) - 消費税額（円。指定しない場合は自動で計算されます） 例: `80` (最小: -9223372036854776000, 最大: 9223372036854776000)
     - item_id: integer(int64) - 品目ID 例: `1` (最小: 1)
     - section_id: integer(int64) - 部門ID 例: `1` (最小: 1)
     - partner_id: integer(int64) - 取引先ID 例: `1` (最小: 0)
@@ -67,12 +67,12 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
   配列の要素:
     - account_item_id*: integer(int64) - 勘定科目ID 例: `1` (最小: 1)
     - tax_code*: integer(int64) - 税区分コード 例: `1` (最小: 0, 最大: 2147483647)
-    - amount*: integer(int64) - 取引金額（税込で指定してください）
+    - amount*: integer(int64) - 取引金額（円・税込で指定してください）
 
       マイナスの値を指定した場合、控除・マイナス行として登録されます。
 
       上記以外の値を指定した場合、通常行として登録されます。 例: `1080` (最小: -9223372036854776000, 最大: 9223372036854776000)
-    - vat: integer(int64) - 消費税額（指定しない場合は自動で計算されます） 例: `80` (最小: -9223372036854776000, 最大: 9223372036854776000)
+    - vat: integer(int64) - 消費税額（円。指定しない場合は自動で計算されます） 例: `80` (最小: -9223372036854776000, 最大: 9223372036854776000)
     - item_id: integer(int64) - 品目ID 例: `1` (最小: 1)
     - section_id: integer(int64) - 部門ID 例: `1` (最小: 1)
     - partner_id: integer(int64) - 取引先ID 例: `1` (最小: 0)
@@ -97,7 +97,7 @@ POST /api/1/deals/{id}/renews と同じ
 
 - id* (path): integer(int64) - 取引ID
 - renew_id* (path): integer(int64) - +更新ID
-- company_id*: integer(int64s) - 事業所ID
+- company_id*: integer(int64) - 事業所ID
 
 ### レスポンス
 

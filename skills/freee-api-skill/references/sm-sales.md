@@ -7,7 +7,7 @@
 概要 売上の一覧を取得します。 登録されている売上情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する売上のみを取得することが可能です。
 
 定義
-start_registered_date : 売上登録日(絞り込み開始) end_registered_date : 売上登録日(絞り込み終了) start_last_updated_date : 売上更新日(絞り込み開始) end_last_updated_date : 売上更新日(絞り込み終了) start_revenue_recognition_date : 売上日(絞り込み開始) end_revenue_recognition_date : 売上日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) business_ids : 案件ID(複数指定可) sales_no : 売上No. billing_status : 請求書送付ステータス collection_status : 入金ステータス...
+start_registered_date : 売上登録日(絞り込み開始) end_registered_date : 売上登録日(絞り込み終了) start_last_updated_date : 売上更新日(絞り込み開始) end_last_updated_date : 売上更新日(絞り込み終了) start_revenue_recognition_date : 売上日(絞り込み開始) end_revenue_recognition_date : 売上日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) business_ids : 案件ID(複数指定可) sales_no : 売上No. billing_status : 請求書送付ステータス collection_status : 決済ステータス...
 
 ### パラメータ
 
@@ -91,9 +91,9 @@ start_registered_date : 売上登録日(絞り込み開始) end_registered_date 
   ※partially_billed（一部送付済）は納品でのみ発生します。none（対象外）は売上でのみ発生します。
 - collection_status*: string - 決済ステータス (未決済: not_settled, 一部決済済: partially_settled, 決済済: settled, 無効: invalidated, 対象外: none)
   ※invalidated（無効）は請求でのみ発生します。売上・納品では発生しません。
-- sales_order_id: string - 紐づく受注ID
-- delivery_id: string - 紐づく納品ID
-- advance_receipt_id: string - 取り崩し元の前受金ID
+- sales_order_id: string - 受注ID
+- delivery_id: string - 納品ID
+- advance_receipt_id: string - 前受金ID
 - periodic_sales_id: string - 作成元の定期売上ID
 - bills_on: string(date) - 請求日
 - invoice_template_name*: string - 請求書テンプレート名称

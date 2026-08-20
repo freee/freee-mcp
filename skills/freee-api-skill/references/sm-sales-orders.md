@@ -93,7 +93,7 @@ start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 
 - collection_status*: string - 決済ステータス (未決済: not_settled, 一部決済済: partially_settled, 決済済: settled, 無効: invalidated, 対象外: none)
   ※invalidated（無効）は請求でのみ発生します。売上・納品では発生しません。
 - business: object - 案件
-- quotation_id: string - 紐づく見積ID
+- quotation_id: string - 見積ID
 - total_amount*: integer(int64) - 源泉徴収税額を除いた合計金額
 - canceled*: boolean - 取消状態
 - amount_set_rates*: array[object]
