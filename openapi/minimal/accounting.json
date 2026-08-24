@@ -1845,13 +1845,17 @@
             "name": "visible_tags[]",
             "in": "query",
             "type": "array",
-            "description": "補助科目やコメントとして出力する項目。download_type が generic・csv・pdf の場合のみ指定できます。\n* `partner` - 取引先タグ\n* `item` - 品目タグ\n* `tag` - メモタグ\n* `section` - 部門タグ\n* `description` - 備考欄\n* `wallet_txn_description` - 明細の備考欄\n* `segment_1_tag` - セグメント１タグ（download_type:generic のみ）\n* `segment_2_tag` - セグメント２タグ（download_type:generic のみ）\n* `segment_3_tag` - セグメント３タグ（download_type:generic のみ）\n* `all` - セグメントタグを除く上記すべてを有効として扱います。セグメントが必要な場合は all ではなく segment_1_tag・segment_2_tag・segment_3_tag を個別に指定してください。"
+            "description": "補助科目やコメントとして出力する項目。download_type が generic・csv・pdf の場合のみ指定できます。\n* `partner` - 取引先タグ\n* `item` - 品目タグ\n* `tag` - メモタグ\n* `section` - 部門タグ\n* `description` - 備考欄\n* `wallet_txn_description` - 明細の備考欄\n* `segment_1_tag` - セグメント１タグ（download_type:generic のみ）\n* `segment_2_tag` - セグメント２タグ（download_type:generic のみ）\n* `segment_3_tag` - セグメント３タグ（download_type:generic のみ）\n* `all` - セグメントタグを除く上記すべてを有効として扱います。セグメントが必要な場合は all ではなく segment_1_tag・segment_2_tag・segment_3_tag を個別に指定してください。",
+            "style": "form",
+            "explode": true
           },
           {
             "name": "visible_ids[]",
             "in": "query",
             "type": "array",
-            "description": "追加出力するID項目。download_type が generic の場合のみ指定できます。\n* `deal_id` - 取引ID\n* `transfer_id` - 取引（振替）ID\n* `manual_journal_id` - 振替伝票ID"
+            "description": "追加出力するID項目。download_type が generic の場合のみ指定できます。\n* `deal_id` - 取引ID\n* `transfer_id` - 取引（振替）ID\n* `manual_journal_id` - 振替伝票ID",
+            "style": "form",
+            "explode": true
           },
           {
             "name": "start_date",
