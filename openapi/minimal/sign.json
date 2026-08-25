@@ -56,19 +56,19 @@
           {
             "name": "page",
             "in": "query",
-            "type": "string",
+            "type": "integer",
             "required": false
           },
           {
             "name": "per_page",
             "in": "query",
-            "type": "string",
+            "type": "integer",
             "required": false
           },
           {
             "name": "folder_id",
             "in": "query",
-            "type": "string",
+            "type": "integer",
             "required": false,
             "description": "フォルダID。IDで指定したフォルダに格納されている文書一覧を取得できる。"
           },
@@ -139,35 +139,116 @@
     "/v1/documents/{document_id}": {
       "get": {
         "summary": "文書取得",
-        "description": "文書を取得する。\n\nPDF を取得したい場合は、Media Type を application/pdf にしてください。\n\nPDF作成処理中はエラーとなる為、時間を置いてAPIを再実行してください。\n\n締結済ファイル取得の際、Acceptヘッダーで`application/json`を指定し、`timestamped=true`を確認後にPDFファイルを取得してください。"
+        "description": "文書を取得する。\n\nPDF を取得したい場合は、Media Type を application/pdf にしてください。\n\nPDF作成処理中はエラーとなる為、時間を置いてAPIを再実行してください。\n\n締結済ファイル取得の際、Acceptヘッダーで`application/json`を指定し、`timestamped=true`を確認後にPDFファイルを取得してください。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          }
+        ]
       },
       "delete": {
         "summary": "文書削除",
         "description": "文書を削除する。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          }
+        ],
         "hasJsonBody": true
       },
       "patch": {
         "summary": "文書更新",
         "description": "文書を更新する。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
     "/v1/documents/{document_id}/activities": {
       "get": {
         "summary": "文書の操作履歴の一覧取得",
-        "description": "文書の操作履歴の一覧を取得する。"
+        "description": "文書の操作履歴の一覧を取得する。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "integer"
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "type": "integer"
+          }
+        ]
       }
     },
     "/v1/documents/{document_id}/attachment_files": {
       "get": {
         "summary": "添付ファイルの一覧取得",
-        "description": "添付ファイルの一覧を取得する。\n\nこのエンドポイントはセキュリティ保護のため、`APIクライアント` でのご利用を制限しております。`OAuth 2.0 APIクライアント` をご利用ください。"
+        "description": "添付ファイルの一覧を取得する。\n\nこのエンドポイントはセキュリティ保護のため、`APIクライアント` でのご利用を制限しております。`OAuth 2.0 APIクライアント` をご利用ください。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "integer"
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "type": "integer"
+          }
+        ]
       }
     },
     "/v1/documents/{document_id}/attachment_files/{attachment_file_id}": {
       "get": {
         "summary": "指定した添付ファイルの取得",
-        "description": "指定した添付ファイルを取得する。\n\nこのエンドポイントはセキュリティ保護のため、`APIクライアント` でのご利用を制限しております。`OAuth 2.0 APIクライアント` をご利用ください。"
+        "description": "指定した添付ファイルを取得する。\n\nこのエンドポイントはセキュリティ保護のため、`APIクライアント` でのご利用を制限しております。`OAuth 2.0 APIクライアント` をご利用ください。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          },
+          {
+            "name": "attachment_file_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "添付ファイルのID"
+          }
+        ]
       }
     },
     "/v1/documents/{document_id}/comments": {
@@ -176,20 +257,36 @@
         "description": "指定した文書のコメント一覧を取得する。\n取得者はアクセストークンの保有者（OAuth 連携の認可ユーザー）である必要がある。\nコメント機能を含むプランの契約が必要。",
         "parameters": [
           {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          },
+          {
             "name": "page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "per_page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           }
         ]
       },
       "post": {
         "summary": "文書コメントの投稿",
         "description": "指定した文書にコメントを投稿する。\n投稿者はアクセストークンの保有者（OAuth 連携の認可ユーザー）に固定される。\nコメント機能を含むプランの契約が必要。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
@@ -197,6 +294,15 @@
       "post": {
         "summary": "文書締結",
         "description": "要確認となった文書を締結する。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "締結する文書のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
@@ -204,30 +310,89 @@
       "post": {
         "summary": "文書送信",
         "description": "文書を送信する。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "送信する文書のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
     "/v1/documents/{document_id}/contract_certificate": {
       "get": {
         "summary": "電子契約締結に関する情報の取得",
-        "description": "文書に紐づく電子契約締結に関する情報を取得する。\n\nPDF を取得したい場合は、Media Type を application/pdf にしてください。"
+        "description": "文書に紐づく電子契約締結に関する情報を取得する。\n\nPDF を取得したい場合は、Media Type を application/pdf にしてください。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          }
+        ]
       }
     },
     "/v1/documents/{document_id}/document_items": {
       "post": {
         "summary": "入力項目付与",
         "description": "文書に入力項目を付与する。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
     "/v1/documents/{document_id}/document_items/{document_item_id}": {
       "delete": {
         "summary": "入力項目の削除",
-        "description": "文書に付与した入力項目を削除する。"
+        "description": "文書に付与した入力項目を削除する。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          },
+          {
+            "name": "document_item_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "入力項目のID"
+          }
+        ]
       },
       "patch": {
         "summary": "入力項目に値を設定",
         "description": "文書に付与した入力項目の値を設定する。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID"
+          },
+          {
+            "name": "document_item_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "入力項目のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
@@ -237,9 +402,23 @@
         "description": "入力項目に紐づくPDF上の配置座標一覧を取得する。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。",
         "parameters": [
           {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID（作成中ステータスのみ）"
+          },
+          {
+            "name": "document_item_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "入力項目のID"
+          },
+          {
             "name": "page",
             "in": "query",
-            "type": "string",
+            "type": "integer",
             "required": false
           },
           {
@@ -253,17 +432,79 @@
       "post": {
         "summary": "配置座標の追加",
         "description": "入力項目のPDF上の配置座標を追加する。\n1つの入力項目に対して複数の配置座標を指定可能（複数ページにまたがる場合等）。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID（作成中ステータスのみ）"
+          },
+          {
+            "name": "document_item_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "入力項目のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
     "/v1/documents/{document_id}/document_items/{document_item_id}/signatures/{signature_id}": {
       "delete": {
         "summary": "配置座標の削除",
-        "description": "入力項目のPDF上の配置座標を削除する。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。"
+        "description": "入力項目のPDF上の配置座標を削除する。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID（作成中ステータスのみ）"
+          },
+          {
+            "name": "document_item_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "入力項目のID"
+          },
+          {
+            "name": "signature_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "配置座標ID"
+          }
+        ]
       },
       "patch": {
         "summary": "配置座標の更新",
         "description": "入力項目のPDF上の配置座標を更新する。\n`formatting` キーを省略した場合、既存の formatting 設定はそのまま残る。\n`formatting: null` を明示的に指定した場合のみ、既存の formatting が削除される。\n`formatting: { ... }` を指定した場合は、既存の formatting が置き換えられる。\nファイルから作成した文書のみ対象。テンプレート文書等への操作は422を返す。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書のID（作成中ステータスのみ）"
+          },
+          {
+            "name": "document_item_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "入力項目のID"
+          },
+          {
+            "name": "signature_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "配置座標ID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
@@ -271,6 +512,15 @@
       "post": {
         "summary": "対面契約の有効期限の延長",
         "description": "確認待ちの対面契約の有効期限を延長する。\n\n対象文書は以下の条件を満たす必要があります。\n- ステータスが確認待ちであること\n- 対面契約として送信された文書であること\n- 対面契約プランが有効なチームの文書であること\n- 実行ユーザーが対面契約を開始できる権限（対面契約開始可能ロール）を持つこと",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "有効期限を延長する文書のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
@@ -278,19 +528,46 @@
       "put": {
         "summary": "検索項目付与",
         "description": "文書に検索項目を付与する。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "検索項目を付与する文書のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
     "/v1/documents/{document_id}/placeholder": {
       "get": {
         "summary": "入力内容未反映の文書取得",
-        "description": "作成中の値が入っていない入力項目が配置された文書のPDFを取得する。\n\nMedia Type を application/pdf にしてください。\n\nPDF作成処理中はエラーとなる為、時間を置いてAPIを再実行してください。"
+        "description": "作成中の値が入っていない入力項目が配置された文書のPDFを取得する。\n\nMedia Type を application/pdf にしてください。\n\nPDF作成処理中はエラーとなる為、時間を置いてAPIを再実行してください。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "作成中の文書のID"
+          }
+        ]
       }
     },
     "/v1/documents/{document_id}/re_confirmations": {
       "post": {
         "summary": "文書再送信",
         "description": "文書を再送信する。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "再送信する文書のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
@@ -298,6 +575,15 @@
       "post": {
         "summary": "文書却下",
         "description": "要確認となった文書を却下する。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "却下する文書のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
@@ -305,6 +591,15 @@
       "post": {
         "summary": "文書差し戻し",
         "description": "要確認となった文書を差し戻しする。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "差し戻しする文書のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
@@ -312,6 +607,15 @@
       "put": {
         "summary": "文書承認依頼キャンセル",
         "description": "文書の承認依頼をキャンセルする。",
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "承認依頼をキャンセルする文書のID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
@@ -323,19 +627,19 @@
           {
             "name": "page",
             "in": "query",
-            "type": "string",
+            "type": "integer",
             "required": false
           },
           {
             "name": "per_page",
             "in": "query",
-            "type": "string",
+            "type": "integer",
             "required": false
           },
           {
             "name": "parent_id",
             "in": "query",
-            "type": "string",
+            "type": "integer",
             "required": false,
             "description": "親フォルダID。IDで指定した親フォルダに格納されているフォルダ一覧を取得できる。"
           },
@@ -357,12 +661,12 @@
           {
             "name": "page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "per_page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "display_name",
@@ -422,12 +726,12 @@
           {
             "name": "page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "per_page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "name",
@@ -458,12 +762,12 @@
           {
             "name": "page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "per_page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "name",
@@ -494,12 +798,12 @@
           {
             "name": "page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "per_page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           }
         ]
       }
@@ -507,7 +811,16 @@
     "/v1/templates/{template_id}": {
       "get": {
         "summary": "テンプレート取得",
-        "description": "テンプレートを取得する。\n\nPDF を取得したい場合は、Media Type を application/pdf にしてください。"
+        "description": "テンプレートを取得する。\n\nPDF を取得したい場合は、Media Type を application/pdf にしてください。",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "テンプレートのID"
+          }
+        ]
       }
     },
     "/v1/token": {
@@ -525,13 +838,13 @@
           {
             "name": "page",
             "in": "query",
-            "type": "string",
+            "type": "integer",
             "required": false
           },
           {
             "name": "per_page",
             "in": "query",
-            "type": "string",
+            "type": "integer",
             "required": false
           },
           {
@@ -544,7 +857,7 @@
           {
             "name": "team_id",
             "in": "query",
-            "type": "string",
+            "type": "integer",
             "required": false,
             "description": "チームIDを指定して、指定したチームのユーザー一覧を取得できる"
           },
@@ -573,12 +886,12 @@
           {
             "name": "page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "per_page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           }
         ]
       },
@@ -614,6 +927,15 @@
       "delete": {
         "summary": "ユーザーの退会",
         "description": "特定のユーザーを退会させる。",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "退会させるユーザーのID"
+          }
+        ],
         "hasJsonBody": true
       }
     },
@@ -623,19 +945,26 @@
         "description": "特定のユーザーがアクセスできる文書の一覧を取得する。<br>\nここで取得できる文書には、作成した文書と受領した文書が含まれます。 <br>\n文書は、新しく作成した順に取得されます。",
         "parameters": [
           {
+            "name": "user_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "文書の一覧を取得したいユーザーのID"
+          },
+          {
             "name": "page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "per_page",
             "in": "query",
-            "type": "string"
+            "type": "integer"
           },
           {
             "name": "folder_id",
             "in": "query",
-            "type": "string",
+            "type": "integer",
             "description": "フォルダID。IDで指定したフォルダに格納されている文書一覧を取得できる。"
           },
           {

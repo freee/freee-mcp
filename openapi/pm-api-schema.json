@@ -46,31 +46,57 @@
             }
           },
           "400": {
-            "description": "",
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/error"
+                    }
+                  ]
+                },
+                "example": {
+                  "status_code": 400,
+                  "errors": [
+                    {
+                      "messages": [
+                        "リクエストの形式が不正です。"
+                      ],
+                      "type": "bad_request",
+                      "codes": [
+                        "invalid_request"
+                      ]
+                    }
+                  ]
                 }
               }
             }
           },
           "500": {
-            "description": "",
+            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
+                  "allOf": [
+                    {
+                      "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema/allOf/0"
+                    }
+                  ]
+                },
+                "example": {
+                  "status_code": 500,
+                  "errors": [
+                    {
+                      "messages": [
+                        "予期しない問題が発生しました。しばらく経ってから再度お試しください。"
+                      ],
+                      "type": "error",
+                      "codes": [
+                        "internal_server_error"
+                      ]
+                    }
+                  ]
                 }
               }
             }
@@ -115,54 +141,122 @@
             }
           },
           "400": {
-            "description": "",
+            "$ref": "#/paths/~1users~1me/get/responses/400"
+          },
+          "401": {
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
+                  "allOf": [
+                    {
+                      "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema/allOf/0"
+                    }
+                  ]
+                },
+                "example": {
+                  "status_code": 401,
+                  "errors": [
+                    {
+                      "messages": [
+                        "アクセスする権限がありません"
+                      ],
+                      "type": "unauthorized",
+                      "codes": [
+                        "bad_request"
+                      ]
+                    }
+                  ]
                 }
               }
             }
           },
-          "401": {
-            "description": "",
+          "402": {
+            "description": "Payment Required",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/paths/~1projects/post/responses/400/content/application~1json/schema"
+                  "allOf": [
+                    {
+                      "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema/allOf/0"
+                    }
+                  ]
+                },
+                "example": {
+                  "status_code": 402,
+                  "errors": [
+                    {
+                      "messages": [
+                        "ご利用には有料プランが必要です。プラン状態をご確認ください。"
+                      ],
+                      "type": "payment_required",
+                      "codes": [
+                        "payment_required"
+                      ]
+                    }
+                  ]
                 }
               }
             }
           },
           "403": {
-            "description": "",
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/paths/~1projects/post/responses/400/content/application~1json/schema"
+                  "allOf": [
+                    {
+                      "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema/allOf/0"
+                    }
+                  ]
+                },
+                "example": {
+                  "status_code": 403,
+                  "errors": [
+                    {
+                      "messages": [
+                        "アクセスする権限がありません"
+                      ],
+                      "type": "forbidden",
+                      "codes": [
+                        "forbidden"
+                      ]
+                    }
+                  ]
                 }
               }
             }
           },
           "404": {
-            "description": "",
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/paths/~1projects/post/responses/400/content/application~1json/schema"
+                  "allOf": [
+                    {
+                      "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema/allOf/0"
+                    }
+                  ]
+                },
+                "example": {
+                  "status_code": 404,
+                  "errors": [
+                    {
+                      "messages": [
+                        "対象リソースが見つかりませんでした。"
+                      ],
+                      "type": "resource_not_found",
+                      "codes": [
+                        "not_found"
+                      ]
+                    }
+                  ]
                 }
               }
             }
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1projects/post/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       },
@@ -328,34 +422,16 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1projects/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1projects/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -407,34 +483,19 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1projects~1%7Bid%7D/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
+          },
+          "404": {
+            "$ref": "#/paths/~1projects/post/responses/404"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1projects~1%7Bid%7D/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -507,34 +568,16 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1unit_costs/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1unit_costs/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -673,34 +716,16 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1people/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1people/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -773,34 +798,16 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1partners/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1partners/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -842,54 +849,22 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads/post/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
           },
           "402": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads/post/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/402"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads/post/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/404"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads/post/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       },
@@ -1008,34 +983,16 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -1088,64 +1045,22 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads~1%7Bid%7D/patch/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
           },
           "402": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads~1%7Bid%7D/patch/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/402"
           },
           "403": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads~1%7Bid%7D/patch/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads~1%7Bid%7D/patch/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/404"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads~1%7Bid%7D/patch/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       },
@@ -1181,64 +1096,22 @@
             "description": "成功時"
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads~1%7Bid%7D/delete/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
           },
           "402": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads~1%7Bid%7D/delete/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/402"
           },
           "403": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads~1%7Bid%7D/delete/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads~1%7Bid%7D/delete/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/404"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workloads~1%7Bid%7D/delete/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -1359,34 +1232,16 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workload_summaries/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workload_summaries/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -1459,34 +1314,16 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1teams/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1teams/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -1596,54 +1433,16 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1labor_budgets/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
-          },
-          "402": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1labor_budgets/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
           },
           "403": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1labor_budgets/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1labor_budgets/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -1714,64 +1513,22 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1labor_budgets~1projects~1%7Bproject_id%7D~1people~1%7Bperson_id%7D~1year_month~1%7Byear_month%7D/put/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
           },
           "402": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1labor_budgets~1projects~1%7Bproject_id%7D~1people~1%7Bperson_id%7D~1year_month~1%7Byear_month%7D/put/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/402"
           },
           "403": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1labor_budgets~1projects~1%7Bproject_id%7D~1people~1%7Bperson_id%7D~1year_month~1%7Byear_month%7D/put/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "404": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1labor_budgets~1projects~1%7Bproject_id%7D~1people~1%7Bperson_id%7D~1year_month~1%7Byear_month%7D/put/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/404"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1labor_budgets~1projects~1%7Bproject_id%7D~1people~1%7Bperson_id%7D~1year_month~1%7Byear_month%7D/put/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -1844,44 +1601,16 @@
             }
           },
           "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1users~1me/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/400"
           },
           "401": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workload_tag_groups/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/401"
           },
           "403": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workload_tag_groups/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1projects/post/responses/403"
           },
           "500": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/paths/~1workload_tag_groups/get/responses/400/content/application~1json/schema"
-                }
-              }
-            }
+            "$ref": "#/paths/~1users~1me/get/responses/500"
           }
         }
       }
@@ -3335,7 +3064,15 @@
         "properties": {
           "status_code": {
             "type": "integer",
-            "example": 400
+            "example": 400,
+            "enum": [
+              400,
+              401,
+              402,
+              403,
+              404,
+              500
+            ]
           },
           "errors": {
             "type": "array",

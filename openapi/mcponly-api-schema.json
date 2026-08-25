@@ -19,6 +19,11 @@
       "name": "launch_kaigyo_application",
       "description": "launch_kaigyo_application",
       "x-displayName": "開業"
+    },
+    {
+      "name": "employee_evaluation_evaluation_results",
+      "description": "evaluation_results",
+      "x-displayName": "人事評価結果"
     }
   ],
   "paths": {
@@ -1095,6 +1100,68 @@
           "launch_kaigyo_application"
         ]
       }
+    },
+    "/hub/employee_evaluation/evaluation_results": {
+      "get": {
+        "operationId": "list_employee_evaluation_results",
+        "summary": "人事評価結果一覧取得（リモート版freee-mcp限定）",
+        "description": "人事評価結果を一覧で取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.employee_ids"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.start_date"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.end_date"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "人事評価結果一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EmployeeEvaluation.EvaluationResults.EvaluationResult"
+                      },
+                      "maxItems": 500,
+                      "description": "人事評価結果のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "description": "次ページ取得用トークン。次ページがない場合は空文字列です。",
+                      "example": "following-token"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "employee_evaluation_evaluation_results"
+        ]
+      }
     }
   },
   "security": [
@@ -1331,6 +1398,76 @@
         "schema": {
           "type": "integer",
           "format": "int64"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.employee_ids": {
+        "name": "employee_ids[]",
+        "in": "query",
+        "required": false,
+        "description": "従業員IDでのフィルタ。最大50件まで指定できます。指定しない場合はアクセス可能な全従業員が対象です。",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "maxItems": 50
+        }
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.start_date": {
+        "name": "start_date",
+        "in": "query",
+        "required": false,
+        "description": "評価期間の開始日（yyyy-mm-dd）",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.end_date": {
+        "name": "end_date",
+        "in": "query",
+        "required": false,
+        "description": "評価期間の終了日（yyyy-mm-dd）",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト100、最大500）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 500
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "次ページ取得用トークン",
+        "schema": {
+          "type": "string"
         },
         "explode": false
       }
@@ -2588,6 +2725,69 @@
           }
         },
         "description": "開業申請のオンライン送信結果メッセージ",
+        "additionalProperties": false
+      },
+      "EmployeeEvaluation.EvaluationResults.EvaluationResult": {
+        "type": "object",
+        "required": [
+          "id",
+          "employee_id",
+          "evaluation_cycle_id",
+          "evaluation_category_id",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "人事評価結果ID",
+            "example": 1
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "従業員ID",
+            "example": 101
+          },
+          "evaluation_cycle_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "評価期間ID",
+            "example": 10
+          },
+          "evaluation_category_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "評価項目ID",
+            "example": 20
+          },
+          "evaluation_category_selectbox_option_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "評価項目の選択肢ID",
+            "example": 30
+          },
+          "value": {
+            "type": "string",
+            "nullable": true,
+            "description": "評価値",
+            "example": "A"
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true,
+            "description": "備考",
+            "example": "Good"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時",
+            "example": "2026-08-12T00:00:00Z"
+          }
+        },
+        "description": "人事評価結果",
         "additionalProperties": false
       }
     },

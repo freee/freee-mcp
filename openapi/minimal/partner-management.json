@@ -1,0 +1,338 @@
+{
+  "paths": {
+    "/hub/partner_management/orderer/company_users": {
+      "get": {
+        "summary": "企業ユーザー一覧取得（β版）",
+        "description": "企業ユーザーの一覧を取得する",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "freee事業所ID",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト20、最大100）",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "カーソルトークン。前回レスポンスの next_page_token を指定する",
+            "explode": false
+          },
+          {
+            "name": "name_contains",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "氏名の部分一致で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "メールアドレスの完全一致で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "role_id",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "ロールIDで絞り込む",
+            "explode": false
+          },
+          {
+            "name": "section_code",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "部門コードで絞り込む",
+            "explode": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "アカウント状態で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "freee_account_integrated",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "freeeアカウント連携済みかで絞り込む",
+            "explode": false
+          },
+          {
+            "name": "two_factor_authentication_setting_type",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "2FA設定タイプで絞り込む",
+            "explode": false
+          },
+          {
+            "name": "saml_sso_enabled",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "SAML SSO設定済みかで絞り込む",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/company_users/{id}": {
+      "get": {
+        "summary": "企業ユーザー詳細取得（β版）",
+        "description": "企業ユーザー情報を取得する",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "freee事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "取得対象の企業ユーザーID"
+          }
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/sections": {
+      "get": {
+        "summary": "部門一覧取得（β版）",
+        "description": "部門一覧を取得する",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "freee事業所ID",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト20、最大100）",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "カーソルトークン。前回レスポンスの next_page_token を指定する",
+            "explode": false
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "部門コードによる絞り込み",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/partners": {
+      "get": {
+        "summary": "パートナー一覧取得（β版）",
+        "description": "パートナー一覧を取得する",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "freee事業所ID",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト20、最大100）",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "カーソルトークン。前回レスポンスの next_page_token を指定する",
+            "explode": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "アカウント状態で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "name_contains",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "パートナー名の部分一致で絞り込む。招待未承諾時は招待時の名前、承諾済みは名前を対象",
+            "explode": false
+          },
+          {
+            "name": "invoice_name_contains",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "屋号の部分一致で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "メールアドレスの完全一致で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "custom_code",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "カスタムコードの完全一致で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "evaluation_rate_average_min",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "評価 (平均) の下限 (0.0〜5.0)で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "evaluation_rate_average_max",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "評価 (平均) の上限 (0.0〜5.0)で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "task_estimate_unit_price_min",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "タスク見積単価の下限で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "task_estimate_unit_price_max",
+            "in": "query",
+            "type": "number",
+            "required": false,
+            "description": "タスク見積単価の上限で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "business_classification",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "事業者区分で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "has_invoice_number",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "インボイス登録番号の有無で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "tax_chargeable",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "消費税請求可否で絞り込む",
+            "explode": false
+          },
+          {
+            "name": "withholding_tax_required",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "源泉所得税 (請求) が有効かで絞り込む",
+            "explode": false
+          },
+          {
+            "name": "expense_withholding_tax_required",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "源泉所得税 (経費) が有効かで絞り込む",
+            "explode": false
+          },
+          {
+            "name": "two_factor_authentication_setting_type",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "二要素認証の設定種別で絞り込む",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/partners/{id}": {
+      "get": {
+        "summary": "パートナー詳細取得（β版）",
+        "description": "指定したパートナー1件のプロフィール・請求情報・源泉徴収設定・招待状態を取得する",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "freee事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "取得対象のパートナーID"
+          }
+        ]
+      }
+    }
+  }
+}

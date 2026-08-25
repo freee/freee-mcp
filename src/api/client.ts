@@ -2,6 +2,7 @@ import { getValidAccessToken } from '../auth/tokens.js';
 import { getCurrentCompanyId } from '../config/companies.js';
 import { getConfig } from '../config.js';
 import { FETCH_TIMEOUT_API_MS } from '../constants.js';
+import type { MinimalParameter } from '../openapi/minimal-types.js';
 import { serializeErrorChain } from '../server/error-serializer.js';
 import { sanitizePath } from '../server/logger.js';
 import { deriveQueryKeys, getCurrentRecorder } from '../server/request-context.js';
@@ -68,6 +69,7 @@ export async function makeApiRequest(
   body?: Record<string, unknown>,
   baseUrl?: string,
   tokenContext?: TokenContext,
+  queryParameters?: MinimalParameter[],
 ): Promise<unknown | BinaryFileResponse> {
   const recorder = getCurrentRecorder();
   const startTime = Date.now();
@@ -121,13 +123,46 @@ export async function makeApiRequest(
   }
 
   if (params) {
+    const queryParameterMap = new Map<string, MinimalParameter>(
+      queryParameters
+        ?.filter((parameter) => parameter.in === 'query')
+        .map((parameter): [string, MinimalParameter] => [parameter.name, parameter]),
+    );
+
     for (const [key, value] of Object.entries(params)) {
       if (value === undefined) continue;
-      // company_id は重複クエリ ("last value wins" で別テナントへ流れる経路) を避けるため set
-      if (key === 'company_id') {
-        url.searchParams.set(key, String(value));
+
+      const parameter = queryParameterMap.get(key);
+      if (parameter?.type === 'array') {
+        if (!Array.isArray(value)) {
+          throw new Error(`クエリパラメータ ${key} は配列で指定してください。`);
+        }
+
+        const style = parameter.style ?? 'form';
+        if (style !== 'form') {
+          throw new Error(
+            `クエリパラメータ ${key} のシリアライズ形式 (${style}) はサポートされていません。`,
+          );
+        }
+
+        const explode = parameter.explode ?? true;
+        if (explode) {
+          for (const item of value) {
+            url.searchParams.append(key, String(item));
+          }
+        } else {
+          url.searchParams.append(key, value.map(String).join(','));
+        }
       } else {
-        url.searchParams.append(key, String(value));
+        if (parameter && Array.isArray(value)) {
+          throw new Error(`クエリパラメータ ${key} は単一の値で指定してください。`);
+        }
+        // company_id は重複クエリ ("last value wins" で別テナントへ流れる経路) を避けるため set
+        if (key === 'company_id') {
+          url.searchParams.set(key, String(value));
+        } else {
+          url.searchParams.append(key, String(value));
+        }
       }
     }
   }

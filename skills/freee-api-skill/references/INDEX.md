@@ -119,5 +119,6 @@
 
 ## survey - freeeサーベイ
 
+- survey-employee-evaluation-evaluation-results.md — ⚠ freee-mcp（リモート版） 限定 / evaluation_results
 - survey-launch-kaigyo-application.md — ⚠ freee-mcp（リモート版） 限定 / launch_kaigyo_application
 - survey-surveys.md — ⚠ freee-mcp（リモート版） 限定 / survey

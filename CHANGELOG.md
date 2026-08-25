@@ -1,5 +1,27 @@
 # freee-mcp
 
+## 0.32.6
+
+### Patch Changes
+
+- [`7dfb758`](https://github.com/freee/freee-mcp/commit/7dfb7586c81b4487f5d982cfb48d03e356122045): OpenAPI スキーマを最新版に同期 ( 2 files changed, 188 insertions(+), 230 deletions(-))
+
+## 0.32.5
+
+### Patch Changes
+
+- [`a3f287a`](https://github.com/freee/freee-mcp/commit/a3f287a1246344732dbd210e38839b3727e17105): freee-api-skill のリファレンス索引を追加し、SKILL.md を整理
+
+  - `references/INDEX.md` を自動生成するようにした（service・ファイル名・主なパスの対応表）
+  - セットアップ手順を `SETUP.md`、配色定義を `COLORS.md` に分離し、SKILL.md からは必要なときだけ参照する形にした
+
+- [`ce1f28d`](https://github.com/freee/freee-mcp/commit/ce1f28ddb70ebdd429212fe1d5b4e43646c6622a): Skill レシピを整理してコンテキスト量を削減
+
+  - テーブル表現を廃止し、箇条書きに統一
+  - リファレンスと重複するパス一覧・パラメータ・レスポンスの記述を削除
+  - トラブルシューティングを `troubleshooting/` 配下に分割（INDEX / 認証 / 事業所 / 経費申請 / サポート）
+  - 実在しないパスの記載を修正（給与明細・税区分）
+
 ## 0.32.4
 
 ### Patch Changes
