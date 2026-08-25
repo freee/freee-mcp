@@ -26,7 +26,7 @@ launch_kaigyo_application
 - owner_contact_phone3*: string - 届出者の電話番号3
 - workplace_style*: string - 主な仕事場所の種別(home:自宅, shop:店舗, office:事務所, undecided:未定)
 - workplace_zipcode*: string - 仕事場所の郵便番号
-- workplace_prefecture*: object - 仕事場所の都道府県
+- workplace_prefecture*: string - 仕事場所の都道府県
 - workplace_city*: string - 仕事場所の市区町村
 - workplace_street_name*: string - 仕事場所の住所
 - workplace_contact_phone1*: string - 仕事場所の電話番号1
@@ -120,7 +120,7 @@ launch_kaigyo_application
 - owner_contact_phone3*: string - 届出者の電話番号3
 - workplace_style*: string - 主な仕事場所の種別(home:自宅, shop:店舗, office:事務所, undecided:未定)
 - workplace_zipcode*: string - 仕事場所の郵便番号
-- workplace_prefecture*: object - 仕事場所の都道府県
+- workplace_prefecture*: string - 仕事場所の都道府県
 - workplace_city*: string - 仕事場所の市区町村
 - workplace_street_name*: string - 仕事場所の住所
 - workplace_contact_phone1*: string - 仕事場所の電話番号1
