@@ -105,7 +105,8 @@
   },
   "mcponly-api": {
     "survey": "surveys",
-    "launch_kaigyo_application": "launch-kaigyo-application"
+    "launch_kaigyo_application": "launch-kaigyo-application",
+    "employee_evaluation_evaluation_results": "employee-evaluation-evaluation-results"
   },
   "sign-api": {
     "文書": "documents",
@@ -119,6 +120,7 @@
   },
   "partner-management-api": {
     "partner_management_orderer_company_users": "orderer-company-users",
-    "partner_management_orderer_sections": "orderer-sections"
+    "partner_management_orderer_sections": "orderer-sections",
+    "partner_management_orderer_partners": "partner-management-orderer-partners"
   }
 }
