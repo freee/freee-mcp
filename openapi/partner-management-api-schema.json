@@ -19,6 +19,11 @@
       "name": "partner_management_orderer_sections",
       "description": "partner_management_orderer_sections",
       "x-displayName": "部門"
+    },
+    {
+      "name": "partner_management_orderer_partners",
+      "description": "partner_management_orderer_partners",
+      "x-displayName": "パートナー"
     }
   ],
   "paths": {
@@ -191,6 +196,140 @@
         },
         "tags": [
           "partner_management_orderer_sections"
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/partners": {
+      "get": {
+        "operationId": "list_partner_management_orderer_partners",
+        "summary": "パートナー一覧取得（β版）",
+        "description": "パートナー一覧を取得する",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.status"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.name_contains"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.invoice_name_contains"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.email"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.custom_code"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.evaluation_rate_average_min"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.evaluation_rate_average_max"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.task_estimate_unit_price_min"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.task_estimate_unit_price_max"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.business_classification"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.has_invoice_number"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.tax_chargeable"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.withholding_tax_required"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.expense_withholding_tax_required"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.ListRequest.two_factor_authentication_setting_type"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "パートナー一覧レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PartnerManagement.Orderer.Partners.Partner"
+                      },
+                      "description": "パートナーのリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次ページのカーソルトークン。最終ページは null",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_partners"
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/partners/{id}": {
+      "get": {
+        "operationId": "get_partner_management_orderer_partner",
+        "summary": "パートナー詳細取得（β版）",
+        "description": "指定したパートナー1件のプロフィール・請求情報・源泉徴収設定・招待状態を取得する",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Partners.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "パートナー詳細レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerManagement.Orderer.Partners.Partner"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_partners"
         ]
       }
     }
@@ -398,6 +537,222 @@
           "type": "string"
         },
         "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "freee事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト20、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "カーソルトークン。前回レスポンスの next_page_token を指定する",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.status": {
+        "name": "status",
+        "in": "query",
+        "required": false,
+        "description": "アカウント状態で絞り込む",
+        "schema": {
+          "$ref": "#/components/schemas/PartnerManagement.Orderer.Partners.PartnerStatus"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.name_contains": {
+        "name": "name_contains",
+        "in": "query",
+        "required": false,
+        "description": "パートナー名の部分一致で絞り込む。招待未承諾時は招待時の名前、承諾済みは名前を対象",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.invoice_name_contains": {
+        "name": "invoice_name_contains",
+        "in": "query",
+        "required": false,
+        "description": "屋号の部分一致で絞り込む",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.email": {
+        "name": "email",
+        "in": "query",
+        "required": false,
+        "description": "メールアドレスの完全一致で絞り込む",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.custom_code": {
+        "name": "custom_code",
+        "in": "query",
+        "required": false,
+        "description": "カスタムコードの完全一致で絞り込む",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.evaluation_rate_average_min": {
+        "name": "evaluation_rate_average_min",
+        "in": "query",
+        "required": false,
+        "description": "評価 (平均) の下限 (0.0〜5.0)で絞り込む",
+        "schema": {
+          "type": "number",
+          "format": "double",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.evaluation_rate_average_max": {
+        "name": "evaluation_rate_average_max",
+        "in": "query",
+        "required": false,
+        "description": "評価 (平均) の上限 (0.0〜5.0)で絞り込む",
+        "schema": {
+          "type": "number",
+          "format": "double",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.task_estimate_unit_price_min": {
+        "name": "task_estimate_unit_price_min",
+        "in": "query",
+        "required": false,
+        "description": "タスク見積単価の下限で絞り込む",
+        "schema": {
+          "type": "number",
+          "format": "double",
+          "minimum": 0
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.task_estimate_unit_price_max": {
+        "name": "task_estimate_unit_price_max",
+        "in": "query",
+        "required": false,
+        "description": "タスク見積単価の上限で絞り込む",
+        "schema": {
+          "type": "number",
+          "format": "double",
+          "minimum": 0
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.business_classification": {
+        "name": "business_classification",
+        "in": "query",
+        "required": false,
+        "description": "事業者区分で絞り込む",
+        "schema": {
+          "$ref": "#/components/schemas/PartnerManagement.Orderer.Partners.BusinessClassification"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.has_invoice_number": {
+        "name": "has_invoice_number",
+        "in": "query",
+        "required": false,
+        "description": "インボイス登録番号の有無で絞り込む",
+        "schema": {
+          "type": "boolean"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.tax_chargeable": {
+        "name": "tax_chargeable",
+        "in": "query",
+        "required": false,
+        "description": "消費税請求可否で絞り込む",
+        "schema": {
+          "type": "boolean"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.withholding_tax_required": {
+        "name": "withholding_tax_required",
+        "in": "query",
+        "required": false,
+        "description": "源泉所得税 (請求) が有効かで絞り込む",
+        "schema": {
+          "type": "boolean"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.expense_withholding_tax_required": {
+        "name": "expense_withholding_tax_required",
+        "in": "query",
+        "required": false,
+        "description": "源泉所得税 (経費) が有効かで絞り込む",
+        "schema": {
+          "type": "boolean"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.ListRequest.two_factor_authentication_setting_type": {
+        "name": "two_factor_authentication_setting_type",
+        "in": "query",
+        "required": false,
+        "description": "二要素認証の設定種別で絞り込む",
+        "schema": {
+          "$ref": "#/components/schemas/PartnerManagement.Orderer.Partners.TwoFactorAuthenticationSettingType"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "freee事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.Partners.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "取得対象のパートナーID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
       }
     },
     "schemas": {
@@ -587,6 +942,319 @@
           }
         },
         "description": "部門",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.Partners.PartnerStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "invitation_pending"
+        ],
+        "description": "アカウント状態 (active: 有効, invitation_pending: 招待中)"
+      },
+      "PartnerManagement.Orderer.Partners.BusinessClassification": {
+        "type": "string",
+        "enum": [
+          "taxable",
+          "exempt"
+        ],
+        "description": "事業者区分 (taxable: 課税事業者, exempt: 免税事業者)"
+      },
+      "PartnerManagement.Orderer.Partners.TwoFactorAuthenticationSettingType": {
+        "type": "string",
+        "enum": [
+          "unset",
+          "mail",
+          "app"
+        ],
+        "description": "二要素認証の設定種別 (unset: 未設定, mail: メール, app: アプリ)"
+      },
+      "PartnerManagement.Orderer.Partners.WithholdingTaxType": {
+        "type": "string",
+        "enum": [
+          "basic",
+          "custom"
+        ],
+        "description": "源泉徴収税率の種別 (basic, custom)。basic は居住者（日本国内）向けの標準税率で、以下の計算式が適用される。\n\n100万円以下の場合\n\n源泉所得税 = 報酬・料金等の額 × 10.21%\n\n100万円を超える場合\n\n源泉所得税 = (報酬・料金等の額 - 1,000,000円) × 20.42% + 102,100円\n\ncustom は「源泉所得税率設定」で登録した税率を適用する"
+      },
+      "PartnerManagement.Orderer.Partners.AccountType": {
+        "type": "string",
+        "enum": [
+          "ordinary",
+          "current",
+          "savings"
+        ],
+        "description": "口座種別 (ordinary: 普通, current: 当座, savings: 貯蓄)"
+      },
+      "PartnerManagement.Orderer.Partners.BankAccount": {
+        "type": "object",
+        "required": [
+          "bank_code",
+          "branch_code",
+          "account_type",
+          "account_number",
+          "account_holder",
+          "freeword_bank_name",
+          "freeword_branch_name",
+          "freeword_account_type"
+        ],
+        "properties": {
+          "bank_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "銀行コード（国内の金融機関）",
+            "example": "0034"
+          },
+          "branch_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "支店コード（国内の金融機関）",
+            "example": "101"
+          },
+          "account_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.Partners.AccountType"
+              }
+            ],
+            "nullable": true,
+            "description": "口座種別 (ordinary: 普通, current: 当座, savings: 貯蓄)。海外の金融機関の時は null"
+          },
+          "account_number": {
+            "type": "string",
+            "description": "口座番号",
+            "example": "1234567"
+          },
+          "account_holder": {
+            "type": "string",
+            "description": "口座名義 (半角カナ)",
+            "example": "ﾔﾏﾀﾞ ﾀﾛｳ"
+          },
+          "freeword_bank_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "銀行名（海外の金融機関）"
+          },
+          "freeword_branch_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "支店名（海外の金融機関）"
+          },
+          "freeword_account_type": {
+            "type": "string",
+            "nullable": true,
+            "description": "口座種別（海外の金融機関）"
+          }
+        },
+        "description": "銀行口座。国内の金融機関の時は bank_code / branch_code / account_type 系、海外の金融機関の時は freeword_* 系が埋まる",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.Partners.Partner": {
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "name",
+          "status",
+          "invited_at",
+          "invitation_accepted_at",
+          "freee_partner_id",
+          "custom_code",
+          "memo",
+          "task_estimate_unit_price",
+          "task_quantity_unit",
+          "task_estimate_quantity",
+          "taxpayer_number",
+          "withholding_tax_required",
+          "withholding_tax_type",
+          "custom_withholding_tax_rate",
+          "expense_withholding_tax_required",
+          "expense_withholding_tax_type",
+          "custom_expense_withholding_tax_rate",
+          "order_amount_limit",
+          "invoice_name",
+          "postal_code",
+          "address",
+          "phone_number",
+          "business_classification",
+          "bank_account"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "パートナーID",
+            "example": 1
+          },
+          "email": {
+            "type": "string",
+            "description": "メールアドレス。招待未承諾時は招待時に指定したメールアドレスを返す",
+            "example": "partner@example.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "氏名。招待未承諾時は招待時に指定した名前を返す",
+            "example": "山田 太郎"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.Partners.PartnerStatus"
+              }
+            ],
+            "description": "アカウント状態 (active: 有効, invitation_pending: 招待中)"
+          },
+          "invited_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "招待送信日時",
+            "example": "2025-09-09T19:18:00+09:00"
+          },
+          "invitation_accepted_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "招待受諾日時",
+            "example": "2025-09-09T20:00:00+09:00"
+          },
+          "freee_partner_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "freee連携の取引先ID",
+            "example": "123"
+          },
+          "custom_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "企業が任意に付与する管理コード (企業内で一意)",
+            "example": "custom_id_1"
+          },
+          "memo": {
+            "type": "string",
+            "nullable": true,
+            "description": "企業がパートナーごとに任意で記録する社内メモ",
+            "example": "連絡は Slack 優先。請求は月末締め翌月末払い"
+          },
+          "task_estimate_unit_price": {
+            "type": "string",
+            "nullable": true,
+            "format": "decimal",
+            "description": "発注時のデフォルト単価 (税抜)",
+            "example": "60000.0"
+          },
+          "task_quantity_unit": {
+            "type": "string",
+            "description": "発注時のデフォルト数量の単位。デフォルト「件」",
+            "example": "件"
+          },
+          "task_estimate_quantity": {
+            "type": "string",
+            "nullable": true,
+            "format": "decimal",
+            "description": "発注時のデフォルト数量",
+            "example": "100.0"
+          },
+          "taxpayer_number": {
+            "type": "string",
+            "nullable": true,
+            "description": "インボイス登録番号。招待未承諾時は null",
+            "example": "T1234567890123"
+          },
+          "withholding_tax_required": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "請求書の源泉徴収を必須とするか",
+            "example": true
+          },
+          "withholding_tax_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.Partners.WithholdingTaxType"
+              }
+            ],
+            "nullable": true,
+            "description": "請求書の源泉徴収税率の種別"
+          },
+          "custom_withholding_tax_rate": {
+            "type": "string",
+            "nullable": true,
+            "format": "decimal",
+            "description": "請求書の源泉徴収のカスタム税率。種別が custom の時に設定される"
+          },
+          "expense_withholding_tax_required": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "経費の源泉徴収を必須とするか",
+            "example": false
+          },
+          "expense_withholding_tax_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.Partners.WithholdingTaxType"
+              }
+            ],
+            "nullable": true,
+            "description": "経費の源泉徴収税率の種別"
+          },
+          "custom_expense_withholding_tax_rate": {
+            "type": "string",
+            "nullable": true,
+            "format": "decimal",
+            "description": "経費の源泉徴収のカスタム税率。種別が custom の時に設定される",
+            "example": "20.24"
+          },
+          "order_amount_limit": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "発注金額の上限 (円)",
+            "example": 1000000
+          },
+          "invoice_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "屋号(請求書宛名)。招待未承諾時は null",
+            "example": "山田デザイン事務所"
+          },
+          "postal_code": {
+            "type": "string",
+            "nullable": true,
+            "description": "郵便番号。招待未承諾時は null",
+            "example": "123-4567"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true,
+            "description": "住所。招待未承諾時は null",
+            "example": "XX県XX市XXビル204号"
+          },
+          "phone_number": {
+            "type": "string",
+            "nullable": true,
+            "description": "電話番号。招待未承諾時は null",
+            "example": "0312345678"
+          },
+          "business_classification": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.Partners.BusinessClassification"
+              }
+            ],
+            "nullable": true,
+            "description": "事業者区分 (taxable: 課税事業者, exempt: 免税事業者)。招待未承諾時は null"
+          },
+          "bank_account": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.Partners.BankAccount"
+              }
+            ],
+            "nullable": true,
+            "description": "銀行口座。招待未承諾時は null"
+          }
+        },
+        "description": "パートナー",
         "additionalProperties": false
       }
     },

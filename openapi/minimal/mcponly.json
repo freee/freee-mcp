@@ -18,6 +18,24 @@
         "description": "指定した実施回の詳細と回答対象者を取得します。"
       }
     },
+    "/hub/survey/base_surveys/{base_survey_id}/company_survey_results": {
+      "get": {
+        "summary": "全社平均一覧取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の全社平均を取得します。"
+      }
+    },
+    "/hub/survey/base_surveys/{base_survey_id}/employee_survey_results": {
+      "get": {
+        "summary": "サーベイ結果一覧取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の従業員別のサーベイ結果を取得します"
+      }
+    },
+    "/hub/survey/surveys/{survey_id}/result_summaries": {
+      "get": {
+        "summary": "AI個人分析一覧取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回のAI個人分析の一覧を取得します。従業員IDを指定すると対象を絞り込みます。"
+      }
+    },
     "/hub/launch/kaigyo_application": {
       "get": {
         "summary": "開業申請用データの取得（リモート版freee-mcp限定）",
@@ -33,6 +51,12 @@
       "get": {
         "summary": "開業申請のオンライン送信結果メッセージ一覧の取得（リモート版freee-mcp限定）",
         "description": "e-Tax の受付結果メッセージ一覧を取得します。"
+      }
+    },
+    "/hub/employee_evaluation/evaluation_results": {
+      "get": {
+        "summary": "人事評価結果一覧取得（リモート版freee-mcp限定）",
+        "description": "人事評価結果を一覧で取得します。"
       }
     }
   }

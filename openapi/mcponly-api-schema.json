@@ -19,6 +19,11 @@
       "name": "launch_kaigyo_application",
       "description": "launch_kaigyo_application",
       "x-displayName": "開業"
+    },
+    {
+      "name": "employee_evaluation_evaluation_results",
+      "description": "evaluation_results",
+      "x-displayName": "人事評価結果"
     }
   ],
   "paths": {
@@ -165,6 +170,171 @@
         ]
       }
     },
+    "/hub/survey/base_surveys/{base_survey_id}/company_survey_results": {
+      "get": {
+        "operationId": "list_survey_company_survey_results",
+        "summary": "全社平均一覧取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の全社平均を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.ListCompanySurveyResultsRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListCompanySurveyResultsRequest.base_survey_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListCompanySurveyResultsRequest.survey_ids"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListCompanySurveyResultsRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListCompanySurveyResultsRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "全社平均一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.CompanySurveyResult"
+                      },
+                      "description": "全社平均のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
+    "/hub/survey/base_surveys/{base_survey_id}/employee_survey_results": {
+      "get": {
+        "operationId": "list_survey_employee_survey_results",
+        "summary": "サーベイ結果一覧取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の従業員別のサーベイ結果を取得します",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.base_survey_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.employee_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.survey_ids"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "サーベイ結果一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.EmployeeSurveyResult"
+                      },
+                      "description": "サーベイ結果のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
+    "/hub/survey/surveys/{survey_id}/result_summaries": {
+      "get": {
+        "operationId": "list_survey_result_summaries",
+        "summary": "AI個人分析一覧取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回のAI個人分析の一覧を取得します。従業員IDを指定すると対象を絞り込みます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveyResultSummariesRequest.survey_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveyResultSummariesRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveyResultSummariesRequest.employee_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AI個人分析一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.SurveyTargetResultSummary"
+                      },
+                      "description": "AI個人分析のリスト"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
     "/hub/launch/kaigyo_application": {
       "get": {
         "operationId": "get_launch_kaigyo_application",
@@ -263,12 +433,17 @@
                       "description": "仕事場所の郵便番号"
                     },
                     "workplace_prefecture": {
-                      "allOf": [
+                      "anyOf": [
                         {
                           "$ref": "#/components/schemas/Launch.Prefecture"
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            ""
+                          ]
                         }
                       ],
-                      "nullable": true,
                       "description": "仕事場所の都道府県"
                     },
                     "workplace_city": {
@@ -584,12 +759,17 @@
                       "description": "仕事場所の郵便番号"
                     },
                     "workplace_prefecture": {
-                      "allOf": [
+                      "anyOf": [
                         {
                           "$ref": "#/components/schemas/Launch.Prefecture"
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            ""
+                          ]
                         }
                       ],
-                      "nullable": true,
                       "description": "仕事場所の都道府県"
                     },
                     "workplace_city": {
@@ -920,6 +1100,68 @@
           "launch_kaigyo_application"
         ]
       }
+    },
+    "/hub/employee_evaluation/evaluation_results": {
+      "get": {
+        "operationId": "list_employee_evaluation_results",
+        "summary": "人事評価結果一覧取得（リモート版freee-mcp限定）",
+        "description": "人事評価結果を一覧で取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.employee_ids"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.start_date"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.end_date"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "人事評価結果一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EmployeeEvaluation.EvaluationResults.EvaluationResult"
+                      },
+                      "maxItems": 500,
+                      "description": "人事評価結果のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "description": "次ページ取得用トークン。次ページがない場合は空文字列です。",
+                      "example": "following-token"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "employee_evaluation_evaluation_results"
+        ]
+      }
     }
   },
   "security": [
@@ -1005,6 +1247,229 @@
           "type": "integer",
           "format": "int64"
         }
+      },
+      "Survey.ListCompanySurveyResultsRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListCompanySurveyResultsRequest.base_survey_id": {
+        "name": "base_survey_id",
+        "in": "path",
+        "required": true,
+        "description": "サーベイ企画ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "Survey.ListCompanySurveyResultsRequest.survey_ids": {
+        "name": "survey_ids[]",
+        "in": "query",
+        "required": false,
+        "description": "実施回IDでのフィルタ。指定しない場合は全件対象",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Survey.ListCompanySurveyResultsRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "Survey.ListCompanySurveyResultsRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "explode": false
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.base_survey_id": {
+        "name": "base_survey_id",
+        "in": "path",
+        "required": true,
+        "description": "サーベイ企画ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.employee_id": {
+        "name": "employee_id",
+        "in": "query",
+        "required": false,
+        "description": "従業員IDでのフィルタ。指定しない場合は全従業員が対象",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.survey_ids": {
+        "name": "survey_ids[]",
+        "in": "query",
+        "required": false,
+        "description": "実施回IDでのフィルタ。指定しない場合は指定サーベイ企画内の全実施回が対象",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "explode": false
+      },
+      "Survey.ListSurveyResultSummariesRequest.survey_id": {
+        "name": "survey_id",
+        "in": "path",
+        "required": true,
+        "description": "実施回ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "Survey.ListSurveyResultSummariesRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListSurveyResultSummariesRequest.employee_id": {
+        "name": "employee_id",
+        "in": "query",
+        "required": false,
+        "description": "従業員IDでのフィルタ。指定しない場合は全従業員が対象",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.employee_ids": {
+        "name": "employee_ids[]",
+        "in": "query",
+        "required": false,
+        "description": "従業員IDでのフィルタ。最大50件まで指定できます。指定しない場合はアクセス可能な全従業員が対象です。",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "maxItems": 50
+        }
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.start_date": {
+        "name": "start_date",
+        "in": "query",
+        "required": false,
+        "description": "評価期間の開始日（yyyy-mm-dd）",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.end_date": {
+        "name": "end_date",
+        "in": "query",
+        "required": false,
+        "description": "評価期間の終了日（yyyy-mm-dd）",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト100、最大500）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 500
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "次ページ取得用トークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
       }
     },
     "schemas": {
@@ -1619,6 +2084,193 @@
         "description": "回答対象者(未回答回数付き)",
         "additionalProperties": false
       },
+      "Survey.ScoreWithChange": {
+        "type": "object",
+        "required": [
+          "value",
+          "change",
+          "deviation_level"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "スコア値",
+            "example": "4.2"
+          },
+          "change": {
+            "type": "string",
+            "description": "前回実施回からの変化",
+            "example": "+0.3"
+          },
+          "deviation_level": {
+            "type": "string",
+            "description": "偏差レベル",
+            "example": "high"
+          }
+        },
+        "description": "スコアと前回実施回からの変化",
+        "additionalProperties": false
+      },
+      "Survey.TemplateQuestionCategoryTotalScore": {
+        "type": "object",
+        "required": [
+          "question_category",
+          "score"
+        ],
+        "properties": {
+          "question_category": {
+            "type": "string",
+            "description": "質問カテゴリ(働きやすさ/やりがい/カスタム)",
+            "example": "workplace_comfort"
+          },
+          "score": {
+            "$ref": "#/components/schemas/Survey.ScoreWithChange"
+          }
+        },
+        "description": "質問カテゴリ別の合計スコア",
+        "additionalProperties": false
+      },
+      "Survey.QuestionScore": {
+        "type": "object",
+        "required": [
+          "survey_question_id",
+          "score"
+        ],
+        "properties": {
+          "survey_question_id": {
+            "type": "string",
+            "description": "設問ID",
+            "example": "1"
+          },
+          "score": {
+            "$ref": "#/components/schemas/Survey.ScoreWithChange"
+          }
+        },
+        "description": "設問別のスコア",
+        "additionalProperties": false
+      },
+      "Survey.CompanySurveyResult": {
+        "type": "object",
+        "required": [
+          "survey_id",
+          "question_category_total_scores",
+          "question_scores"
+        ],
+        "properties": {
+          "survey_id": {
+            "type": "string",
+            "description": "実施回ID",
+            "example": "1"
+          },
+          "question_category_total_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.TemplateQuestionCategoryTotalScore"
+            },
+            "description": "カテゴリ別の全社平均スコア"
+          },
+          "question_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.QuestionScore"
+            },
+            "description": "設問別の全社平均スコア"
+          }
+        },
+        "description": "全社平均",
+        "additionalProperties": false
+      },
+      "Survey.TurnoverRisk": {
+        "type": "string",
+        "enum": [
+          "TURNOVER_RISK_UNSPECIFIED",
+          "TURNOVER_RISK_STABLE",
+          "TURNOVER_RISK_POTENTIALLY_HIGH",
+          "TURNOVER_RISK_HIGH",
+          "TURNOVER_RISK_VERY_HIGH"
+        ],
+        "description": "離職リスク判定"
+      },
+      "Survey.EmployeeSurveyResult": {
+        "type": "object",
+        "required": [
+          "employee_id",
+          "survey_id",
+          "question_category_total_scores",
+          "question_scores",
+          "turnover_risk"
+        ],
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "description": "従業員ID",
+            "example": "100"
+          },
+          "survey_id": {
+            "type": "string",
+            "description": "実施回ID",
+            "example": "1"
+          },
+          "question_category_total_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.TemplateQuestionCategoryTotalScore"
+            },
+            "description": "カテゴリ別のスコア"
+          },
+          "question_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.QuestionScore"
+            },
+            "description": "設問別のスコア"
+          },
+          "turnover_risk": {
+            "$ref": "#/components/schemas/Survey.TurnoverRisk"
+          }
+        },
+        "description": "サーベイ結果",
+        "additionalProperties": false
+      },
+      "Survey.ResultSummaryStatus": {
+        "type": "string",
+        "enum": [
+          "RESULT_SUMMARY_STATUS_UNSPECIFIED",
+          "RESULT_SUMMARY_STATUS_PROCESSING",
+          "RESULT_SUMMARY_STATUS_COMPLETED",
+          "RESULT_SUMMARY_STATUS_FAILED"
+        ],
+        "description": "AI個人分析の生成ステータス"
+      },
+      "Survey.SurveyTargetResultSummary": {
+        "type": "object",
+        "required": [
+          "employee_id",
+          "summary_text",
+          "agenda_text",
+          "status"
+        ],
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "description": "従業員ID",
+            "example": "100"
+          },
+          "summary_text": {
+            "type": "string",
+            "description": "AI個人分析"
+          },
+          "agenda_text": {
+            "type": "string",
+            "description": "AI面談サポート"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Survey.ResultSummaryStatus"
+          }
+        },
+        "description": "AI個人分析",
+        "additionalProperties": false
+      },
       "Launch.Prefecture": {
         "type": "string",
         "enum": [
@@ -2073,6 +2725,69 @@
           }
         },
         "description": "開業申請のオンライン送信結果メッセージ",
+        "additionalProperties": false
+      },
+      "EmployeeEvaluation.EvaluationResults.EvaluationResult": {
+        "type": "object",
+        "required": [
+          "id",
+          "employee_id",
+          "evaluation_cycle_id",
+          "evaluation_category_id",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "人事評価結果ID",
+            "example": 1
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "従業員ID",
+            "example": 101
+          },
+          "evaluation_cycle_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "評価期間ID",
+            "example": 10
+          },
+          "evaluation_category_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "評価項目ID",
+            "example": 20
+          },
+          "evaluation_category_selectbox_option_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "評価項目の選択肢ID",
+            "example": 30
+          },
+          "value": {
+            "type": "string",
+            "nullable": true,
+            "description": "評価値",
+            "example": "A"
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true,
+            "description": "備考",
+            "example": "Good"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時",
+            "example": "2026-08-12T00:00:00Z"
+          }
+        },
+        "description": "人事評価結果",
         "additionalProperties": false
       }
     },
