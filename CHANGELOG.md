@@ -1,5 +1,30 @@
 # freee-mcp
 
+## 0.33.0
+
+### Minor Changes
+
+- [`a75cf91`](https://github.com/freee/freee-mcp/commit/a75cf91897f73aabbb0b9586d93247395cc6b243): freee 業務委託管理 API をサポート
+
+  - `partner_management` service を追加（`/hub/partner_management/` 配下のエンドポイント）
+  - 業務委託管理 API のリファレンス（企業ユーザー・部門）を追加
+
+- [`efa5148`](https://github.com/freee/freee-mcp/commit/efa51482cfa3750b68329afb599c41aa3142c9c7): freee サーベイ API に全社平均・サーベイ結果・AI 個人分析の取得エンドポイントを追加
+
+  - `list_survey_company_survey_results` / `list_survey_employee_survey_results` / `list_survey_result_summaries` の 3 エンドポイントが利用可能になりました
+  - いずれも参照系（GET）のみで、作成・更新・削除には対応していません
+  - サーベイ API は freee-mcp（リモート版）でのみ利用できます。ローカルモードでは呼び出せません
+
+### Patch Changes
+
+- [`fb502f3`](https://github.com/freee/freee-mcp/commit/fb502f31b5664b224fc7e13931e7931c7cd1c9c1): スキーマ定義の `anyOf` がリファレンス生成時に解決されず `object` になってしまう問題を修正
+- [`8a73d7e`](https://github.com/freee/freee-mcp/commit/8a73d7ee175eb967cee95bf53dc943a029332283): OpenAPI スキーマの定義に従ってクエリパラメータをシリアライズするように修正
+
+  - 配列型のクエリパラメータに単一値を渡した場合、API リクエストを送信する前にエラーを返すように変更
+  - 単一値を取るクエリパラメータに要素が 1 件だけの配列を渡した場合も、配列を暗黙に単一値へ変換せず、API リクエストを送信する前にエラーを返すように変更
+
+- [`f536a85`](https://github.com/freee/freee-mcp/commit/f536a852b4b02fcd362a30478963450e1bfdc858): OpenAPI スキーマを最新版に同期 ( 7 files changed, 1647 insertions(+), 489 deletions(-))
+
 ## 0.32.6
 
 ### Patch Changes
