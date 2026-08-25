@@ -94,12 +94,12 @@
     {
       "id": 8,
       "prompt": "freee で使えるAPIの一覧を教えて\n\n注意: これはドライランです。実際にMCPツールは呼び出さず、どのツールをどのパラメータで呼び出すべきかを手順として説明してください。レシピやリファレンスの参照は実際に行ってください。",
-      "expected_output": "freee_api_list_paths を呼び出す計画を示し、6つのサービス（会計・人事労務・請求書・工数管理・販売・IT管理）について説明する。",
+      "expected_output": "freee_api_list_paths を呼び出す計画を示し、7つのサービス（会計・人事労務・請求書・工数管理・販売・IT管理・業務委託管理）について説明する。",
       "assertions": [
         "freee_api_list_paths ツールを呼び出す計画を示している",
-        "会計・人事労務・請求書・工数管理・販売・IT管理の各サービスについて言及している",
-        "各サービスの service パラメータ値（accounting, hr, invoice, pm, sm, it_management）を正確に示している",
-        "各サービスのパス体系の違い（/api/1/ vs /api/v1/ vs /invoices vs /hub/it_management/ 等）に言及している",
+        "会計・人事労務・請求書・工数管理・販売・IT管理・業務委託管理の各サービスについて言及している",
+        "各サービスの service パラメータ値（accounting, hr, invoice, pm, sm, it_management, partner_management）を正確に示している",
+        "各サービスのパス体系の違い（/api/1/ vs /api/v1/ vs /invoices vs /hub/it_management/ vs /hub/partner_management/ 等）に言及している",
         "MCPツール（freee_api_list_paths 等）を実際には呼び出していない"
       ]
     },

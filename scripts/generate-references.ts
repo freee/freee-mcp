@@ -251,7 +251,33 @@ function mergeAllOf(
 }
 
 /**
- * Resolve a schema reference, handling direct `$ref` and `allOf` composition.
+ * Resolve a union whose members all have the same scalar type.
+ *
+ * TypeSpec emits unions such as `Prefecture | ""` as `anyOf`, without a
+ * top-level `type`. The reference generator can still describe these as a
+ * scalar when every member resolves to the same scalar type. Structural and
+ * mixed-type unions stay unresolved because flattening them would be lossy.
+ */
+function mergeHomogeneousScalarUnion(
+  apiSchema: OpenAPISchema,
+  members: SchemaObject[],
+  depth: number
+): SchemaObject | undefined {
+  const resolvedMembers = members.map((member) =>
+    resolveSchema(apiSchema, member, depth + 1)
+  );
+  const memberTypes = new Set(resolvedMembers.map((member) => member.type));
+
+  if (memberTypes.size !== 1) return undefined;
+
+  const type = resolvedMembers[0]?.type;
+  if (!type || type === "array" || type === "object") return undefined;
+
+  return { type };
+}
+
+/**
+ * Resolve a schema reference and supported schema compositions.
  *
  * Returns the original schema if no ref is present or cannot be resolved.
  * `allOf` ラッパーが自前の description を持つ場合は、合成結果より優先する
@@ -274,6 +300,14 @@ function resolveSchema(
       ...merged,
       description: schema.description ?? merged.description,
     };
+  }
+  if (schema.anyOf && schema.anyOf.length > 0) {
+    const merged = mergeHomogeneousScalarUnion(
+      apiSchema,
+      schema.anyOf,
+      depth
+    );
+    return merged ? { ...schema, ...merged } : schema;
   }
   return schema;
 }
@@ -869,6 +903,7 @@ const API_CONFIGS = [
   { apiKey: "pm-api", schemaFile: join(OPENAPI_DIR, "pm-api-schema.json"), prefix: "pm", outputDir: OUTPUT_DIR },
   { apiKey: "sm-api", schemaFile: join(OPENAPI_DIR, "sm-api-schema.json"), prefix: "sm", outputDir: OUTPUT_DIR },
   { apiKey: "it-management-api", schemaFile: join(OPENAPI_DIR, "it-management-api-schema.json"), prefix: "it-management", outputDir: OUTPUT_DIR },
+  { apiKey: "partner-management-api", schemaFile: join(OPENAPI_DIR, "partner-management-api-schema.json"), prefix: "partner-management", outputDir: OUTPUT_DIR },
   // mcp-only 集約スキーマ。現状は survey のみ。ここ由来のパスは mcp-only とみなされ、
   // 生成される各リファレンス冒頭に MCP_ONLY_BANNER が自動挿入される（generateReference 参照）。
   { apiKey: "mcponly-api", schemaFile: MCPONLY_SCHEMA_FILE, prefix: "survey", outputDir: OUTPUT_DIR },
