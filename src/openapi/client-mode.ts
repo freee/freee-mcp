@@ -161,6 +161,7 @@ function createMethodTool(method: string) {
         body,
         validation.baseUrl,
         tokenContext,
+        validation.operation?.parameters,
       );
 
       recorder?.recordToolCall({

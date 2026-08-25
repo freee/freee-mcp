@@ -18,13 +18,14 @@ const PROJECT_ROOT = join(__dirname, "..");
 const OPENAPI_DIR = join(PROJECT_ROOT, "openapi");
 const MINIMAL_DIR = join(OPENAPI_DIR, "minimal");
 
-// Types for minimal schema
 interface MinimalParameter {
   name: string;
   in: "path" | "query";
   required?: boolean;
   description?: string;
   type: string;
+  style?: string;
+  explode?: boolean;
 }
 
 interface MinimalOperation {
@@ -34,26 +35,32 @@ interface MinimalOperation {
   hasJsonBody?: boolean;
 }
 
-interface MinimalPathItem {
-  get?: MinimalOperation;
-  post?: MinimalOperation;
-  put?: MinimalOperation;
-  delete?: MinimalOperation;
-  patch?: MinimalOperation;
-}
+type HttpMethod = "get" | "post" | "put" | "delete" | "patch";
+
+type MinimalPathItem = Partial<Record<HttpMethod, MinimalOperation>>;
 
 interface MinimalSchema {
   paths: Record<string, MinimalPathItem>;
 }
 
-// Types for OpenAPI schema (subset needed for minimization)
+interface OpenAPISchemaObject {
+  $ref?: string;
+  type?: string;
+  allOf?: OpenAPISchemaObject[];
+  oneOf?: OpenAPISchemaObject[];
+  anyOf?: OpenAPISchemaObject[];
+}
+
 interface OpenAPIParameter {
-  name: string;
-  in: string;
-  schema?: { type: string };
+  $ref?: string;
+  name?: string;
+  in?: string;
+  schema?: OpenAPISchemaObject;
   type?: string;
   required?: boolean;
   description?: string;
+  style?: string;
+  explode?: boolean;
 }
 
 interface OpenAPIOperation {
@@ -68,6 +75,7 @@ interface OpenAPIOperation {
 }
 
 interface OpenAPIPathItem {
+  parameters?: OpenAPIParameter[];
   get?: OpenAPIOperation;
   post?: OpenAPIOperation;
   put?: OpenAPIOperation;
@@ -75,65 +83,132 @@ interface OpenAPIPathItem {
   patch?: OpenAPIOperation;
 }
 
-interface OpenAPISchema {
+export interface OpenAPISchema {
   paths: Record<string, OpenAPIPathItem>;
+  components?: {
+    parameters?: Record<string, OpenAPIParameter>;
+    schemas?: Record<string, OpenAPISchemaObject>;
+  };
+}
+
+const METHODS: HttpMethod[] = ["get", "post", "put", "delete", "patch"];
+const MAX_RESOLVE_DEPTH = 10;
+
+function resolveLocalRef<T>(schema: OpenAPISchema, ref: string): T | undefined {
+  if (!ref.startsWith("#/")) return undefined;
+
+  let current: unknown = schema;
+  for (const rawPart of ref.slice(2).split("/")) {
+    const part = rawPart.replace(/~1/g, "/").replace(/~0/g, "~");
+    if (typeof current !== "object" || current === null || !(part in current)) {
+      return undefined;
+    }
+    current = (current as Record<string, unknown>)[part];
+  }
+  return current as T;
+}
+
+function resolveParameter(
+  schema: OpenAPISchema,
+  parameter: OpenAPIParameter,
+  depth = 0,
+): OpenAPIParameter | undefined {
+  if (!parameter.$ref || depth >= MAX_RESOLVE_DEPTH) return parameter;
+
+  const resolved = resolveLocalRef<OpenAPIParameter>(schema, parameter.$ref);
+  return resolved ? resolveParameter(schema, resolved, depth + 1) : undefined;
+}
+
+function resolveSchemaType(
+  apiSchema: OpenAPISchema,
+  schema: OpenAPISchemaObject | undefined,
+  depth = 0,
+): string | undefined {
+  if (!schema || depth >= MAX_RESOLVE_DEPTH) return schema?.type;
+  if (schema.type) return schema.type;
+  if (schema.$ref) {
+    return resolveSchemaType(
+      apiSchema,
+      resolveLocalRef<OpenAPISchemaObject>(apiSchema, schema.$ref),
+      depth + 1,
+    );
+  }
+
+  // This only supports compositions whose members resolve to the same type;
+  // returning the first type does not correctly infer mixed compositions.
+  for (const member of [
+    ...(schema.allOf ?? []),
+    ...(schema.oneOf ?? []),
+    ...(schema.anyOf ?? []),
+  ]) {
+    const type = resolveSchemaType(apiSchema, member, depth + 1);
+    if (type) return type;
+  }
+  return undefined;
+}
+
+function minimizeParameter(
+  apiSchema: OpenAPISchema,
+  rawParameter: OpenAPIParameter,
+): MinimalParameter | undefined {
+  const parameter = resolveParameter(apiSchema, rawParameter);
+  if (!parameter?.name || (parameter.in !== "path" && parameter.in !== "query")) {
+    return undefined;
+  }
+
+  const minimized: MinimalParameter = {
+    name: parameter.name,
+    in: parameter.in,
+    type: resolveSchemaType(apiSchema, parameter.schema) ?? parameter.type ?? "string",
+  };
+  if (parameter.required !== undefined) minimized.required = parameter.required;
+  if (parameter.description) minimized.description = parameter.description;
+  if (parameter.style !== undefined) minimized.style = parameter.style;
+  if (parameter.explode !== undefined) minimized.explode = parameter.explode;
+  return minimized;
+}
+
+function minimizeParameters(
+  apiSchema: OpenAPISchema,
+  pathParameters: OpenAPIParameter[] | undefined,
+  operationParameters: OpenAPIParameter[] | undefined,
+): MinimalParameter[] {
+  const parameters = new Map<string, MinimalParameter>();
+  for (const rawParameter of [...(pathParameters ?? []), ...(operationParameters ?? [])]) {
+    const parameter = minimizeParameter(apiSchema, rawParameter);
+    if (parameter) parameters.set(`${parameter.in}:${parameter.name}`, parameter);
+  }
+  return [...parameters.values()];
 }
 
 /**
  * Minimize an OpenAPI schema to only include fields that are actually used
  */
-function minimizeSchema(schema: OpenAPISchema): MinimalSchema {
+export function minimizeSchema(schema: OpenAPISchema): MinimalSchema {
   const minimalPaths: Record<string, MinimalPathItem> = {};
-  const methods = ["get", "post", "put", "delete", "patch"] as const;
 
-  for (const [path, pathItem] of Object.entries(schema.paths)) {
+  for (const [apiPath, pathItem] of Object.entries(schema.paths)) {
     const minimalPathItem: MinimalPathItem = {};
 
-    for (const method of methods) {
+    for (const method of METHODS) {
       const operation = pathItem[method];
       if (!operation) continue;
 
       const minimalOperation: MinimalOperation = {};
+      if (operation.summary) minimalOperation.summary = operation.summary;
+      if (operation.description) minimalOperation.description = operation.description;
 
-      if (operation.summary) {
-        minimalOperation.summary = operation.summary;
-      }
-      if (operation.description) {
-        minimalOperation.description = operation.description;
-      }
-
-      if (operation.parameters && operation.parameters.length > 0) {
-        minimalOperation.parameters = operation.parameters
-          .filter((p) => p.in === "path" || p.in === "query")
-          .map((p) => {
-            const param: MinimalParameter = {
-              name: p.name,
-              in: p.in as "path" | "query",
-              type: p.schema?.type || p.type || "string",
-            };
-            if (p.required !== undefined) {
-              param.required = p.required;
-            }
-            if (p.description) {
-              param.description = p.description;
-            }
-            return param;
-          });
-
-        if (minimalOperation.parameters.length === 0) {
-          delete minimalOperation.parameters;
-        }
-      }
+      const parameters = minimizeParameters(schema, pathItem.parameters, operation.parameters);
+      if (parameters.length > 0) minimalOperation.parameters = parameters;
 
       if (operation.requestBody?.content?.["application/json"]) {
         minimalOperation.hasJsonBody = true;
       }
-
       minimalPathItem[method] = minimalOperation;
     }
 
     if (Object.keys(minimalPathItem).length > 0) {
-      minimalPaths[path] = minimalPathItem;
+      minimalPaths[apiPath] = minimalPathItem;
     }
   }
 
@@ -310,4 +385,6 @@ async function main(): Promise<void> {
   console.log("All schemas fetched successfully!");
 }
 
-main();
+if (import.meta.main) {
+  main();
+}
