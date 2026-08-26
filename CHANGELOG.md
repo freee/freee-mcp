@@ -1,5 +1,11 @@
 # freee-mcp
 
+## 0.33.2
+
+### Patch Changes
+
+- [`7789f1b`](https://github.com/freee/freee-mcp/commit/7789f1b491f5eee296514d531b869c494b2f2f1b): サーベイ API レシピのリソース一覧表に、結果・サマリー系エンドポイントへの案内行を追加
+
 ## 0.33.1
 
 ### Patch Changes
