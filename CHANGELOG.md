@@ -1,5 +1,12 @@
 # freee-mcp
 
+## 0.33.1
+
+### Patch Changes
+
+- [`8f83ce5`](https://github.com/freee/freee-mcp/commit/8f83ce54eaa3c4488b8ac234d0cae88c58d55060): freee-api-skill に、末尾が `[]` のパラメータ名を API 呼び出し時に省略しない注意事項を追加
+- [`8f5d470`](https://github.com/freee/freee-mcp/commit/8f5d4706484f527d7d56c243cbb1339bdabde4c3): freee-mcp（リモート版）のサーベイ API に GetSurveyQuestions エンドポイントのスキーマを取り込み
+
 ## 0.33.0
 
 ### Minor Changes
