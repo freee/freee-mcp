@@ -209,6 +209,29 @@
         ]
       }
     },
+    "/hub/survey/surveys/{survey_id}/questions": {
+      "get": {
+        "summary": "設問の取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の設問の一覧を取得します。",
+        "parameters": [
+          {
+            "name": "survey_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "実施回ID"
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          }
+        ]
+      }
+    },
     "/hub/launch/kaigyo_application": {
       "get": {
         "summary": "開業申請用データの取得（リモート版freee-mcp限定）",
