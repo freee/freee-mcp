@@ -335,6 +335,49 @@
         ]
       }
     },
+    "/hub/survey/surveys/{survey_id}/questions": {
+      "get": {
+        "operationId": "get_survey_questions",
+        "summary": "設問の取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の設問の一覧を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.GetSurveyQuestionsRequest.survey_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.GetSurveyQuestionsRequest.company_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "設問一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.SurveyQuestion"
+                      },
+                      "description": "設問のリスト"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
     "/hub/launch/kaigyo_application": {
       "get": {
         "operationId": "get_launch_kaigyo_application",
@@ -1401,6 +1444,27 @@
         },
         "explode": false
       },
+      "Survey.GetSurveyQuestionsRequest.survey_id": {
+        "name": "survey_id",
+        "in": "path",
+        "required": true,
+        "description": "実施回ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "Survey.GetSurveyQuestionsRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
       "EmployeeEvaluation.EvaluationResults.ListRequest.company_id": {
         "name": "company_id",
         "in": "query",
@@ -2121,7 +2185,7 @@
           "question_category": {
             "type": "string",
             "description": "質問カテゴリ(働きやすさ/やりがい/カスタム)",
-            "example": "workplace_comfort"
+            "example": "働きやすさ"
           },
           "score": {
             "$ref": "#/components/schemas/Survey.ScoreWithChange"
@@ -2269,6 +2333,71 @@
           }
         },
         "description": "AI個人分析",
+        "additionalProperties": false
+      },
+      "Survey.QuestionType": {
+        "type": "string",
+        "enum": [
+          "QUESTION_TYPE_UNSPECIFIED",
+          "QUESTION_TYPE_INPUT",
+          "QUESTION_TYPE_SELECT"
+        ],
+        "description": "質問種別"
+      },
+      "Survey.SurveyQuestion": {
+        "type": "object",
+        "required": [
+          "id",
+          "question_text",
+          "question_type",
+          "is_required",
+          "display_order",
+          "question_category",
+          "question_sub_category"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "設問ID",
+            "example": "1"
+          },
+          "question_text": {
+            "type": "string",
+            "description": "質問文",
+            "example": "業務にやりがいを感じていますか"
+          },
+          "question_type": {
+            "$ref": "#/components/schemas/Survey.QuestionType"
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "必須か",
+            "example": true
+          },
+          "display_order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "表示順",
+            "example": 1
+          },
+          "question_category": {
+            "type": "string",
+            "description": "質問カテゴリ",
+            "example": "働きやすさ"
+          },
+          "question_sub_category": {
+            "type": "string",
+            "description": "質問サブカテゴリ",
+            "example": ""
+          },
+          "additional_question_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "追加設問ID",
+            "example": "1"
+          }
+        },
+        "description": "設問",
         "additionalProperties": false
       },
       "Launch.Prefecture": {

@@ -100,3 +100,17 @@ survey
 
 AI個人分析一覧取得レスポンス
 - data*: array[object] - AI個人分析のリスト
+
+## GET /hub/survey/surveys/{survey_id}/questions — 設問の取得（リモート版freee-mcp限定）
+
+指定した実施回の設問の一覧を取得します。
+
+### パラメータ
+
+- survey_id* (path): integer(int64) - 実施回ID
+- company_id*: integer(int64) - 事業所ID
+
+### レスポンス
+
+設問一覧取得レスポンス
+- data*: array[object] - 設問のリスト
