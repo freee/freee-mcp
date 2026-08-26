@@ -84,3 +84,21 @@ jobs:
           test -f bin/freee-remote-mcp.js
       - name: Verify Node.js compatibility
         run: node bin/freee-mcp.js --help || true
+
+  plugin-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      # claude.ai hosted plugins reject a top-level bin/ directory, so bin/ must
+      # stay build-output only and never hold a tracked file.
+      - name: Check no tracked files under bin/
+        run: |
+          tracked=$(git ls-files -- bin/)
+          if [ -n "$tracked" ]; then
+            echo "::error::Tracked files under bin/ break claude.ai plugin sync:"
+            echo "$tracked"
+            exit 1
+          fi
