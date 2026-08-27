@@ -13,7 +13,7 @@ members
 - page_token: string - ページネーションのトークン
 - page_size: integer(int32) - 1ページあたりの取得件数（デフォルト25、最大100）
 - keyword: string - キーワード検索（name, email, code に部分一致）
-- status: object - 在籍ステータス
+- status: string - 在籍ステータス (選択肢: employed, retired, in_leaving, pre_employment)
 - department_id: string(uuid) - 部署IDでフィルタ
 - employment_type_id: string(uuid) - 雇用形態IDでフィルタ
 - entered_since: string(date) - 入社日の範囲検索の開始日(yyyy-mm-dd、指定日を含む以降)

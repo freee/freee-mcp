@@ -19,6 +19,7 @@ describe('schema-loader', () => {
       'it_management',
       'partner_management',
       'survey',
+      'tax_return',
     ];
 
     const expectedPrefixes: Record<ApiType, string> = {
@@ -30,6 +31,7 @@ describe('schema-loader', () => {
       it_management: 'it-management',
       partner_management: 'partner-management',
       survey: 'survey',
+      tax_return: 'tax-return',
     };
 
     it.each(apiTypes)('should return config for %s API', (apiType) => {
@@ -145,6 +147,44 @@ describe('schema-loader', () => {
       expect(result.baseUrl).toBe('https://api.freee.co.jp');
     });
 
+    it.each([
+      '/hub/tax_return/corporate',
+      '/hub/tax_return/corporate/office_info/10',
+      '/hub/tax_return/corporate/sheet/national/10/schedule_1_blue',
+      '/hub/tax_return/corporate/sheet/local/10/local_form_6/13000/13109',
+      '/hub/tax_return/corporate/sheet/financial_statements/10/bs',
+    ])('should validate tax return API path %s', (path) => {
+      const result = validatePathForService('GET', path, 'tax_return');
+
+      expect(result.isValid).toBe(true);
+      expect(result.apiType).toBe('tax_return');
+      expect(result.baseUrl).toBe('https://api.freee.co.jp');
+    });
+
+    it.each([
+      '/hub/tax_return/corporate/sheet/national/10/10100100',
+      '/hub/tax_return/corporate/sheet/local/10/206000000/13000/13109',
+      '/hub/tax_return/corporate/sheet/financial_statements/10/balance_sheet',
+    ])('should attach XML accept metadata to tax return sheet path %s', (path) => {
+      const sheet = validatePathForService('GET', path, 'tax_return');
+      expect(sheet.operation?.accept).toBe('application/xml');
+    });
+
+    it.each([
+      '/hub/tax_return/corporate',
+      '/hub/tax_return/corporate/office_info/10',
+    ])('should not attach XML accept metadata to JSON tax return path %s', (path) => {
+      const result = validatePathForService('GET', path, 'tax_return');
+
+      expect(result.operation?.accept).toBeUndefined();
+    });
+
+    it('should reject unsupported write methods for tax return API', () => {
+      const result = validatePathForService('POST', '/hub/tax_return/corporate', 'tax_return');
+
+      expect(result.isValid).toBe(false);
+    });
+
     it('should be case-insensitive for HTTP methods', () => {
       const result = validatePathForService('get', '/api/1/deals', 'accounting');
 
@@ -184,6 +224,7 @@ describe('schema-loader', () => {
       'FREEE_API_BASE_URL_SM',
       'FREEE_API_BASE_URL_IT_MANAGEMENT',
       'FREEE_API_BASE_URL_PARTNER_MANAGEMENT',
+      'FREEE_API_BASE_URL_TAX_RETURN',
     ];
 
     afterEach(() => {
@@ -201,6 +242,7 @@ describe('schema-loader', () => {
       expect(API_CONFIGS.pm.baseUrl).toBe('https://api.freee.co.jp/pm');
       expect(API_CONFIGS.sm.baseUrl).toBe('https://api.freee.co.jp/sm');
       expect(API_CONFIGS.it_management.baseUrl).toBe('https://api.freee.co.jp');
+      expect(API_CONFIGS.tax_return.baseUrl).toBe('https://api.freee.co.jp');
     });
 
     it('should override with per-service env var', () => {
@@ -232,6 +274,13 @@ describe('schema-loader', () => {
       expect(result.isValid).toBe(true);
       expect(result.baseUrl).toBe('https://staging.example.com');
     });
+
+    it('should override the tax return API with its per-service env var', () => {
+      process.env.FREEE_API_BASE_URL_TAX_RETURN = 'https://staging.example.com/tax-return/';
+      _resetApiConfigs();
+
+      expect(API_CONFIGS.tax_return.baseUrl).toBe('https://staging.example.com/tax-return');
+    });
   });
 
   describe('listAllAvailablePaths', () => {
@@ -243,6 +292,7 @@ describe('schema-loader', () => {
       expect(paths).toContain('freee請求書 API');
       expect(paths).toContain('freee工数管理 API');
       expect(paths).toContain('freee販売 API');
+      expect(paths).toContain('freee申告 API');
     });
 
     it('should include HTTP methods', () => {
@@ -271,6 +321,7 @@ describe('schema-loader', () => {
     it('should return false for non-mcp-only paths', () => {
       expect(isMcpOnlyPath('/api/1/deals')).toBe(false);
       expect(isMcpOnlyPath('/hub/it_management/members')).toBe(false);
+      expect(isMcpOnlyPath('/hub/tax_return/corporate')).toBe(false);
     });
 
     it('should not match query-smuggling attempts against mcp-only paths', () => {

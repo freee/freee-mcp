@@ -6,9 +6,9 @@
 
 ### パラメータ
 
-- page: object
-- per_page: object
-- parent_id: object - 親フォルダID。IDで指定した親フォルダに格納されているフォルダ一覧を取得できる。
+- page: integer - 取得ページ番号
+- per_page: integer - 取得件数
+- parent_id: integer(int64) - フォルダID
 - name: string - フォルダ名に一致する一覧を取得できる（部分一致も可）
 
 ### レスポンス

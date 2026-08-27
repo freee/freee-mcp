@@ -385,7 +385,11 @@ function formatSchemaProperties(
       ? cleanDescription(resolvedSchema.description)
       : "";
     if (propDesc) {
-      result += ` - ${hangingIndent(propDesc, indent)}`;
+      const formattedDescription =
+        maxDepth > 2
+          ? propDesc.replace(/\s+/g, " ").trim()
+          : hangingIndent(propDesc, indent);
+      result += ` - ${formattedDescription}`;
     }
 
     if (!brief) {
@@ -475,18 +479,22 @@ function formatParameters(
       : rawParam;
 
     const name = param.name || "";
+    const parameterSchema = param.schema
+      ? resolveSchema(apiSchema, param.schema)
+      : undefined;
     const requiredMark = param.required ? "*" : "";
     const location = param.in && param.in !== "query" ? ` (${param.in})` : "";
-    const type = param.schema ? getTypeDescription(param.schema) : "";
-    const rawDescription = param.schema?.description || param.description || "";
+    const type = parameterSchema ? getTypeDescription(parameterSchema) : "";
+    const rawDescription =
+      parameterSchema?.description || param.description || "";
     const description = rawDescription ? cleanDescription(rawDescription) : "";
 
     result += `- ${name}${requiredMark}${location}: ${type}`;
     if (description) {
       result += ` - ${hangingIndent(description, "")}`;
     }
-    if (param.schema?.enum) {
-      result += ` (選択肢: ${param.schema.enum.join(", ")})`;
+    if (parameterSchema?.enum) {
+      result += ` (選択肢: ${parameterSchema.enum.join(", ")})`;
     }
     result += "\n";
   }
@@ -538,7 +546,8 @@ const GENERIC_RESPONSE_DESCRIPTIONS = new Set([
  */
 function formatSuccessResponse(
   apiSchema: OpenAPISchema,
-  responses: { [statusCode: string]: Response }
+  responses: { [statusCode: string]: Response },
+  maxDepth: number = 1
 ): string {
   if (!responses) {
     return "";
@@ -568,17 +577,26 @@ function formatSuccessResponse(
     result += `${description}\n`;
   }
 
+  if (successResponse.content?.["application/xml"]) {
+    result += "レスポンス形式: `application/xml`（推奨）\n\n";
+  }
+
   // Get JSON schema
   const jsonContent = successResponse.content?.["application/json"];
   if (!jsonContent || !jsonContent.schema) {
     return result;
   }
 
+  if (successResponse.content?.["application/xml"]) {
+    result +=
+      "参考: 以下は互換性のためOpenAPIに残っている `application/json`（廃止予定）のschemaです。新しい処理ではXMLを利用してください。\n\n";
+  }
+
   // Resolve $ref or `allOf: [{ $ref }]` wrapper.
   const schema = resolveSchema(apiSchema, jsonContent.schema);
 
   result += formatSchemaProperties(apiSchema, schema, {
-    maxDepth: 1,
+    maxDepth,
     brief: true,
   });
 
@@ -638,7 +656,8 @@ function extractEndpointsByTag(
  */
 export function buildEndpointsMarkdown(
   schema: OpenAPISchema,
-  endpoints: PathData[]
+  endpoints: PathData[],
+  apiName?: string
 ): string {
   // 同一ファイル内でブロック本文が完全一致したら初出への参照に置き換える。
   // 同じパラメータ群を持つエンドポイントが並ぶタグ（試算表など）で効果が大きい。
@@ -709,9 +728,10 @@ export function buildEndpointsMarkdown(
       }
 
       if (responses) {
+        const responseDepth = apiName === "tax-return-api" ? 3 : 1;
         endpointsMd += emitSection(
           "レスポンス",
-          formatSuccessResponse(schema, responses),
+          formatSuccessResponse(schema, responses, responseDepth),
           endpointRef
         );
       }
@@ -748,7 +768,7 @@ async function generateReference(
   const isMcpOnly = endpoints.some(({ path }) => mcpOnlyPaths.has(path));
   const banner = isMcpOnly ? `\n${MCP_ONLY_BANNER}\n` : "";
 
-  const endpointsMd = buildEndpointsMarkdown(schema, endpoints);
+  const endpointsMd = buildEndpointsMarkdown(schema, endpoints, apiName);
 
   const overview = tagDesc ? `\n${tagDesc}\n` : "";
 
@@ -904,6 +924,7 @@ const API_CONFIGS = [
   { apiKey: "sm-api", schemaFile: join(OPENAPI_DIR, "sm-api-schema.json"), prefix: "sm", outputDir: OUTPUT_DIR },
   { apiKey: "it-management-api", schemaFile: join(OPENAPI_DIR, "it-management-api-schema.json"), prefix: "it-management", outputDir: OUTPUT_DIR },
   { apiKey: "partner-management-api", schemaFile: join(OPENAPI_DIR, "partner-management-api-schema.json"), prefix: "partner-management", outputDir: OUTPUT_DIR },
+  { apiKey: "tax-return-api", schemaFile: join(OPENAPI_DIR, "tax-return-api-schema.json"), prefix: "tax-return", outputDir: OUTPUT_DIR },
   // mcp-only 集約スキーマ。現状は survey のみ。ここ由来のパスは mcp-only とみなされ、
   // 生成される各リファレンス冒頭に MCP_ONLY_BANNER が自動挿入される（generateReference 参照）。
   { apiKey: "mcponly-api", schemaFile: MCPONLY_SCHEMA_FILE, prefix: "survey", outputDir: OUTPUT_DIR },
@@ -919,7 +940,9 @@ const SERVICE_LABELS: Record<string, { service: string; label: string }> = {
   pm: { service: "pm", label: "freee工数管理" },
   sm: { service: "sm", label: "freee販売" },
   "it-management": { service: "it_management", label: "freeeIT管理" },
+  "partner-management": { service: "partner_management", label: "freee業務委託管理" },
   survey: { service: "survey", label: "freeeサーベイ" },
+  "tax-return": { service: "tax_return", label: "freee申告" },
 };
 
 /**

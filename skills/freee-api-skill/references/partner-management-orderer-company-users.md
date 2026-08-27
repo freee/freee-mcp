@@ -16,9 +16,9 @@ partner_management_orderer_company_users
 - email: string - メールアドレスの完全一致で絞り込む
 - role_id: integer(int64) - ロールIDで絞り込む
 - section_code: string - 部門コードで絞り込む
-- status: object - アカウント状態で絞り込む
+- status: string - アカウント状態 (active: 有効, invitation_pending: 招待中) (選択肢: active, invitation_pending)
 - freee_account_integrated: boolean - freeeアカウント連携済みかで絞り込む
-- two_factor_authentication_setting_type: object - 2FA設定タイプで絞り込む
+- two_factor_authentication_setting_type: string - 2FA設定タイプ (unset: 未設定, mail: メール, app: アプリ) (選択肢: unset, mail, app)
 - saml_sso_enabled: boolean - SAML SSO設定済みかで絞り込む
 
 ### レスポンス

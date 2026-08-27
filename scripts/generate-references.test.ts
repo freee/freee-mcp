@@ -301,3 +301,71 @@ describe("buildEndpointsMarkdown - anyOf の解決", () => {
     expect(md).toContain("- value: object");
   });
 });
+
+describe("buildEndpointsMarkdown - 法人税申告APIのレスポンス", () => {
+  const responseSchema: OpenAPISchema = {
+    paths: {},
+    components: {
+      schemas: {
+        SheetResponse: {
+          type: "object",
+          properties: {
+            data: {
+              type: "object",
+              properties: {
+                tax_data: {
+                  type: "object",
+                  properties: {
+                    sheet_key: { type: "string", description: "帳票キー" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  };
+
+  const responseEndpoints: PathData[] = [
+    {
+      path: "/hub/tax_return/corporate/sheet/national/{tax_return_id}/{sheet_key}",
+      operations: [
+        {
+          method: "GET",
+          responses: {
+            "200": {
+              description: "帳票データ",
+              content: {
+                "application/xml": {},
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/SheetResponse" },
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+  ];
+
+  it("通常APIはレスポンスをトップレベルだけに絞る", () => {
+    const md = buildEndpointsMarkdown(responseSchema, responseEndpoints);
+
+    expect(md).toContain("- data: object");
+    expect(md).not.toContain("- tax_data: object");
+    expect(md).not.toContain("- sheet_key: string");
+  });
+
+  it("法人税申告APIは帳票項目の対応に必要な3階層目まで出力する", () => {
+    const md = buildEndpointsMarkdown(
+      responseSchema,
+      responseEndpoints,
+      "tax-return-api"
+    );
+
+    expect(md).toContain("レスポンス形式: `application/xml`（推奨）");
+    expect(md).toContain("- tax_data: object");
+    expect(md).toContain("- sheet_key: string - 帳票キー");
+  });
+});

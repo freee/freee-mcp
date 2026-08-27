@@ -19,7 +19,8 @@ import {
 
 const SUPPORTED_IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
 
-const SERVICE_HINT = 'service: accounting/hr/invoice/pm/sm/it_management/partner_management/survey';
+const SERVICE_HINT =
+  'service: accounting/hr/invoice/pm/sm/it_management/partner_management/survey/tax_return';
 const SKILL_HINT = '詳細ガイドはfreee-api-skill skillを参照';
 
 // mcp-only（freee-mcp リモート版限定）エンドポイントを stdio（ローカル）モードで
@@ -40,10 +41,50 @@ const serviceSchema = z
     'it_management',
     'partner_management',
     'survey',
+    'tax_return',
   ])
   .describe('対象のfreeeサービス');
 
 const UTF8_BOM = String.fromCharCode(0xfeff);
+const XML_UTF8_ERROR_MESSAGE = 'XMLレスポンスをUTF-8として読み取れませんでした。';
+
+function isUtf8Encoding(value: string): boolean {
+  return value.trim().toLowerCase().replace(/[-_]/g, '') === 'utf8';
+}
+
+function decodeUtf8Xml(data: Buffer, mimeType: string): string {
+  const charsetMatch = mimeType.match(/;\s*charset\s*=\s*(?:"([^"]+)"|'([^']+)'|([^;\s]+))/i);
+  const charset = charsetMatch?.[1] ?? charsetMatch?.[2] ?? charsetMatch?.[3];
+  if (charset && !isUtf8Encoding(charset)) {
+    throw new Error(XML_UTF8_ERROR_MESSAGE);
+  }
+
+  const hasUtf16OrUtf32Bom =
+    (data[0] === 0xff && data[1] === 0xfe) ||
+    (data[0] === 0xfe && data[1] === 0xff) ||
+    (data[0] === 0x00 && data[1] === 0x00 && data[2] === 0xfe && data[3] === 0xff);
+  if (hasUtf16OrUtf32Bom) {
+    throw new Error(XML_UTF8_ERROR_MESSAGE);
+  }
+
+  let xml: string;
+  try {
+    xml = new TextDecoder('utf-8', { fatal: true }).decode(data);
+  } catch {
+    throw new Error(XML_UTF8_ERROR_MESSAGE);
+  }
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: XMLで禁止されている制御文字を検出するために必要
+  if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f\ufffe\uffff]/.test(xml)) {
+    throw new Error(XML_UTF8_ERROR_MESSAGE);
+  }
+
+  const declarationEncoding = xml.match(/^\s*<\?xml[^>]*\bencoding\s*=\s*["']([^"']+)["']/i)?.[1];
+  if (declarationEncoding && !isUtf8Encoding(declarationEncoding)) {
+    throw new Error(XML_UTF8_ERROR_MESSAGE);
+  }
+
+  return xml;
+}
 
 // Top-level union (record | string-decoding-to-record) rather than
 // `z.preprocess(..., z.record(...))` so the JSON Schema published via
@@ -162,7 +203,18 @@ function createMethodTool(method: string) {
         validation.baseUrl,
         tokenContext,
         validation.operation?.parameters,
+        validation.operation?.accept,
       );
+
+      let baseMimeType: string | undefined;
+      let xmlText: string | undefined;
+      const isBinaryResponse = isBinaryFileResponse(result);
+      if (isBinaryResponse) {
+        baseMimeType = result.mimeType.split(';')[0].trim().toLowerCase();
+        if (baseMimeType === 'application/xml' || baseMimeType === 'text/xml') {
+          xmlText = decodeUtf8Xml(result.data, result.mimeType);
+        }
+      }
 
       recorder?.recordToolCall({
         tool: toolName,
@@ -171,25 +223,29 @@ function createMethodTool(method: string) {
         duration_ms: Date.now() - startTime,
       });
 
-      if (isBinaryFileResponse(result)) {
-        const baseMimeType = result.mimeType.split(';')[0].trim();
+      if (isBinaryResponse) {
+        const resolvedBaseMimeType = baseMimeType as string;
 
-        if (SUPPORTED_IMAGE_MIME_TYPES.has(baseMimeType)) {
+        if (SUPPORTED_IMAGE_MIME_TYPES.has(resolvedBaseMimeType)) {
           return {
             content: [
-              { type: 'image', data: result.data.toString('base64'), mimeType: baseMimeType },
+              {
+                type: 'image',
+                data: result.data.toString('base64'),
+                mimeType: resolvedBaseMimeType,
+              },
             ],
           };
         }
 
-        if (baseMimeType === 'application/pdf') {
+        if (resolvedBaseMimeType === 'application/pdf') {
           return {
             content: [
               {
                 type: 'resource',
                 resource: {
                   uri: `freee://api${actualPath}`,
-                  mimeType: baseMimeType,
+                  mimeType: resolvedBaseMimeType,
                   blob: result.data.toString('base64'),
                 },
               },
@@ -197,12 +253,16 @@ function createMethodTool(method: string) {
           };
         }
 
-        if (baseMimeType === 'text/csv') {
+        if (resolvedBaseMimeType === 'text/csv') {
           return createTextResponse(result.data.toString('utf-8'));
         }
 
+        if (resolvedBaseMimeType === 'application/xml' || resolvedBaseMimeType === 'text/xml') {
+          return createTextResponse(xmlText as string);
+        }
+
         return createTextResponse(
-          `バイナリファイルを受信しました。このファイル形式（${baseMimeType}）は表示できません。\n\n` +
+          `バイナリファイルを受信しました。このファイル形式（${resolvedBaseMimeType}）は表示できません。\n\n` +
             `Content-Type: ${result.mimeType}\n` +
             `ファイルサイズ: ${result.size} bytes\n\n` +
             `このファイルを取得するには、freee Webアプリから直接ダウンロードしてください。`,

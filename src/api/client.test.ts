@@ -4,6 +4,7 @@ import {
   type BinaryFileResponse,
   formatRetryAfterMessage,
   isBinaryFileResponse,
+  MAX_XML_RESPONSE_BYTES,
   makeApiRequest,
 } from './client.js';
 
@@ -55,6 +56,7 @@ interface MockErrorResponse {
 
 interface MockBinaryResponse {
   ok: true;
+  status: number;
   headers: MockHeaders;
   arrayBuffer: () => Promise<ArrayBufferLike>;
 }
@@ -62,9 +64,14 @@ interface MockBinaryResponse {
 /**
  * Create mock headers with content-type
  */
-function createMockHeaders(contentType: string): MockHeaders {
+function createMockHeaders(contentType: string, contentLength?: string): MockHeaders {
   return {
-    get: (name: string) => (name === 'content-type' ? contentType : null),
+    get: (name: string) => {
+      const normalizedName = name.toLowerCase();
+      if (normalizedName === 'content-type') return contentType;
+      if (normalizedName === 'content-length') return contentLength ?? null;
+      return null;
+    },
   };
 }
 
@@ -97,6 +104,7 @@ function createErrorResponse(status: number, errorData: unknown): MockErrorRespo
 function createBinaryResponse(contentType: string, data: Uint8Array): MockBinaryResponse {
   return {
     ok: true,
+    status: 200,
     headers: createMockHeaders(contentType),
     arrayBuffer: () => Promise.resolve(data.buffer),
   };
@@ -180,6 +188,30 @@ describe('client', () => {
         }),
       );
       expect(result).toEqual(mockResponse);
+    });
+
+    it('should send the requested XML response media type in the Accept header', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const xmlData = new TextEncoder().encode('<?xml version="1.0"?><sheet />');
+      mockFetch.mockResolvedValue(createBinaryResponse('application/xml', xmlData));
+
+      await makeApiRequest(
+        'GET',
+        '/hub/tax_return/corporate/sheet/national/10/10100100',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'application/xml',
+      );
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${TEST_API_URL}/hub/tax_return/corporate/sheet/national/10/10100100`,
+        expect.objectContaining({
+          headers: expect.objectContaining({ Accept: 'application/xml' }),
+        }),
+      );
     });
 
     it('should include query parameters', async () => {
@@ -452,15 +484,23 @@ describe('client', () => {
 
     it('should handle JSON parsing errors in error responses', async () => {
       await setupAccessToken(TEST_ACCESS_TOKEN);
+      const sensitiveParserMessage =
+        'Unexpected token, "corporate_number=1234567890123&bank_account=998877" is not valid JSON';
       mockFetch.mockResolvedValue({
         ok: false,
         status: 500,
-        json: () => Promise.reject(new Error('Invalid JSON')),
+        json: () => Promise.reject(new SyntaxError(sensitiveParserMessage)),
       });
 
-      await expect(makeApiRequest('GET', '/api/1/users/me')).rejects.toThrow(
-        'API request failed: 500\n\n詳細: (JSON parse failed: Invalid JSON)',
+      const error = await makeApiRequest('GET', '/api/1/users/me').catch((caught) => caught);
+      const message = error instanceof Error ? error.message : String(error);
+
+      expect(message).toContain(
+        'API request failed: 500\n\n詳細: (JSON parse failed: Response body was not valid JSON)',
       );
+      expect(message).not.toContain('corporate_number');
+      expect(message).not.toContain('bank_account');
+      expect(message).not.toContain('998877');
     });
 
     it('should return null for 204 No Content response', async () => {
@@ -536,6 +576,247 @@ describe('client', () => {
       expect(binaryResult.type).toBe('binary');
       expect(binaryResult.mimeType).toBe('image/png');
       expect(binaryResult.data).toEqual(Buffer.from(pngMagicBytes));
+    });
+
+    it.each([
+      'application/xml',
+      'text/xml',
+      'application/xml; charset=utf-8',
+      'Application/XML; Charset=UTF-8',
+    ])('should return XML as a binary response for %s', async (contentType) => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+
+      const xml = '<?xml version="1.0" encoding="UTF-8"?><sheet><amount>100</amount></sheet>';
+      const xmlData = new TextEncoder().encode(xml);
+      mockFetch.mockResolvedValue(createBinaryResponse(contentType, xmlData));
+
+      const result = await makeApiRequest('GET', '/hub/tax_return/corporate/sheet/national/10/a');
+
+      expect(isBinaryFileResponse(result)).toBe(true);
+      const binaryResult = result as BinaryFileResponse;
+      expect(binaryResult.mimeType).toBe(contentType);
+      expect(binaryResult.size).toBe(xmlData.byteLength);
+      expect(binaryResult.data.toString('utf-8')).toBe(xml);
+    });
+
+    it('rejects XML from Content-Length before reading when it exceeds the safety limit', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const arrayBuffer = vi.fn(() => Promise.resolve(new ArrayBuffer(0)));
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: createMockHeaders('application/xml', String(MAX_XML_RESPONSE_BYTES + 1)),
+        arrayBuffer,
+      });
+
+      await expect(
+        makeApiRequest('GET', '/hub/tax_return/corporate/sheet/national/10/10100100'),
+      ).rejects.toThrow('XMLレスポンスが安全上限（1,048,576 bytes）を超えています。');
+      expect(arrayBuffer).not.toHaveBeenCalled();
+    });
+
+    it('cancels an unread XML stream rejected by Content-Length', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const cancel = vi.fn();
+      const stream = new ReadableStream<Uint8Array>({ cancel });
+      const response = new Response(stream, {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/xml',
+          'Content-Length': String(MAX_XML_RESPONSE_BYTES + 1),
+        },
+      });
+      mockFetch.mockResolvedValue(response);
+
+      await expect(
+        makeApiRequest('GET', '/hub/tax_return/corporate/sheet/national/10/10100100'),
+      ).rejects.toThrow('XMLレスポンスが安全上限（1,048,576 bytes）を超えています。');
+      expect(cancel).toHaveBeenCalledTimes(1);
+      expect(response.body?.locked).toBe(false);
+    });
+
+    it('rejects XML by actual size when Content-Length is missing', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const oversizedXml = new Uint8Array(MAX_XML_RESPONSE_BYTES + 1);
+      mockFetch.mockResolvedValue(createBinaryResponse('application/xml', oversizedXml));
+
+      await expect(
+        makeApiRequest('GET', '/hub/tax_return/corporate/sheet/national/10/10100100'),
+      ).rejects.toThrow('XMLレスポンスが安全上限（1,048,576 bytes）を超えています。');
+    });
+
+    it('stops reading a streamed XML response when it crosses the safety limit', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const cancel = vi.fn();
+      const stream = new ReadableStream<Uint8Array>({
+        start(controller) {
+          controller.enqueue(new Uint8Array(MAX_XML_RESPONSE_BYTES));
+          controller.enqueue(new Uint8Array([0x3c]));
+        },
+        cancel,
+      });
+      const response = new Response(stream, {
+        status: 200,
+        headers: { 'Content-Type': 'application/xml' },
+      });
+      mockFetch.mockResolvedValue(response);
+
+      await expect(
+        makeApiRequest('GET', '/hub/tax_return/corporate/sheet/national/10/10100100'),
+      ).rejects.toThrow('XMLレスポンスが安全上限（1,048,576 bytes）を超えています。');
+      expect(cancel).toHaveBeenCalledTimes(1);
+      expect(response.body?.locked).toBe(false);
+    });
+
+    it('reads a normal XML response through the production stream path', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const xml = '<?xml version="1.0"?><sheet><label>法人税額</label></sheet>';
+      mockFetch.mockResolvedValue(
+        new Response(xml, {
+          status: 200,
+          headers: { 'Content-Type': 'application/xml; charset=utf-8' },
+        }),
+      );
+
+      const result = await makeApiRequest(
+        'GET',
+        '/hub/tax_return/corporate/sheet/national/10/10100100',
+      );
+
+      expect(isBinaryFileResponse(result)).toBe(true);
+      expect((result as BinaryFileResponse).data.toString('utf-8')).toBe(xml);
+    });
+
+    it.each([
+      '',
+      'application/octet-stream',
+      'text/plain',
+    ])('rejects an unexpected Content-Type for an XML operation (%s)', async (contentType) => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const cancel = vi.fn();
+      const stream = new ReadableStream<Uint8Array>({ cancel });
+      const response = new Response(stream, {
+        status: 200,
+        headers: contentType ? { 'Content-Type': contentType } : undefined,
+      });
+      mockFetch.mockResolvedValue(response);
+
+      await expect(
+        makeApiRequest(
+          'GET',
+          '/hub/tax_return/corporate/sheet/national/10/10100100',
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'application/xml',
+        ),
+      ).rejects.toThrow('XMLレスポンスのContent-Typeが不正です。');
+      expect(cancel).toHaveBeenCalledTimes(1);
+      expect(response.body?.locked).toBe(false);
+    });
+
+    it('applies the XML operation size limit to a compatibility JSON response', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const oversizedJson = new Uint8Array(MAX_XML_RESPONSE_BYTES + 1);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: createMockHeaders('application/json'),
+        arrayBuffer: () => Promise.resolve(oversizedJson.buffer),
+      });
+
+      await expect(
+        makeApiRequest(
+          'GET',
+          '/hub/tax_return/corporate/sheet/national/10/schedule_1_blue',
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'application/xml',
+        ),
+      ).rejects.toThrow('XMLレスポンスが安全上限（1,048,576 bytes）を超えています。');
+    });
+
+    it('keeps a small compatibility JSON response for an XML operation', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const json = JSON.stringify({ data: { tax_data: { sheet_key: 'schedule_1_blue' } } });
+      const data = new TextEncoder().encode(json);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: createMockHeaders('application/json'),
+        arrayBuffer: () => Promise.resolve(data.buffer),
+      });
+
+      const result = await makeApiRequest(
+        'GET',
+        '/hub/tax_return/corporate/sheet/national/10/schedule_1_blue',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'application/xml',
+      );
+
+      expect(result).toEqual({ data: { tax_data: { sheet_key: 'schedule_1_blue' } } });
+    });
+
+    it('does not trust a smaller declared Content-Length for XML', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const oversizedXml = new Uint8Array(MAX_XML_RESPONSE_BYTES + 1);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: createMockHeaders('text/xml', '100'),
+        arrayBuffer: () => Promise.resolve(oversizedXml.buffer),
+      });
+
+      await expect(
+        makeApiRequest('GET', '/hub/tax_return/corporate/sheet/local/10/10100100/13000/13109'),
+      ).rejects.toThrow('XMLレスポンスが安全上限（1,048,576 bytes）を超えています。');
+    });
+
+    it('accepts XML exactly at the safety limit', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const xmlAtLimit = new Uint8Array(MAX_XML_RESPONSE_BYTES);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: createMockHeaders('application/xml', String(MAX_XML_RESPONSE_BYTES)),
+        arrayBuffer: () => Promise.resolve(xmlAtLimit.buffer),
+      });
+
+      const result = await makeApiRequest(
+        'GET',
+        '/hub/tax_return/corporate/sheet/financial_statements/10/balance_sheet',
+      );
+
+      expect(isBinaryFileResponse(result)).toBe(true);
+      expect((result as BinaryFileResponse).size).toBe(MAX_XML_RESPONSE_BYTES);
+    });
+
+    it('should not include an unparsable response body in the error message', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const sensitiveBody = 'corporate_number=1234567890123&bank_account=998877';
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: createMockHeaders('application/json'),
+        text: () => Promise.resolve(sensitiveBody),
+      });
+
+      const error = await makeApiRequest('GET', '/api/1/users/me').catch((caught) => caught);
+      const message = error instanceof Error ? error.message : String(error);
+
+      expect(message).toContain('Body size:');
+      expect(message).not.toContain('corporate_number');
+      expect(message).not.toContain('bank_account');
+      expect(message).not.toContain('998877');
     });
   });
 
@@ -635,6 +916,104 @@ describe('client', () => {
       expect(errors).toHaveLength(1);
       expect(errors[0].source).toBe('api_client');
       expect(errors[0].chain[0].message).toMatch(/API request failed: 500/);
+    });
+
+    it('does not record response body fragments from a JSON parser error', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const sensitiveParserMessage =
+        'Unexpected token, "corporate_number=1234567890123&bank_account=998877" is not valid JSON';
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: () => Promise.reject(new SyntaxError(sensitiveParserMessage)),
+      });
+
+      const { RequestRecorder, withRequestRecorder } = await import('../server/request-context.js');
+      const recorder = new RequestRecorder({
+        request_id: 'req-api-safe-json-parse-error',
+        source_ip: '127.0.0.1',
+        method: 'POST',
+        path: '/mcp',
+      });
+
+      await expect(
+        withRequestRecorder(recorder, () => makeApiRequest('GET', '/api/1/users/me')),
+      ).rejects.toThrow(/Response body was not valid JSON/);
+
+      const payload = JSON.stringify(recorder.buildPayload({ status: 200, duration_ms: 1 }));
+      expect(payload).not.toContain('corporate_number');
+      expect(payload).not.toContain('bank_account');
+      expect(payload).not.toContain('998877');
+    });
+
+    it('records an oversized XML error without recording XML body fragments', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const sensitiveXml = '<bank_account>MCP_STG_TAX_SENTINEL_20260803</bank_account>';
+      const oversizedXml = new Uint8Array(MAX_XML_RESPONSE_BYTES + 1);
+      oversizedXml.set(new TextEncoder().encode(sensitiveXml));
+      mockFetch.mockResolvedValue(createBinaryResponse('application/xml', oversizedXml));
+
+      const { RequestRecorder, withRequestRecorder } = await import('../server/request-context.js');
+      const recorder = new RequestRecorder({
+        request_id: 'req-api-oversized-xml',
+        source_ip: '127.0.0.1',
+        method: 'POST',
+        path: '/mcp',
+      });
+
+      await expect(
+        withRequestRecorder(recorder, () =>
+          makeApiRequest('GET', '/hub/tax_return/corporate/sheet/national/10/10100100'),
+        ),
+      ).rejects.toThrow('XMLレスポンスが安全上限（1,048,576 bytes）を超えています。');
+
+      const payload = recorder.buildPayload({ status: 200, duration_ms: 1 });
+      expect(payload.api.calls[0]).toMatchObject({ error_type: 'response_too_large' });
+      const serialized = JSON.stringify(payload);
+      expect(serialized).not.toContain('MCP_STG_TAX_SENTINEL_20260803');
+      expect(serialized).not.toContain('bank_account');
+    });
+
+    it('rejects an unexpected XML Content-Type without reading or recording its body', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      const sensitiveBody = '<bank_account>MCP_STG_TAX_SENTINEL_20260803</bank_account>';
+      const response = new Response(sensitiveBody, {
+        status: 200,
+        headers: { 'Content-Type': 'text/plain' },
+      });
+      mockFetch.mockResolvedValue(response);
+
+      const { RequestRecorder, withRequestRecorder } = await import('../server/request-context.js');
+      const recorder = new RequestRecorder({
+        request_id: 'req-api-invalid-xml-content-type',
+        source_ip: '127.0.0.1',
+        method: 'POST',
+        path: '/mcp',
+      });
+
+      await expect(
+        withRequestRecorder(recorder, () =>
+          makeApiRequest(
+            'GET',
+            '/hub/tax_return/corporate/sheet/national/10/10100100',
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            'application/xml',
+          ),
+        ),
+      ).rejects.toThrow('レスポンスのContent-Typeが不正です。');
+
+      expect(response.bodyUsed).toBe(true);
+      const payload = recorder.buildPayload({ status: 200, duration_ms: 1 });
+      expect(payload.api.calls[0]).toMatchObject({
+        error_type: 'invalid_response_content_type',
+      });
+      const serialized = JSON.stringify(payload);
+      expect(serialized).not.toContain('MCP_STG_TAX_SENTINEL_20260803');
+      expect(serialized).not.toContain('bank_account');
     });
 
     it('records an api_call with error_type=auth_error on 401 response', async () => {

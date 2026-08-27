@@ -23,10 +23,10 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 - start_unit_price: integer(int64) - 単価:下限
 - end_unit_price: integer(int64) - 単価:上限
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
-- reporting_section_ids[]: object - 担当部門ID
+- reporting_section_ids[]: array[integer] - 担当部門ID
 - supplier_ids[]: array[integer] - 仕入先の取引先ID
 - payment_partner_ids[]: array[integer] - 支払先の取引先ID
-- accounting_reporting_section_ids[]: object - 会計計上部門ID
+- accounting_reporting_section_ids[]: array[integer] - 会計計上部門ID
 - item_tag_ids[]: array[integer] - 会計品目タグID
 - segment_tag_1_ids[]: array[integer] - セグメントタグ1 ID
 - segment_tag_2_ids[]: array[integer] - セグメントタグ2 ID

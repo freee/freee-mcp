@@ -98,4 +98,44 @@ describe('fetch-schemas minimization', () => {
       },
     ]);
   });
+
+  it('preserves XML response metadata alongside minimized query parameters', () => {
+    const schema: OpenAPISchema = {
+      paths: {
+        '/reports': {
+          get: {
+            parameters: [
+              {
+                name: 'ids',
+                in: 'query',
+                schema: { type: 'array' },
+                style: 'form',
+                explode: true,
+              },
+            ],
+            responses: {
+              '200': {
+                content: {
+                  'application/xml': {},
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    expect(minimizeSchema(schema).paths['/reports']?.get).toEqual({
+      parameters: [
+        {
+          name: 'ids',
+          in: 'query',
+          type: 'array',
+          style: 'form',
+          explode: true,
+        },
+      ],
+      accept: 'application/xml',
+    });
+  });
 });

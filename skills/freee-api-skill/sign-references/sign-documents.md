@@ -61,9 +61,9 @@
 
 ### パラメータ
 
-- page: object
-- per_page: object
-- folder_id: object - フォルダID。IDで指定したフォルダに格納されている文書一覧を取得できる。
+- page: integer - 取得ページ番号
+- per_page: integer - 取得件数
+- folder_id: integer(int64) - フォルダID
 - title: string - 文書名に一致する一覧を取得できる（部分一致も可）。送信相手のメールアドレスに一致する一覧を取得できる（完全一致）。
 - ids[]: array[integer] - 配列で文書IDを指定して、文書一覧を取得できる
 - status: string - ステータス毎に文書一覧を取得できる。
@@ -74,18 +74,18 @@
   * concluded - 完了
   * rejected - 却下
   * expired - 有効期限切れ (選択肢: draft, in_progress, awaiting_receipt, approved, concluded, rejected, expired)
-- created_at_from: object - 作成日時が指定した作成日時以降である文書を取得できます。
+- created_at_from: string(date-time) - 作成日時。 ISO8601 形式を受け入れます。
 
-  開始は区切りを含みますが、終了は区切りを含みません。(左閉右開区間)
-- created_at_to: object - 作成日時が指定した作成日時より過去である文書を取得できます。
+  入力例: 2022-01-01T00:00:00+09:00
+- created_at_to: string(date-time) - 作成日時。 ISO8601 形式を受け入れます。
 
-  開始は区切りを含みますが、終了は区切りを含みません。(左閉右開区間)
-- updated_at_from: object - 更新日時が指定した更新日時以降である文書を取得できます。
+  入力例: 2022-01-01T00:00:00+09:00
+- updated_at_from: string(date-time) - 更新日時。 ISO8601 形式を受け入れます。
 
-  開始は区切りを含みますが、終了は区切りを含みません。(左閉右開区間)
-- updated_at_to: object - 更新日時が指定した更新日時より過去である文書を取得できます。
+  入力例: 2022-02-01T00:00:00+09:00
+- updated_at_to: string(date-time) - 更新日時。 ISO8601 形式を受け入れます。
 
-  開始は区切りを含みますが、終了は区切りを含みません。(左閉右開区間)
+  入力例: 2022-02-01T00:00:00+09:00
 
 ### レスポンス
 
@@ -302,8 +302,8 @@ GET /v1/documents と同じ
 
 ### パラメータ
 
-- page: object
-- per_page: object
+- page: integer - 取得ページ番号
+- per_page: integer - 取得件数
 
 ### レスポンス
 
@@ -604,7 +604,7 @@ PATCH /v1/documents/{document_id} と同じ
 
 ### パラメータ
 
-- page: object
+- page: integer - 取得ページ番号
 - per_page: integer - 取得件数
   1〜100 の範囲外や不正な値を指定した場合はエラーにせず 1〜100 に丸めて処理する。
 
@@ -879,9 +879,9 @@ PATCH /v1/documents/{document_id} と同じ
 
 ### パラメータ
 
-- page: object
-- per_page: object
-- folder_id: object - フォルダID。IDで指定したフォルダに格納されている文書一覧を取得できる。
+- page: integer - 取得ページ番号
+- per_page: integer - 取得件数
+- folder_id: integer(int64) - フォルダID
 - title: string - 文書名に一致する一覧を取得できる（部分一致も可）。送信相手のメールアドレスに一致する一覧を取得できる（完全一致）。
 - status: string - ステータス毎に文書一覧を取得できる。
   * draft - 作成中
@@ -892,18 +892,18 @@ PATCH /v1/documents/{document_id} と同じ
   * rejected - 却下
   * expired - 有効期限切れ (選択肢: draft, in_progress, awaiting_receipt, approved, concluded, rejected, expired)
 - ids[]: array[integer] - 配列で文書IDを指定して、文書一覧を取得できる
-- created_at_from: object - 作成日時が指定した作成日時以降である文書を取得できます。
+- created_at_from: string(date-time) - 作成日時。 ISO8601 形式を受け入れます。
 
-  開始は区切りを含みますが、終了は区切りを含みません。(左閉右開区間)
-- created_at_to: object - 作成日時が指定した作成日時より過去である文書を取得できます。
+  入力例: 2022-01-01T00:00:00+09:00
+- created_at_to: string(date-time) - 作成日時。 ISO8601 形式を受け入れます。
 
-  開始は区切りを含みますが、終了は区切りを含みません。(左閉右開区間)
-- updated_at_from: object - 更新日時が指定した更新日時以降である文書を取得できます。
+  入力例: 2022-01-01T00:00:00+09:00
+- updated_at_from: string(date-time) - 更新日時。 ISO8601 形式を受け入れます。
 
-  開始は区切りを含みますが、終了は区切りを含みません。(左閉右開区間)
-- updated_at_to: object - 更新日時が指定した更新日時より過去である文書を取得できます。
+  入力例: 2022-02-01T00:00:00+09:00
+- updated_at_to: string(date-time) - 更新日時。 ISO8601 形式を受け入れます。
 
-  開始は区切りを含みますが、終了は区切りを含みません。(左閉右開区間)
+  入力例: 2022-02-01T00:00:00+09:00
 
 ### レスポンス
 

@@ -33,6 +33,7 @@ interface MinimalOperation {
   description?: string;
   parameters?: MinimalParameter[];
   hasJsonBody?: boolean;
+  accept?: "application/xml" | "text/xml";
 }
 
 type HttpMethod = "get" | "post" | "put" | "delete" | "patch";
@@ -72,6 +73,12 @@ interface OpenAPIOperation {
       "application/json"?: unknown;
     };
   };
+  responses?: Record<
+    string,
+    {
+      content?: Record<string, unknown>;
+    }
+  >;
 }
 
 interface OpenAPIPathItem {
@@ -181,6 +188,17 @@ function minimizeParameters(
   return [...parameters.values()];
 }
 
+function getXmlAcceptType(
+  responses: OpenAPIOperation["responses"],
+): "application/xml" | "text/xml" | undefined {
+  const successResponse = responses?.["200"] ?? responses?.["201"];
+  const content = successResponse?.content;
+  if (!content) return undefined;
+  if (content["application/xml"]) return "application/xml";
+  if (content["text/xml"]) return "text/xml";
+  return undefined;
+}
+
 /**
  * Minimize an OpenAPI schema to only include fields that are actually used
  */
@@ -204,6 +222,11 @@ export function minimizeSchema(schema: OpenAPISchema): MinimalSchema {
       if (operation.requestBody?.content?.["application/json"]) {
         minimalOperation.hasJsonBody = true;
       }
+      const accept = getXmlAcceptType(operation.responses);
+      if (accept) {
+        minimalOperation.accept = accept;
+      }
+
       minimalPathItem[method] = minimalOperation;
     }
 
@@ -252,6 +275,16 @@ const SCHEMA_SOURCES = [
     url: "https://api-schema.freee.co.jp/it_management.yml",
     outputFile: "it-management-api-schema.json",
     minimalFile: "it-management.json",
+  },
+  {
+    // Expected to be published from api-hub's public tax_return.yml artifact.
+    // Until the URL is available, use the reviewed committed schema only for
+    // local development. URL availability is a release gate. Keep fetch
+    // failures visible instead of silently retaining an unknown stale schema.
+    name: "tax-return-api",
+    url: "https://api-schema.freee.co.jp/tax_return.yml",
+    outputFile: "tax-return-api-schema.json",
+    minimalFile: "tax-return.json",
   },
   {
     name: "partner-management-api",

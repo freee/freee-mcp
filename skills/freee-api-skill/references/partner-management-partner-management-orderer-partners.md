@@ -12,7 +12,7 @@ partner_management_orderer_partners
 - company_id*: integer(int64) - freee事業所ID
 - page_size: integer(int32) - 1ページあたりの取得件数（デフォルト20、最大100）
 - page_token: string - カーソルトークン。前回レスポンスの next_page_token を指定する
-- status: object - アカウント状態で絞り込む
+- status: string - アカウント状態 (active: 有効, invitation_pending: 招待中) (選択肢: active, invitation_pending)
 - name_contains: string - パートナー名の部分一致で絞り込む。招待未承諾時は招待時の名前、承諾済みは名前を対象
 - invoice_name_contains: string - 屋号の部分一致で絞り込む
 - email: string - メールアドレスの完全一致で絞り込む
@@ -21,12 +21,12 @@ partner_management_orderer_partners
 - evaluation_rate_average_max: number(double) - 評価 (平均) の上限 (0.0〜5.0)で絞り込む
 - task_estimate_unit_price_min: number(double) - タスク見積単価の下限で絞り込む
 - task_estimate_unit_price_max: number(double) - タスク見積単価の上限で絞り込む
-- business_classification: object - 事業者区分で絞り込む
+- business_classification: string - 事業者区分 (taxable: 課税事業者, exempt: 免税事業者) (選択肢: taxable, exempt)
 - has_invoice_number: boolean - インボイス登録番号の有無で絞り込む
 - tax_chargeable: boolean - 消費税請求可否で絞り込む
 - withholding_tax_required: boolean - 源泉所得税 (請求) が有効かで絞り込む
 - expense_withholding_tax_required: boolean - 源泉所得税 (経費) が有効かで絞り込む
-- two_factor_authentication_setting_type: object - 二要素認証の設定種別で絞り込む
+- two_factor_authentication_setting_type: string - 二要素認証の設定種別 (unset: 未設定, mail: メール, app: アプリ) (選択肢: unset, mail, app)
 
 ### レスポンス
 

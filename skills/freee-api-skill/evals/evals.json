@@ -94,12 +94,12 @@
     {
       "id": 8,
       "prompt": "freee で使えるAPIの一覧を教えて\n\n注意: これはドライランです。実際にMCPツールは呼び出さず、どのツールをどのパラメータで呼び出すべきかを手順として説明してください。レシピやリファレンスの参照は実際に行ってください。",
-      "expected_output": "freee_api_list_paths を呼び出す計画を示し、7つのサービス（会計・人事労務・請求書・工数管理・販売・IT管理・業務委託管理）について説明する。",
+      "expected_output": "freee_api_list_paths を呼び出す計画を示し、9つのサービス（会計・人事労務・請求書・工数管理・販売・IT管理・業務委託管理・サーベイ・申告）について説明する。",
       "assertions": [
         "freee_api_list_paths ツールを呼び出す計画を示している",
-        "会計・人事労務・請求書・工数管理・販売・IT管理・業務委託管理の各サービスについて言及している",
-        "各サービスの service パラメータ値（accounting, hr, invoice, pm, sm, it_management, partner_management）を正確に示している",
-        "各サービスのパス体系の違い（/api/1/ vs /api/v1/ vs /invoices vs /hub/it_management/ vs /hub/partner_management/ 等）に言及している",
+        "会計・人事労務・請求書・工数管理・販売・IT管理・業務委託管理・サーベイ・申告の各サービスについて言及している",
+        "各サービスの service パラメータ値（accounting, hr, invoice, pm, sm, it_management, partner_management, survey, tax_return）を正確に示している",
+        "各サービスのパス体系の違い（/api/1/ vs /api/v1/ vs /invoices vs /hub/it_management/ vs /hub/partner_management/ vs /hub/survey/ vs /hub/tax_return/ 等）に言及している",
         "MCPツール（freee_api_list_paths 等）を実際には呼び出していない"
       ]
     },
@@ -152,6 +152,22 @@
         "freee_get_current_company を呼び出す手順を説明している",
         "base_surveys → surveys → surveys/{survey_id} のドリルダウンで実施回を特定する計画を示している",
         "survey_targets の answered_at / consecutive_unanswered_count で未回答者を判定する計画を示している",
+        "MCPツール（freee_api_get 等）を実際には呼び出していない"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "大阪支店の今期の地方税帳票を確認したい\n\n注意: これはドライランです。実際にMCPツールは呼び出さず、どのツールをどのパラメータで呼び出すべきかを手順として説明してください。レシピやリファレンスの参照は実際に行ってください。",
+      "expected_output": "recipes/corporate-tax-return-operations.md と references/tax-return-corporate.md を参照し、freee_get_current_company → 申告一覧 → 事業所情報 → 地方税帳票の順に service=tax_return で取得する手順を説明する。",
+      "assertions": [
+        "recipes/corporate-tax-return-operations.md を実際に参照している",
+        "references/tax-return-corporate.md を実際に参照している",
+        "freee_get_current_company を最初に呼び出す手順を説明している",
+        "freee_api_get を service=tax_return、path=/hub/tax_return/corporate で呼び出して対象年度と tax_return_id を特定する計画を示している",
+        "available_sheets から category=local の帳票識別子を取得し、推測しない計画を示している",
+        "office_info/{tax_return_id} を先に呼び、都道府県と市区町村の自治体コードを両方取得する計画を示している",
+        "地方税帳票APIからXMLを取得する計画を示している",
+        "company_id を各呼び出しに指定する計画を示している",
         "MCPツール（freee_api_get 等）を実際には呼び出していない"
       ]
     }

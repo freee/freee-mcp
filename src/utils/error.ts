@@ -1,14 +1,17 @@
 /**
  * Result type for JSON parsing operations.
- * Allows callers to distinguish between success and failure while preserving error context.
+ * Allows callers to distinguish between success and failure without exposing response data.
  */
 type JsonParseResult =
   | { success: true; data: Record<string, unknown> }
   | { success: false; error: string };
 
+const SAFE_JSON_PARSE_ERROR = 'Response body was not valid JSON';
+
 /**
  * Parses JSON from a Response object with Result type pattern.
- * Preserves error context on failure instead of silently returning empty object.
+ * Returns a fixed message on failure. Native parser messages can contain a
+ * preview of the response body, so they must not be exposed or recorded.
  *
  * @param response - The fetch Response object to parse
  * @returns Result object with parsed data or error message
@@ -17,8 +20,8 @@ export async function parseJsonResponse(response: Response): Promise<JsonParseRe
   try {
     const data = await response.json();
     return { success: true, data };
-  } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : String(error) };
+  } catch {
+    return { success: false, error: SAFE_JSON_PARSE_ERROR };
   }
 }
 

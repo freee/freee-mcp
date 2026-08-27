@@ -6,8 +6,8 @@
 
 ### パラメータ
 
-- page: object
-- per_page: object
+- page: integer - 取得ページ番号
+- per_page: integer - 取得件数
 - display_name: string - 入力項目・検索項目名に一致する一覧を取得できる（部分一致も可）。
 - ids[]: array[integer] - 配列で項目IDを指定して、入力項目・検索項目一覧を取得できる。
 - active: boolean - 有効, 無効を指定して、入力項目・検索項目一覧を取得できる。

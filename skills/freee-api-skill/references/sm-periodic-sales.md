@@ -25,7 +25,7 @@ canceled : 取消状態(デフォルト:false) start_recurrence_period : 繰り�
 - end_last_revenue_recognition_date: string(date) - 最終計上日で絞込：終了日(yyyy-mm-dd)
 - customer_ids[]: array[integer] - 顧客の取引先ID
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
-- reporting_section_ids[]: object - 担当部門ID
+- reporting_section_ids[]: array[integer] - 担当部門ID
 - business_ids[]: array[string] - 案件ID
 - periodic_sales_no: string - 定期売上No.で絞込
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）

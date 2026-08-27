@@ -6,8 +6,8 @@
 
 ### パラメータ
 
-- page: object
-- per_page: object
+- page: integer - 取得ページ番号
+- per_page: integer - 取得件数
 - name: string - マイ印鑑名に一致する一覧を取得できる（部分一致も可）
 
 ### レスポンス

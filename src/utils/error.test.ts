@@ -17,15 +17,23 @@ describe('parseJsonResponse', () => {
 
   it('should return failure with error message when JSON parsing fails', async () => {
     const mockResponse = {
-      json: () => Promise.reject(new Error('Invalid JSON')),
+      json: () =>
+        Promise.reject(
+          new SyntaxError(
+            'Unexpected token, "corporate_number=1234567890123&bank_account=998877" is not valid JSON',
+          ),
+        ),
     } as Response;
 
     const result = await parseJsonResponse(mockResponse);
 
     expect(result).toEqual({
       success: false,
-      error: 'Invalid JSON',
+      error: 'Response body was not valid JSON',
     });
+    expect(JSON.stringify(result)).not.toContain('corporate_number');
+    expect(JSON.stringify(result)).not.toContain('bank_account');
+    expect(JSON.stringify(result)).not.toContain('998877');
   });
 
   it('should handle non-Error throws during JSON parsing', async () => {
@@ -37,7 +45,7 @@ describe('parseJsonResponse', () => {
 
     expect(result).toEqual({
       success: false,
-      error: 'String error',
+      error: 'Response body was not valid JSON',
     });
   });
 });

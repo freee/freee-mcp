@@ -201,6 +201,25 @@ describe('E2E: Client Mode Tools', () => {
       expect(responseData.user.email).toBe('test@example.com');
     });
 
+    it('should return tax return XML without JSON quoting or escaping', async () => {
+      const handler = registeredTools.get('freee_api_get')?.handler;
+      const xml = '<?xml version="1.0"?><sheet>\n  <amount>100</amount>\n</sheet>';
+      mockApiResponse = {
+        type: 'binary',
+        data: Buffer.from(xml, 'utf-8'),
+        mimeType: 'application/xml; charset=utf-8',
+        size: Buffer.byteLength(xml, 'utf-8'),
+      };
+
+      const result = (await handler({
+        service: 'tax_return',
+        path: '/hub/tax_return/corporate/sheet/national/10/10100100',
+      })) as { content: Array<{ type: string; text: string }> };
+
+      expect(result.content).toEqual([{ type: 'text', text: xml }]);
+      expect(result.content[0].text).not.toBe(JSON.stringify(xml));
+    });
+
     it('should handle invalid path with error message', async () => {
       const handler = registeredTools.get('freee_api_get')?.handler;
 

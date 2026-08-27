@@ -1,0 +1,173 @@
+{
+  "paths": {
+    "/hub/tax_return/corporate": {
+      "get": {
+        "summary": "申告一覧取得",
+        "description": "事業所に紐づく法人税の申告一覧をカーソルページネーションで取得します。\n各申告データには利用可能な帳票一覧（available_sheets）が含まれており、帳票取得APIで使用するtax_return_idとsheet_keyを取得できます。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（10〜50、デフォルト10）"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "次のページを取得するためのカーソルトークン"
+          }
+        ]
+      }
+    },
+    "/hub/tax_return/corporate/office_info/{tax_return_id}": {
+      "get": {
+        "summary": "事業所情報一覧取得",
+        "description": "申告に紐づく事業所情報の一覧をカーソルページネーションで取得します。\n地方税帳票取得APIで必要となる自治体コード（prefecture_government_code、city_government_code）は、このAPIから取得できます。",
+        "parameters": [
+          {
+            "name": "tax_return_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "申告書ID"
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（10〜50、デフォルト10）"
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "次のページを取得するためのカーソルトークン"
+          }
+        ]
+      }
+    },
+    "/hub/tax_return/corporate/sheet/national/{tax_return_id}/{sheet_key}": {
+      "get": {
+        "summary": "国税帳票取得",
+        "description": "指定した申告データの国税帳票を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "parameters": [
+          {
+            "name": "tax_return_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "申告ID"
+          },
+          {
+            "name": "sheet_key",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "帳票キー"
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          }
+        ],
+        "accept": "application/xml"
+      }
+    },
+    "/hub/tax_return/corporate/sheet/local/{tax_return_id}/{sheet_key}/{prefecture_government_code}/{city_government_code}": {
+      "get": {
+        "summary": "地方税帳票取得",
+        "description": "指定した申告データの地方税帳票を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\n帳票のreport_unit（prefecture/city）に応じて、prefecture_government_codeまたはcity_government_codeが使用されます。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "parameters": [
+          {
+            "name": "tax_return_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "申告ID"
+          },
+          {
+            "name": "sheet_key",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "帳票キー"
+          },
+          {
+            "name": "prefecture_government_code",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "都道府県の自治体コード"
+          },
+          {
+            "name": "city_government_code",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "市区町村の自治体コード"
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          }
+        ],
+        "accept": "application/xml"
+      }
+    },
+    "/hub/tax_return/corporate/sheet/financial_statements/{tax_return_id}/{sheet_key}": {
+      "get": {
+        "summary": "決算書取得",
+        "description": "指定した申告データの決算書を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "parameters": [
+          {
+            "name": "tax_return_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "申告ID"
+          },
+          {
+            "name": "sheet_key",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "決算書種別キー"
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          }
+        ],
+        "accept": "application/xml"
+      }
+    }
+  }
+}

@@ -54,7 +54,8 @@ export type ApiType =
   | 'sm'
   | 'it_management'
   | 'partner_management'
-  | 'survey';
+  | 'survey'
+  | 'tax_return';
 
 interface ApiConfig {
   schema: MinimalSchema;
@@ -122,6 +123,12 @@ const API_METADATA: Record<ApiType, ApiMetadata> = {
     baseUrl: 'https://api.freee.co.jp',
     prefix: 'survey',
     name: 'freee-survey API',
+  },
+  tax_return: {
+    schemaFile: 'tax-return.json',
+    baseUrl: 'https://api.freee.co.jp',
+    prefix: 'tax-return',
+    name: 'freee申告 API',
   },
 };
 

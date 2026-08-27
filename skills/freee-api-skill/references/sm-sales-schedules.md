@@ -21,7 +21,7 @@ periodic_sales_id : 定期売上IDで絞込 start_scheduled_date : 売上予定�
 - start_collects_on: string(date) - 入金予定日で絞込：開始日(yyyy-mm-dd)
 - end_collects_on: string(date) - 入金予定日で絞込：終了日(yyyy-mm-dd)
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
-- reporting_section_ids[]: object - 担当部門ID
+- reporting_section_ids[]: array[integer] - 担当部門ID
 - business_ids[]: array[string] - 案件ID
 - start_last_updated_date: string(date) - 変更日時で絞込：開始日(yyyy-mm-dd)
 - end_last_updated_date: string(date) - 変更日時で絞込：終了日(yyyy-mm-dd)
