@@ -313,6 +313,13 @@ const SCHEMA_SOURCES = [
     outputFile: "sign-api-schema.json",
     minimalFile: "sign.json",
   },
+  {
+    // freee固定資産 Public API（/hub/fixed_asset_management/ プレフィックス）。
+    name: "fixed-asset-management-api",
+    url: "https://api-schema.freee.co.jp/fixed_asset_management.yml",
+    outputFile: "fixed-asset-management-api-schema.json",
+    minimalFile: "fixed-asset-management.json",
+  },
 ];
 
 /**

@@ -923,6 +923,7 @@ const API_CONFIGS = [
   { apiKey: "pm-api", schemaFile: join(OPENAPI_DIR, "pm-api-schema.json"), prefix: "pm", outputDir: OUTPUT_DIR },
   { apiKey: "sm-api", schemaFile: join(OPENAPI_DIR, "sm-api-schema.json"), prefix: "sm", outputDir: OUTPUT_DIR },
   { apiKey: "it-management-api", schemaFile: join(OPENAPI_DIR, "it-management-api-schema.json"), prefix: "it-management", outputDir: OUTPUT_DIR },
+  { apiKey: "fixed-asset-management-api", schemaFile: join(OPENAPI_DIR, "fixed-asset-management-api-schema.json"), prefix: "fixed-asset-management", outputDir: OUTPUT_DIR },
   { apiKey: "partner-management-api", schemaFile: join(OPENAPI_DIR, "partner-management-api-schema.json"), prefix: "partner-management", outputDir: OUTPUT_DIR },
   { apiKey: "tax-return-api", schemaFile: join(OPENAPI_DIR, "tax-return-api-schema.json"), prefix: "tax-return", outputDir: OUTPUT_DIR },
   // mcp-only 集約スキーマ。現状は survey のみ。ここ由来のパスは mcp-only とみなされ、
@@ -940,6 +941,7 @@ const SERVICE_LABELS: Record<string, { service: string; label: string }> = {
   pm: { service: "pm", label: "freee工数管理" },
   sm: { service: "sm", label: "freee販売" },
   "it-management": { service: "it_management", label: "freeeIT管理" },
+  "fixed-asset-management": { service: "fixed_asset_management", label: "freee固定資産" },
   "partner-management": { service: "partner_management", label: "freee業務委託管理" },
   survey: { service: "survey", label: "freeeサーベイ" },
   "tax-return": { service: "tax_return", label: "freee申告" },
