@@ -91,6 +91,40 @@
             "description": "プロジェクトID"
           }
         ]
+      },
+      "delete": {
+        "summary": "プロジェクトの削除",
+        "description": "IDに該当するプロジェクトを削除します。 案件マスタとの連携がある場合は紐付けを解除します。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "プロジェクトID"
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "プロジェクトの編集",
+        "description": "IDに該当するプロジェクトを編集します。 リクエストに含まれているフィールドのみ更新され、含まれていないフィールドは更新されません。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "プロジェクトID"
+          }
+        ],
+        "hasJsonBody": true
       }
     },
     "/unit_costs": {

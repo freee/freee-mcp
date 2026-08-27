@@ -53,6 +53,27 @@
                   "allOf": [
                     {
                       "$ref": "#/components/schemas/error"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "example": "project_id"
+                              },
+                              "message": {
+                                "type": "string",
+                                "example": "存在しないプロジェクトが指定されています"
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   ]
                 },
@@ -481,6 +502,117 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/paths/~1users~1me/get/responses/400"
+          },
+          "401": {
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
+          },
+          "404": {
+            "$ref": "#/paths/~1projects/post/responses/404"
+          },
+          "500": {
+            "$ref": "#/paths/~1users~1me/get/responses/500"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "/projects/partial_update",
+        "summary": "プロジェクトの編集",
+        "description": "IDに該当するプロジェクトを編集します。 リクエストに含まれているフィールドのみ更新され、含まれていないフィールドは更新されません。",
+        "tags": [
+          "Projects"
+        ],
+        "parameters": [
+          {
+            "description": "プロジェクトID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/partial_update_project_param"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功時",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "project": {
+                      "$ref": "#/paths/~1projects/post/responses/200/content/application~1json/schema/properties/project"
+                    }
+                  },
+                  "required": [
+                    "project"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/paths/~1users~1me/get/responses/400"
+          },
+          "401": {
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
+          },
+          "404": {
+            "$ref": "#/paths/~1projects/post/responses/404"
+          },
+          "500": {
+            "$ref": "#/paths/~1users~1me/get/responses/500"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "/projects/destroy",
+        "summary": "プロジェクトの削除",
+        "description": "IDに該当するプロジェクトを削除します。 案件マスタとの連携がある場合は紐付けを解除します。",
+        "tags": [
+          "Projects"
+        ],
+        "parameters": [
+          {
+            "description": "プロジェクトID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "事業所ID",
+            "in": "query",
+            "name": "company_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "成功時"
           },
           "400": {
             "$ref": "#/paths/~1users~1me/get/responses/400"
@@ -1993,7 +2125,7 @@
             "example": 3
           },
           "members": {
-            "description": "アサインするユーザの配列",
+            "description": "プロジェクトメンバーの配列。\n※プロジェクトマネージャーは `members` ではなく `manager_person_id` で指定する必要があります。",
             "type": "array",
             "nullable": true,
             "items": {
@@ -2094,6 +2226,164 @@
           "from_date",
           "thru_date",
           "pm_budgets_cost"
+        ]
+      },
+      "partial_update_project_param": {
+        "type": "object",
+        "description": "プロジェクト更新情報。\nリクエストに含まれているフィールドのみ更新され、含まれていないフィールドは更新されません。\n配列項目（members / orderer_ids / contractor_ids / workload_tag_groups）は、キーを指定すると指定内容で全置換され、空配列やnullを指定するとすべて解除されます。",
+        "properties": {
+          "company_id": {
+            "description": "事業所ID",
+            "format": "int32",
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "description": "プロジェクト名",
+            "type": "string"
+          },
+          "code": {
+            "description": "プロジェクトコード",
+            "type": "string"
+          },
+          "description": {
+            "description": "プロジェクト概要",
+            "type": "string",
+            "nullable": true
+          },
+          "from_date": {
+            "description": "プロジェクト開始日",
+            "type": "string"
+          },
+          "thru_date": {
+            "description": "プロジェクト終了日",
+            "type": "string"
+          },
+          "publish_to_employee": {
+            "description": "従業員への公開設定\n公開するとプロジェクト一覧に表示され、従業員がアサインリクエストを送れるようになります。（詳細画面は閲覧不可）",
+            "type": "boolean"
+          },
+          "assignment_url_enabled": {
+            "description": "プロジェクトの招待リンク機能設定\nプロジェクトの招待リンクを発行できるようにするかどうかを設定します。",
+            "type": "boolean"
+          },
+          "sales_order_status_id": {
+            "description": "受注ステータスID。nullの場合「指定なし」になります。",
+            "format": "int32",
+            "type": "integer",
+            "example": 2,
+            "nullable": true
+          },
+          "manager_person_id": {
+            "description": "プロジェクトマネージャーの従業員ID\nこのパラメータはシステム管理者かプロジェクトマネージャーでログインしているときのみ指定可能。",
+            "format": "int32",
+            "type": "integer",
+            "example": 10
+          },
+          "pm_budgets_cost": {
+            "description": "プロジェクトマネージャーのコスト(円)",
+            "format": "int32",
+            "type": "integer",
+            "example": 4000
+          },
+          "color_id": {
+            "description": "プロジェクトの色を指定可能\n{ orange: 1, blue_green: 2, green: 3, blue: 4, purple: 5, red: 6, yellow: 7 }",
+            "format": "int32",
+            "type": "integer",
+            "example": 3
+          },
+          "members": {
+            "description": "プロジェクトメンバーの配列。\n指定するとメンバーが指定内容で全置換され、空配列やnullを指定するとすべて解除されます。\n※プロジェクトマネージャーは `members` ではなく `manager_person_id` で指定する必要があります。",
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "object",
+              "properties": {
+                "person_id": {
+                  "description": "従業員ID",
+                  "format": "int32",
+                  "type": "integer",
+                  "example": 11
+                },
+                "unit_cost_id": {
+                  "description": "このプロジェクトで使用する従業員単価マスタID\n`use_standard_unit_cost: true` の場合は無視されます",
+                  "format": "int32",
+                  "type": "integer",
+                  "example": 3
+                },
+                "budgets_cost": {
+                  "description": "予算計算用の単価(円)",
+                  "format": "int32",
+                  "type": "integer",
+                  "example": 2000
+                },
+                "use_standard_unit_cost": {
+                  "description": "標準の従業員単価マスタの単価を利用（デフォルト：false）",
+                  "type": "boolean",
+                  "example": true
+                }
+              },
+              "required": [
+                "person_id",
+                "unit_cost_id",
+                "budgets_cost"
+              ]
+            }
+          },
+          "orderer_ids": {
+            "description": "発注元として指定する取引先IDの配列\n指定すると発注元が指定内容で全置換され、空配列やnullを指定するとすべて解除されます。",
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "example": 20
+            }
+          },
+          "contractor_ids": {
+            "description": "発注先として指定する取引先IDの配列\n指定すると発注先が指定内容で全置換され、空配列やnullを指定するとすべて解除されます。",
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "integer",
+              "example": 10
+            }
+          },
+          "workload_tag_groups": {
+            "description": "プロジェクトに指定可能な工数タグリスト\n指定すると指定内容で全置換され、空配列やnullを指定するとすべて解除されます。",
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "object",
+              "properties": {
+                "tag_group_id": {
+                  "description": "工数タググループID",
+                  "type": "integer",
+                  "example": 1
+                },
+                "required": {
+                  "description": "工数登録時の入力を必須とするか",
+                  "type": "boolean",
+                  "example": true
+                },
+                "tag_ids": {
+                  "description": "当該タググループ配下で指定可能とする工数タグIDの配列（1件以上必要）",
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "example": 10
+                  }
+                }
+              },
+              "required": [
+                "tag_group_id",
+                "required",
+                "tag_ids"
+              ]
+            }
+          }
+        },
+        "required": [
+          "company_id"
         ]
       },
       "project_detail": {
