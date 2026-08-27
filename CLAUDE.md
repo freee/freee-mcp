@@ -148,7 +148,7 @@ Common issues:
 
 ## mcp-only（freee-mcp リモート版限定）エンドポイントについて
 
-一部のエンドポイントは freee-mcp（リモート版）でのみ利用でき、ローカル（stdio）モードでは使えない。この区分は api-hub 側で `WithPublishTypeMcpOnly` を指定したもので、公開スキーマは必ず単一ファイル `mcponly.yml` に集約される。freee-mcp 側はこれを「出自（provenance）」として扱い、エンドポイント個別のフラグや手動リストは持たない。
+一部のエンドポイントは freee-mcp（リモート版）でのみ利用でき、ローカル（stdio）モードでは使えない。この区分は公開スキーマの配信元で mcp-only として指定され、必ず単一ファイル `mcponly.yml` に集約される。freee-mcp 側はこれを「出自（provenance）」として扱い、エンドポイント個別のフラグや手動リストは持たない。
 
 仕組み:
 
