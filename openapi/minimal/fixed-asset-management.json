@@ -1,0 +1,203 @@
+{
+  "paths": {
+    "/hub/fixed_asset_management/fixed_assets": {
+      "get": {
+        "summary": "固定資産一覧取得",
+        "description": "固定資産の一覧を取得します。\n\n## 注意点\n\n- 勘定科目別一覧（`list_type=account_item`）は非対応です。指定した場合は 400 エラーを返します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "fiscal_year_id",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "会計年度ID（一覧の基準年度。未指定時は当期）",
+            "explode": false
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "資産名（部分一致）",
+            "explode": false
+          },
+          {
+            "name": "account_item_id",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "勘定科目ID（会計マスタID）での絞り込み",
+            "explode": false
+          },
+          {
+            "name": "section_id",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "部門ID（会計マスタID）での絞り込み",
+            "explode": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "資産ステータスでフィルタ",
+            "explode": false
+          },
+          {
+            "name": "acquisition_date_from",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "取得日の範囲（開始, yyyy-mm-dd）",
+            "explode": false
+          },
+          {
+            "name": "acquisition_date_to",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "取得日の範囲（終了, yyyy-mm-dd）",
+            "explode": false
+          },
+          {
+            "name": "acquisition_cost_from",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得価額の範囲（下限）",
+            "explode": false
+          },
+          {
+            "name": "acquisition_cost_to",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得価額の範囲（上限）",
+            "explode": false
+          },
+          {
+            "name": "management_number",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "管理番号（前方一致）",
+            "explode": false
+          },
+          {
+            "name": "lease_category",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "リース区分での絞り込み",
+            "explode": false
+          },
+          {
+            "name": "order_by",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "並び替えキー。例: acquisition_date / acquisition_cost / name",
+            "explode": false
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "並び順",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト20、最大100）",
+            "explode": false
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得開始位置（0始まり）",
+            "explode": false
+          }
+        ]
+      },
+      "post": {
+        "summary": "固定資産登録",
+        "description": "固定資産を登録します。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/fixed_asset_management/fixed_assets/{id}": {
+      "get": {
+        "summary": "固定資産詳細取得",
+        "description": "固定資産の詳細を取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "固定資産ID"
+          }
+        ]
+      },
+      "put": {
+        "summary": "固定資産更新",
+        "description": "固定資産を更新します。全項目を指定するフル更新です。\n\n## 注意点\n\n- 詳細取得のレスポンスから read-only 項目（current_status / asset_changes / 状態フラグ / id）を除いたものがリクエストボディになります。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "固定資産ID"
+          }
+        ],
+        "hasJsonBody": true
+      },
+      "delete": {
+        "summary": "固定資産削除",
+        "description": "固定資産を物理削除します。削除できない資産（deletable=false）の場合は 400 を返します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "固定資産ID"
+          }
+        ]
+      }
+    }
+  }
+}

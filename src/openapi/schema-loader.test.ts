@@ -17,6 +17,7 @@ describe('schema-loader', () => {
       'pm',
       'sm',
       'it_management',
+      'fixed_asset_management',
       'partner_management',
       'survey',
       'tax_return',
@@ -29,6 +30,7 @@ describe('schema-loader', () => {
       pm: 'pm',
       sm: 'sm',
       it_management: 'it-management',
+      fixed_asset_management: 'fixed-asset-management',
       partner_management: 'partner-management',
       survey: 'survey',
       tax_return: 'tax-return',
@@ -101,6 +103,18 @@ describe('schema-loader', () => {
 
       expect(result.isValid).toBe(true);
       expect(result.apiType).toBe('it_management');
+      expect(result.baseUrl).toBe('https://api.freee.co.jp');
+    });
+
+    it('should validate fixed asset management API paths', () => {
+      const result = validatePathForService(
+        'GET',
+        '/hub/fixed_asset_management/fixed_assets/123',
+        'fixed_asset_management',
+      );
+
+      expect(result.isValid).toBe(true);
+      expect(result.apiType).toBe('fixed_asset_management');
       expect(result.baseUrl).toBe('https://api.freee.co.jp');
     });
 
@@ -223,6 +237,7 @@ describe('schema-loader', () => {
       'FREEE_API_BASE_URL_PM',
       'FREEE_API_BASE_URL_SM',
       'FREEE_API_BASE_URL_IT_MANAGEMENT',
+      'FREEE_API_BASE_URL_FIXED_ASSET_MANAGEMENT',
       'FREEE_API_BASE_URL_PARTNER_MANAGEMENT',
       'FREEE_API_BASE_URL_TAX_RETURN',
     ];
@@ -242,6 +257,7 @@ describe('schema-loader', () => {
       expect(API_CONFIGS.pm.baseUrl).toBe('https://api.freee.co.jp/pm');
       expect(API_CONFIGS.sm.baseUrl).toBe('https://api.freee.co.jp/sm');
       expect(API_CONFIGS.it_management.baseUrl).toBe('https://api.freee.co.jp');
+      expect(API_CONFIGS.fixed_asset_management.baseUrl).toBe('https://api.freee.co.jp');
       expect(API_CONFIGS.tax_return.baseUrl).toBe('https://api.freee.co.jp');
     });
 
@@ -259,6 +275,7 @@ describe('schema-loader', () => {
       expect(API_CONFIGS.pm.baseUrl).toBe('https://api.freee.co.jp/pm');
       expect(API_CONFIGS.sm.baseUrl).toBe('https://api.freee.co.jp/sm');
       expect(API_CONFIGS.it_management.baseUrl).toBe('https://api.freee.co.jp');
+      expect(API_CONFIGS.fixed_asset_management.baseUrl).toBe('https://api.freee.co.jp');
     });
 
     it('should strip trailing slashes from env var values', () => {
@@ -292,6 +309,7 @@ describe('schema-loader', () => {
       expect(paths).toContain('freee請求書 API');
       expect(paths).toContain('freee工数管理 API');
       expect(paths).toContain('freee販売 API');
+      expect(paths).toContain('freee固定資産 API');
       expect(paths).toContain('freee申告 API');
     });
 
@@ -321,6 +339,7 @@ describe('schema-loader', () => {
     it('should return false for non-mcp-only paths', () => {
       expect(isMcpOnlyPath('/api/1/deals')).toBe(false);
       expect(isMcpOnlyPath('/hub/it_management/members')).toBe(false);
+      expect(isMcpOnlyPath('/hub/fixed_asset_management/fixed_assets')).toBe(false);
       expect(isMcpOnlyPath('/hub/tax_return/corporate')).toBe(false);
     });
 

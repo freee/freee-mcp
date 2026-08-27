@@ -117,6 +117,10 @@
 - it-management-assets.md — assets
 - it-management-members.md — members
 
+## fixed_asset_management - freee固定資産
+
+- fixed-asset-management-fixed-assets.md — fixed_assets
+
 ## partner_management - freee業務委託管理
 
 - partner-management-orderer-company-users.md — partner_management_orderer_company_users
