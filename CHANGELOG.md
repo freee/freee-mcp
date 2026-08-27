@@ -1,5 +1,30 @@
 # freee-mcp
 
+## 0.34.0
+
+### Minor Changes
+
+- [`6897248`](https://github.com/freee/freee-mcp/commit/6897248ee0b1233c51479809e61908a6cc3d8ef5): freee 固定資産 Public API を追加し、安全な更新、削除判断、Web 画面への引き継ぎを行うレシピを追加しました。
+- [`77b42c3`](https://github.com/freee/freee-mcp/commit/77b42c33098131bdbe96447fe8f290e0bfda5640): freee 申告の法人税申告・帳票参照 API を追加し、UTF-8 検証と 1 MiB の安全上限を適用した XML 帳票をテキストとして取得できるようにしました。
+
+### Patch Changes
+
+- [`32a291c`](https://github.com/freee/freee-mcp/commit/32a291cad231effa3a4e3ae775df1e05d3c85304): プロジェクトルートの bin/.keep を削除し、claude.ai の組織プラグインとしての同期が失敗する問題を修正
+
+  - bin/ はビルド成果物だけを置くディレクトリになり、追跡ファイルを持たなくなった
+  - bin/ に追跡ファイルが復活しないことを CI で検証するようにした
+
+- [`907cda8`](https://github.com/freee/freee-mcp/commit/907cda8c08b371003322650c0fb31b2ef3f0530e): OpenAPI スキーマを最新版に同期 ( 6 files changed, 2003 insertions(+), 1293 deletions(-))
+- [`2d74d67`](https://github.com/freee/freee-mcp/commit/2d74d674ad412251d1ac3d84bde3e79b3430be6b): freee-api-skill の法人税申告レシピを、帳票取得 API の実レスポンス形式に合わせて修正しました。
+
+  - 帳票 3 種は`application/xml`を要求するが、freee API 側の状況により非推奨の JSON 形式で返ることがある旨を明記
+  - JSON で返った場合のフィールドコードと xpath マッピング表との対応関係（中間グループ要素の扱い）を追記
+
+- [`8c2727b`](https://github.com/freee/freee-mcp/commit/8c2727b6be3ca5ed689f9ef636921219d5d8c627): freee-api-skill に法人税申告の帳票項目マッピング（`tax-return-references/`）を追加しました。
+
+  - 帳票 XML の要素・xpath と紙の帳票の項目名の対応表を帳票ごとに収録
+  - XTX/XBRL の要素名から項目の意味を調べる手順をレシピに追記
+
 ## 0.33.2
 
 ### Patch Changes
