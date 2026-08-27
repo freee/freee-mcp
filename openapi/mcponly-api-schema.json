@@ -382,8 +382,12 @@
       "get": {
         "operationId": "get_launch_kaigyo_application",
         "summary": "開業申請用データの取得（リモート版freee-mcp限定）",
-        "description": "現在入力されている開業申請用データを取得します。",
-        "parameters": [],
+        "description": "現在入力されている開業申請用データを取得します。\nレスポンスで「事業所を作成してください」と案内された場合は、API を再試行せず、ユーザーに https://k.secure.freee.co.jp/personal へアクセスして事業所を作成するよう案内してください。作成後に事業所を再確認してから、同じ操作を再実行します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Launch.GetKaigyoApplicationRequest"
+          }
+        ],
         "responses": {
           "200": {
             "description": "開業申請用データ取得レスポンス",
@@ -708,7 +712,7 @@
       "patch": {
         "operationId": "update_launch_kaigyo_application",
         "summary": "開業申請用データの更新（リモート版freee-mcp限定）",
-        "description": "開業申請用データのサブセットを受け付けて部分/一括更新します。\n指定されたパラメータのみが更新されます。入力値が異常な場合はエラーを返します。",
+        "description": "開業申請用データのサブセットを受け付けて部分/一括更新します。\n指定されたパラメータのみが更新されます。入力値が異常な場合はエラーを返します。\nレスポンスで「事業所を作成してください」と案内された場合は、API を再試行せず、ユーザーに https://k.secure.freee.co.jp/personal へアクセスして事業所を作成するよう案内してください。作成後に事業所を再確認してから、同じ操作を再実行します。",
         "parameters": [],
         "responses": {
           "200": {
@@ -1038,110 +1042,9 @@
                 "$ref": "#/components/schemas/Launch.KaigyoApplicationForPartialUpdate"
               }
             }
-          }
+          },
+          "description": "The body type of the operation request or response."
         }
-      }
-    },
-    "/hub/launch/kaigyo_application/online_submission_result_messages": {
-      "get": {
-        "operationId": "list_launch_online_submission_result_messages",
-        "summary": "開業申請のオンライン送信結果メッセージ一覧の取得（リモート版freee-mcp限定）",
-        "description": "e-Tax の受付結果メッセージ一覧を取得します。",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "オンライン送信結果メッセージ一覧取得レスポンス",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Launch.OnlineSubmissionResultMessage"
-                      },
-                      "description": "受付結果メッセージのリスト"
-                    },
-                    "is_accepted": {
-                      "type": "boolean",
-                      "description": "e-Tax の受付が完了しているか",
-                      "example": true
-                    }
-                  },
-                  "required": [
-                    "data",
-                    "is_accepted"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "クライアントエラー",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BadRequestErrorBody"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "未認証",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UnauthorizedErrorBody"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "未認可",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ForbiddenErrorBody"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "リソースが存在しない",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NotFoundErrorBody"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "リクエスト回数制限を超過",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TooManyRequestsErrorBody"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "サーバーエラー",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InternalServerErrorBody"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "launch_kaigyo_application"
-        ]
       }
     },
     "/hub/employee_evaluation/evaluation_results": {
@@ -1455,6 +1358,17 @@
         }
       },
       "Survey.GetSurveyQuestionsRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Launch.GetKaigyoApplicationRequest": {
         "name": "company_id",
         "in": "query",
         "required": true,
@@ -2636,7 +2550,16 @@
       },
       "Launch.KaigyoApplicationForPartialUpdate": {
         "type": "object",
+        "required": [
+          "company_id"
+        ],
         "properties": {
+          "company_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "事業所ID",
+            "example": 1
+          },
           "owner_first_name": {
             "type": "string",
             "description": "届出者の名"
@@ -2806,54 +2729,7 @@
             "description": "確定申告の種類(blue_65:青色申告 65万円控除, blue_10:青色申告 10万円控除, white:白色申告)"
           }
         },
-        "description": "開業申請用データの更新パラメータ(部分/一括更新のためすべて任意)",
-        "additionalProperties": false
-      },
-      "Launch.OnlineSubmissionResult": {
-        "type": "string",
-        "enum": [
-          "ok",
-          "error",
-          "no_result"
-        ],
-        "description": "オンライン送信結果メッセージの受付結果"
-      },
-      "Launch.OnlineSubmissionResultMessage": {
-        "type": "object",
-        "required": [
-          "procedure_name",
-          "result",
-          "receipt_date",
-          "receipt_number",
-          "type"
-        ],
-        "properties": {
-          "procedure_name": {
-            "type": "string",
-            "description": "手続名"
-          },
-          "result": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/Launch.OnlineSubmissionResult"
-              }
-            ],
-            "description": "受付結果(ok:受付完了, error:エラー情報あり, no_result:受付結果未取得)"
-          },
-          "receipt_date": {
-            "type": "string",
-            "description": "受付日時"
-          },
-          "receipt_number": {
-            "type": "string",
-            "description": "受付番号"
-          },
-          "type": {
-            "type": "string",
-            "description": "メッセージ種別"
-          }
-        },
-        "description": "開業申請のオンライン送信結果メッセージ",
+        "description": "開業申請用データの更新パラメータ",
         "additionalProperties": false
       },
       "EmployeeEvaluation.EvaluationResults.EvaluationResult": {

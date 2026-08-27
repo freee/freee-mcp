@@ -235,18 +235,22 @@
     "/hub/launch/kaigyo_application": {
       "get": {
         "summary": "開業申請用データの取得（リモート版freee-mcp限定）",
-        "description": "現在入力されている開業申請用データを取得します。"
+        "description": "現在入力されている開業申請用データを取得します。\nレスポンスで「事業所を作成してください」と案内された場合は、API を再試行せず、ユーザーに https://k.secure.freee.co.jp/personal へアクセスして事業所を作成するよう案内してください。作成後に事業所を再確認してから、同じ操作を再実行します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          }
+        ]
       },
       "patch": {
         "summary": "開業申請用データの更新（リモート版freee-mcp限定）",
-        "description": "開業申請用データのサブセットを受け付けて部分/一括更新します。\n指定されたパラメータのみが更新されます。入力値が異常な場合はエラーを返します。",
+        "description": "開業申請用データのサブセットを受け付けて部分/一括更新します。\n指定されたパラメータのみが更新されます。入力値が異常な場合はエラーを返します。\nレスポンスで「事業所を作成してください」と案内された場合は、API を再試行せず、ユーザーに https://k.secure.freee.co.jp/personal へアクセスして事業所を作成するよう案内してください。作成後に事業所を再確認してから、同じ操作を再実行します。",
         "hasJsonBody": true
-      }
-    },
-    "/hub/launch/kaigyo_application/online_submission_result_messages": {
-      "get": {
-        "summary": "開業申請のオンライン送信結果メッセージ一覧の取得（リモート版freee-mcp限定）",
-        "description": "e-Tax の受付結果メッセージ一覧を取得します。"
       }
     },
     "/hub/employee_evaluation/evaluation_results": {

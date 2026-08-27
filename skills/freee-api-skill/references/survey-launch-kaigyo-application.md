@@ -6,7 +6,11 @@ launch_kaigyo_application
 
 ## GET /hub/launch/kaigyo_application — 開業申請用データの取得（リモート版freee-mcp限定）
 
-現在入力されている開業申請用データを取得します。
+現在入力されている開業申請用データを取得します。 レスポンスで「事業所を作成してください」と案内された場合は、API を再試行せず、ユーザーに https://k.secure.freee.co.jp/personal へアクセスして事業所を作成するよう案内してください。作成後に事業所を再確認してから、同じ操作を再実行します。
+
+### パラメータ
+
+- company_id*: integer(int64) - 事業所ID
 
 ### レスポンス
 
@@ -50,10 +54,11 @@ launch_kaigyo_application
 
 ## PATCH /hub/launch/kaigyo_application — 開業申請用データの更新（リモート版freee-mcp限定）
 
-開業申請用データのサブセットを受け付けて部分/一括更新します。 指定されたパラメータのみが更新されます。入力値が異常な場合はエラーを返します。
+開業申請用データのサブセットを受け付けて部分/一括更新します。 指定されたパラメータのみが更新されます。入力値が異常な場合はエラーを返します。 レスポンスで「事業所を作成してください」と案内された場合は、API を再試行せず、ユーザーに https://k.secure.freee.co.jp/personal へアクセスして事業所を作成するよう案内してください。作成後に事業所を再確認してから、同じ操作を再実行します。
 
 ### リクエストボディ*
 
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - owner_first_name: string - 届出者の名
 - owner_last_name: string - 届出者の姓
 - owner_first_name_kana: string - 届出者の名(カナ)
@@ -141,13 +146,3 @@ launch_kaigyo_application
 - family_employees*: array[object] - 青色事業専従者(給与を支払う家族)のリスト。常に全件置き換え(id は露出しない)
 - tax_return_type*: string - 確定申告の種類(blue_65:青色申告 65万円控除, blue_10:青色申告 10万円控除, white:白色申告)
 - completion_hint*: object - 入力補完のためのヒント
-
-## GET /hub/launch/kaigyo_application/online_submission_result_messages — 開業申請のオンライン送信結果メッセージ一覧の取得（リモート版freee-mcp限定）
-
-e-Tax の受付結果メッセージ一覧を取得します。
-
-### レスポンス
-
-オンライン送信結果メッセージ一覧取得レスポンス
-- data*: array[object] - 受付結果メッセージのリスト
-- is_accepted*: boolean - e-Tax の受付が完了しているか
