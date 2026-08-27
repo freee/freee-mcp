@@ -11,6 +11,8 @@ const MinimalParameterSchema = z.object({
   required: z.boolean().optional(),
   description: z.string().optional(),
   type: z.string(),
+  style: z.string().optional(),
+  explode: z.boolean().optional(),
 });
 
 export interface MinimalParameter {
@@ -19,6 +21,8 @@ export interface MinimalParameter {
   required?: boolean;
   description?: string;
   type: string;
+  style?: string;
+  explode?: boolean;
 }
 
 const MinimalOperationSchema = z.object({

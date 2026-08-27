@@ -19,7 +19,8 @@ import {
 
 const SUPPORTED_IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
 
-const SERVICE_HINT = 'service: accounting/hr/invoice/pm/sm/it_management/survey/tax_return';
+const SERVICE_HINT =
+  'service: accounting/hr/invoice/pm/sm/it_management/partner_management/survey/tax_return';
 const SKILL_HINT = '詳細ガイドはfreee-api-skill skillを参照';
 
 // mcp-only（freee-mcp リモート版限定）エンドポイントを stdio（ローカル）モードで
@@ -31,7 +32,17 @@ const MCP_ONLY_LOCAL_MESSAGE =
   '（https://support.freee.co.jp/hc/ja/articles/56390747520537）を案内してください。';
 
 const serviceSchema = z
-  .enum(['accounting', 'hr', 'invoice', 'pm', 'sm', 'it_management', 'survey', 'tax_return'])
+  .enum([
+    'accounting',
+    'hr',
+    'invoice',
+    'pm',
+    'sm',
+    'it_management',
+    'partner_management',
+    'survey',
+    'tax_return',
+  ])
   .describe('対象のfreeeサービス');
 
 const UTF8_BOM = String.fromCharCode(0xfeff);
@@ -191,6 +202,7 @@ function createMethodTool(method: string) {
         body,
         validation.baseUrl,
         tokenContext,
+        validation.operation?.parameters,
         validation.operation?.accept,
       );
 

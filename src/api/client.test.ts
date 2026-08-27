@@ -202,6 +202,7 @@ describe('client', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
         'application/xml',
       );
 
@@ -224,6 +225,69 @@ describe('client', () => {
         `${TEST_API_URL}/api/1/deals?limit=10&offset=0`,
         expect.any(Object),
       );
+    });
+
+    it('should repeat form array parameters when explode defaults to true', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      mockFetch.mockResolvedValue(createJsonResponse({}));
+
+      await makeApiRequest(
+        'GET',
+        '/hub/survey/base_surveys/1/company_survey_results',
+        { 'survey_ids[]': [1, 2, 3] },
+        undefined,
+        undefined,
+        undefined,
+        [{ name: 'survey_ids[]', in: 'query', type: 'array', style: 'form' }],
+      );
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${TEST_API_URL}/hub/survey/base_surveys/1/company_survey_results?` +
+          'survey_ids%5B%5D=1&survey_ids%5B%5D=2&survey_ids%5B%5D=3',
+        expect.any(Object),
+      );
+    });
+
+    it('should join form array parameters when explode is false', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      mockFetch.mockResolvedValue(createJsonResponse({}));
+
+      await makeApiRequest('GET', '/test', { ids: [1, 2, 3] }, undefined, undefined, undefined, [
+        { name: 'ids', in: 'query', type: 'array', style: 'form', explode: false },
+      ]);
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${TEST_API_URL}/test?ids=1%2C2%2C3`,
+        expect.any(Object),
+      );
+    });
+
+    it('should reject array values for schema query parameters', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+
+      await expect(
+        makeApiRequest(
+          'GET',
+          '/api/1/deals',
+          { company_id: [TEST_COMPANY_ID] },
+          undefined,
+          undefined,
+          undefined,
+          [{ name: 'company_id', in: 'query', type: 'integer' }],
+        ),
+      ).rejects.toThrow('クエリパラメータ company_id は単一の値で指定してください。');
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it('should reject scalar values for array query parameters', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+
+      await expect(
+        makeApiRequest('GET', '/test', { ids: '1,2,3' }, undefined, undefined, undefined, [
+          { name: 'ids', in: 'query', type: 'array' },
+        ]),
+      ).rejects.toThrow('クエリパラメータ ids は配列で指定してください。');
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it('should skip undefined parameters', async () => {
@@ -645,6 +709,7 @@ describe('client', () => {
           undefined,
           undefined,
           undefined,
+          undefined,
           'application/xml',
         ),
       ).rejects.toThrow('XMLレスポンスのContent-Typeが不正です。');
@@ -670,6 +735,7 @@ describe('client', () => {
           undefined,
           undefined,
           undefined,
+          undefined,
           'application/xml',
         ),
       ).rejects.toThrow('XMLレスポンスが安全上限（1,048,576 bytes）を超えています。');
@@ -689,6 +755,7 @@ describe('client', () => {
       const result = await makeApiRequest(
         'GET',
         '/hub/tax_return/corporate/sheet/national/10/schedule_1_blue',
+        undefined,
         undefined,
         undefined,
         undefined,
@@ -929,6 +996,7 @@ describe('client', () => {
           makeApiRequest(
             'GET',
             '/hub/tax_return/corporate/sheet/national/10/10100100',
+            undefined,
             undefined,
             undefined,
             undefined,

@@ -23,7 +23,7 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
 - business_ids[]: array[string] - 案件ID
 - billing_status: string - 請求書送付ステータス (未請求: not_billed, 一部請求済: partially_billed, 請求済: billed, なし: none) (選択肢: not_billed, partially_billed, billed, none)
-- collection_status: string - 入金ステータス (未決済: not_settled, 一部決済済: partially_settled, 決済済: settled, 無効: invalidated, 対象外: none) (選択肢: not_settled, partially_settled, settled, invalidated, none)
+- collection_status: string - 決済ステータス (未決済: not_settled, 一部決済済: partially_settled, 決済済: settled, 無効: invalidated, 対象外: none) (選択肢: not_settled, partially_settled, settled, invalidated, none)
 - canceled: boolean - 取消状態
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
@@ -33,7 +33,7 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 概要 新しい前受金を登録します。 顧客から受け取った前受金情報を登録し、請求・入金管理に利用できます。
 
 定義
-必須項目 account_item_id : 勘定科目ID advance_receipt_date : 前受金発生日 billing_partner_id : 請求先の取引先ID bills_on : 請求日 business_id : 案件ID collecting_partner_id : 入金元の取引先ID collection_method_type : 入金方法 collects_on : 入金期日 customer_id : 顧客の取引先ID lines : 明細リスト 任意項目 sales_order_id : 引継元受注ID（受注に紐づける場合） accounting_reporting_section_id : 会計計上部門ID charge_employee_id : 社内担当者の従業員ID customer_order_no : 顧客注文No. internal_memo : 社内メモ internal_subject : 前受金タイトル invoice...
+必須項目 account_item_id : 勘定科目ID advance_receipt_date : 前受金発生日 billing_partner_id : 請求先の取引先ID bills_on : 請求日 business_id : 案件ID collecting_partner_id : 入金元の取引先ID collection_method_type : 入金方法 collects_on : 入金期日 customer_id : 顧客の取引先ID lines : 明細リスト 任意項目 sales_order_id : 受注ID（受注に紐づける場合） accounting_reporting_section_id : 会計計上部門ID charge_employee_id : 社内担当者の従業員ID customer_order_no : 顧客注文No. internal_memo : 社内メモ internal_subject : 前受金タイトル invoice_no...
 
 ### リクエストボディ
 
@@ -75,7 +75,7 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
-- sales_order_id: string - 引継元受注ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- sales_order_id: string - 受注ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - segment_tag_1_id: integer(int64) - セグメントタグ1のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
 - segment_tag_2_id: integer(int64) - セグメントタグ2のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
 - segment_tag_3_id: integer(int64) - セグメントタグ3のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
@@ -117,7 +117,7 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 - collecting_partner*: object - 入金元
 - collection_method_type*: string - 入金方法 (振込: transfer, 現金: cash, 手形: bill_payable, 振替: direct_debit)
 - collects_on: string(date) - 入金予定日
-- collection_status*: string - 入金ステータス
+- collection_status*: string - 決済ステータス
 - charge_employee: object - 社内担当者
 - reporting_section: object - 担当部門
 - internal_memo: string - 社内メモ
@@ -214,8 +214,8 @@ PATCH /advance_receipts/{id} と同じ
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
-- sales_order_id: string - 引継元受注ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
-- delivery_id: string - 引継元納品ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- sales_order_id: string - 受注ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- delivery_id: string - 納品ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - lines*: array[object] - 明細リスト
   配列の要素:
     - line_type*: string - 明細種別（売上は basic のみサポート） (選択肢: basic) 例: `basic`

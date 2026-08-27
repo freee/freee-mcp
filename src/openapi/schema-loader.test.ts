@@ -17,6 +17,7 @@ describe('schema-loader', () => {
       'pm',
       'sm',
       'it_management',
+      'partner_management',
       'survey',
       'tax_return',
     ];
@@ -28,6 +29,7 @@ describe('schema-loader', () => {
       pm: 'pm',
       sm: 'sm',
       it_management: 'it-management',
+      partner_management: 'partner-management',
       survey: 'survey',
       tax_return: 'tax-return',
     };
@@ -100,6 +102,41 @@ describe('schema-loader', () => {
       expect(result.isValid).toBe(true);
       expect(result.apiType).toBe('it_management');
       expect(result.baseUrl).toBe('https://api.freee.co.jp');
+    });
+
+    it('should return serialization metadata for referenced IT management parameters', () => {
+      const result = validatePathForService(
+        'GET',
+        '/hub/it_management/application_accounts',
+        'it_management',
+      );
+
+      expect(result.operation?.parameters).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'page_token',
+            in: 'query',
+            type: 'string',
+            explode: false,
+          }),
+        ]),
+      );
+    });
+
+    it('should return serialization metadata for array parameters', () => {
+      const result = validatePathForService('GET', '/api/1/journals', 'accounting');
+
+      expect(result.operation?.parameters).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'visible_tags[]',
+            in: 'query',
+            type: 'array',
+            style: 'form',
+            explode: true,
+          }),
+        ]),
+      );
     });
 
     it('should validate survey API paths', () => {
@@ -186,6 +223,7 @@ describe('schema-loader', () => {
       'FREEE_API_BASE_URL_PM',
       'FREEE_API_BASE_URL_SM',
       'FREEE_API_BASE_URL_IT_MANAGEMENT',
+      'FREEE_API_BASE_URL_PARTNER_MANAGEMENT',
       'FREEE_API_BASE_URL_TAX_RETURN',
     ];
 

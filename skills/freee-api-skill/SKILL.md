@@ -1,6 +1,6 @@
 ---
 name: freee-api-skill
-description: "freee-mcp / freee-sign-mcp と連携するスキル。会計・人事労務・請求書・工数管理・販売・IT管理・サーベイ・申告・サイン（電子契約）の詳細APIリファレンスと使い方ガイドを提供。freee の経費申請・取引登録・勤怠打刻・給与明細・見積書・試算表・仕訳・従業員管理・工数登録・売上管理・SaaSアカウント管理・備品管理・サーベイ企画/実施回の取得・法人税申告データや帳票の参照・電子契約の文書管理などの操作やAPI仕様を調べたいときに使う。ユーザーが freee のデータ操作、会計処理、人事労務管理、請求・見積、プロジェクト工数管理、販売管理、IT管理、サーベイ、申告、電子契約について質問や操作を依頼してきた場合は、明示的に freee と言及していなくても、このスキルの利用を検討すること。サインは別途 freee-sign-mcp の設定が必要。"
+description: "freee-mcp / freee-sign-mcp と連携するスキル。会計・人事労務・請求書・工数管理・販売・IT管理・業務委託管理・サーベイ・申告・サイン（電子契約）の詳細APIリファレンスと使い方ガイドを提供。freee の経費申請・取引登録・勤怠打刻・給与明細・見積書・試算表・仕訳・従業員管理・工数登録・売上管理・SaaSアカウント管理・備品管理・業務委託先の企業ユーザー/部門管理・サーベイ企画/実施回の取得・法人税申告データや帳票の参照・電子契約の文書管理などの操作やAPI仕様を調べたいときに使う。ユーザーが freee のデータ操作、会計処理、人事労務管理、請求・見積、プロジェクト工数管理、販売管理、IT管理、業務委託管理、サーベイ、申告、電子契約について質問や操作を依頼してきた場合は、明示的に freee と言及していなくても、このスキルの利用を検討すること。サインは別途 freee-sign-mcp の設定が必要。"
 license: Apache-2.0
 metadata:
   author: freee_jp
@@ -11,7 +11,7 @@ metadata:
 
 ## 概要
 
-freee の会計・人事労務・請求書・工数管理・販売・IT管理・サーベイ・申告のデータを AI から直接操作できるスキルです。
+freee の会計・人事労務・請求書・工数管理・販売・IT管理・業務委託管理・サーベイ・申告のデータを AI から直接操作できるスキルです。
 
 [freee-mcp](https://www.npmjs.com/package/freee-mcp) (MCP サーバー) を通じて freee API と連携。
 
@@ -20,57 +20,35 @@ freee の会計・人事労務・請求書・工数管理・販売・IT管理・
 - freee API の詳細リファレンスを提供
 - freee-mcp 使用ガイドと API 呼び出し例を提供
 
-接続方法は Remote MCP（推奨）とローカルの2つがあります。現在の接続モードは `freee_server_info` の transport フィールド（`remote` または `stdio`）で確認できます。
-
 ## セットアップ
 
-### 方法 1: Remote MCP で接続する（推奨）
+`freee_*` ツールが利用できている場合、セットアップは不要です。
 
-freee が提供する Remote MCP サーバーに接続する方法です。ローカルでのセットアップが不要で、すぐに利用を開始できます。
+以下のいずれかに該当する場合のみ `SETUP.md` を読み、ユーザーに接続手順を案内してください。
 
-Claude 及び Claude Desktop では「カスタマイズ」より「カスタムコネクタを追加」を開き、以下を設定してください。
+- `freee_*` ツールが1つも利用できない
+- `freee_auth_status` が未認証を返し、「エラー対応」の手順でも解決しない
+- ユーザーが接続方法・初期設定について質問している
 
-- 名前: `freee`
-- URL: `https://mcp.freee.co.jp/mcp`
-
-初回接続時にブラウザで freee への認証が自動的に行われます。`npx freee-mcp configure` の実行は不要です。
-
-その他の AI ツールでは、それぞれの案内に従って Remote MCP サーバーを追加してください。
-
-### 方法 2: ローカルで MCP サーバーを起動する
-
-freee アプリケーションを自分で登録し、ローカルで MCP サーバーを起動する方法です。
-
-```bash
-npx freee-mcp configure
-```
-
-ブラウザで freee にログインし、事業所を選択します。設定は `~/.config/freee-mcp/config.json` に保存されます。
-
-Claude を再起動後、`freee_auth_status` ツールで認証状態を確認。
+接続モードは `freee_server_info` の transport フィールドで確認できます（`remote` = Remote MCP、`stdio` = ローカル）。
 
 ## リファレンス
 
 API リファレンスが `references/` に含まれます。各リファレンスにはパラメータ、リクエストボディ、レスポンスの情報があります。
 
-目的のAPIを探すには、`references/` ディレクトリ内のファイルをキーワード検索してください。
+目的の API を探す手順:
+
+1. `references/INDEX.md` を読む（service ごとのファイル名と内容の一覧）
+2. 索引で特定できない場合は `references/` 内のファイルをキーワード検索する
 
 リファレンスの記法:
 
 - `名前*` は必須、無印は任意
 - 見出しの `### リクエストボディ*` はリクエストボディ自体が必須であることを示す
 - パラメータは特記なき限り query。`(path)` `(header)` は該当箇所に明記
+- パラメータ名末尾の `[]` はパラメータ名の一部であり API 呼び出し時に省略してはいけない
 - `GET /xxx と同じ` は、同一ファイル内の該当エンドポイントと内容が同一であることを示す
 - レスポンスはトップレベルの項目のみ記載。ネストした構造は実際に API を呼び出して確認する
-
-主なリファレンス:
-
-- `accounting-deals.md` - 取引
-- `accounting-expense-applications.md` - 経費申請
-- `hr-employees.md` - 従業員情報
-- `hr-attendances.md` - 勤怠
-- `invoice-invoices.md` - 請求書
-- `tax-return-corporate.md` - 法人税申告・帳票
 
 法人税の帳票 XML（XTX / XBRL）の各要素と紙の帳票の項目との対応は
 `tax-return-references/` にあります。索引と共通仕様は
@@ -110,16 +88,15 @@ API 呼び出し:
 
 serviceパラメータ (必須):
 
-| service | 説明 | パス例 |
-|---------|------|--------|
-| `accounting` | freee会計 (取引、勘定科目、取引先など) | `/api/1/deals` |
-| `hr` | freee人事労務 (従業員、勤怠など) | `/api/v1/employees` |
-| `invoice` | freee請求書 (請求書、見積書、納品書) | `/invoices` |
-| `pm` | freee工数管理 (プロジェクト、工数など) | `/projects` |
-| `sm` | freee販売 (見積、受注、売上など) | `/businesses` |
-| `it_management` | freeeIT管理 (SaaSアカウント、備品、メンバー) | `/hub/it_management/members` |
-| `survey` | freeeサーベイ (サーベイ企画、実施回) ※ freee-mcp（リモート版） 限定 | `/hub/survey/base_surveys` |
-| `tax_return` | freee申告 (法人税申告・帳票参照) | `/hub/tax_return/corporate` |
+- `accounting` - freee会計（取引、勘定科目、取引先など） 例: `/api/1/deals`
+- `hr` - freee人事労務（従業員、勤怠など） 例: `/api/v1/employees`
+- `invoice` - freee請求書（請求書、見積書、納品書） 例: `/invoices`
+- `pm` - freee工数管理（プロジェクト、工数など） 例: `/projects`
+- `sm` - freee販売（見積、受注、売上など） 例: `/businesses`
+- `it_management` - freeeIT管理（SaaSアカウント、備品、メンバー） 例: `/hub/it_management/members`
+- `partner_management` - freee業務委託管理（業務委託先の企業ユーザー・部門） 例: `/hub/partner_management/orderer/company_users`
+- `survey` - freeeサーベイ（サーベイ企画、実施回）※ freee-mcp（リモート版） 限定 例: `/hub/survey/base_surveys`
+- `tax_return` - freee申告（法人税申告・帳票参照） 例: `/hub/tax_return/corporate`
 
 ### 基本ワークフロー
 
@@ -129,7 +106,7 @@ serviceパラメータ (必須):
    - APIは事業所ごとにデータが分離されているため、正しい事業所を選択しないと意図しないデータにアクセスしてしまう
 2. レシピを確認: `recipes/` 内の該当レシピを読む
    - よくある操作のパターンと注意点がまとまっているため、直接APIを叩くより効率的でミスが少ない
-3. リファレンスを検索: 必要に応じて `references/` を参照
+3. リファレンスを検索: 必要に応じて `references/INDEX.md` から該当ファイルを引く
    - レシピにない詳細なパラメータやレスポンス仕様を確認する
 4. API を呼び出す: `freee_api_*` ツールを使用（company_id が必要なエンドポイントでは手順1で取得した値を使う）
 
@@ -163,15 +140,9 @@ serviceパラメータ (必須):
 freee サインは別の MCP サーバー（`freee-sign-mcp`）で提供されます。
 `sign_api_get` 等のサインツールが利用可能な場合は `SIGN-GUIDE.md` を参照してください。
 
-## カラールール
+## データの可視化
 
-freee のデータを表示・可視化する際は、以下の色を使用してページ全体の統一感を保つこと。
-
-文字色: 見出し `#1e46aa` / 本文 `#23418c` / キャプション `#323232` / リンク `#00b9b9` `#2864f0` `#1e46aa` / 強調 `#dc1e32`
-
-背景色: メイン `#285ac8` / 薄い `#ebf3ff` / ニュートラル `#f7f5f5`
-
-アクセントカラー（多用しない）: イエロー `#ffb91e` / オレンジ `#fa6414` / グリーン `#82c31e` / ティール `#00b9b9`
+freee のデータをグラフ・表・HTML 等で可視化する場合は `COLORS.md` を読み、そこで指定された配色を使うこと。
 
 ## エラー対応
 
@@ -179,7 +150,7 @@ freee のデータを表示・可視化する際は、以下の色を使用し�
 - 認証エラー（Remote MCP）: MCP クライアント（Claude Desktop 等）が自動的に再認証を促します。解決しない場合はカスタムコネクタを一度削除し、再度追加してください。
 - 認証エラー（ローカル）: `freee_auth_status` で確認 → `freee_clear_auth` → `freee_authenticate`
 - 事業所エラー: `freee_list_companies` → `freee_set_current_company`
-- 詳細: `recipes/troubleshooting.md` 参照
+- 詳細: `troubleshooting/INDEX.md` 参照（症状別に auth / company / expense-errors / support へ分かれています）
 
 ## freee-mcp（リモート版） 限定のエンドポイントについて
 
@@ -189,10 +160,4 @@ freee のデータを表示・可視化する際は、以下の色を使用し�
 
 ## API の機能制限について
 
-freee API 自体の機能制限に起因する問題は freee-mcp では解決できません。詳細は `recipes/troubleshooting.md` を参照してください。
-
-## 関連リンク
-
-- [freee-mcp](https://www.npmjs.com/package/freee-mcp)
-- [freee API ドキュメント](https://developer.freee.co.jp/docs)
-- Remote MCP サーバー: `https://mcp.freee.co.jp/mcp`
+freee API 自体の機能制限に起因する問題は freee-mcp では解決できません。詳細は `troubleshooting/support.md` を参照してください。

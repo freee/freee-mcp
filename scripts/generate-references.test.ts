@@ -209,6 +209,99 @@ describe("buildEndpointsMarkdown - $ref / allOf の解決", () => {
   });
 });
 
+describe("buildEndpointsMarkdown - anyOf の解決", () => {
+  it("同じスカラー型の union をその型として出力する", () => {
+    const md = buildEndpointsMarkdown(
+      {
+        paths: {},
+        components: {
+          schemas: {
+            Prefecture: { type: "string", enum: ["東京都"] },
+            Response: {
+              type: "object",
+              required: ["workplace_prefecture"],
+              properties: {
+                workplace_prefecture: {
+                  description: "仕事場所の都道府県",
+                  anyOf: [
+                    { $ref: "#/components/schemas/Prefecture" },
+                    { type: "string", enum: [""] },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      [
+        {
+          path: "/kaigyo_application",
+          operations: [
+            {
+              method: "GET",
+              responses: {
+                "200": {
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/Response" },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      ]
+    );
+
+    expect(md).toContain(
+      "- workplace_prefecture*: string - 仕事場所の都道府県"
+    );
+    expect(md).not.toContain("- workplace_prefecture*: object");
+  });
+
+  it("異なる型を持つ union はスカラー型として出力しない", () => {
+    const md = buildEndpointsMarkdown(
+      {
+        paths: {},
+        components: {
+          schemas: {
+            Response: {
+              type: "object",
+              properties: {
+                value: {
+                  anyOf: [{ type: "string" }, { type: "integer" }],
+                },
+              },
+            },
+          },
+        },
+      },
+      [
+        {
+          path: "/mixed-union",
+          operations: [
+            {
+              method: "GET",
+              responses: {
+                "200": {
+                  content: {
+                    "application/json": {
+                      schema: { $ref: "#/components/schemas/Response" },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      ]
+    );
+
+    expect(md).toContain("- value: object");
+  });
+});
+
 describe("buildEndpointsMarkdown - 法人税申告APIのレスポンス", () => {
   const responseSchema: OpenAPISchema = {
     paths: {},

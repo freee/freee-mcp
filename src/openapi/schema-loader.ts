@@ -53,6 +53,7 @@ export type ApiType =
   | 'pm'
   | 'sm'
   | 'it_management'
+  | 'partner_management'
   | 'survey'
   | 'tax_return';
 
@@ -107,6 +108,12 @@ const API_METADATA: Record<ApiType, ApiMetadata> = {
     baseUrl: 'https://api.freee.co.jp',
     prefix: 'it-management',
     name: 'freeeIT管理 API',
+  },
+  partner_management: {
+    schemaFile: 'partner-management.json',
+    baseUrl: 'https://api.freee.co.jp',
+    prefix: 'partner-management',
+    name: 'freee業務委託管理 API',
   },
   // freee サーベイ。スキーマは mcp-only 集約ファイル（mcponly.json）を使う。
   // 現状 mcponly は survey のみのため一致する。survey のエンドポイントは

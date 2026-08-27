@@ -11,7 +11,7 @@
     "license": {
       "name": "© Since 2013 freee K.K."
     },
-    "description": "<h2 id=\"start_guide\">スタートガイド</h2> <p>freee API開発がはじめての方は<a href=\"https://developer.freee.co.jp/getting-started\">freee APIスタートガイド</a>を参照してください。</p>\n<hr />\n<h2 id=\"specification\">仕様</h2>\n<h3 id=\"api_endpoint\">APIエンドポイント</h3> <p>https://api.freee.co.jp/sm (httpsのみ)</p>\n<h3 id=\"about_authorize\">認証について</h3> <p>OAuth2.0を利用します。詳細は<a href=\"https://developer.freee.co.jp/reference/#%e8%aa%8d%e8%a8%bc\"\n    target=\"_blank\">リファレンスの認証に関する記載</a>を参照してください。</p>\n\n<h3 id=\"data_format\">データフォーマット</h3> <p>リクエスト、レスポンスともにJSON形式をサポートしていますが、詳細は、API毎の説明欄（application/jsonなど）を確認してください。</p>\n<h3 id=\"compatibility\">後方互換性ありの変更</h3> <p>freeeでは、APIを改善していくために以下のような変更は後方互換性ありとして通知なく変更を入れることがあります。アプリケーション実装者は以下を踏まえて開発を行ってください。</p> <ul>\n  <li>新しいAPIリソース・エンドポイントの追加</li>\n  <li>既存のAPIに対して必須ではない新しいリクエストパラメータの追加</li>\n  <li>既存のAPIレスポンスに対する新しいプロパティの追加</li>\n  <li>既存のAPIレスポンスに対するプロパティの順番の入れ変え</li>\n  <li>keyとなっているidやcodeの長さの変更（長くする）</li>\n  <li>エラーメッセージの変更</li>\n</ul>\n<h3 id=\"common_response_header\">共通レスポンスヘッダー</h3> <p>すべてのAPIのレスポンスには以下のHTTPヘッダーが含まれます。</p> <ul>\n  <li>\n    <p>X-Freee-Request-ID</p>\n    <ul>\n      <li>各リクエスト毎に発行されるID</li>\n    </ul>\n  </li>\n</ul>\n<h3 id=\"common_error_response\">共通エラーレスポンス</h3>\n\n<p>APIリクエストでエラーが発生した場合は、エラー原因に応じたステータスコードおよびメッセージを返します。</p> <p>\n  一部のエラーレスポンスにはエラーコードが含まれます。<br>\n  詳細は、<a href=\"https://developer.freee.co.jp/tips/faq/40x-checkpoint\">HTTPステータスコード400台エラー時のチェックポイント</a>を参照してください\n</p>\n<table border=\"1\">\n  <tbody>\n    <tr>\n      <th style=\"padding: 10px\"><strong>ステータスコード</strong></th>\n      <th style=\"padding: 10px\"><strong>原因</strong></th>\n    </tr>\n    <tr><td style=\"padding: 10px\">400</td><td style=\"padding: 10px\">リクエストパラメータが不正</td></tr>\n    <tr><td style=\"padding: 10px\">401</td><td style=\"padding: 10px\">アクセストークンが無効</td></tr>\n    <tr><td style=\"padding: 10px\">403</td><td style=\"padding: 10px\">アクセス権限がない</td></tr>\n    <tr><td style=\"padding: 10px\">404</td><td style=\"padding: 10px\">リソースが存在しない</td></tr>\n    <tr><td style=\"padding: 10px\">429</td><td style=\"padding: 10px\">リクエスト回数制限を超えた</td></tr>\n    <tr><td style=\"padding: 10px\">503</td><td style=\"padding: 10px\">システム内で予期しないエラーが発生</td></tr>\n  </tbody>\n</table>\n<p>メッセージボディ内の <code>errors.messages</code> <code>message</code> にはエラー内容を説明する文字列が入ります。</p> <pre><code>  {\n    &quot;status_code&quot; : 400,\n    &quot;errors&quot; : [\n      {\n        &quot;codes&quot; : [\n          &quot;bad_request&quot;\n        ],\n        &quot;messages&quot; : [\n          &quot;リクエストの形式が不正です。&quot;\n        ]\n      }\n    ]\n  }  </code></pre>\n  <pre><code>  {\n    &quot;message&quot; : &quot;ログインをして下さい&quot;,\n    &quot;code&quot; : &quot;invalid_access_token&quot;\n  }  </code></pre>\n</p>\n<h3 id=\"api_rate_limit\">API使用制限</h3> <p>APIリクエストは1分あたり30回、および1時間あたり1500回を上限としています。<br>API使用ステータスはレスポンスヘッダに付与されます。各ヘッダの意味は次のとおりです。</p>\n<table>\n  <thead>\n    <tr>\n      <th>ヘッダ名</th>\n      <th>説明</th>\n    </tr>\n  </thead>\n <tbody>\n   <tr>\n     <td>X-RateLimit-Limit</td>\n     <td>１時間の使用回数の上限</td>\n   </tr>\n   <tr>\n     <td>X-RateLimit-Remaining</td>\n     <td>１時間の残り使用回数</td>\n   </tr>\n   <tr>\n     <td>X-RateLimit-Reset</td>\n     <td>１時間の使用回数がリセットされる時刻</td>\n   </tr>\n   <tr>\n     <td>X-RateLimit-Limit-Minute</td>\n     <td>１分間の使用回数の上限</td>\n   </tr>\n   <tr>\n     <td>X-RateLimit-Remaining-Minute</td>\n     <td>１分間の残り使用回数</td>\n   </tr>\n   <tr>\n     <td>X-RateLimit-Reset-Minute</td>\n     <td>１分間の使用回数がリセットされる時刻</td>\n   </tr>\n </tbody>\n</table>\n<p>この上限を超えた場合APIアクセスは制限され、http status codeは429となります。制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>\n<p>また、上記に加えfreeeは一定期間に過度のアクセスを検知した場合、APIアクセスをコントロールする場合があります。<br>\n  その際のhttp status codeは403となります。こちらも制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>\n\n<h3 id=\"available_apis_by_plan\">プランごとの利用可能API</h3> <p>すべてのエンドポイントはfreee販売スタンダードプランをご契約の事業所でのみ利用可能です。</p>\n<h3 id=\"data_classification\">freee販売APIにおけるマスタデータ・業務データの区分</h3> <p>freee販売APIのエンドポイントには、マスタデータを扱うものと業務データを扱うものがあります。APIの実行権限（スコープ）を設定する際の参考にしてください。</p> <p>以下は、freee販売APIにおいてマスタデータに該当するエンドポイントのリソース一覧です。</p> <ul>\n  <li>商品</li>\n  <li>従業員</li>\n  <li>案件フェーズ</li>\n  <li>明細取引タイプ</li>\n  <li>受注確度</li>\n  <li>案件カスタム項目定義</li>\n</ul> <p>上記以外のエンドポイント（案件、見積、受注、納品、売上など）は業務データに該当します。</p>\n<h3 id=\"accounting_master_items\">会計マスタ項目</h3>\n<p>freee請求書APIのリクエストパラメータに、会計マスタ項目があります。会計マスタ項目の詳細は<a\n    href=\"https://developer.freee.co.jp/guideline/master-guideline\">会計マスタガイドライン</a>を参照ください。</p>\n\n<p>会計のマスタ項目はfreee会計APIのエンドポイントにて取得可能です（例：<a\n    href=\"https://developer.freee.co.jp/reference/accounting/reference#operations-tag-Partners\">Partners\n    取引先</a>）。freee会計APIのエンドポイントの詳細は<a\n    href=\"https://developer.freee.co.jp/reference/accounting/reference\">会計APIリファレンス</a>を参照ください。</p>"
+    "description": "<h2 id=\"start_guide\">スタートガイド</h2> <p>freee API開発がはじめての方は<a href=\"https://developer.freee.co.jp/getting-started\">freee APIスタートガイド</a>を参照してください。</p>\n<p>freee販売のPublicAPIは、スタンダードプランのみでのご利用となります。テスト環境のプラン付与に関しては準備中です。</p>\n<hr />\n<h2 id=\"specification\">仕様</h2>\n<h3 id=\"api_endpoint\">APIエンドポイント</h3> <p>https://api.freee.co.jp/sm (httpsのみ)</p>\n<h3 id=\"about_authorize\">認証について</h3> <p>OAuth2.0を利用します。詳細は<a href=\"https://developer.freee.co.jp/reference/#%e8%aa%8d%e8%a8%bc\"\n    target=\"_blank\">リファレンスの認証に関する記載</a>を参照してください。</p>\n\n<h3 id=\"data_format\">データフォーマット</h3> <p>リクエスト、レスポンスともにJSON形式をサポートしていますが、詳細は、API毎の説明欄（application/jsonなど）を確認してください。</p>\n<h3 id=\"compatibility\">後方互換性ありの変更</h3> <p>freeeでは、APIを改善していくために以下のような変更は後方互換性ありとして通知なく変更を入れることがあります。アプリケーション実装者は以下を踏まえて開発を行ってください。</p> <ul>\n  <li>新しいAPIリソース・エンドポイントの追加</li>\n  <li>既存のAPIに対して必須ではない新しいリクエストパラメータの追加</li>\n  <li>既存のAPIレスポンスに対する新しいプロパティの追加</li>\n  <li>既存のAPIレスポンスに対するプロパティの順番の入れ変え</li>\n  <li>keyとなっているidやcodeの長さの変更（長くする）</li>\n  <li>エラーメッセージの変更</li>\n</ul>\n<h3 id=\"common_response_header\">共通レスポンスヘッダー</h3> <p>すべてのAPIのレスポンスには以下のHTTPヘッダーが含まれます。</p> <ul>\n  <li>\n    <p>X-Freee-Request-ID</p>\n    <ul>\n      <li>各リクエスト毎に発行されるID</li>\n    </ul>\n  </li>\n</ul>\n<h3 id=\"common_error_response\">共通エラーレスポンス</h3>\n\n<p>APIリクエストでエラーが発生した場合は、エラー原因に応じたステータスコードおよびメッセージを返します。</p> <p>\n  一部のエラーレスポンスにはエラーコードが含まれます。<br>\n  詳細は、<a href=\"https://developer.freee.co.jp/tips/faq/40x-checkpoint\">HTTPステータスコード400台エラー時のチェックポイント</a>を参照してください\n</p>\n<table border=\"1\">\n  <tbody>\n    <tr>\n      <th style=\"padding: 10px\"><strong>ステータスコード</strong></th>\n      <th style=\"padding: 10px\"><strong>原因</strong></th>\n    </tr>\n    <tr><td style=\"padding: 10px\">400</td><td style=\"padding: 10px\">リクエストパラメータが不正</td></tr>\n    <tr><td style=\"padding: 10px\">401</td><td style=\"padding: 10px\">アクセストークンが無効</td></tr>\n    <tr><td style=\"padding: 10px\">403</td><td style=\"padding: 10px\">アクセス権限がない</td></tr>\n    <tr><td style=\"padding: 10px\">404</td><td style=\"padding: 10px\">リソースが存在しない</td></tr>\n    <tr><td style=\"padding: 10px\">429</td><td style=\"padding: 10px\">リクエスト回数制限を超えた</td></tr>\n    <tr><td style=\"padding: 10px\">503</td><td style=\"padding: 10px\">システム内で予期しないエラーが発生</td></tr>\n  </tbody>\n</table>\n<p>メッセージボディ内の <code>errors.messages</code> <code>message</code> にはエラー内容を説明する文字列が入ります。</p> <pre><code>  {\n    &quot;status_code&quot; : 400,\n    &quot;errors&quot; : [\n      {\n        &quot;codes&quot; : [\n          &quot;bad_request&quot;\n        ],\n        &quot;messages&quot; : [\n          &quot;リクエストの形式が不正です。&quot;\n        ]\n      }\n    ]\n  }  </code></pre>\n  <pre><code>  {\n    &quot;message&quot; : &quot;ログインをして下さい&quot;,\n    &quot;code&quot; : &quot;invalid_access_token&quot;\n  }  </code></pre>\n</p>\n<h3 id=\"api_rate_limit\">API使用制限</h3> <p>APIリクエストは1分あたり30回、および1時間あたり1500回を上限としています。<br>API使用ステータスはレスポンスヘッダに付与されます。各ヘッダの意味は次のとおりです。</p>\n<table>\n  <thead>\n    <tr>\n      <th>ヘッダ名</th>\n      <th>説明</th>\n    </tr>\n  </thead>\n <tbody>\n   <tr>\n     <td>X-RateLimit-Limit</td>\n     <td>１時間の使用回数の上限</td>\n   </tr>\n   <tr>\n     <td>X-RateLimit-Remaining</td>\n     <td>１時間の残り使用回数</td>\n   </tr>\n   <tr>\n     <td>X-RateLimit-Reset</td>\n     <td>１時間の使用回数がリセットされる時刻</td>\n   </tr>\n   <tr>\n     <td>X-RateLimit-Limit-Minute</td>\n     <td>１分間の使用回数の上限</td>\n   </tr>\n   <tr>\n     <td>X-RateLimit-Remaining-Minute</td>\n     <td>１分間の残り使用回数</td>\n   </tr>\n   <tr>\n     <td>X-RateLimit-Reset-Minute</td>\n     <td>１分間の使用回数がリセットされる時刻</td>\n   </tr>\n </tbody>\n</table>\n<p>この上限を超えた場合APIアクセスは制限され、http status codeは429となります。制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>\n<p>また、上記に加えfreeeは一定期間に過度のアクセスを検知した場合、APIアクセスをコントロールする場合があります。<br>\n  その際のhttp status codeは403となります。こちらも制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>\n\n<h3 id=\"available_apis_by_plan\">プランごとの利用可能API</h3> <p>すべてのエンドポイントはfreee販売スタンダードプランをご契約の事業所でのみ利用可能です。</p>\n<h3 id=\"data_classification\">freee販売APIにおけるマスタデータ・業務データの区分</h3> <p>freee販売APIのエンドポイントには、マスタデータを扱うものと業務データを扱うものがあります。APIの実行権限（スコープ）を設定する際の参考にしてください。</p> <p>以下は、freee販売APIにおいてマスタデータに該当するエンドポイントのリソース一覧です。</p> <ul>\n  <li>商品</li>\n  <li>従業員</li>\n  <li>案件フェーズ</li>\n  <li>明細取引タイプ</li>\n  <li>受注確度</li>\n  <li>案件カスタム項目定義</li>\n</ul> <p>上記以外のエンドポイント（案件、見積、受注、納品、売上など）は業務データに該当します。</p>\n<h3 id=\"accounting_master_items\">会計マスタ項目</h3>\n<p>freee請求書APIのリクエストパラメータに、会計マスタ項目があります。会計マスタ項目の詳細は<a\n    href=\"https://developer.freee.co.jp/guideline/master-guideline\">会計マスタガイドライン</a>を参照ください。</p>\n\n<p>会計のマスタ項目はfreee会計APIのエンドポイントにて取得可能です（例：<a\n    href=\"https://developer.freee.co.jp/reference/accounting/reference#operations-tag-Partners\">Partners\n    取引先</a>）。freee会計APIのエンドポイントの詳細は<a\n    href=\"https://developer.freee.co.jp/reference/accounting/reference\">会計APIリファレンス</a>を参照ください。</p>"
   },
   "servers": [
     {
@@ -159,7 +159,7 @@
           "businesses"
         ],
         "summary": "案件登録",
-        "description": "<h2 id=\"\">概要</h2>\n<p>新しい案件を登録します。\n顧客との商談や受注案件を管理するための案件情報を登録できます。\n</p>\n<h2 id=\"_2\">定義</h2>\n<h3>必須項目</h3>\n<ul>\n<li>\n<p>name : 案件名称</p>\n</li>\n<li>\n<p>company_id : 事業所ID</p>\n</li>\n</ul>\n<h3>任意項目</h3>\n<ul>\n<li>\n<p>code : 案件コード</p>\n</li>\n<li>\n<p>business_date : 案件登録日</p>\n</li>\n<li>\n<p>charge_employee_id : 社内担当者の従業員ID</p>\n</li>\n<li>\n<p>customer_id : 顧客の取引先ID</p>\n</li>\n<li>\n<p>prospect_sales_order : 受注見込</p>\n</li>\n<li>\n<p>sales_progression_id : 受注確度ID</p>\n</li>\n<li>\n<p>scheduled_completion_date : 完了予定日</p>\n</li>\n<li>\n<p>completion_date : 完了日</p>\n</li>\n<li>\n<p>business_phase_id : 案件フェーズID</p>\n</li>\n<li>\n<p>reporting_section_id : 担当部門ID</p>\n</li>\n<li>\n<p>internal_memo : 社内メモ</p>\n</li>\n<li>\n<p>custom_fields : カスタム項目</p>\n</li>\n</ul>",
+        "description": "<h2 id=\"\">概要</h2>\n<p>新しい案件を登録します。\n顧客との商談や受注案件を管理するための案件情報を登録できます。\n</p>\n<h2 id=\"_2\">定義</h2>\n<h3>必須項目</h3>\n<ul>\n<li>\n<p>name : 案件名称</p>\n</li>\n<li>\n<p>company_id : 事業所ID</p>\n</li>\n</ul>\n<h3>任意項目</h3>\n<ul>\n<li>\n<p>code : 案件コード</p>\n</li>\n<li>\n<p>business_date : 案件登録日</p>\n</li>\n<li>\n<p>charge_employee_id : 社内担当者の従業員ID</p>\n</li>\n<li>\n<p>customer_id : 顧客の取引先ID</p>\n</li>\n<li>\n<p>prospect_sales_order : 受注見込</p>\n</li>\n<li>\n<p>sales_progression_id : 受注確度ID</p>\n</li>\n<li>\n<p>scheduled_completion_date : 完了予定日</p>\n</li>\n<li>\n<p>completion_date : 完了日</p>\n</li>\n<li>\n<p>business_phase_id : 案件フェーズID</p>\n</li>\n<li>\n<p>reporting_section_id : 担当部門ID</p>\n</li>\n<li>\n<p>internal_memo : 社内メモ</p>\n</li>\n<li>\n<p>common_business_id : 案件マスタID</p>\n</li>\n<li>\n<p>custom_fields : カスタム項目</p>\n</li>\n</ul>",
         "operationId": "create_business",
         "requestBody": {
           "$ref": "#/components/requestBodies/BusinessCreateRequest"
@@ -246,7 +246,7 @@
           "businesses"
         ],
         "summary": "案件更新",
-        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの案件を更新します。\n案件の基本情報、受注見込、完了予定日などを部分的に更新できます。\n送信したフィールドのみが更新され、送信しなかったフィールドは変更されません。\n</p>\n<h2 id=\"_2\">定義</h2>\n<h3>更新可能項目</h3>\n<ul>\n<li><p>name : 案件名称</p></li>\n<li><p>code : 案件コード</p></li>\n<li><p>business_date : 案件登録日</p></li>\n<li><p>charge_employee_id : 社内担当者の従業員ID</p></li>\n<li><p>customer_id : 顧客の取引先ID</p></li>\n<li><p>prospect_sales_order : 受注見込</p></li>\n<li><p>sales_progression_id : 受注確度ID</p></li>\n<li><p>scheduled_completion_date : 完了予定日</p></li>\n<li><p>completion_date : 完了日</p></li>\n<li><p>business_phase_id : 案件フェーズID</p></li>\n<li><p>reporting_section_id : 担当部門ID</p></li>\n<li><p>internal_memo : 社内メモ</p></li>\n<li><p>custom_fields : カスタム項目(指定した場合、既存のカスタム項目は全て削除され、新しいカスタム項目に置き換えられます)</p></li>\n</ul>\n<p>※全ての項目は任意です。更新したい項目のみを送信してください。</p>\n<p>※custom_fieldsを指定した場合、リクエストに含まれないカスタム項目はnullとして扱われます。必須のカスタム項目が指定されていない場合はバリデーションエラーになります。</p>",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの案件を更新します。\n案件の基本情報、受注見込、完了予定日などを部分的に更新できます。\n送信したフィールドのみが更新され、送信しなかったフィールドは変更されません。\n</p>\n<h2 id=\"_2\">定義</h2>\n<h3>更新可能項目</h3>\n<ul>\n<li><p>name : 案件名称</p></li>\n<li><p>code : 案件コード</p></li>\n<li><p>business_date : 案件登録日</p></li>\n<li><p>charge_employee_id : 社内担当者の従業員ID</p></li>\n<li><p>customer_id : 顧客の取引先ID</p></li>\n<li><p>prospect_sales_order : 受注見込</p></li>\n<li><p>sales_progression_id : 受注確度ID</p></li>\n<li><p>scheduled_completion_date : 完了予定日</p></li>\n<li><p>completion_date : 完了日</p></li>\n<li><p>business_phase_id : 案件フェーズID</p></li>\n<li><p>reporting_section_id : 担当部門ID</p></li>\n<li><p>internal_memo : 社内メモ</p></li>\n<li><p>custom_fields : カスタム項目(指定した場合、既存のカスタム項目は全て削除され、新しいカスタム項目に置き換えられます)</p></li>\n</ul>\n<p>※全ての項目は任意です。更新したい項目のみを送信してください。</p>\n<p>※custom_fieldsを指定した場合、リクエストに含まれないカスタム項目はnullとして扱われます。必須のカスタム項目が指定されていない場合はバリデーションエラーになります。</p>\n<p>※common_business_id（案件マスタID）はこのAPIでは更新できません。紐付け済みの案件に対して既存と異なる値を指定した場合はエラーになります。</p>",
         "operationId": "update_business",
         "parameters": [
           {
@@ -2367,7 +2367,7 @@
           "sales"
         ],
         "summary": "売上一覧",
-        "description": "<h2 id=\"\">概要</h2>\n<p>売上の一覧を取得します。\n登録されている売上情報を一覧形式で取得できます。\n各種フィルタ条件を指定することで、特定の条件に合致する売上のみを取得することが可能です。\n</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>start_registered_date : 売上登録日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_registered_date : 売上登録日(絞り込み終了)</p>\n</li>\n<li>\n<p>start_last_updated_date : 売上更新日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_last_updated_date : 売上更新日(絞り込み終了)</p>\n</li>\n<li>\n<p>start_revenue_recognition_date : 売上日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_revenue_recognition_date : 売上日(絞り込み終了)</p>\n</li>\n<li>\n<p>charge_employee_ids : 社内担当者の従業員ID(複数指定可)</p>\n</li>\n<li>\n<p>customer_ids : 顧客の取引先ID(複数指定可)</p>\n</li>\n<li>\n<p>business_ids : 案件ID(複数指定可)</p>\n</li>\n<li>\n<p>sales_no : 売上No.</p>\n</li>\n<li>\n<p>billing_status : 請求書送付ステータス</p>\n</li>\n<li>\n<p>collection_status : 入金ステータス</p>\n</li>\n<li>\n<p>canceled : 取消状態(デフォルト:false)</p>\n</li>\n</ul>\n<p>\n`limit`と`offset`パラメータを使用してページネーションが可能です。\nデフォルトでは20件ずつ取得され、最大100件まで一度に取得できます。\n</p>",
+        "description": "<h2 id=\"\">概要</h2>\n<p>売上の一覧を取得します。\n登録されている売上情報を一覧形式で取得できます。\n各種フィルタ条件を指定することで、特定の条件に合致する売上のみを取得することが可能です。\n</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>start_registered_date : 売上登録日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_registered_date : 売上登録日(絞り込み終了)</p>\n</li>\n<li>\n<p>start_last_updated_date : 売上更新日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_last_updated_date : 売上更新日(絞り込み終了)</p>\n</li>\n<li>\n<p>start_revenue_recognition_date : 売上日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_revenue_recognition_date : 売上日(絞り込み終了)</p>\n</li>\n<li>\n<p>charge_employee_ids : 社内担当者の従業員ID(複数指定可)</p>\n</li>\n<li>\n<p>customer_ids : 顧客の取引先ID(複数指定可)</p>\n</li>\n<li>\n<p>business_ids : 案件ID(複数指定可)</p>\n</li>\n<li>\n<p>sales_no : 売上No.</p>\n</li>\n<li>\n<p>billing_status : 請求書送付ステータス</p>\n</li>\n<li>\n<p>collection_status : 決済ステータス</p>\n</li>\n<li>\n<p>canceled : 取消状態(デフォルト:false)</p>\n</li>\n</ul>\n<p>\n`limit`と`offset`パラメータを使用してページネーションが可能です。\nデフォルトでは20件ずつ取得され、最大100件まで一度に取得できます。\n</p>",
         "operationId": "get_sales",
         "parameters": [
           {
@@ -3911,7 +3911,7 @@
           "advance_receipts"
         ],
         "summary": "前受金一覧",
-        "description": "<h2 id=\"\">概要</h2>\n<p>前受金の一覧を取得します。\n登録されている前受金情報を一覧形式で取得できます。\n各種フィルタ条件を指定することで、特定の条件に合致する前受金のみを取得することが可能です。\n</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>advance_receipt_no : 前受金No.</p>\n</li>\n<li>\n<p>start_advance_receipt_date : 前受金発生日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_advance_receipt_date : 前受金発生日(絞り込み終了)</p>\n</li>\n<li>\n<p>start_registered_date : 前受金登録日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_registered_date : 前受金登録日(絞り込み終了)</p>\n</li>\n<li>\n<p>start_last_updated_date : 前受金更新日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_last_updated_date : 前受金更新日(絞り込み終了)</p>\n</li>\n<li>\n<p>customer_ids : 顧客の取引先ID(複数指定可)</p>\n</li>\n<li>\n<p>charge_employee_ids : 社内担当者の従業員ID(複数指定可)</p>\n</li>\n<li>\n<p>business_ids : 案件ID(複数指定可)</p>\n</li>\n<li>\n<p>billing_status : 請求書送付ステータス</p>\n</li>\n<li>\n<p>collection_status : 入金ステータス</p>\n</li>\n<li>\n<p>canceled : 取消状態(デフォルト:false)</p>\n</li>\n</ul>\n<p>\n`limit`と`offset`パラメータを使用してページネーションが可能です。\nデフォルトでは20件ずつ取得され、最大100件まで一度に取得できます。\n</p>",
+        "description": "<h2 id=\"\">概要</h2>\n<p>前受金の一覧を取得します。\n登録されている前受金情報を一覧形式で取得できます。\n各種フィルタ条件を指定することで、特定の条件に合致する前受金のみを取得することが可能です。\n</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>advance_receipt_no : 前受金No.</p>\n</li>\n<li>\n<p>start_advance_receipt_date : 前受金発生日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_advance_receipt_date : 前受金発生日(絞り込み終了)</p>\n</li>\n<li>\n<p>start_registered_date : 前受金登録日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_registered_date : 前受金登録日(絞り込み終了)</p>\n</li>\n<li>\n<p>start_last_updated_date : 前受金更新日(絞り込み開始)</p>\n</li>\n<li>\n<p>end_last_updated_date : 前受金更新日(絞り込み終了)</p>\n</li>\n<li>\n<p>customer_ids : 顧客の取引先ID(複数指定可)</p>\n</li>\n<li>\n<p>charge_employee_ids : 社内担当者の従業員ID(複数指定可)</p>\n</li>\n<li>\n<p>business_ids : 案件ID(複数指定可)</p>\n</li>\n<li>\n<p>billing_status : 請求書送付ステータス</p>\n</li>\n<li>\n<p>collection_status : 決済ステータス</p>\n</li>\n<li>\n<p>canceled : 取消状態(デフォルト:false)</p>\n</li>\n</ul>\n<p>\n`limit`と`offset`パラメータを使用してページネーションが可能です。\nデフォルトでは20件ずつ取得され、最大100件まで一度に取得できます。\n</p>",
         "operationId": "get_advance_receipts",
         "parameters": [
           {
@@ -3992,7 +3992,7 @@
           "advance_receipts"
         ],
         "summary": "前受金登録",
-        "description": "<h2 id=\"\">概要</h2>\n<p>新しい前受金を登録します。\n顧客から受け取った前受金情報を登録し、請求・入金管理に利用できます。\n</p>\n<h2 id=\"_2\">定義</h2>\n<h3>必須項目</h3>\n<ul>\n<li>\n<p>account_item_id : 勘定科目ID</p>\n</li>\n<li>\n<p>advance_receipt_date : 前受金発生日</p>\n</li>\n<li>\n<p>billing_partner_id : 請求先の取引先ID</p>\n</li>\n<li>\n<p>bills_on : 請求日</p>\n</li>\n<li>\n<p>business_id : 案件ID</p>\n</li>\n<li>\n<p>collecting_partner_id : 入金元の取引先ID</p>\n</li>\n<li>\n<p>collection_method_type : 入金方法</p>\n</li>\n<li>\n<p>collects_on : 入金期日</p>\n</li>\n<li>\n<p>customer_id : 顧客の取引先ID</p>\n</li>\n<li>\n<p>lines : 明細リスト</p>\n</li>\n</ul>\n<h3>任意項目</h3>\n<ul>\n<li>\n<p>sales_order_id : 引継元受注ID（受注に紐づける場合）</p>\n</li>\n<li>\n<p>accounting_reporting_section_id : 会計計上部門ID</p>\n</li>\n<li>\n<p>charge_employee_id : 社内担当者の従業員ID</p>\n</li>\n<li>\n<p>customer_order_no : 顧客注文No.</p>\n</li>\n<li>\n<p>internal_memo : 社内メモ</p>\n</li>\n<li>\n<p>internal_subject : 前受金タイトル</p>\n</li>\n<li>\n<p>invoice_note : 請求書の備考欄に掲載する内容</p>\n</li>\n<li>\n<p>invoice_subject : 請求書件名</p>\n</li>\n<li>\n<p>invoice_template_id : 請求書テンプレートID ※指定しない場合はデフォルトのテンプレートが適用されます。</p>\n</li>\n<li>\n<p>item_tag_id : 会計品目タグID</p>\n</li>\n<li>\n<p>memo_tags : メモタグID</p>\n</li>\n<li>\n<p>reporting_section_id : 担当部門ID</p>\n</li>\n<li>\n<p>segment_tag_1_id : セグメント1のID</p>\n</li>\n<li>\n<p>segment_tag_2_id : セグメント2のID</p>\n</li>\n<li>\n<p>segment_tag_3_id : セグメント3のID</p>\n</li>\n</ul>\n<h2 id=\"_3\">注意点</h2>\n<h3>案件の必須化について</h3>\n<p>前受金は案件(business_id)に紐づけて登録する必要があります。案件IDの指定は必須です。</p>\n<h3>請求の自動作成について</h3>\n<p>前受金を登録すると、請求情報が自動で作成されます。売上のように請求の管理方式を指定することはできません。</p>",
+        "description": "<h2 id=\"\">概要</h2>\n<p>新しい前受金を登録します。\n顧客から受け取った前受金情報を登録し、請求・入金管理に利用できます。\n</p>\n<h2 id=\"_2\">定義</h2>\n<h3>必須項目</h3>\n<ul>\n<li>\n<p>account_item_id : 勘定科目ID</p>\n</li>\n<li>\n<p>advance_receipt_date : 前受金発生日</p>\n</li>\n<li>\n<p>billing_partner_id : 請求先の取引先ID</p>\n</li>\n<li>\n<p>bills_on : 請求日</p>\n</li>\n<li>\n<p>business_id : 案件ID</p>\n</li>\n<li>\n<p>collecting_partner_id : 入金元の取引先ID</p>\n</li>\n<li>\n<p>collection_method_type : 入金方法</p>\n</li>\n<li>\n<p>collects_on : 入金期日</p>\n</li>\n<li>\n<p>customer_id : 顧客の取引先ID</p>\n</li>\n<li>\n<p>lines : 明細リスト</p>\n</li>\n</ul>\n<h3>任意項目</h3>\n<ul>\n<li>\n<p>sales_order_id : 受注ID（受注に紐づける場合）</p>\n</li>\n<li>\n<p>accounting_reporting_section_id : 会計計上部門ID</p>\n</li>\n<li>\n<p>charge_employee_id : 社内担当者の従業員ID</p>\n</li>\n<li>\n<p>customer_order_no : 顧客注文No.</p>\n</li>\n<li>\n<p>internal_memo : 社内メモ</p>\n</li>\n<li>\n<p>internal_subject : 前受金タイトル</p>\n</li>\n<li>\n<p>invoice_note : 請求書の備考欄に掲載する内容</p>\n</li>\n<li>\n<p>invoice_subject : 請求書件名</p>\n</li>\n<li>\n<p>invoice_template_id : 請求書テンプレートID ※指定しない場合はデフォルトのテンプレートが適用されます。</p>\n</li>\n<li>\n<p>item_tag_id : 会計品目タグID</p>\n</li>\n<li>\n<p>memo_tags : メモタグID</p>\n</li>\n<li>\n<p>reporting_section_id : 担当部門ID</p>\n</li>\n<li>\n<p>segment_tag_1_id : セグメント1のID</p>\n</li>\n<li>\n<p>segment_tag_2_id : セグメント2のID</p>\n</li>\n<li>\n<p>segment_tag_3_id : セグメント3のID</p>\n</li>\n</ul>\n<h2 id=\"_3\">注意点</h2>\n<h3>案件の必須化について</h3>\n<p>前受金は案件(business_id)に紐づけて登録する必要があります。案件IDの指定は必須です。</p>\n<h3>請求の自動作成について</h3>\n<p>前受金を登録すると、請求情報が自動で作成されます。売上のように請求の管理方式を指定することはできません。</p>",
         "operationId": "create_advance_receipt",
         "requestBody": {
           "$ref": "#/components/requestBodies/AdvanceReceiptCreateRequest"
@@ -5646,7 +5646,7 @@
       },
       "parameters-collection_status": {
         "name": "collection_status",
-        "description": "入金ステータス (未決済: not_settled, 一部決済済: partially_settled, 決済済: settled, 無効: invalidated, 対象外: none)",
+        "description": "決済ステータス (未決済: not_settled, 一部決済済: partially_settled, 決済済: settled, 無効: invalidated, 対象外: none)",
         "in": "query",
         "required": false,
         "schema": {
@@ -6138,6 +6138,14 @@
           "internal_memo": {
             "$ref": "#/components/schemas/InternalMemo"
           },
+          "common_business_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "紐付ける案件マスタID（ULID形式）。案件登録時のみ指定可能で、案件更新では紐付けの変更はできません（紐付け済みの案件に対して既存と異なる値を指定した場合はエラー）",
+            "minLength": 26,
+            "maxLength": 26,
+            "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+          },
           "custom_fields": {
             "type": "array",
             "nullable": true,
@@ -6422,6 +6430,12 @@
           {
             "type": "object",
             "properties": {
+              "common_business_id": {
+                "type": "string",
+                "nullable": true,
+                "description": "案件マスタID（ULID形式）",
+                "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+              },
               "actual_profit": {
                 "type": "integer",
                 "format": "int64",
@@ -9568,7 +9582,7 @@
             "$ref": "#/components/schemas/Business"
           },
           "quotation_id": {
-            "description": "紐づく見積ID",
+            "description": "見積ID",
             "type": "string",
             "nullable": true,
             "maxLength": 26,
@@ -10036,7 +10050,7 @@
           },
           "sales_order_id": {
             "type": "string",
-            "description": "紐づく受注ID",
+            "description": "受注ID",
             "nullable": true,
             "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
           },
@@ -10706,7 +10720,7 @@
           },
           "sales_order_id": {
             "type": "string",
-            "description": "紐づく受注ID",
+            "description": "受注ID",
             "nullable": true,
             "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
             "maxLength": 26,
@@ -10714,7 +10728,7 @@
           },
           "delivery_id": {
             "type": "string",
-            "description": "紐づく納品ID",
+            "description": "納品ID",
             "nullable": true,
             "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
             "maxLength": 26,
@@ -10722,7 +10736,7 @@
           },
           "advance_receipt_id": {
             "type": "string",
-            "description": "紐づく前受金ID",
+            "description": "前受金ID",
             "nullable": true,
             "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
             "maxLength": 26,
@@ -10730,7 +10744,7 @@
           },
           "periodic_sales_id": {
             "type": "string",
-            "description": "紐づく定期売上ID",
+            "description": "定期売上ID",
             "nullable": true,
             "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
             "maxLength": 26,
@@ -11108,7 +11122,7 @@
             "properties": {
               "sales_order_id": {
                 "type": "string",
-                "description": "紐づく受注ID",
+                "description": "受注ID",
                 "nullable": true,
                 "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
                 "maxLength": 26,
@@ -11116,7 +11130,7 @@
               },
               "delivery_id": {
                 "type": "string",
-                "description": "紐づく納品ID",
+                "description": "納品ID",
                 "nullable": true,
                 "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
                 "maxLength": 26,
@@ -11124,7 +11138,7 @@
               },
               "advance_receipt_id": {
                 "type": "string",
-                "description": "取り崩し元の前受金ID",
+                "description": "前受金ID",
                 "nullable": true,
                 "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
                 "maxLength": 26,
@@ -11301,7 +11315,7 @@
           },
           "advance_receipt_id": {
             "type": "string",
-            "description": "紐づく前受金ID（前受金由来の定期売上の場合のみ。それ以外はnull）",
+            "description": "前受金ID（前受金由来の定期売上の場合のみ。それ以外はnull）",
             "nullable": true,
             "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
             "maxLength": 26,
@@ -11989,7 +12003,7 @@
           },
           "advance_receipt_id": {
             "type": "string",
-            "description": "引継元の前受金ID",
+            "description": "前受金ID",
             "nullable": true,
             "minLength": 26,
             "maxLength": 26,
@@ -12221,7 +12235,7 @@
           },
           "advance_receipt_id": {
             "type": "string",
-            "description": "引継元の前受金ID",
+            "description": "前受金ID",
             "nullable": true,
             "minLength": 26,
             "maxLength": 26,
@@ -13737,7 +13751,7 @@
             "example": "2025-04-30"
           },
           "collection_status": {
-            "description": "入金ステータス",
+            "description": "決済ステータス",
             "allOf": [
               {
                 "$ref": "#/components/schemas/CollectionStatus"
@@ -14031,7 +14045,7 @@
             "$ref": "#/components/schemas/ReportingSectionId"
           },
           "sales_order_id": {
-            "description": "引継元受注ID",
+            "description": "受注ID",
             "type": "string",
             "nullable": true,
             "maxLength": 26,
@@ -16935,7 +16949,7 @@
                       "$ref": "#/components/schemas/InternalMemo"
                     },
                     "sales_order_id": {
-                      "description": "引継元受注ID",
+                      "description": "受注ID",
                       "type": "string",
                       "maxLength": 26,
                       "minLength": 26,
@@ -16943,7 +16957,7 @@
                       "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
                     },
                     "delivery_id": {
-                      "description": "引継元納品ID",
+                      "description": "納品ID",
                       "type": "string",
                       "maxLength": 26,
                       "minLength": 26,

@@ -4,7 +4,10 @@
 
 ## GET /api/1/purchase_requests — 購買申請一覧の取得
 
-概要 指定した事業所の購買申請一覧を取得する 注意点
+概要 指定した事業所の購買申請一覧を取得する
+
+注意点
+レスポンスの amount は非推奨です。同じ値を返す budget_amount を使用してください。
 
 ### パラメータ
 
@@ -35,7 +38,7 @@
 - description: string - 申請の説明 例: `出張に伴う備品購入`
 - occurrence_start_date: string - 発生開始日 (yyyy-mm-dd) 例: `2019-12-17`
 - occurrence_end_date: string - 発生終了日 (yyyy-mm-dd) 例: `2019-12-20`
-- approval_flow_route_id: integer(int64) - 申請経路ID 例: `1` (最小: 1)
+- approval_flow_route_id: integer(int64) - 申請経路ID（申請フォーム詳細の取得APIのレスポンスの flow_routes の id を指定してください。申請経路一覧の取得API /api/1/approval_flow_routes のレスポンスの id とは異なる値です） 例: `1` (最小: 1)
 - approval_flow_approver_id: integer(int64) - 申請経路の承認者ユーザーID 例: `1` (最小: 1)
 - approval_flow_group_id: integer(int64) - 申請経路の承認グループID 例: `1` (最小: 1)
 - observer_user_ids: array[integer] - 閲覧者のユーザーID
@@ -104,7 +107,7 @@ POST /api/1/purchase_requests と同じ
 - description: string - 申請の説明 例: `出張に伴う備品購入`
 - occurrence_start_date: string - 発生開始日 (yyyy-mm-dd) 例: `2019-12-17`
 - occurrence_end_date: string - 発生終了日 (yyyy-mm-dd) 例: `2019-12-20`
-- approval_flow_route_id: integer(int64) - 申請経路ID 例: `1` (最小: 1)
+- approval_flow_route_id: integer(int64) - 申請経路ID（申請フォーム詳細の取得APIのレスポンスの flow_routes の id を指定してください。申請経路一覧の取得API /api/1/approval_flow_routes のレスポンスの id とは異なる値です） 例: `1` (最小: 1)
 - approval_flow_approver_id: integer(int64) - 申請経路の承認者ユーザーID 例: `1` (最小: 1)
 - approval_flow_group_id: integer(int64) - 申請経路の承認グループID 例: `1` (最小: 1)
 - purchase_request_lines: array[object] - 購買申請の項目行一覧（配列）
@@ -145,7 +148,10 @@ GET /api/1/purchase_requests/{id} と同じ
 
 ## GET /api/1/purchase_requests/forms — 購買申請の申請フォーム一覧の取得
 
-概要 指定した事業所の購買申請の申請フォーム一覧を取得する 注意点
+概要 指定した事業所の購買申請の申請フォーム一覧を取得する
+
+注意点
+status を指定しない場合、削除済み（deleted）の申請フォームも含めて返します。申請で使用できる申請フォームのみを取得する場合は、status に active を指定してください。
 
 ### パラメータ
 
@@ -161,7 +167,10 @@ GET /api/1/purchase_requests/{id} と同じ
 
 ## GET /api/1/purchase_requests/forms/{id} — 購買申請の申請フォーム詳細の取得
 
-概要 指定した事業所の購買申請の申請フォーム詳細を取得する 注意点
+概要 指定した事業所の購買申請の申請フォーム詳細を取得する
+
+注意点
+購買申請の作成・更新時に指定する approval_flow_route_id には、本APIのレスポンスの flow_routes の id を指定してください。申請経路一覧の取得API（/api/1/approval_flow_routes）のレスポンスの id は本APIの flow_routes の src_id に対応しており、flow_routes の id とは異なる値です。
 
 ### パラメータ
 

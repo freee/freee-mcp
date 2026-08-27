@@ -1,27 +1,12 @@
 # ファイルボックス（証憑ファイル）の操作
 
-freee会計APIとカスタムツールを使ったファイルボックスの操作ガイド。
-
-## 概要
-
-ファイルボックスAPIを使って証憑ファイル（レシート・請求書等）のアップロード・検索・更新を行います。
-
-## 利用可能なパス
-
-| パス | 説明 |
-|------|------|
-| `/api/1/receipts` | 証憑ファイル一覧・アップロード |
-| `/api/1/receipts/{id}` | 証憑ファイル詳細・更新・削除 |
-| `/api/1/receipts/{id}/download` | 証憑ファイルのダウンロード |
+freee会計APIを使った証憑ファイル（レシート・請求書等）のアップロード・検索・更新ガイド。
 
 ## ファイルアップロード
 
-> 注意: `freee_file_upload` ツールはローカルモードでのみ利用可能です。Remote MCP をご利用の場合、ファイルのアップロードは freee Web UI から行ってください。
+`POST /api/1/receipts` は multipart/form-data が必要なため、通常の `freee_api_post` では利用できない。ローカルファイルのアップロードにはカスタムツール `freee_file_upload` を使う。
 
-### カスタムツール freee_file_upload を使う（推奨・ローカルモードのみ）
-
-ローカルファイルをファイルボックスにアップロードするには、カスタムツール `freee_file_upload` を使います。
-APIの `POST /api/1/receipts` は multipart/form-data が必要なため、通常の `freee_api_post` では利用できません。
+`freee_file_upload` はローカルモードでのみ利用可能。Remote MCP を利用している場合、ファイルのアップロードは freee Web UI から行う。
 
 ```
 freee_file_upload {
@@ -37,18 +22,14 @@ freee_file_upload {
 
 パラメータ:
 
-| 名前 | 必須 | 説明 |
-|------|------|------|
-| file_path | はい | アップロードするファイルのローカルパス |
-| company_id | はい | 事業所ID（現在の事業所と一致する必要あり） |
-| document_type | いいえ | 書類の種類: receipt(領収書), invoice(請求書), other(その他) |
-| description | いいえ | メモ（最大255文字） |
-| receipt_metadatum_amount | いいえ | 金額 |
-| receipt_metadatum_issue_date | いいえ | 発行日 (yyyy-mm-dd) |
-| receipt_metadatum_partner_name | いいえ | 取引先名（最大255文字） |
-| qualified_invoice | いいえ | 適格請求書等: qualified, not_qualified, unselected |
-
-`company_id` は他の `freee_api_*` ツールと同じく、現在の事業所と一致しない場合はエラーになります。事業所を切り替える場合は `freee_set_current_company` を使用してください。
+- file_path（必須）: アップロードするファイルのローカルパス
+- company_id（必須）: 事業所ID。他の `freee_api_*` ツールと同じく現在の事業所と一致しない場合はエラーになる（切り替えは `freee_set_current_company`）
+- document_type: 書類の種類（receipt: 領収書 / invoice: 請求書 / other: その他）
+- description: メモ（最大255文字）
+- receipt_metadatum_amount: 金額
+- receipt_metadatum_issue_date: 発行日（yyyy-mm-dd）
+- receipt_metadatum_partner_name: 取引先名（最大255文字）
+- qualified_invoice: 適格請求書等（qualified / not_qualified / unselected）
 
 ## 使用例
 
@@ -62,15 +43,6 @@ freee_api_get {
     "start_date": "2025-01-01",
     "end_date": "2025-01-31"
   }
-}
-```
-
-### 特定の証憑ファイルを取得
-
-```
-freee_api_get {
-  "service": "accounting",
-  "path": "/api/1/receipts/432228305"
 }
 ```
 
@@ -92,34 +64,10 @@ freee_api_put {
 }
 ```
 
-### 証憑ファイルを削除
+## アップロード後のWeb確認URL
 
-```
-freee_api_delete {
-  "service": "accounting",
-  "path": "/api/1/receipts/432228305"
-}
-```
-
-## Tips
-
-### アップロード後のWeb確認URL
-
-ファイルをアップロードした後、以下のURLでWeb画面から確認できます:
-
-```
-https://secure.freee.co.jp/receipts/{id}
-```
-
-`{id}` は API レスポンスで返されるファイルボックスID（`receipt.id`）を使用します。
-
-### アップロード制限
-
-- ファイルサイズ: 64MBまで
-- 月間アップロード容量: 合計10GBまで
-- 1分間あたりのアップロード数: 300ファイルまで
-- プランによる月間アップロード数制限あり
+アップロードしたファイルは `https://secure.freee.co.jp/receipts/{id}` でWeb画面から確認できる。
 
 ## リファレンス
 
-詳細なAPIパラメータ（書類の種類、ステータス、カテゴリ等）は `references/accounting-receipts.md` を参照。
+パス一覧・パラメータ・レスポンス、アップロード制限の詳細は `references/accounting-receipts.md` を参照。

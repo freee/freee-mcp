@@ -14,6 +14,16 @@
       "name": "survey",
       "description": "survey",
       "x-displayName": "サーベイ"
+    },
+    {
+      "name": "launch_kaigyo_application",
+      "description": "launch_kaigyo_application",
+      "x-displayName": "開業"
+    },
+    {
+      "name": "employee_evaluation_evaluation_results",
+      "description": "evaluation_results",
+      "x-displayName": "人事評価結果"
     }
   ],
   "paths": {
@@ -35,7 +45,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "base_surveys": {
+                    "data": {
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/Survey.BaseSurvey"
@@ -44,7 +54,7 @@
                     }
                   },
                   "required": [
-                    "base_surveys"
+                    "data"
                   ],
                   "additionalProperties": false
                 }
@@ -84,7 +94,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "surveys": {
+                    "data": {
                       "type": "array",
                       "items": {
                         "$ref": "#/components/schemas/Survey.SurveyItem"
@@ -93,7 +103,7 @@
                     }
                   },
                   "required": [
-                    "surveys"
+                    "data"
                   ],
                   "additionalProperties": false
                 }
@@ -106,7 +116,7 @@
         ]
       }
     },
-    "/hub/survey/surveys/{survey_id}": {
+    "/hub/survey/surveys/{id}": {
       "get": {
         "operationId": "get_survey",
         "summary": "実施回詳細取得（リモート版freee-mcp限定）",
@@ -116,7 +126,7 @@
             "$ref": "#/components/parameters/Survey.GetSurveyRequest.company_id"
           },
           {
-            "$ref": "#/components/parameters/Survey.GetSurveyRequest.survey_id"
+            "$ref": "#/components/parameters/Survey.GetSurveyRequest.id"
           }
         ],
         "responses": {
@@ -157,6 +167,1042 @@
         },
         "tags": [
           "survey"
+        ]
+      }
+    },
+    "/hub/survey/base_surveys/{base_survey_id}/company_survey_results": {
+      "get": {
+        "operationId": "list_survey_company_survey_results",
+        "summary": "全社平均一覧取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の全社平均を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.ListCompanySurveyResultsRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListCompanySurveyResultsRequest.base_survey_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListCompanySurveyResultsRequest.survey_ids"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListCompanySurveyResultsRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListCompanySurveyResultsRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "全社平均一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.CompanySurveyResult"
+                      },
+                      "description": "全社平均のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
+    "/hub/survey/base_surveys/{base_survey_id}/employee_survey_results": {
+      "get": {
+        "operationId": "list_survey_employee_survey_results",
+        "summary": "サーベイ結果一覧取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の従業員別のサーベイ結果を取得します",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.base_survey_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.employee_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.survey_ids"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeSurveyResultsRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "サーベイ結果一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.EmployeeSurveyResult"
+                      },
+                      "description": "サーベイ結果のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
+    "/hub/survey/surveys/{survey_id}/result_summaries": {
+      "get": {
+        "operationId": "list_survey_result_summaries",
+        "summary": "AI個人分析一覧取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回のAI個人分析の一覧を取得します。従業員IDを指定すると対象を絞り込みます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveyResultSummariesRequest.survey_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveyResultSummariesRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveyResultSummariesRequest.employee_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AI個人分析一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.SurveyTargetResultSummary"
+                      },
+                      "description": "AI個人分析のリスト"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
+    "/hub/survey/surveys/{survey_id}/questions": {
+      "get": {
+        "operationId": "get_survey_questions",
+        "summary": "設問の取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の設問の一覧を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.GetSurveyQuestionsRequest.survey_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.GetSurveyQuestionsRequest.company_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "設問一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.SurveyQuestion"
+                      },
+                      "description": "設問のリスト"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
+    "/hub/launch/kaigyo_application": {
+      "get": {
+        "operationId": "get_launch_kaigyo_application",
+        "summary": "開業申請用データの取得（リモート版freee-mcp限定）",
+        "description": "現在入力されている開業申請用データを取得します。",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "開業申請用データ取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "owner_first_name": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の名"
+                    },
+                    "owner_last_name": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の姓"
+                    },
+                    "owner_first_name_kana": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の名(カナ)"
+                    },
+                    "owner_last_name_kana": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の姓(カナ)"
+                    },
+                    "owner_zipcode": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の郵便番号(123-4567形式)"
+                    },
+                    "owner_prefecture": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.Prefecture"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "届出者の都道府県"
+                    },
+                    "owner_city": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の市区町村"
+                    },
+                    "owner_street_name1": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の住所1"
+                    },
+                    "owner_street_name2": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の住所2(任意)"
+                    },
+                    "owner_birth_date": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true,
+                      "description": "届出者の生年月日(yyyy-mm-dd)"
+                    },
+                    "owner_contact_phone1": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の電話番号1"
+                    },
+                    "owner_contact_phone2": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の電話番号2"
+                    },
+                    "owner_contact_phone3": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の電話番号3"
+                    },
+                    "workplace_style": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.WorkplaceStyle"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "主な仕事場所の種別(home:自宅, shop:店舗, office:事務所, undecided:未定)"
+                    },
+                    "workplace_zipcode": {
+                      "type": "string",
+                      "description": "仕事場所の郵便番号"
+                    },
+                    "workplace_prefecture": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.Prefecture"
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            ""
+                          ]
+                        }
+                      ],
+                      "description": "仕事場所の都道府県"
+                    },
+                    "workplace_city": {
+                      "type": "string",
+                      "description": "仕事場所の市区町村"
+                    },
+                    "workplace_street_name": {
+                      "type": "string",
+                      "description": "仕事場所の住所"
+                    },
+                    "workplace_contact_phone1": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "仕事場所の電話番号1"
+                    },
+                    "workplace_contact_phone2": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "仕事場所の電話番号2"
+                    },
+                    "workplace_contact_phone3": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "仕事場所の電話番号3"
+                    },
+                    "workplace_is_tax_payment_place": {
+                      "type": "boolean",
+                      "description": "仕事場所を納税地とするか"
+                    },
+                    "business_type": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "業種"
+                    },
+                    "business_description": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "事業概要"
+                    },
+                    "business_name": {
+                      "type": "string",
+                      "description": "屋号"
+                    },
+                    "business_name_kana": {
+                      "type": "string",
+                      "description": "屋号(カナ)"
+                    },
+                    "has_business_name": {
+                      "type": "boolean",
+                      "nullable": true,
+                      "description": "屋号を持つか"
+                    },
+                    "business_start_date": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true,
+                      "description": "事業開始日(yyyy-mm-dd)"
+                    },
+                    "income_business": {
+                      "type": "boolean",
+                      "description": "事業所得があるか"
+                    },
+                    "income_realestate": {
+                      "type": "boolean",
+                      "description": "不動産所得があるか"
+                    },
+                    "income_forest": {
+                      "type": "boolean",
+                      "description": "山林所得があるか"
+                    },
+                    "payroll_plan": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.PayrollPlan"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "給与支払いの計画(not_pay:支払わない, pay_employee:従業員に支払う, pay_family:家族に支払う, pay_family_and_employee:家族と従業員に支払う)"
+                    },
+                    "employees": {
+                      "type": "integer",
+                      "format": "int32",
+                      "description": "使用人(従業員)の人数"
+                    },
+                    "family_employees": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Launch.FamilyEmployee"
+                      },
+                      "maxItems": 3,
+                      "description": "青色事業専従者(給与を支払う家族)のリスト。常に全件置き換え(id は露出しない)"
+                    },
+                    "tax_return_type": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.TaxReturnType"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "確定申告の種類(blue_65:青色申告 65万円控除, blue_10:青色申告 10万円控除, white:白色申告)"
+                    },
+                    "completion_hint": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.CompletionHint"
+                        }
+                      ],
+                      "description": "入力補完のためのヒント"
+                    }
+                  },
+                  "required": [
+                    "owner_first_name",
+                    "owner_last_name",
+                    "owner_first_name_kana",
+                    "owner_last_name_kana",
+                    "owner_zipcode",
+                    "owner_prefecture",
+                    "owner_city",
+                    "owner_street_name1",
+                    "owner_street_name2",
+                    "owner_birth_date",
+                    "owner_contact_phone1",
+                    "owner_contact_phone2",
+                    "owner_contact_phone3",
+                    "workplace_style",
+                    "workplace_zipcode",
+                    "workplace_prefecture",
+                    "workplace_city",
+                    "workplace_street_name",
+                    "workplace_contact_phone1",
+                    "workplace_contact_phone2",
+                    "workplace_contact_phone3",
+                    "workplace_is_tax_payment_place",
+                    "business_type",
+                    "business_description",
+                    "business_name",
+                    "business_name_kana",
+                    "has_business_name",
+                    "business_start_date",
+                    "income_business",
+                    "income_realestate",
+                    "income_forest",
+                    "payroll_plan",
+                    "employees",
+                    "family_employees",
+                    "tax_return_type",
+                    "completion_hint"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "リクエスト回数制限を超過",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "launch_kaigyo_application"
+        ]
+      },
+      "patch": {
+        "operationId": "update_launch_kaigyo_application",
+        "summary": "開業申請用データの更新（リモート版freee-mcp限定）",
+        "description": "開業申請用データのサブセットを受け付けて部分/一括更新します。\n指定されたパラメータのみが更新されます。入力値が異常な場合はエラーを返します。",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "開業申請用データ更新レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "owner_first_name": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の名"
+                    },
+                    "owner_last_name": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の姓"
+                    },
+                    "owner_first_name_kana": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の名(カナ)"
+                    },
+                    "owner_last_name_kana": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の姓(カナ)"
+                    },
+                    "owner_zipcode": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の郵便番号(123-4567形式)"
+                    },
+                    "owner_prefecture": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.Prefecture"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "届出者の都道府県"
+                    },
+                    "owner_city": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の市区町村"
+                    },
+                    "owner_street_name1": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の住所1"
+                    },
+                    "owner_street_name2": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の住所2(任意)"
+                    },
+                    "owner_birth_date": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true,
+                      "description": "届出者の生年月日(yyyy-mm-dd)"
+                    },
+                    "owner_contact_phone1": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の電話番号1"
+                    },
+                    "owner_contact_phone2": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の電話番号2"
+                    },
+                    "owner_contact_phone3": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "届出者の電話番号3"
+                    },
+                    "workplace_style": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.WorkplaceStyle"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "主な仕事場所の種別(home:自宅, shop:店舗, office:事務所, undecided:未定)"
+                    },
+                    "workplace_zipcode": {
+                      "type": "string",
+                      "description": "仕事場所の郵便番号"
+                    },
+                    "workplace_prefecture": {
+                      "anyOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.Prefecture"
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            ""
+                          ]
+                        }
+                      ],
+                      "description": "仕事場所の都道府県"
+                    },
+                    "workplace_city": {
+                      "type": "string",
+                      "description": "仕事場所の市区町村"
+                    },
+                    "workplace_street_name": {
+                      "type": "string",
+                      "description": "仕事場所の住所"
+                    },
+                    "workplace_contact_phone1": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "仕事場所の電話番号1"
+                    },
+                    "workplace_contact_phone2": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "仕事場所の電話番号2"
+                    },
+                    "workplace_contact_phone3": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "仕事場所の電話番号3"
+                    },
+                    "workplace_is_tax_payment_place": {
+                      "type": "boolean",
+                      "description": "仕事場所を納税地とするか"
+                    },
+                    "business_type": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "業種"
+                    },
+                    "business_description": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "事業概要"
+                    },
+                    "business_name": {
+                      "type": "string",
+                      "description": "屋号"
+                    },
+                    "business_name_kana": {
+                      "type": "string",
+                      "description": "屋号(カナ)"
+                    },
+                    "has_business_name": {
+                      "type": "boolean",
+                      "nullable": true,
+                      "description": "屋号を持つか"
+                    },
+                    "business_start_date": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true,
+                      "description": "事業開始日(yyyy-mm-dd)"
+                    },
+                    "income_business": {
+                      "type": "boolean",
+                      "description": "事業所得があるか"
+                    },
+                    "income_realestate": {
+                      "type": "boolean",
+                      "description": "不動産所得があるか"
+                    },
+                    "income_forest": {
+                      "type": "boolean",
+                      "description": "山林所得があるか"
+                    },
+                    "payroll_plan": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.PayrollPlan"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "給与支払いの計画(not_pay:支払わない, pay_employee:従業員に支払う, pay_family:家族に支払う, pay_family_and_employee:家族と従業員に支払う)"
+                    },
+                    "employees": {
+                      "type": "integer",
+                      "format": "int32",
+                      "description": "使用人(従業員)の人数"
+                    },
+                    "family_employees": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Launch.FamilyEmployee"
+                      },
+                      "maxItems": 3,
+                      "description": "青色事業専従者(給与を支払う家族)のリスト。常に全件置き換え(id は露出しない)"
+                    },
+                    "tax_return_type": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.TaxReturnType"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "確定申告の種類(blue_65:青色申告 65万円控除, blue_10:青色申告 10万円控除, white:白色申告)"
+                    },
+                    "completion_hint": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/Launch.CompletionHint"
+                        }
+                      ],
+                      "description": "入力補完のためのヒント"
+                    }
+                  },
+                  "required": [
+                    "owner_first_name",
+                    "owner_last_name",
+                    "owner_first_name_kana",
+                    "owner_last_name_kana",
+                    "owner_zipcode",
+                    "owner_prefecture",
+                    "owner_city",
+                    "owner_street_name1",
+                    "owner_street_name2",
+                    "owner_birth_date",
+                    "owner_contact_phone1",
+                    "owner_contact_phone2",
+                    "owner_contact_phone3",
+                    "workplace_style",
+                    "workplace_zipcode",
+                    "workplace_prefecture",
+                    "workplace_city",
+                    "workplace_street_name",
+                    "workplace_contact_phone1",
+                    "workplace_contact_phone2",
+                    "workplace_contact_phone3",
+                    "workplace_is_tax_payment_place",
+                    "business_type",
+                    "business_description",
+                    "business_name",
+                    "business_name_kana",
+                    "has_business_name",
+                    "business_start_date",
+                    "income_business",
+                    "income_realestate",
+                    "income_forest",
+                    "payroll_plan",
+                    "employees",
+                    "family_employees",
+                    "tax_return_type",
+                    "completion_hint"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "リクエスト回数制限を超過",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "launch_kaigyo_application"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Launch.KaigyoApplicationForPartialUpdate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/hub/launch/kaigyo_application/online_submission_result_messages": {
+      "get": {
+        "operationId": "list_launch_online_submission_result_messages",
+        "summary": "開業申請のオンライン送信結果メッセージ一覧の取得（リモート版freee-mcp限定）",
+        "description": "e-Tax の受付結果メッセージ一覧を取得します。",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "オンライン送信結果メッセージ一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Launch.OnlineSubmissionResultMessage"
+                      },
+                      "description": "受付結果メッセージのリスト"
+                    },
+                    "is_accepted": {
+                      "type": "boolean",
+                      "description": "e-Tax の受付が完了しているか",
+                      "example": true
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "is_accepted"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BadRequestErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnauthorizedErrorBody"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForbiddenErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFoundErrorBody"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "リクエスト回数制限を超過",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TooManyRequestsErrorBody"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InternalServerErrorBody"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "launch_kaigyo_application"
+        ]
+      }
+    },
+    "/hub/employee_evaluation/evaluation_results": {
+      "get": {
+        "operationId": "list_employee_evaluation_results",
+        "summary": "人事評価結果一覧取得（リモート版freee-mcp限定）",
+        "description": "人事評価結果を一覧で取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.employee_ids"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.start_date"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.end_date"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "人事評価結果一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EmployeeEvaluation.EvaluationResults.EvaluationResult"
+                      },
+                      "maxItems": 500,
+                      "description": "人事評価結果のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "description": "次ページ取得用トークン。次ページがない場合は空文字列です。",
+                      "example": "following-token"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "employee_evaluation_evaluation_results"
         ]
       }
     }
@@ -235,7 +1281,138 @@
         },
         "explode": false
       },
-      "Survey.GetSurveyRequest.survey_id": {
+      "Survey.GetSurveyRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "実施回ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "Survey.ListCompanySurveyResultsRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListCompanySurveyResultsRequest.base_survey_id": {
+        "name": "base_survey_id",
+        "in": "path",
+        "required": true,
+        "description": "サーベイ企画ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "Survey.ListCompanySurveyResultsRequest.survey_ids": {
+        "name": "survey_ids[]",
+        "in": "query",
+        "required": false,
+        "description": "実施回IDでのフィルタ。指定しない場合は全件対象",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Survey.ListCompanySurveyResultsRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "Survey.ListCompanySurveyResultsRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "explode": false
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.base_survey_id": {
+        "name": "base_survey_id",
+        "in": "path",
+        "required": true,
+        "description": "サーベイ企画ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.employee_id": {
+        "name": "employee_id",
+        "in": "query",
+        "required": false,
+        "description": "従業員IDでのフィルタ。指定しない場合は全従業員が対象",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.survey_ids": {
+        "name": "survey_ids[]",
+        "in": "query",
+        "required": false,
+        "description": "実施回IDでのフィルタ。指定しない場合は指定サーベイ企画内の全実施回が対象",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "Survey.ListEmployeeSurveyResultsRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "explode": false
+      },
+      "Survey.ListSurveyResultSummariesRequest.survey_id": {
         "name": "survey_id",
         "in": "path",
         "required": true,
@@ -244,21 +1421,317 @@
           "type": "integer",
           "format": "int64"
         }
+      },
+      "Survey.ListSurveyResultSummariesRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListSurveyResultSummariesRequest.employee_id": {
+        "name": "employee_id",
+        "in": "query",
+        "required": false,
+        "description": "従業員IDでのフィルタ。指定しない場合は全従業員が対象",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.GetSurveyQuestionsRequest.survey_id": {
+        "name": "survey_id",
+        "in": "path",
+        "required": true,
+        "description": "実施回ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "Survey.GetSurveyQuestionsRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.employee_ids": {
+        "name": "employee_ids[]",
+        "in": "query",
+        "required": false,
+        "description": "従業員IDでのフィルタ。最大50件まで指定できます。指定しない場合はアクセス可能な全従業員が対象です。",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "maxItems": 50
+        }
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.start_date": {
+        "name": "start_date",
+        "in": "query",
+        "required": false,
+        "description": "評価期間の開始日（yyyy-mm-dd）",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.end_date": {
+        "name": "end_date",
+        "in": "query",
+        "required": false,
+        "description": "評価期間の終了日（yyyy-mm-dd）",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト100、最大500）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 500
+        },
+        "explode": false
+      },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "次ページ取得用トークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
       }
     },
     "schemas": {
+      "ErrorField": {
+        "type": "object",
+        "required": [
+          "name",
+          "message"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "エラーフィールド名"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          }
+        },
+        "description": "バリデーション情報",
+        "example": {
+          "name": "company_id",
+          "message": "事業所IDは必須です。"
+        },
+        "additionalProperties": false
+      },
+      "BadRequestErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorField"
+            },
+            "description": "失敗フィールド情報"
+          }
+        },
+        "description": "400 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-3003-0002",
+          "message": "リクエストの形式が正しくありません。",
+          "fields": [
+            {
+              "name": "company_id",
+              "message": "事業所IDは必須です。"
+            }
+          ]
+        },
+        "additionalProperties": false
+      },
+      "UnauthorizedErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          }
+        },
+        "description": "401 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-3002-0001",
+          "message": "無効なアクセストークンです。"
+        },
+        "additionalProperties": false
+      },
+      "ForbiddenErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          }
+        },
+        "description": "403 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-3002-0003",
+          "message": "このアプリケーションにはアクセス権限がないエンドポイントです。"
+        },
+        "additionalProperties": false
+      },
+      "NotFoundErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErrorField"
+            },
+            "description": "失敗フィールド情報"
+          }
+        },
+        "description": "404 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-1001-0001",
+          "message": "指定されたリソースが見つかりません。"
+        },
+        "additionalProperties": false
+      },
+      "TooManyRequestsErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          }
+        },
+        "description": "429 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-3001-0001",
+          "message": "一定時間内に多数のリクエストが検出されました。しばらく時間をおいてから再度お試しください。"
+        },
+        "additionalProperties": false
+      },
+      "InternalServerErrorBody": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "エラーコード"
+          },
+          "message": {
+            "type": "string",
+            "description": "エラーメッセージ"
+          }
+        },
+        "description": "500 エラー用のレスポンスボディ",
+        "example": {
+          "code": "AHB-0001-9001",
+          "message": "システムエラーが発生しました。時間をおいて再度お試しください。"
+        },
+        "additionalProperties": false
+      },
       "Survey.SurveyType": {
         "type": "string",
         "enum": [
-          "retention"
+          "SURVEY_TYPE_UNSPECIFIED",
+          "SURVEY_TYPE_RETENTION"
         ],
         "description": "サーベイ種別"
       },
       "Survey.AnswerPeriodUnit": {
         "type": "string",
         "enum": [
-          "days",
-          "weeks"
+          "ANSWER_PERIOD_UNIT_UNSPECIFIED",
+          "ANSWER_PERIOD_UNIT_DAYS",
+          "ANSWER_PERIOD_UNIT_WEEKS"
         ],
         "description": "回答期間の単位"
       },
@@ -275,20 +1748,17 @@
         ],
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int64",
-            "example": 1
+            "type": "string",
+            "example": "1"
           },
           "base_survey_id": {
-            "type": "integer",
-            "format": "int64",
-            "example": 1
+            "type": "string",
+            "example": "1"
           },
           "days_before": {
-            "type": "integer",
-            "format": "int32",
+            "type": "string",
             "description": "何日前に通知するか",
-            "example": 3
+            "example": "3"
           },
           "mail": {
             "type": "boolean",
@@ -317,8 +1787,9 @@
       "Survey.ScheduleType": {
         "type": "string",
         "enum": [
-          "date",
-          "weekday"
+          "SCHEDULE_TYPE_UNSPECIFIED",
+          "SCHEDULE_TYPE_DATE",
+          "SCHEDULE_TYPE_WEEKDAY"
         ],
         "description": "繰り返しスケジュールの指定方法"
       },
@@ -329,21 +1800,16 @@
           "base_survey_id",
           "month",
           "schedule_type",
-          "date",
-          "week",
-          "weekday",
           "is_enabled"
         ],
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int64",
-            "example": 1
+            "type": "string",
+            "example": "1"
           },
           "base_survey_id": {
-            "type": "integer",
-            "format": "int64",
-            "example": 1
+            "type": "string",
+            "example": "1"
           },
           "month": {
             "type": "integer",
@@ -386,10 +1852,6 @@
       },
       "Survey.QuestionsSummary": {
         "type": "object",
-        "required": [
-          "template_questions_count",
-          "additional_questions_count"
-        ],
         "properties": {
           "template_questions_count": {
             "type": "integer",
@@ -417,7 +1879,6 @@
           "description",
           "template_id",
           "is_auto_add",
-          "next_start_date",
           "is_pause",
           "survey_type",
           "answer_period",
@@ -429,10 +1890,9 @@
         ],
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "description": "サーベイ企画ID",
-            "example": 1
+            "example": "1"
           },
           "title": {
             "type": "string",
@@ -445,10 +1905,9 @@
             "example": "入社1ヶ月の従業員向けアンケートです"
           },
           "template_id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "description": "テンプレートID",
-            "example": 1
+            "example": "1"
           },
           "is_auto_add": {
             "type": "boolean",
@@ -518,8 +1977,9 @@
       "Survey.SurveyStatus": {
         "type": "string",
         "enum": [
-          "in_progress",
-          "completed"
+          "SURVEY_STATUS_UNSPECIFIED",
+          "SURVEY_STATUS_IN_PROGRESS",
+          "SURVEY_STATUS_COMPLETED"
         ],
         "description": "実施回のステータス"
       },
@@ -530,17 +1990,13 @@
           "title",
           "start_date",
           "status",
-          "answered_ratio",
-          "target_count",
-          "unanswered_count",
           "is_hidden"
         ],
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "description": "実施回ID",
-            "example": 1
+            "example": "1"
           },
           "title": {
             "type": "string",
@@ -595,17 +2051,13 @@
           "start_date",
           "end_date",
           "status",
-          "answered_ratio",
-          "target_count",
-          "unanswered_count",
           "viewer_scope"
         ],
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "description": "実施回ID",
-            "example": 1
+            "example": "1"
           },
           "title": {
             "type": "string",
@@ -667,20 +2119,17 @@
         "required": [
           "id",
           "employee_id",
-          "answered_at",
           "consecutive_unanswered_count"
         ],
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int64",
-            "example": 1
+            "type": "string",
+            "example": "1"
           },
           "employee_id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "description": "従業員ID",
-            "example": 100
+            "example": "100"
           },
           "answered_at": {
             "type": "string",
@@ -697,6 +2146,777 @@
           }
         },
         "description": "回答対象者(未回答回数付き)",
+        "additionalProperties": false
+      },
+      "Survey.ScoreWithChange": {
+        "type": "object",
+        "required": [
+          "value",
+          "change",
+          "deviation_level"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "スコア値",
+            "example": "4.2"
+          },
+          "change": {
+            "type": "string",
+            "description": "前回実施回からの変化",
+            "example": "+0.3"
+          },
+          "deviation_level": {
+            "type": "string",
+            "description": "偏差レベル",
+            "example": "high"
+          }
+        },
+        "description": "スコアと前回実施回からの変化",
+        "additionalProperties": false
+      },
+      "Survey.TemplateQuestionCategoryTotalScore": {
+        "type": "object",
+        "required": [
+          "question_category",
+          "score"
+        ],
+        "properties": {
+          "question_category": {
+            "type": "string",
+            "description": "質問カテゴリ(働きやすさ/やりがい/カスタム)",
+            "example": "働きやすさ"
+          },
+          "score": {
+            "$ref": "#/components/schemas/Survey.ScoreWithChange"
+          }
+        },
+        "description": "質問カテゴリ別の合計スコア",
+        "additionalProperties": false
+      },
+      "Survey.QuestionScore": {
+        "type": "object",
+        "required": [
+          "survey_question_id",
+          "score"
+        ],
+        "properties": {
+          "survey_question_id": {
+            "type": "string",
+            "description": "設問ID",
+            "example": "1"
+          },
+          "score": {
+            "$ref": "#/components/schemas/Survey.ScoreWithChange"
+          }
+        },
+        "description": "設問別のスコア",
+        "additionalProperties": false
+      },
+      "Survey.CompanySurveyResult": {
+        "type": "object",
+        "required": [
+          "survey_id",
+          "question_category_total_scores",
+          "question_scores"
+        ],
+        "properties": {
+          "survey_id": {
+            "type": "string",
+            "description": "実施回ID",
+            "example": "1"
+          },
+          "question_category_total_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.TemplateQuestionCategoryTotalScore"
+            },
+            "description": "カテゴリ別の全社平均スコア"
+          },
+          "question_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.QuestionScore"
+            },
+            "description": "設問別の全社平均スコア"
+          }
+        },
+        "description": "全社平均",
+        "additionalProperties": false
+      },
+      "Survey.TurnoverRisk": {
+        "type": "string",
+        "enum": [
+          "TURNOVER_RISK_UNSPECIFIED",
+          "TURNOVER_RISK_STABLE",
+          "TURNOVER_RISK_POTENTIALLY_HIGH",
+          "TURNOVER_RISK_HIGH",
+          "TURNOVER_RISK_VERY_HIGH"
+        ],
+        "description": "離職リスク判定"
+      },
+      "Survey.EmployeeSurveyResult": {
+        "type": "object",
+        "required": [
+          "employee_id",
+          "survey_id",
+          "question_category_total_scores",
+          "question_scores",
+          "turnover_risk"
+        ],
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "description": "従業員ID",
+            "example": "100"
+          },
+          "survey_id": {
+            "type": "string",
+            "description": "実施回ID",
+            "example": "1"
+          },
+          "question_category_total_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.TemplateQuestionCategoryTotalScore"
+            },
+            "description": "カテゴリ別のスコア"
+          },
+          "question_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.QuestionScore"
+            },
+            "description": "設問別のスコア"
+          },
+          "turnover_risk": {
+            "$ref": "#/components/schemas/Survey.TurnoverRisk"
+          }
+        },
+        "description": "サーベイ結果",
+        "additionalProperties": false
+      },
+      "Survey.ResultSummaryStatus": {
+        "type": "string",
+        "enum": [
+          "RESULT_SUMMARY_STATUS_UNSPECIFIED",
+          "RESULT_SUMMARY_STATUS_PROCESSING",
+          "RESULT_SUMMARY_STATUS_COMPLETED",
+          "RESULT_SUMMARY_STATUS_FAILED"
+        ],
+        "description": "AI個人分析の生成ステータス"
+      },
+      "Survey.SurveyTargetResultSummary": {
+        "type": "object",
+        "required": [
+          "employee_id",
+          "summary_text",
+          "agenda_text",
+          "status"
+        ],
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "description": "従業員ID",
+            "example": "100"
+          },
+          "summary_text": {
+            "type": "string",
+            "description": "AI個人分析"
+          },
+          "agenda_text": {
+            "type": "string",
+            "description": "AI面談サポート"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Survey.ResultSummaryStatus"
+          }
+        },
+        "description": "AI個人分析",
+        "additionalProperties": false
+      },
+      "Survey.QuestionType": {
+        "type": "string",
+        "enum": [
+          "QUESTION_TYPE_UNSPECIFIED",
+          "QUESTION_TYPE_INPUT",
+          "QUESTION_TYPE_SELECT"
+        ],
+        "description": "質問種別"
+      },
+      "Survey.SurveyQuestion": {
+        "type": "object",
+        "required": [
+          "id",
+          "question_text",
+          "question_type",
+          "is_required",
+          "display_order",
+          "question_category",
+          "question_sub_category"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "設問ID",
+            "example": "1"
+          },
+          "question_text": {
+            "type": "string",
+            "description": "質問文",
+            "example": "業務にやりがいを感じていますか"
+          },
+          "question_type": {
+            "$ref": "#/components/schemas/Survey.QuestionType"
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "必須か",
+            "example": true
+          },
+          "display_order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "表示順",
+            "example": 1
+          },
+          "question_category": {
+            "type": "string",
+            "description": "質問カテゴリ",
+            "example": "働きやすさ"
+          },
+          "question_sub_category": {
+            "type": "string",
+            "description": "質問サブカテゴリ",
+            "example": ""
+          },
+          "additional_question_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "追加設問ID",
+            "example": "1"
+          }
+        },
+        "description": "設問",
+        "additionalProperties": false
+      },
+      "Launch.Prefecture": {
+        "type": "string",
+        "enum": [
+          "北海道",
+          "青森県",
+          "岩手県",
+          "宮城県",
+          "秋田県",
+          "山形県",
+          "福島県",
+          "茨城県",
+          "栃木県",
+          "群馬県",
+          "埼玉県",
+          "千葉県",
+          "東京都",
+          "神奈川県",
+          "新潟県",
+          "富山県",
+          "石川県",
+          "福井県",
+          "山梨県",
+          "長野県",
+          "岐阜県",
+          "静岡県",
+          "愛知県",
+          "三重県",
+          "滋賀県",
+          "京都府",
+          "大阪府",
+          "兵庫県",
+          "奈良県",
+          "和歌山県",
+          "鳥取県",
+          "島根県",
+          "岡山県",
+          "広島県",
+          "山口県",
+          "徳島県",
+          "香川県",
+          "愛媛県",
+          "高知県",
+          "福岡県",
+          "佐賀県",
+          "長崎県",
+          "熊本県",
+          "大分県",
+          "宮崎県",
+          "鹿児島県",
+          "沖縄県"
+        ],
+        "description": "都道府県"
+      },
+      "Launch.WorkplaceStyle": {
+        "type": "string",
+        "enum": [
+          "home",
+          "shop",
+          "office",
+          "undecided"
+        ],
+        "description": "主に仕事をする場所のスタイル"
+      },
+      "Launch.PayrollPlan": {
+        "type": "string",
+        "enum": [
+          "not_pay",
+          "pay_employee",
+          "pay_family",
+          "pay_family_and_employee"
+        ],
+        "description": "給与の支払い計画"
+      },
+      "Launch.FamilyRelation": {
+        "type": "string",
+        "enum": [
+          "wife",
+          "husband",
+          "mother",
+          "father",
+          "o_brother",
+          "y_brother",
+          "o_sister",
+          "y_sister",
+          "child",
+          "grandson",
+          "cousin",
+          "g_mother",
+          "g_father",
+          "uncle",
+          "aunt",
+          "nephew",
+          "niece"
+        ],
+        "description": "事業主との続柄"
+      },
+      "Launch.SalaryPayday": {
+        "type": "string",
+        "enum": [
+          "end_of_month",
+          "middle_of_month",
+          "beginning_of_month"
+        ],
+        "description": "給与の支払日"
+      },
+      "Launch.BonusCycle": {
+        "type": "string",
+        "enum": [
+          "not_paid",
+          "quarter",
+          "half_year",
+          "year"
+        ],
+        "description": "賞与の支給サイクル"
+      },
+      "Launch.FamilyEmployee": {
+        "type": "object",
+        "required": [
+          "name",
+          "age",
+          "relation",
+          "experience_years",
+          "work_description",
+          "work_time",
+          "qualification",
+          "salary_amount",
+          "salary_payday",
+          "bonus_cycle",
+          "bonus_amount"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "氏名"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "description": "年齢"
+          },
+          "relation": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Launch.FamilyRelation"
+              }
+            ],
+            "description": "続柄(wife:妻, husband:夫, mother:母, father:父, child:子, o_sister:姉, y_sister:妹, o_brother:兄, y_brother:弟, g_mother:祖母, g_father:祖父, grandson:孫, cousin:従兄弟, uncle:叔父, aunt:叔母, nephew:甥, niece:姪)"
+          },
+          "experience_years": {
+            "type": "integer",
+            "format": "int32",
+            "description": "経験年数"
+          },
+          "work_description": {
+            "type": "string",
+            "description": "仕事内容"
+          },
+          "work_time": {
+            "type": "string",
+            "description": "従事の程度"
+          },
+          "qualification": {
+            "type": "string",
+            "nullable": true,
+            "description": "資格"
+          },
+          "salary_amount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "給与額"
+          },
+          "salary_payday": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Launch.SalaryPayday"
+              }
+            ],
+            "description": "給与支払日(end_of_month:月末, middle_of_month:月中, beginning_of_month:月初)"
+          },
+          "bonus_cycle": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Launch.BonusCycle"
+              }
+            ],
+            "nullable": true,
+            "description": "賞与の支給サイクル(not_paid:支払わない, quarter:四半期ごと, half_year:半年ごと, year:年1回)"
+          },
+          "bonus_amount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "賞与額"
+          }
+        },
+        "description": "青色事業専従者(給与を支払う家族)",
+        "additionalProperties": false
+      },
+      "Launch.TaxReturnType": {
+        "type": "string",
+        "enum": [
+          "blue_65",
+          "blue_10",
+          "white"
+        ],
+        "description": "確定申告の種類"
+      },
+      "Launch.CompletionHint": {
+        "type": "object",
+        "required": [
+          "missing_fields",
+          "next_action"
+        ],
+        "properties": {
+          "missing_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "未入力(欠落)の項目名リスト",
+            "example": [
+              "business_name",
+              "family_employees"
+            ]
+          },
+          "next_action": {
+            "type": "string",
+            "description": "次に取るべき操作の案内",
+            "example": "missing_fields の値を入力してください"
+          }
+        },
+        "description": "入力補完のためのヒント",
+        "additionalProperties": false
+      },
+      "Launch.KaigyoApplicationForPartialUpdate": {
+        "type": "object",
+        "properties": {
+          "owner_first_name": {
+            "type": "string",
+            "description": "届出者の名"
+          },
+          "owner_last_name": {
+            "type": "string",
+            "description": "届出者の姓"
+          },
+          "owner_first_name_kana": {
+            "type": "string",
+            "description": "届出者の名(カナ)"
+          },
+          "owner_last_name_kana": {
+            "type": "string",
+            "description": "届出者の姓(カナ)"
+          },
+          "owner_zipcode": {
+            "type": "string",
+            "description": "届出者の郵便番号(123-4567形式)"
+          },
+          "owner_prefecture": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Launch.Prefecture"
+              }
+            ],
+            "description": "届出者の都道府県"
+          },
+          "owner_city": {
+            "type": "string",
+            "description": "届出者の市区町村"
+          },
+          "owner_street_name1": {
+            "type": "string",
+            "description": "届出者の住所1"
+          },
+          "owner_street_name2": {
+            "type": "string",
+            "nullable": true,
+            "description": "届出者の住所2(任意)"
+          },
+          "owner_birth_date": {
+            "type": "string",
+            "format": "date",
+            "description": "届出者の生年月日(yyyy-mm-dd)"
+          },
+          "owner_contact_phone1": {
+            "type": "string",
+            "description": "届出者の電話番号1"
+          },
+          "owner_contact_phone2": {
+            "type": "string",
+            "description": "届出者の電話番号2"
+          },
+          "owner_contact_phone3": {
+            "type": "string",
+            "description": "届出者の電話番号3"
+          },
+          "workplace_style": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Launch.WorkplaceStyle"
+              }
+            ],
+            "description": "主な仕事場所の種別(home:自宅, shop:店舗, office:事務所, undecided:未定)"
+          },
+          "workplace_zipcode": {
+            "type": "string",
+            "description": "仕事場所の郵便番号"
+          },
+          "workplace_prefecture": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Launch.Prefecture"
+              }
+            ],
+            "description": "仕事場所の都道府県"
+          },
+          "workplace_city": {
+            "type": "string",
+            "description": "仕事場所の市区町村"
+          },
+          "workplace_street_name": {
+            "type": "string",
+            "description": "仕事場所の住所"
+          },
+          "workplace_contact_phone1": {
+            "type": "string",
+            "description": "仕事場所の電話番号1"
+          },
+          "workplace_contact_phone2": {
+            "type": "string",
+            "description": "仕事場所の電話番号2"
+          },
+          "workplace_contact_phone3": {
+            "type": "string",
+            "description": "仕事場所の電話番号3"
+          },
+          "workplace_is_tax_payment_place": {
+            "type": "boolean",
+            "description": "仕事場所を納税地とするか"
+          },
+          "business_type": {
+            "type": "string",
+            "description": "業種"
+          },
+          "business_description": {
+            "type": "string",
+            "description": "事業概要"
+          },
+          "business_name": {
+            "type": "string",
+            "description": "屋号"
+          },
+          "business_name_kana": {
+            "type": "string",
+            "description": "屋号(カナ)"
+          },
+          "has_business_name": {
+            "type": "boolean",
+            "description": "屋号を持つか"
+          },
+          "business_start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "事業開始日(yyyy-mm-dd)"
+          },
+          "income_business": {
+            "type": "boolean",
+            "description": "事業所得があるか"
+          },
+          "income_realestate": {
+            "type": "boolean",
+            "description": "不動産所得があるか"
+          },
+          "income_forest": {
+            "type": "boolean",
+            "description": "山林所得があるか"
+          },
+          "payroll_plan": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Launch.PayrollPlan"
+              }
+            ],
+            "description": "給与支払いの計画(not_pay:支払わない, pay_employee:従業員に支払う, pay_family:家族に支払う, pay_family_and_employee:家族と従業員に支払う)"
+          },
+          "employees": {
+            "type": "integer",
+            "format": "int32",
+            "description": "使用人(従業員)の人数"
+          },
+          "family_employees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Launch.FamilyEmployee"
+            },
+            "maxItems": 3,
+            "description": "青色事業専従者のリスト(常に全件置き換え)"
+          },
+          "tax_return_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Launch.TaxReturnType"
+              }
+            ],
+            "description": "確定申告の種類(blue_65:青色申告 65万円控除, blue_10:青色申告 10万円控除, white:白色申告)"
+          }
+        },
+        "description": "開業申請用データの更新パラメータ(部分/一括更新のためすべて任意)",
+        "additionalProperties": false
+      },
+      "Launch.OnlineSubmissionResult": {
+        "type": "string",
+        "enum": [
+          "ok",
+          "error",
+          "no_result"
+        ],
+        "description": "オンライン送信結果メッセージの受付結果"
+      },
+      "Launch.OnlineSubmissionResultMessage": {
+        "type": "object",
+        "required": [
+          "procedure_name",
+          "result",
+          "receipt_date",
+          "receipt_number",
+          "type"
+        ],
+        "properties": {
+          "procedure_name": {
+            "type": "string",
+            "description": "手続名"
+          },
+          "result": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Launch.OnlineSubmissionResult"
+              }
+            ],
+            "description": "受付結果(ok:受付完了, error:エラー情報あり, no_result:受付結果未取得)"
+          },
+          "receipt_date": {
+            "type": "string",
+            "description": "受付日時"
+          },
+          "receipt_number": {
+            "type": "string",
+            "description": "受付番号"
+          },
+          "type": {
+            "type": "string",
+            "description": "メッセージ種別"
+          }
+        },
+        "description": "開業申請のオンライン送信結果メッセージ",
+        "additionalProperties": false
+      },
+      "EmployeeEvaluation.EvaluationResults.EvaluationResult": {
+        "type": "object",
+        "required": [
+          "id",
+          "employee_id",
+          "evaluation_cycle_id",
+          "evaluation_category_id",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "人事評価結果ID",
+            "example": 1
+          },
+          "employee_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "従業員ID",
+            "example": 101
+          },
+          "evaluation_cycle_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "評価期間ID",
+            "example": 10
+          },
+          "evaluation_category_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "評価項目ID",
+            "example": 20
+          },
+          "evaluation_category_selectbox_option_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "評価項目の選択肢ID",
+            "example": 30
+          },
+          "value": {
+            "type": "string",
+            "nullable": true,
+            "description": "評価値",
+            "example": "A"
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true,
+            "description": "備考",
+            "example": "Good"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時",
+            "example": "2026-08-12T00:00:00Z"
+          }
+        },
+        "description": "人事評価結果",
         "additionalProperties": false
       }
     },

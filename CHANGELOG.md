@@ -1,5 +1,71 @@
 # freee-mcp
 
+## 0.33.2
+
+### Patch Changes
+
+- [`7789f1b`](https://github.com/freee/freee-mcp/commit/7789f1b491f5eee296514d531b869c494b2f2f1b): サーベイ API レシピのリソース一覧表に、結果・サマリー系エンドポイントへの案内行を追加
+
+## 0.33.1
+
+### Patch Changes
+
+- [`8f83ce5`](https://github.com/freee/freee-mcp/commit/8f83ce54eaa3c4488b8ac234d0cae88c58d55060): freee-api-skill に、末尾が `[]` のパラメータ名を API 呼び出し時に省略しない注意事項を追加
+- [`8f5d470`](https://github.com/freee/freee-mcp/commit/8f5d4706484f527d7d56c243cbb1339bdabde4c3): freee-mcp（リモート版）のサーベイ API に GetSurveyQuestions エンドポイントのスキーマを取り込み
+
+## 0.33.0
+
+### Minor Changes
+
+- [`a75cf91`](https://github.com/freee/freee-mcp/commit/a75cf91897f73aabbb0b9586d93247395cc6b243): freee 業務委託管理 API をサポート
+
+  - `partner_management` service を追加（`/hub/partner_management/` 配下のエンドポイント）
+  - 業務委託管理 API のリファレンス（企業ユーザー・部門）を追加
+
+- [`efa5148`](https://github.com/freee/freee-mcp/commit/efa51482cfa3750b68329afb599c41aa3142c9c7): freee サーベイ API に全社平均・サーベイ結果・AI 個人分析の取得エンドポイントを追加
+
+  - `list_survey_company_survey_results` / `list_survey_employee_survey_results` / `list_survey_result_summaries` の 3 エンドポイントが利用可能になりました
+  - いずれも参照系（GET）のみで、作成・更新・削除には対応していません
+  - サーベイ API は freee-mcp（リモート版）でのみ利用できます。ローカルモードでは呼び出せません
+
+### Patch Changes
+
+- [`fb502f3`](https://github.com/freee/freee-mcp/commit/fb502f31b5664b224fc7e13931e7931c7cd1c9c1): スキーマ定義の `anyOf` がリファレンス生成時に解決されず `object` になってしまう問題を修正
+- [`8a73d7e`](https://github.com/freee/freee-mcp/commit/8a73d7ee175eb967cee95bf53dc943a029332283): OpenAPI スキーマの定義に従ってクエリパラメータをシリアライズするように修正
+
+  - 配列型のクエリパラメータに単一値を渡した場合、API リクエストを送信する前にエラーを返すように変更
+  - 単一値を取るクエリパラメータに要素が 1 件だけの配列を渡した場合も、配列を暗黙に単一値へ変換せず、API リクエストを送信する前にエラーを返すように変更
+
+- [`f536a85`](https://github.com/freee/freee-mcp/commit/f536a852b4b02fcd362a30478963450e1bfdc858): OpenAPI スキーマを最新版に同期 ( 7 files changed, 1647 insertions(+), 489 deletions(-))
+
+## 0.32.6
+
+### Patch Changes
+
+- [`7dfb758`](https://github.com/freee/freee-mcp/commit/7dfb7586c81b4487f5d982cfb48d03e356122045): OpenAPI スキーマを最新版に同期 ( 2 files changed, 188 insertions(+), 230 deletions(-))
+
+## 0.32.5
+
+### Patch Changes
+
+- [`a3f287a`](https://github.com/freee/freee-mcp/commit/a3f287a1246344732dbd210e38839b3727e17105): freee-api-skill のリファレンス索引を追加し、SKILL.md を整理
+
+  - `references/INDEX.md` を自動生成するようにした（service・ファイル名・主なパスの対応表）
+  - セットアップ手順を `SETUP.md`、配色定義を `COLORS.md` に分離し、SKILL.md からは必要なときだけ参照する形にした
+
+- [`ce1f28d`](https://github.com/freee/freee-mcp/commit/ce1f28ddb70ebdd429212fe1d5b4e43646c6622a): Skill レシピを整理してコンテキスト量を削減
+
+  - テーブル表現を廃止し、箇条書きに統一
+  - リファレンスと重複するパス一覧・パラメータ・レスポンスの記述を削除
+  - トラブルシューティングを `troubleshooting/` 配下に分割（INDEX / 認証 / 事業所 / 経費申請 / サポート）
+  - 実在しないパスの記載を修正（給与明細・税区分）
+
+## 0.32.4
+
+### Patch Changes
+
+- [`337d68e`](https://github.com/freee/freee-mcp/commit/337d68e9df4ab4f332b021bcb39381aade001baa): OpenAPI スキーマを最新版に同期 ( 8 files changed, 5901 insertions(+), 3471 deletions(-))
+
 ## 0.32.3
 
 ### Patch Changes

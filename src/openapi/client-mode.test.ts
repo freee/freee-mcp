@@ -295,6 +295,7 @@ describe('generateClientModeTool - privacy', () => {
       undefined,
       'https://api.freee.co.jp',
       expect.objectContaining({ userId: 'test-user' }),
+      undefined,
       'application/xml',
     );
     expect(result.content).toEqual([{ type: 'text', text: xml }]);

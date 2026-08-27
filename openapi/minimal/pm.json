@@ -30,21 +30,24 @@
             "in": "query",
             "type": "array",
             "required": false,
-            "description": "マネージャのユーザID"
+            "description": "マネージャのユーザID",
+            "explode": true
           },
           {
             "name": "orderer_ids[]",
             "in": "query",
             "type": "array",
             "required": false,
-            "description": "発注元の取引先ID"
+            "description": "発注元の取引先ID",
+            "explode": true
           },
           {
             "name": "contractor_ids[]",
             "in": "query",
             "type": "array",
             "required": false,
-            "description": "発注先の取引先ID"
+            "description": "発注先の取引先ID",
+            "explode": true
           },
           {
             "name": "limit",
@@ -150,7 +153,8 @@
             "in": "query",
             "type": "array",
             "required": false,
-            "description": "従業員ID"
+            "description": "従業員ID",
+            "explode": true
           },
           {
             "name": "limit",
@@ -222,14 +226,16 @@
             "in": "query",
             "type": "array",
             "required": false,
-            "description": "取得対象従業員のユーザID"
+            "description": "取得対象従業員のユーザID",
+            "explode": true
           },
           {
             "name": "team_ids[]",
             "in": "query",
             "type": "array",
             "required": false,
-            "description": "取得対象のチームID"
+            "description": "取得対象のチームID",
+            "explode": true
           },
           {
             "name": "year_month",
@@ -320,14 +326,16 @@
             "in": "query",
             "type": "array",
             "required": false,
-            "description": "取得対象従業員のユーザID"
+            "description": "取得対象従業員のユーザID",
+            "explode": true
           },
           {
             "name": "team_ids[]",
             "in": "query",
             "type": "array",
             "required": false,
-            "description": "取得対象のチームID"
+            "description": "取得対象のチームID",
+            "explode": true
           },
           {
             "name": "year_month",

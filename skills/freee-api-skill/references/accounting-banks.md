@@ -4,16 +4,21 @@
 
 ## GET /api/1/banks — 連携サービス一覧の取得
 
-概要 連携しているサービス一覧を取得する
+概要 freee会計に口座として登録できる連携サービス（銀行口座・クレジットカード・その他の決済口座）の一覧を取得する
 
-定義
-type bank_account : 銀行口座 credit_card : クレジットカード wallet : その他の決済口座
+注意点
+連携サービスはfreeeが管理する事業所に依存しないマスタデータのため、company_idパラメータの指定は不要です。 typeパラメータは指定必須です。未指定または定義されていない値を指定した場合は、ステータスコード400のエラーが返ります。 取得結果は連携サービス名(カナ)の昇順（name_kanaが同一の場合はidの昇順）で返ります。 取得したidは、口座の作成（POST /api/1/walletables）のbank_idパラメータに指定して利用します。
 
 ### パラメータ
 
-- offset: integer(int64) - 取得レコードのオフセット (デフォルト: 0)
+- offset: integer(int64) - 取得レコードのオフセット (デフォルト: 0)。limitと組み合わせてページングに利用します。
 - limit: integer(int64) - 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 500)
-- type: string - サービス種別 (選択肢: bank_account, credit_card, wallet)
+- type: string - 連携サービス種別
+  * `bank_account` - 銀行口座
+  * `credit_card` - クレジットカード
+  * `wallet` - その他の決済口座
+
+  このパラメータは指定必須です。未指定または上記以外の値を指定した場合は、ステータスコード400のエラーが返ります。 (選択肢: bank_account, credit_card, wallet)
 
 ### レスポンス
 
@@ -21,14 +26,14 @@ type bank_account : 銀行口座 credit_card : クレジットカード wallet :
 
 ## GET /api/1/banks/{id} — 連携サービスの取得
 
-概要 連携しているサービスを取得する
+概要 指定したIDの連携サービス（銀行口座・クレジットカード・その他の決済口座）を取得する
 
-定義
-type bank_account : 銀行口座 credit_card : クレジットカード wallet : その他の決済口座
+注意点
+連携サービスはfreeeが管理する事業所に依存しないマスタデータのため、company_idパラメータの指定は不要です。 存在しないID、または連携が終了したサービスのIDを指定した場合は、ステータスコード404のエラーが返ります。
 
 ### パラメータ
 
-- id* (path): integer(int64) - 連携サービスID
+- id* (path): integer(int64) - 連携サービスID。連携サービス一覧の取得（GET /api/1/banks）で取得したidを指定します。
 
 ### レスポンス
 

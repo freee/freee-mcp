@@ -6,6 +6,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generateClientModeTool } from '../openapi/client-mode.js';
+import type { MinimalParameter } from '../openapi/minimal-types.js';
 import { mockDealResponse, mockDealsResponse, mockUserResponse } from './fixtures/api-responses.js';
 
 // Track API calls for assertions
@@ -15,6 +16,7 @@ interface ApiCall {
   params?: Record<string, unknown>;
   body?: Record<string, unknown>;
   baseUrl?: string;
+  queryParameters?: MinimalParameter[];
 }
 const apiCalls: ApiCall[] = [];
 
@@ -49,9 +51,11 @@ vi.mock('../api/client.js', () => ({
       params?: Record<string, unknown>,
       body?: Record<string, unknown>,
       baseUrl?: string,
+      _tokenContext?: unknown,
+      queryParameters?: MinimalParameter[],
     ) => {
       // Record the API call
-      apiCalls.push({ method, path, params, body, baseUrl });
+      apiCalls.push({ method, path, params, body, baseUrl, queryParameters });
 
       // Check for configured error
       if (mockApiError) {
@@ -165,6 +169,12 @@ describe('E2E: Client Mode Tools', () => {
       expect(apiCalls.length).toBeGreaterThan(0);
       const lastCall = apiCalls[apiCalls.length - 1];
       expect(lastCall.params).toEqual({ limit: 10, offset: 0 });
+      expect(lastCall.queryParameters).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ name: 'limit', in: 'query', type: 'integer' }),
+          expect.objectContaining({ name: 'offset', in: 'query', type: 'integer' }),
+        ]),
+      );
     });
 
     it('should fetch single deal by ID', async () => {

@@ -4,7 +4,7 @@ freee-mcp 経由で作成したデータを識別するため、メモタグ「f
 
 ## 手順
 
-1. メモタグ一覧から「freee-mcp」のIDを取得:
+1. `GET /api/1/tags` でメモタグ一覧を取得し、`name` が `freee-mcp` のタグのIDを探す
 
 ```
 freee_api_get {
@@ -13,9 +13,7 @@ freee_api_get {
 }
 ```
 
-レスポンスの `tags` 配列から `name` が `freee-mcp` のものを探し、`id` を取得します。
-
-2. 存在しない場合は作成:
+2. 存在しない場合は作成する
 
 ```
 freee_api_post {
@@ -28,14 +26,18 @@ freee_api_post {
 }
 ```
 
-3. 取得したタグIDをリクエストボディの `tag_ids` フィールドに指定してデータを作成します。
+3. 取得したタグIDを、データ作成時のリクエストボディの `tag_ids` フィールドに指定する
 
 ## 各APIでの指定箇所
 
-| API | フィールド |
-|-----|-----------|
-| 取引 (deals) | `details[].tag_ids` |
-| 経費申請 (expense_applications) | `tag_ids` |
-| 振替伝票 (manual_journals) | `details[].tag_ids` |
-| 支払依頼 (payment_requests) | `payment_request_lines[].tag_ids` |
-| 請求書・見積書・納品書 (invoice) | `lines[].tag_ids` |
+- 取引 (deals): `details[].tag_ids`
+- 経費申請 (expense_applications): `tag_ids`
+- 振替伝票 (manual_journals): `details[].tag_ids`
+- 支払依頼 (payment_requests): `payment_request_lines[].tag_ids`
+- 請求書・見積書・納品書・領収書・発注書 (invoice): `lines[].tag_ids`
+
+支払通知書 (payment_notices) は明細行に `tag_ids` が無いため付与できない。
+
+## リファレンス
+
+メモタグのパラメータ詳細は `references/accounting-tags.md` を参照。

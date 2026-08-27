@@ -27,6 +27,7 @@ MCP server that exposes freee API endpoints as MCP tools:
   - `pm-api-schema.json` - 工数管理API (https://api.freee.co.jp/pm)
   - `sm-api-schema.json` - 販売API (https://api.freee.co.jp/sm)
   - `it-management-api-schema.json` - IT管理API (https://api.freee.co.jp、パスに `/hub/it_management/` プレフィックス)
+  - `partner-management-api-schema.json` - 業務委託管理API (https://api.freee.co.jp、パスに `/hub/partner_management/` プレフィックス)
   - `mcponly-api-schema.json` - mcp-only（freee-mcp リモート版限定）区分のエンドポイント集約スキーマ (https://api.freee.co.jp)。現状はサーベイAPI（パスに `/hub/survey/` プレフィックス）のみ
   - `sign-api-schema.json` - サイン（電子契約）API (https://ninja-sign.com)
 - Schema Loader: `src/openapi/schema-loader.ts` loads and manages all API schemas
@@ -83,6 +84,7 @@ Sign development mode: Use `"command": "bun", "args": ["run", "src/sign/index.ts
 - `FREEE_API_BASE_URL_PM` - 工数管理API
 - `FREEE_API_BASE_URL_SM` - 販売API
 - `FREEE_API_BASE_URL_IT_MANAGEMENT` - IT管理API
+- `FREEE_API_BASE_URL_PARTNER_MANAGEMENT` - 業務委託管理API
 - `FREEE_API_BASE_URL_SURVEY` - サーベイAPI
 - `FREEE_SIGN_API_URL` - サインAPI（`src/sign/config.ts` で処理）
 
@@ -140,6 +142,8 @@ Common issues:
 - `skills/freee-api-skill/` 内の `VERSION.md` は npm publish 時に自動生成されるため、開発環境（ローカル）には存在しない
 - 開発環境では `freee_server_info` のバージョンが `dev` と返る（正常動作）。実際のバージョンは `package.json` の `version` を参照する
 - Skill の更新（レシピ・リファレンスの追加・修正など）は changeset で `patch` バージョンとする
+- `skills/freee-api-skill/references/INDEX.md` は `scripts/generate-references.ts` が自動生成する（手編集しないこと）。新しいドメインを追加する場合は同スクリプトの `SERVICE_LABELS` にも prefix を足す
+- `SKILL.md` は実行時に毎回読まれるので、セットアップ手順（`SETUP.md`）や配色定義（`COLORS.md`）のように条件が揃ったときだけ必要な情報は別ファイルに置き、`SKILL.md` からは参照条件だけ書く
 
 ## Skill レシピの書き方
 
