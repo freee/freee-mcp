@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   buildEndpointsMarkdown,
+  countOperations,
+  replaceOperationCount,
   type OpenAPISchema,
   type PathData,
 } from "./generate-references";
@@ -367,5 +369,63 @@ describe("buildEndpointsMarkdown - 法人税申告APIのレスポンス", () => 
     expect(md).toContain("レスポンス形式: `application/xml`（推奨）");
     expect(md).toContain("- tax_data: object");
     expect(md).toContain("- sheet_key: string - 帳票キー");
+  });
+});
+
+describe("countOperations", () => {
+  it("パス × HTTP メソッドの数を数える", () => {
+    const target: OpenAPISchema = {
+      paths: {
+        "/deals": { get: {}, post: {} },
+        "/deals/{id}": { get: {}, put: {}, delete: {} },
+        "/deals/{id}/renews": { patch: {} },
+      },
+    };
+
+    expect(countOperations(target)).toBe(6);
+  });
+
+  it("HTTP メソッド以外のキーは数えない", () => {
+    const target: OpenAPISchema = {
+      paths: {
+        // parameters はパス共通のパラメータ定義であって操作ではない
+        "/deals": { get: {}, parameters: {}, servers: {} },
+      },
+    };
+
+    expect(countOperations(target)).toBe(1);
+  });
+
+  it("paths が空でも 0 を返す", () => {
+    expect(countOperations({ paths: {} })).toBe(0);
+  });
+});
+
+describe("replaceOperationCount", () => {
+  const readme = [
+    "# freee-mcp",
+    "",
+    "- 対応操作数: <!-- API-STATS-TOTAL-START -->485<!-- API-STATS-TOTAL-END --> 操作",
+    "",
+  ].join("\n");
+
+  it("マーカー間の数値だけを差し替える", () => {
+    expect(replaceOperationCount(readme, 500)).toBe(
+      readme.replace("485", "500")
+    );
+  });
+
+  it("同じ数値なら入力と等しい文字列を返す", () => {
+    expect(replaceOperationCount(readme, 485)).toBe(readme);
+  });
+
+  it("マーカーが無ければ null を返す", () => {
+    expect(replaceOperationCount("# freee-mcp\n", 485)).toBeNull();
+  });
+
+  it("開始マーカーだけで終了マーカーが無ければ null を返す", () => {
+    expect(
+      replaceOperationCount("<!-- API-STATS-TOTAL-START -->485\n", 485)
+    ).toBeNull();
   });
 });

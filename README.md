@@ -10,6 +10,7 @@ freee会計、人事労務、請求書、工数管理、販売、IT管理、固�
 ## 特徴
 
 - 複数 API 対応: 会計・人事労務・請求書・工数管理・販売・IT管理・固定資産・業務委託管理・サーベイ・申告の10個の freee API をサポート
+- 対応操作数: <!-- API-STATS-TOTAL-START -->485<!-- API-STATS-TOTAL-END --> 操作（サイン（電子契約）含む、`scripts/generate-references.ts` が自動更新）
 - 利用条件: サーベイ・申告は、対応する接続環境、OAuth クライアント、契約プラン、利用者権限が必要
 - サイン（電子契約）対応: freee サインの文書管理 API を専用コマンド（`freee-sign-mcp`）でサポート
 - OAuth 2.0 + PKCE: セキュアな認証フロー、トークン自動更新
