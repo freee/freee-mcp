@@ -989,6 +989,80 @@ async function writeReferenceIndex(entries: IndexEntry[], outputDir: string): Pr
   console.log(`Generated: INDEX.md (${entries.length} references)`);
 }
 
+// README の対応操作数を差し込むマーカー。スキーマを更新するたびに手で数え直すと
+// すぐ古くなるので、generate:references がスキーマから再計算して置き換える。
+const README_FILE = join(PROJECT_ROOT, "README.md");
+const README_OPERATION_COUNT_START = "<!-- API-STATS-TOTAL-START -->";
+const README_OPERATION_COUNT_END = "<!-- API-STATS-TOTAL-END -->";
+
+// 操作としてカウントする HTTP メソッド。freee のスキーマは head / options を持たない。
+const COUNTED_METHODS = ["get", "post", "put", "delete", "patch"] as const;
+
+/**
+ * スキーマ内の操作数（パス × HTTP メソッド）を数える。
+ */
+export function countOperations(schema: OpenAPISchema): number {
+  let count = 0;
+  for (const pathItem of Object.values(schema.paths ?? {})) {
+    for (const method of COUNTED_METHODS) {
+      if (pathItem[method]) count++;
+    }
+  }
+  return count;
+}
+
+/**
+ * README のマーカー間を操作数で置き換える。マーカーが見つからなければ null を返す。
+ */
+export function replaceOperationCount(
+  readme: string,
+  total: number
+): string | null {
+  const start = readme.indexOf(README_OPERATION_COUNT_START);
+  if (start === -1) return null;
+
+  const contentStart = start + README_OPERATION_COUNT_START.length;
+  const end = readme.indexOf(README_OPERATION_COUNT_END, contentStart);
+  if (end === -1) return null;
+
+  return readme.slice(0, contentStart) + String(total) + readme.slice(end);
+}
+
+/**
+ * README.md の対応操作数をスキーマから再計算して書き戻す。
+ *
+ * invoice と sm のようにパス文字列が重なる API があるが、ベース URL が異なる
+ * 別エンドポイントなので API ごとに数えてそのまま合計する。
+ */
+async function updateReadmeOperationCount(
+  configs: typeof API_CONFIGS
+): Promise<void> {
+  let total = 0;
+  for (const { schemaFile } of configs) {
+    if (!existsSync(schemaFile)) continue;
+    const schema: OpenAPISchema = JSON.parse(
+      await readFile(schemaFile, "utf-8")
+    );
+    total += countOperations(schema);
+  }
+
+  const readme = await readFile(README_FILE, "utf-8");
+  const updated = replaceOperationCount(readme, total);
+  if (updated === null) {
+    console.warn(
+      `Skipped README.md: ${README_OPERATION_COUNT_START} ... ${README_OPERATION_COUNT_END} markers not found`
+    );
+    return;
+  }
+  if (updated === readme) {
+    console.log(`README.md operation count is up to date (${total} operations).`);
+    return;
+  }
+
+  await writeFile(README_FILE, updated, "utf-8");
+  console.log(`Updated README.md: ${total} operations`);
+}
+
 /**
  * Main execution
  */
@@ -1051,6 +1125,9 @@ async function main(): Promise<void> {
     // Generate references/INDEX.md
     console.log("");
     await writeReferenceIndex(indexEntries, OUTPUT_DIR);
+
+    // Update the supported operation count in README.md
+    await updateReadmeOperationCount(API_CONFIGS);
 
     console.log("");
     console.log("========================================");

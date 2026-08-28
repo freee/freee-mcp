@@ -143,6 +143,7 @@ Common issues:
 - 開発環境では `freee_server_info` のバージョンが `dev` と返る（正常動作）。実際のバージョンは `package.json` の `version` を参照する
 - Skill の更新（レシピ・リファレンスの追加・修正など）は changeset で `patch` バージョンとする
 - `skills/freee-api-skill/references/INDEX.md` は `scripts/generate-references.ts` が自動生成する（手編集しないこと）。新しいドメインを追加する場合は同スクリプトの `SERVICE_LABELS` にも prefix を足す
+- `README.md` の「対応操作数」は `<!-- API-STATS-TOTAL-START -->` ～ `<!-- API-STATS-TOTAL-END -->` の間を同スクリプトが `API_CONFIGS` の全スキーマから再計算して埋める（手編集しないこと）。スキーマを更新したら `bun run fetch:schemas` → `bun run generate:references` で自動的に追従する
 - `SKILL.md` は実行時に毎回読まれるので、セットアップ手順（`SETUP.md`）や配色定義（`COLORS.md`）のように条件が揃ったときだけ必要な情報は別ファイルに置き、`SKILL.md` からは参照条件だけ書く
 
 ## Skill レシピの書き方
