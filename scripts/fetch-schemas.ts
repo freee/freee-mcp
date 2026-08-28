@@ -294,14 +294,9 @@ const SCHEMA_SOURCES = [
   },
   {
     // mcp-only（freee-mcp リモート版でのみ利用可）区分のエンドポイントを集約した
-    // スキーマ。どのドメインでも mcp-only 指定されたものはこの1ファイルに入る想定
-    // （api-hub の schemas/openapi/public/mcponly.yml）。ここに含まれるパスは
-    // generate-references がバナーを自動注入し、schema-loader が stdio ゲートを効かせる。
-    //
-    // UNCONFIRMED: 発行 URL は it-management と同じ発行方式を想定しているが、
-    // 執筆時点でこの URL は未発行（api-hub にマージされたばかり）。正式 URL を
-    // api-hub チームに確認して更新すること。未発行の間は
-    // api-hub のローカル mcponly.yml から生成した成果物をコミットして使う。
+    // スキーマ。どのドメインでも mcp-only 指定されたものはこの1ファイルに入る。
+    // ここに含まれるパスは generate-references がバナーを自動注入し、
+    // schema-loader が stdio ゲートを効かせる。
     name: "mcponly-api",
     url: "https://api-schema.freee.co.jp/mcponly.yml",
     outputFile: "mcponly-api-schema.json",
