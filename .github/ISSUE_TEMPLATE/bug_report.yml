@@ -1,0 +1,89 @@
+name: Bug Report / バグ報告
+description: Report a bug / バグを報告する
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ 警告: このリポジトリは一般公開の OSS です
+
+        **社内 API キー、内部 URL、アカウント情報を絶対に含めないでください。**
+
+        Issue の本文と編集履歴は誰でも閲覧でき、投稿後に削除しても完全には消えない場合があります。
+        次の情報は記載しないでください。
+
+        - アクセストークン・API キー・client secret・パスワードなどの認証情報
+        - 社内システムや検証環境の URL・ホスト名・IP アドレス
+        - 実在する事業所名・会社名・個人名、事業所番号・ユーザー ID などの識別子
+        - メールアドレス・電話番号などの連絡先
+
+        再現手順やログは、上記をすべてダミー値に置き換えたうえで貼り付けてください。
+
+        ---
+
+        ## ⚠️ Warning: this is a public open source repository
+
+        **Never include internal API keys, internal URLs, or account information.**
+
+        Issue bodies and their edit history are visible to anyone and may persist even after deletion.
+        Do not post access tokens, API keys, client secrets or passwords; internal or staging URLs,
+        hostnames or IP addresses; real company/office names, personal names, office/user IDs; or
+        contact information. Replace all of these with dummy values in repro steps and logs.
+  - type: checkboxes
+    id: no-sensitive-info
+    attributes:
+      label: 機密情報の確認 / Sensitive information check
+      options:
+        - label: この Issue に認証情報・内部 URL・アカウント情報などの機密情報を含めていません / This issue contains no credentials, internal URLs, or account information
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description / 概要
+      description: A clear description of the bug / バグの内容を簡潔に記述
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce / 再現手順
+      description: 機密情報はダミー値に置き換えてください / Replace sensitive values with dummy data
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior / 期待される動作
+      description: What should happen / 本来どう動くべきか
+    validations:
+      required: true
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior / 実際の動作
+      description: What actually happened / 実際に何が起こったか
+    validations:
+      required: true
+  - type: textarea
+    id: error-messages
+    attributes:
+      label: Error Messages / エラーメッセージ
+      description: Paste any error logs here (remove sensitive information) / エラーログを貼り付けてください（機密情報は除去してください）
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment / 環境
+      value: |
+        - freee-mcp version:
+        - MCP client (e.g., Claude Desktop, Claude Code):
+        - Node.js version:
+        - OS:
+    validations:
+      required: true

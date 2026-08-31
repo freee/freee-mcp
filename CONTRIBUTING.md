@@ -30,5 +30,15 @@ freee-mcp では AI を活用した開発フローを採用しています。
 
 Issue を作成する際は、テンプレートに沿って記入してください。
 
-- [Bug Report / バグ報告](https://github.com/freee/freee-mcp/issues/new?template=bug_report.md)
-- [Feature Request / 機能要望](https://github.com/freee/freee-mcp/issues/new?template=feature_request.md)
+- [Bug Report / バグ報告](https://github.com/freee/freee-mcp/issues/new?template=bug_report.yml)
+- [Feature Request / 機能要望](https://github.com/freee/freee-mcp/issues/new?template=feature_request.yml)
+
+> [!WARNING]
+> このリポジトリは一般公開の OSS です。社内 API キー、内部 URL、アカウント情報を絶対に含めないでください。
+> Issue の本文と編集履歴は誰でも閲覧でき、削除しても完全には消えない場合があります。
+> 認証情報・内部 URL・実在する事業所名や個人名・連絡先は、すべてダミー値に置き換えて記載してください。
+>
+> This is a public open source repository. Never include internal API keys, internal URLs, or account
+> information. Issue bodies and their edit history are visible to anyone and may persist even after
+> deletion. Replace credentials, internal URLs, real company/personal names and contact information
+> with dummy values.
