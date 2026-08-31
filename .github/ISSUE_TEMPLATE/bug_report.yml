@@ -1,0 +1,96 @@
+name: Bug Report / バグ報告
+description: Report a bug / バグを報告する
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ 警告: このリポジトリは一般公開の OSS です
+
+        **社内 API キー、内部 URL、アカウント情報など、公開できない情報を絶対に含めないでください。**
+
+        Issue の本文・コメント・添付ファイル・編集履歴は誰でも閲覧でき、投稿後に削除や修正をしても
+        完全には消えない場合があります（検索エンジンのキャッシュや fork に残ることがあります）。
+
+        記載しない情報の例:
+
+        - **認証情報**: アクセストークン、リフレッシュトークン、認可コード、API キー、client ID / client secret、パスワード、`.env` や設定ファイルの中身
+        - **社内・内部情報**: 社内システムや検証環境の URL・ホスト名・IP アドレス、社内ドキュメント・チケット・チャットの URL や引用・スクリーンショット、未公開の仕様やリリース予定、社外に公開していない運用情報
+        - **個人情報**: 氏名、メールアドレス、電話番号、住所などの個人を特定できる情報
+        - **事業者の実データ**: 実在する事業所名・会社名・取引先名、事業所 ID・ユーザー ID などの識別子、取引明細・金額・給与・口座情報などの業務データ
+        - **上記を含みがちなもの**: API の request / response の生ログ、MCP client のログ、画面のスクリーンショット、HAR ファイル
+
+        該当する値はすべてダミーに置き換え、スクリーンショットは該当箇所をマスクしてから貼り付けてください。
+        判断に迷う情報は記載しないでください。
+
+        ---
+
+        ## ⚠️ Warning: this is a public open source repository
+
+        **Never include internal API keys, internal URLs, account information, or anything else that
+        cannot be made public.**
+
+        Issue bodies, comments, attachments and edit history are visible to anyone and may persist
+        even after you delete or edit them (search engine caches, forks).
+
+        Do not post:
+
+        - **Credentials**: access or refresh tokens, authorization codes, API keys, client IDs and secrets, passwords, the contents of `.env` or config files
+        - **Internal information**: internal or staging URLs, hostnames and IP addresses; links to, quotations from or screenshots of internal documents, tickets or chat; unreleased specifications, release plans or other non-public operational details
+        - **Personal data**: names, email addresses, phone numbers, postal addresses or any other personally identifiable information
+        - **Real business data**: real company, office or client names; office and user IDs; transactions, amounts, payroll or bank account details
+        - **Anything that tends to carry the above**: raw API request/response logs, MCP client logs, screenshots, HAR files
+
+        Replace such values with dummy data and mask screenshots before posting.
+        When in doubt, leave it out.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description / 概要
+      description: A clear description of the bug / バグの内容を簡潔に記述
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce / 再現手順
+      description: 機密情報はダミー値に置き換えてください / Replace sensitive values with dummy data
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior / 期待される動作
+      description: What should happen / 本来どう動くべきか
+    validations:
+      required: true
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior / 実際の動作
+      description: What actually happened / 実際に何が起こったか
+    validations:
+      required: true
+  - type: textarea
+    id: error-messages
+    attributes:
+      label: Error Messages / エラーメッセージ
+      description: Paste any error logs here (remove sensitive information) / エラーログを貼り付けてください（機密情報は除去してください）
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment / 環境
+      value: |
+        - freee-mcp version:
+        - MCP client (e.g., Claude Desktop, Claude Code):
+        - Node.js version:
+        - OS:
+    validations:
+      required: true

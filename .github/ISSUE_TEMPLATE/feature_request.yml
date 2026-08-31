@@ -1,0 +1,74 @@
+name: Feature Request / 機能要望
+description: Suggest an idea / 機能の提案をする
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ 警告: このリポジトリは一般公開の OSS です
+
+        **社内 API キー、内部 URL、アカウント情報など、公開できない情報を絶対に含めないでください。**
+
+        Issue の本文・コメント・添付ファイル・編集履歴は誰でも閲覧でき、投稿後に削除や修正をしても
+        完全には消えない場合があります（検索エンジンのキャッシュや fork に残ることがあります）。
+
+        記載しない情報の例:
+
+        - **認証情報**: アクセストークン、リフレッシュトークン、認可コード、API キー、client ID / client secret、パスワード、`.env` や設定ファイルの中身
+        - **社内・内部情報**: 社内システムや検証環境の URL・ホスト名・IP アドレス、社内ドキュメント・チケット・チャットの URL や引用・スクリーンショット、未公開の仕様やリリース予定、社外に公開していない運用情報
+        - **個人情報**: 氏名、メールアドレス、電話番号、住所などの個人を特定できる情報
+        - **事業者の実データ**: 実在する事業所名・会社名・取引先名、事業所 ID・ユーザー ID などの識別子、取引明細・金額・給与・口座情報などの業務データ
+        - **上記を含みがちなもの**: API の request / response の生ログ、MCP client のログ、画面のスクリーンショット、HAR ファイル
+
+        該当する値はすべてダミーに置き換え、スクリーンショットは該当箇所をマスクしてから貼り付けてください。
+        判断に迷う情報は記載しないでください。
+
+        ---
+
+        ## ⚠️ Warning: this is a public open source repository
+
+        **Never include internal API keys, internal URLs, account information, or anything else that
+        cannot be made public.**
+
+        Issue bodies, comments, attachments and edit history are visible to anyone and may persist
+        even after you delete or edit them (search engine caches, forks).
+
+        Do not post:
+
+        - **Credentials**: access or refresh tokens, authorization codes, API keys, client IDs and secrets, passwords, the contents of `.env` or config files
+        - **Internal information**: internal or staging URLs, hostnames and IP addresses; links to, quotations from or screenshots of internal documents, tickets or chat; unreleased specifications, release plans or other non-public operational details
+        - **Personal data**: names, email addresses, phone numbers, postal addresses or any other personally identifiable information
+        - **Real business data**: real company, office or client names; office and user IDs; transactions, amounts, payroll or bank account details
+        - **Anything that tends to carry the above**: raw API request/response logs, MCP client logs, screenshots, HAR files
+
+        Replace such values with dummy data and mask screenshots before posting.
+        When in doubt, leave it out.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary / 概要
+      description: A clear description of the feature / 提案する機能の概要
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case / ユースケース
+      description: What problem does this solve? / どんな課題を解決しますか？
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior / 期待する動作
+      description: How should it work? / 具体的にどう動いてほしいか
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives / 代替手段
+      description: Any workarounds you currently use / 現状の回避策があれば
+    validations:
+      required: false
