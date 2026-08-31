@@ -10,21 +10,24 @@
             "in": "query",
             "type": "integer",
             "required": true,
-            "description": "事業所ID"
+            "description": "事業所ID",
+            "explode": false
           },
           {
             "name": "page_size",
             "in": "query",
             "type": "integer",
             "required": false,
-            "description": "1ページあたりの取得件数（10〜50、デフォルト10）"
+            "description": "1ページあたりの取得件数（10〜50、デフォルト10）",
+            "explode": false
           },
           {
             "name": "page_token",
             "in": "query",
             "type": "string",
             "required": false,
-            "description": "次のページを取得するためのカーソルトークン"
+            "description": "次のページを取得するためのカーソルトークン",
+            "explode": false
           }
         ]
       }
@@ -46,21 +49,24 @@
             "in": "query",
             "type": "integer",
             "required": true,
-            "description": "事業所ID"
+            "description": "事業所ID",
+            "explode": false
           },
           {
             "name": "page_size",
             "in": "query",
             "type": "integer",
             "required": false,
-            "description": "1ページあたりの取得件数（10〜50、デフォルト10）"
+            "description": "1ページあたりの取得件数（10〜50、デフォルト10）",
+            "explode": false
           },
           {
             "name": "page_token",
             "in": "query",
             "type": "string",
             "required": false,
-            "description": "次のページを取得するためのカーソルトークン"
+            "description": "次のページを取得するためのカーソルトークン",
+            "explode": false
           }
         ]
       }
@@ -68,7 +74,7 @@
     "/hub/tax_return/corporate/sheet/national/{tax_return_id}/{sheet_key}": {
       "get": {
         "summary": "国税帳票取得",
-        "description": "指定した申告データの国税帳票を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "description": "指定した申告データの国税帳票を XML 形式 (application/xml) で取得します。\nレスポンスの XML は e-Tax の申告データ (XTX) 形式に準拠します。\nXML の各項目の仕様は [tax_return API v3 帳票項目マッピング](https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/tax-return-references/index.md)で公開されている仕様書を参照してください。",
         "parameters": [
           {
             "name": "tax_return_id",
@@ -89,7 +95,8 @@
             "in": "query",
             "type": "integer",
             "required": true,
-            "description": "事業所ID"
+            "description": "事業所ID",
+            "explode": false
           }
         ],
         "accept": "application/xml"
@@ -98,7 +105,7 @@
     "/hub/tax_return/corporate/sheet/local/{tax_return_id}/{sheet_key}/{prefecture_government_code}/{city_government_code}": {
       "get": {
         "summary": "地方税帳票取得",
-        "description": "指定した申告データの地方税帳票を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\n帳票のreport_unit（prefecture/city）に応じて、prefecture_government_codeまたはcity_government_codeが使用されます。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "description": "指定した申告データの地方税帳票を XML 形式 (application/xml) で取得します。\nレスポンスの XML は eLTAX の申告データ形式に準拠します。\nXML の各項目の仕様は [tax_return API v3 帳票項目マッピング](https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/tax-return-references/index.md)で案内されている公開仕様書を参照してください。\n帳票のreport_unit（prefecture/city）に応じて、prefecture_government_codeまたはcity_government_codeが使用されます。",
         "parameters": [
           {
             "name": "tax_return_id",
@@ -133,7 +140,8 @@
             "in": "query",
             "type": "integer",
             "required": true,
-            "description": "事業所ID"
+            "description": "事業所ID",
+            "explode": false
           }
         ],
         "accept": "application/xml"
@@ -142,7 +150,7 @@
     "/hub/tax_return/corporate/sheet/financial_statements/{tax_return_id}/{sheet_key}": {
       "get": {
         "summary": "決算書取得",
-        "description": "指定した申告データの決算書を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "description": "指定した申告データの決算書を XML 形式 (application/xml) で取得します。\nレスポンスの XML は e-Tax に提出する決算書 (XBRL) 形式に準拠します。\nXML の各項目の仕様は [tax_return API v3 帳票項目マッピング](https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/tax-return-references/index.md)で公開されている仕様書を参照してください。",
         "parameters": [
           {
             "name": "tax_return_id",
@@ -163,7 +171,8 @@
             "in": "query",
             "type": "integer",
             "required": true,
-            "description": "事業所ID"
+            "description": "事業所ID",
+            "explode": false
           }
         ],
         "accept": "application/xml"

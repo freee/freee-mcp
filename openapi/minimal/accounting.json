@@ -4003,7 +4003,7 @@
     "/api/1/expense_applications/{id}": {
       "get": {
         "summary": "経費申請詳細の取得",
-        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の経費申請を取得する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は取得できません。</li>\n  <li>本APIは外貨には非対応です。外貨を利用する経費申請は取得できません。</li>\n  <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は取得できません。</li>\n  <li>本APIは金額計算方法には非対応です。金額計算方法を設定した経費申請は取得できません。</li>\n</ul>",
+        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の経費申請を取得する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIは外貨には非対応です。外貨を利用する経費申請は取得できません。</li>\n  <li>本APIはカスタム申請項目には非対応です。カスタム申請項目を使用した経費申請は取得できません。</li>\n  <li>本APIは金額計算方法には非対応です。金額計算方法を設定した経費申請は取得できません。</li>\n</ul>",
         "parameters": [
           {
             "name": "id",

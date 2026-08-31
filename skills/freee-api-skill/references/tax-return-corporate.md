@@ -1,5 +1,7 @@
 # tax_return_corporate
 
+tax_return_corporate
+
 ## GET /hub/tax_return/corporate — 申告一覧取得
 
 事業所に紐づく法人税の申告一覧をカーソルページネーションで取得します。 各申告データには利用可能な帳票一覧（available_sheets）が含まれており、帳票取得APIで使用するtax_return_idとsheet_keyを取得できます。
@@ -61,7 +63,7 @@
 
 ## GET /hub/tax_return/corporate/sheet/national/{tax_return_id}/{sheet_key} — 国税帳票取得
 
-指定した申告データの国税帳票を XML 形式 (application/xml) で取得します。 レスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。 JSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。
+指定した申告データの国税帳票を XML 形式 (application/xml) で取得します。 レスポンスの XML は e-Tax の申告データ (XTX) 形式に準拠します。 XML の各項目の仕様は [tax_return API v3 帳票項目マッピング](https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/tax-return-references/index.md)で公開されている仕様書を参照してください。
 
 ### パラメータ
 
@@ -73,7 +75,7 @@
 
 帳票データ（XML形式）。
 国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。
-レスポンスボディは api-hub では検証・加工せずそのまま透過します。
+XML は国税帳票が e-Tax、地方税帳票が eLTAX、決算書が e-Tax に提出する XBRL の各形式に準拠します。
 レスポンス形式: `application/xml`（推奨）
 
 参考: 以下は互換性のためOpenAPIに残っている `application/json`（廃止予定）のschemaです。新しい処理ではXMLを利用してください。
@@ -88,7 +90,7 @@
 
 ## GET /hub/tax_return/corporate/sheet/local/{tax_return_id}/{sheet_key}/{prefecture_government_code}/{city_government_code} — 地方税帳票取得
 
-指定した申告データの地方税帳票を XML 形式 (application/xml) で取得します。 レスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。 帳票のreport_unit（prefecture/city）に応じて、prefecture_government_codeまたはcity_government_codeが使用されます。 JSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。
+指定した申告データの地方税帳票を XML 形式 (application/xml) で取得します。 レスポンスの XML は eLTAX の申告データ形式に準拠します。 XML の各項目の仕様は [tax_return API v3 帳票項目マッピング](https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/tax-return-references/index.md)で案内されている公開仕様書を参照してください。 帳票のreport_unit（prefecture/city）に応じて、prefecture_government_codeまたはcity_government_codeが使用されます。
 
 ### パラメータ
 
@@ -102,7 +104,7 @@
 
 帳票データ（XML形式）。
 国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。
-レスポンスボディは api-hub では検証・加工せずそのまま透過します。
+XML は国税帳票が e-Tax、地方税帳票が eLTAX、決算書が e-Tax に提出する XBRL の各形式に準拠します。
 レスポンス形式: `application/xml`（推奨）
 
 参考: 以下は互換性のためOpenAPIに残っている `application/json`（廃止予定）のschemaです。新しい処理ではXMLを利用してください。
@@ -118,7 +120,7 @@
 
 ## GET /hub/tax_return/corporate/sheet/financial_statements/{tax_return_id}/{sheet_key} — 決算書取得
 
-指定した申告データの決算書を XML 形式 (application/xml) で取得します。 レスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。 JSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。
+指定した申告データの決算書を XML 形式 (application/xml) で取得します。 レスポンスの XML は e-Tax に提出する決算書 (XBRL) 形式に準拠します。 XML の各項目の仕様は [tax_return API v3 帳票項目マッピング](https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/tax-return-references/index.md)で公開されている仕様書を参照してください。
 
 ### パラメータ
 
@@ -130,7 +132,7 @@
 
 帳票データ（XML形式）。
 国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。
-レスポンスボディは api-hub では検証・加工せずそのまま透過します。
+XML は国税帳票が e-Tax、地方税帳票が eLTAX、決算書が e-Tax に提出する XBRL の各形式に準拠します。
 レスポンス形式: `application/xml`（推奨）
 
 参考: 以下は互換性のためOpenAPIに残っている `application/json`（廃止予定）のschemaです。新しい処理ではXMLを利用してください。
