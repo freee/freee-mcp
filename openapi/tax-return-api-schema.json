@@ -11,7 +11,9 @@
   },
   "tags": [
     {
-      "name": "tax_return_corporate"
+      "name": "tax_return_corporate",
+      "description": "tax_return_corporate",
+      "x-displayName": "法人税申告データ"
     }
   ],
   "paths": {
@@ -318,7 +320,7 @@
       "get": {
         "operationId": "get_tax_return_corporate_national_sheet",
         "summary": "国税帳票取得",
-        "description": "指定した申告データの国税帳票を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "description": "指定した申告データの国税帳票を XML 形式 (application/xml) で取得します。\nレスポンスの XML は e-Tax の申告データ (XTX) 形式に準拠します。\nXML の各項目の仕様は [tax_return API v3 帳票項目マッピング](https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/tax-return-references/index.md)で公開されている仕様書を参照してください。",
         "parameters": [
           {
             "$ref": "#/components/parameters/TaxReturn.Corporate.GetNationalSheetRequest.tax_return_id"
@@ -332,12 +334,18 @@
         ],
         "responses": {
           "200": {
-            "description": "帳票データ（XML形式）。\n国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。\nレスポンスボディは api-hub では検証・加工せずそのまま透過します。",
+            "description": "帳票データ（XML形式）。\n国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。\nXML は国税帳票が e-Tax、地方税帳票が eLTAX、決算書が e-Tax に提出する XBRL の各形式に準拠します。",
             "content": {
               "application/xml": {
                 "schema": {
                   "type": "string",
                   "format": "binary"
+                },
+                "examples": {
+                  "別表一青色申告 (抜粋)": {
+                    "summary": "別表一青色申告 (抜粋)",
+                    "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<DATA xmlns=\"http://xml.e-tax.nta.go.jp/XSD/hojin\" xmlns:gen=\"http://xml.e-tax.nta.go.jp/XSD/general\" xmlns:kyo=\"http://xml.e-tax.nta.go.jp/XSD/kyotsu\" xmlns:som=\"http://xml.e-tax.nta.go.jp/XSD/somu\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" id=\"DATA\">\n  <RHO0012 VR=\"25.0.2\" id=\"RHO0012\">\n    <!-- 中略 -->\n    <CONTENTS id=\"CONTENTS\">\n      <IT VR=\"1.3\" id=\"IT\">\n        <ZEIMUSHO ID=\"ZEIMUSHO\">\n          <gen:zeimusho_CD>01123</gen:zeimusho_CD>\n          <gen:zeimusho_NM>サンプル</gen:zeimusho_NM>\n        </ZEIMUSHO>\n        <!-- 中略 -->\n        <NOZEISHA_ID ID=\"NOZEISHA_ID\">1234123412341234</NOZEISHA_ID>\n        <NOZEISHA_BANGO ID=\"NOZEISHA_BANGO\">\n          <gen:hojinbango>1234567890123</gen:hojinbango>\n        </NOZEISHA_BANGO>\n        <NOZEISHA_NM_KN ID=\"NOZEISHA_NM_KN\">カブシキガイシャサンプル</NOZEISHA_NM_KN>\n        <NOZEISHA_NM ID=\"NOZEISHA_NM\">株式会社サンプル</NOZEISHA_NM>\n        <NOZEISHA_ZIP ID=\"NOZEISHA_ZIP\">\n          <gen:zip1>100</gen:zip1>\n          <gen:zip2>0001</gen:zip2>\n        </NOZEISHA_ZIP>\n        <NOZEISHA_ADR ID=\"NOZEISHA_ADR\">東京都サンプル区サンプル町１ー２ー３</NOZEISHA_ADR>\n        <NOZEISHA_TEL ID=\"NOZEISHA_TEL\">\n          <gen:tel1>03</gen:tel1>\n          <gen:tel2>3000</gen:tel2>\n          <gen:tel3>0000</gen:tel3>\n        </NOZEISHA_TEL>\n        <!-- 中略 -->\n        <DAIHYO_NM_KN ID=\"DAIHYO_NM_KN\">サンプルタロウ</DAIHYO_NM_KN>\n        <DAIHYO_NM ID=\"DAIHYO_NM\">サンプル太郎</DAIHYO_NM>\n        <!-- 中略 -->\n        <DAIRI_NM ID=\"DAIRI_NM\">サンプル税理士事務所 税理士サンプル</DAIRI_NM>\n        <!-- 中略 -->\n        <TETSUZUKI ID=\"TETSUZUKI\">\n          <procedure_CD>RHO0012</procedure_CD>\n          <procedure_NM>普通法人の確定申告(青色)</procedure_NM>\n        </TETSUZUKI>\n        <JIGYO_NENDO_FROM ID=\"JIGYO_NENDO_FROM\">\n          <gen:era>5</gen:era>\n          <gen:yy>07</gen:yy>\n          <gen:mm>01</gen:mm>\n          <gen:dd>01</gen:dd>\n        </JIGYO_NENDO_FROM>\n        <JIGYO_NENDO_TO ID=\"JIGYO_NENDO_TO\">\n          <gen:era>5</gen:era>\n          <gen:yy>07</gen:yy>\n          <gen:mm>12</gen:mm>\n          <gen:dd>31</gen:dd>\n        </JIGYO_NENDO_TO>\n      <!-- 中略 -->\n      </IT>\n      <HOA112 page=\"1\" VR=\"6.0\" id=\"HOA112-1\" softNM=\"freee\" sakuseiNM=\"株式会社サンプル\" sakuseiDay=\"2026-07-30\">\n        <BGA00000>\n          <BGA00010 IDREF=\"TEISYUTSU_DAY\"/>\n          <BGA00020 IDREF=\"ZEIMUSHO\"/>\n          <BGA00030 IDREF=\"NOZEISHA_ADR\"/>\n          <BGA00040 IDREF=\"NOZEISHA_TEL\"/>\n          <BGA00050>\n            <BGA00060 IDREF=\"NOZEISHA_NM_KN\"/>\n            <BGA00070 IDREF=\"NOZEISHA_NM\"/>\n          </BGA00050>\n          <BGA00080 IDREF=\"NOZEISHA_BANGO\"/>\n        <!-- 中略 -->\n        </BGA00000>\n        <BGB00000>\n          <BGB00010>685758</BGB00010>\n          <BGB00020>102750</BGB00020>\n        <!-- 中略 -->\n        </BGB00000>\n      <!-- 中略 -->\n      </HOA112>\n      <TENPU id=\"TENPU\">\n    </TENPU>\n    </CONTENTS>\n  </RHO0012>\n</DATA>\n"
+                  }
                 }
               },
               "application/json": {
@@ -358,264 +366,6 @@
                     "data"
                   ],
                   "additionalProperties": false
-                },
-                "examples": {
-                  "別表一青色申告": {
-                    "summary": "別表一青色申告",
-                    "value": {
-                      "data": {
-                        "tax_data": {
-                          "sheet_key": "schedule_1_blue",
-                          "title": "別表一青色申告",
-                          "version": 202512
-                        },
-                        "xtx": {
-                          "HOA112": {
-                            "pages": [
-                              {
-                                "BGA00160": {
-                                  "kubun_CD": "2"
-                                },
-                                "BGA00220": {
-                                  "kubun_CD": "1"
-                                },
-                                "BGA00230": {
-                                  "kubun_CD": "1"
-                                },
-                                "BGA00240": {
-                                  "kubun_CD": "1"
-                                },
-                                "BGA00250": {
-                                  "kubun_CD": "1"
-                                },
-                                "BGA00260": {
-                                  "kubun_CD": "1"
-                                },
-                                "BGA00410": {
-                                  "era": 5,
-                                  "yy": "7",
-                                  "mm": "12",
-                                  "dd": "31"
-                                },
-                                "BGA00070": "株式会社サンプル",
-                                "BGA00060": "カブシキガイシャサンプル",
-                                "BGA00130": {
-                                  "kubun_CD": "1"
-                                },
-                                "BGA00340": {
-                                  "era": 5,
-                                  "yy": "07",
-                                  "mm": "01",
-                                  "dd": "01",
-                                  "yyyymmdd": "20250101"
-                                },
-                                "BGA00350": {
-                                  "era": 5,
-                                  "yy": "07",
-                                  "mm": "12",
-                                  "dd": "31",
-                                  "yyyymmdd": "20251231"
-                                },
-                                "BGF00000": {
-                                  "kubun_CD": "2",
-                                  "kubun_NM": "非該当"
-                                },
-                                "BGG00000": {
-                                  "kubun_CD": "2",
-                                  "kubun_NM": "非該当"
-                                },
-                                "BGA00030": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
-                                "BGA00420": {
-                                  "bank_type": "1",
-                                  "kinyukikan_NM": "フリー",
-                                  "shiten_NM": "五反田",
-                                  "kinyukikan_KB": "1",
-                                  "shiten_KB": "1",
-                                  "yokin": "1",
-                                  "koza": "998877",
-                                  "yubinkyoku_NM": "",
-                                  "kigobango1": "",
-                                  "kigobango2": ""
-                                },
-                                "BGA00120": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
-                                "BGA00110": "てすと太郎",
-                                "BGA00100": "テストタロウ",
-                                "BGA00400": {
-                                  "era": null,
-                                  "yy": null,
-                                  "mm": null,
-                                  "dd": null
-                                },
-                                "BGA00430": "太郎税理士事務所 税理士太郎",
-                                "BGA00040": {
-                                  "tel1": "03",
-                                  "tel2": "XXXX",
-                                  "tel3": "XXXX"
-                                },
-                                "BGA00020": {
-                                  "zeimusho_CD": "01123",
-                                  "zeimusho_NM": "品川"
-                                },
-                                "BGA00360": {
-                                  "kubun_CD": 30,
-                                  "kubun_NM": ""
-                                },
-                                "BGA00290": "2000000",
-                                "BGB00020": "102750",
-                                "BGC00140": "8500",
-                                "BGC00120": "9700",
-                                "BGC00100": "1000",
-                                "BGC00240": "0",
-                                "BGB00080": "1300",
-                                "BGC00060": "10712",
-                                "BGC00280": "0",
-                                "BGB00100": "2000",
-                                "BGB00010": "685758",
-                                "BGC00030": "104150",
-                                "BGB00150": "104050",
-                                "BGB00180": "104150",
-                                "BGC00080": "10712",
-                                "BGB00340": "12300",
-                                "BGB00190": "0",
-                                "BGC00050": "104000",
-                                "BGC00130": "1200",
-                                "BGB00200": "12300",
-                                "BGB00070": "222000",
-                                "BGB00140": "100",
-                                "BGA00300": {
-                                  "kubun_CD": "2"
-                                },
-                                "BGA00310": {
-                                  "kubun_CD": "2"
-                                },
-                                "BGA00320": {
-                                  "kubun_CD": "1"
-                                },
-                                "BGB00240": "200",
-                                "BGB00260": "104150",
-                                "BGB00270": "787716",
-                                "BGB00250": "891866",
-                                "BGB00330": "787716",
-                                "BGB00400": "800016",
-                                "BGB00230": "891666",
-                                "BGA00010": {
-                                  "era": 5,
-                                  "yy": "8",
-                                  "mm": "4",
-                                  "dd": "23"
-                                },
-                                "BGB00460": "300000",
-                                "BGA00380": {
-                                  "era": null,
-                                  "yy": null,
-                                  "mm": null,
-                                  "dd": null
-                                },
-                                "BGA00390": {
-                                  "era": null,
-                                  "yy": null,
-                                  "mm": null,
-                                  "dd": null
-                                },
-                                "BGA00080": {
-                                  "hojinbango": "1234567890123"
-                                }
-                              }
-                            ]
-                          }
-                        },
-                        "envelope": {
-                          "ZEIMUSHO": {
-                            "zeimusho_CD": "01123",
-                            "zeimusho_NM": "品川"
-                          },
-                          "NOZEISHA_ID": "1234123412341234",
-                          "NOZEISHA_NM_KN": "カブシキガイシャサンプル",
-                          "NOZEISHA_NM": "株式会社サンプル",
-                          "NOZEISHA_ZIP": {
-                            "zip1": "141",
-                            "zip2": "0032"
-                          },
-                          "NOZEISHA_ADR": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
-                          "NOZEISHA_TEL": {
-                            "tel1": "03",
-                            "tel2": "XXXX",
-                            "tel3": "XXXX"
-                          },
-                          "SHIHON_KIN": 0,
-                          "DAIHYO_NM_KN": "テストタロウ",
-                          "DAIHYO_NM": "てすと太郎",
-                          "DAIHYO_ZIP": {
-                            "zip1": "141",
-                            "zip2": "0032"
-                          },
-                          "DAIHYO_ADR": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
-                          "DAIHYO_TEL": {
-                            "tel1": "03",
-                            "tel2": "XXXX",
-                            "tel3": "XXXX"
-                          },
-                          "DAIRI_ID": "****",
-                          "DAIRI_NM": "太郎税理士事務所 税理士太郎",
-                          "DAIRI_ZIP": {
-                            "zip1": "141",
-                            "zip2": "0032"
-                          },
-                          "DAIRI_ADR": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
-                          "DAIRI_TEL": {
-                            "tel1": "03",
-                            "tel2": "XXXX",
-                            "tel3": "XXXX"
-                          },
-                          "TETSUZUKI": {
-                            "procedure_CD": "RHO0012",
-                            "procedure_NM": "普通法人の確定申告(青色)"
-                          },
-                          "JIGYO_NENDO_FROM": {
-                            "era": 5,
-                            "yy": "07",
-                            "mm": "01",
-                            "dd": "01",
-                            "yyyymmdd": "20250101"
-                          },
-                          "JIGYO_NENDO_TO": {
-                            "era": 5,
-                            "yy": "07",
-                            "mm": "12",
-                            "dd": "31",
-                            "yyyymmdd": "20251231"
-                          },
-                          "KEIRI_SEKININSHA": "経理花子",
-                          "NOZEISHA_BANGO": {
-                            "hojinbango": "1234567890123"
-                          },
-                          "JIGYO_NAIYO": "",
-                          "TEISYUTSU_DAY": {
-                            "era": 5,
-                            "yy": 8,
-                            "mm": 4,
-                            "dd": 23
-                          },
-                          "SHINKOKU_KBN": {
-                            "kubun_CD": 30,
-                            "kubun_NM": ""
-                          },
-                          "KANPU_KINYUKIKAN": {
-                            "bank_type": "1",
-                            "kinyukikan_NM": "フリー",
-                            "shiten_NM": "五反田",
-                            "kinyukikan_KB": "1",
-                            "shiten_KB": "1",
-                            "yokin": "1",
-                            "koza": "998877",
-                            "yubinkyoku_NM": "",
-                            "kigobango1": "",
-                            "kigobango2": ""
-                          }
-                        }
-                      }
-                    }
-                  }
                 }
               }
             }
@@ -690,7 +440,7 @@
       "get": {
         "operationId": "get_tax_return_corporate_local_sheet",
         "summary": "地方税帳票取得",
-        "description": "指定した申告データの地方税帳票を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\n帳票のreport_unit（prefecture/city）に応じて、prefecture_government_codeまたはcity_government_codeが使用されます。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "description": "指定した申告データの地方税帳票を XML 形式 (application/xml) で取得します。\nレスポンスの XML は eLTAX の申告データ形式に準拠します。\nXML の各項目の仕様は [tax_return API v3 帳票項目マッピング](https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/tax-return-references/index.md)で案内されている公開仕様書を参照してください。\n帳票のreport_unit（prefecture/city）に応じて、prefecture_government_codeまたはcity_government_codeが使用されます。",
         "parameters": [
           {
             "$ref": "#/components/parameters/TaxReturn.Corporate.GetLocalSheetRequest.tax_return_id"
@@ -710,12 +460,18 @@
         ],
         "responses": {
           "200": {
-            "description": "帳票データ（XML形式）。\n国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。\nレスポンスボディは api-hub では検証・加工せずそのまま透過します。",
+            "description": "帳票データ（XML形式）。\n国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。\nXML は国税帳票が e-Tax、地方税帳票が eLTAX、決算書が e-Tax に提出する XBRL の各形式に準拠します。",
             "content": {
               "application/xml": {
                 "schema": {
                   "type": "string",
                   "format": "binary"
+                },
+                "examples": {
+                  "第六号様式 (抜粋)": {
+                    "summary": "第六号様式 (抜粋)",
+                    "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<SHINKOKU_UNIT xmlns:gen=\"http://eltax.jp/general\" id=\"SHINKOKU_UNIT\">\n  <KOUSEI_KANRI_INF id=\"KOUSEI_KANRI_INF\">\n    <KOUSEI_KANRI id=\"KOUSEI_KANRI\">\n      <KANRI_INF id=\"KANRI_INF\">\n        <KOUSEI_KANRI_VR>0001</KOUSEI_KANRI_VR>\n        <ORG1_CD>01000</ORG1_CD>\n        <PROC_ID>R0102100</PROC_ID>\n        <PROC_NAME>法人都道府県民税・事業税・特別法人事業税　確定申告</PROC_NAME>\n        <FIRST_RCPT_NUM/>\n      </KANRI_INF>\n      <FORM_ATTR>\n        <FORM_ID>R0102AA250</FORM_ID>\n        <FORM_NAME>中間・確定申告書</FORM_NAME>\n        <FORM_FILE_NAME/>\n        <FORM_XSL_NAME/>\n      </FORM_ATTR>\n        <!-- 中略 -->\n        <USER_INF id=\"USER_INF\">\n          <USER_ID id=\"USER_ID\">01234567890</USER_ID>\n          <KANA id=\"KANA\">カブシキガイシャサンプル</KANA>\n          <NAME id=\"NAME\">株式会社サンプル</NAME>\n          <HONTEN id=\"HONTEN\">\n            <HONTEN_ADDR id=\"HONTEN_ADDR\">東京都サンプル区サンプル町１ー２ー３</HONTEN_ADDR>\n            <HONTEN_ZIP id=\"HONTEN_ZIP\">1000001</HONTEN_ZIP>\n            <HONTEN_TEL id=\"HONTEN_TEL\">0330000000</HONTEN_TEL>\n          </HONTEN>\n          <DAIHYO id=\"DAIHYO\">\n            <DAIHYOKAKU_CD id=\"DAIHYOKAKU_CD\">01</DAIHYOKAKU_CD>\n            <DAIHYO_KANA id=\"DAIHYO_KANA\">サンプルタロウ</DAIHYO_KANA>\n            <DAIHYO_NAME id=\"DAIHYO_NAME\">サンプル太郎</DAIHYO_NAME>\n            <DAIHYO_ADDR id=\"DAIHYO_ADDR\">東京都サンプル区サンプル町４ー５ー６</DAIHYO_ADDR>\n            <DAIHYO_ZIP id=\"DAIHYO_ZIP\">1000001</DAIHYO_ZIP>\n            <DAIHYO_TEL id=\"DAIHYO_TEL\">09000000000</DAIHYO_TEL>\n          </DAIHYO>\n          <T_RCPT_NUM id=\"T_RCPT_NUM\"/>\n          <HOJIN_NUMBER id=\"HOJIN_NUMBER\">1234567890123</HOJIN_NUMBER>\n        </USER_INF>\n      <!-- 中略 -->\n      </GYOMU_PROC>\n    <!-- 中略 -->\n    </KOUSEI_KANRI>\n    <TAX_DATA id=\"TAX_DATA\">\n      <R0102AA250 xmlns=\"http://eltax.jp/HOJIN_DOFUKEN\" vr=\"250\" page=\"1\" seiseiSoft=\"freee\" seiseiVr=\"1.0\" seiseiDay=\"\" seiseiNM=\"\" koshinSoft=\"\" koshinVr=\"\" koshinDay=\"\" koshinNM=\"\" taari=\"\">\n        <AAA00100 idref=\"SEIRI_NUM\"/>\n        <AAA00200 idref=\"JIMUSHO_NUM\"/>\n        <AAA00300 idref=\"HOJIN_NUM\"/>\n        <AAA00400/>\n        <AAA00500 idref=\"HOJIN_NUMBER\">1234567890123</AAA00500>\n        <!-- 中略 -->\n        <AAA00900 idref=\"ORG1_NAME\">北海道札幌道税事務所長</AAA00900>\n        <AAA_HONTEN_ZIP idref=\"HONTEN_ZIP\">1000001</AAA_HONTEN_ZIP>\n        <AAA_HONTEN_ADDR idref=\"HONTEN_ADDR\">東京都サンプル区サンプル町１ー２ー３</AAA_HONTEN_ADDR>\n        <AAA_HONTEN_TEL_NUM idref=\"HONTEN_TEL\">0330000000</AAA_HONTEN_TEL_NUM>\n        <AAA_ZIP/>\n        <AAA_ADDR>北海道サンプル市サンプル町１ー１</AAA_ADDR>\n        <AAA_TEL_NUM/>\n        <AAA_KANA idref=\"KANA\">かぶしきがいしゃさんぷる</AAA_KANA>\n        <AAA_NAME idref=\"NAME\">株式会社サンプル</AAA_NAME>\n        <AAA_DAIHYO_KANA idref=\"DAIHYO_KANA\">さんぷるたろう</AAA_DAIHYO_KANA>\n        <AAA_DAIHYO_NAME idref=\"DAIHYO_NAME\">サンプル太郎</AAA_DAIHYO_NAME>\n        <AAA_KEIRI_KANA>さんぷるはなこ</AAA_KEIRI_KANA>\n        <!-- 中略 -->\n        <AAE00100>697092</AAE00100>\n        <AAE00200>166000</AAE00200>\n      <!-- 中略 -->\n      </R0102AA250>\n      <TENPU_INF>\n        <YUSO_KBN>0</YUSO_KBN>\n      </TENPU_INF>\n    </TAX_DATA>\n  </KOUSEI_KANRI_INF>\n<!-- 中略 -->\n</SHINKOKU_UNIT>\n"
+                  }
                 }
               },
               "application/json": {
@@ -736,143 +492,6 @@
                     "data"
                   ],
                   "additionalProperties": false
-                },
-                "examples": {
-                  "第六号様式": {
-                    "summary": "第六号様式",
-                    "value": {
-                      "data": {
-                        "tax_data": {
-                          "sheet_key": "local_form_6",
-                          "title": "第六号様式",
-                          "version": 202512,
-                          "prefecture_government_code": "01000",
-                          "city_government_code": "01100"
-                        },
-                        "xtx": {
-                          "R0102AA250": {
-                            "pages": [
-                              {
-                                "AAA_ADDR": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
-                                "AAA_RPT_KBN": "確定",
-                                "AAA00500": 1234567890123,
-                                "AAA_NAME": "株式会社サンプル",
-                                "AAA_KANA": "かぶしきがいしゃさんぷる",
-                                "AAA_DAIHYO_NAME": "てすと太郎",
-                                "AAA_DAIHYO_KANA": "てすとたろう",
-                                "AAA_KEIRI_NAME": "経理花子",
-                                "AAA_KEIRI_KANA": "けいりはなこ",
-                                "AAA_JIGYO_NAME": "",
-                                "AAA_SHIHON4": "0",
-                                "AAI00400": "1",
-                                "AAI00100": {
-                                  "era": 5,
-                                  "yy": 7,
-                                  "mm": 12,
-                                  "dd": 31
-                                },
-                                "AAA_JIGYO_SDATE": {
-                                  "era": 5,
-                                  "yy": 7,
-                                  "mm": "1",
-                                  "dd": "1",
-                                  "yyyymmdd": "20250101"
-                                },
-                                "AAA_JIGYO_EDATE": {
-                                  "era": 5,
-                                  "yy": 7,
-                                  "mm": "12",
-                                  "dd": "31",
-                                  "yyyymmdd": "20251231"
-                                },
-                                "AAA_HONTEN_ADDR": "東京都品川区大崎1-2-2 アートヴィレッジ大崎セントラルタワー21階",
-                                "AAE00400": 0,
-                                "AAE00420": 0,
-                                "AAE00200": 150000,
-                                "AAE00220": 5200,
-                                "AAE00300": 0,
-                                "AAE00320": 0,
-                                "AAJ_DAIRI_NAME": "太郎税理士事務所　税理士太郎",
-                                "AAB01700": 12,
-                                "AAB01810": 20000,
-                                "AAB02000": 20000,
-                                "AAB01900": "",
-                                "AAB00700": 18000,
-                                "AAB00810": 180,
-                                "AAB01200": 100,
-                                "AAB01600": 100,
-                                "AAB00600": 104000,
-                                "AAB01300": "",
-                                "AAE01310": 5200,
-                                "AAE01320": "",
-                                "AAE01330": "",
-                                "AAE01340": "",
-                                "AAE01050": 5200,
-                                "AAE01300": 5200,
-                                "AAE01500": 5200,
-                                "AAE01100": "",
-                                "AAE01400": "",
-                                "AAE00500": 150000,
-                                "AAE00510": 5200,
-                                "AAB02100": 20100,
-                                "AAB02300": 20100,
-                                "AAB02200": "",
-                                "AAK00100": 5200,
-                                "AAK00300": 1900,
-                                "AAK00850": 1900,
-                                "AAK01100": 1900,
-                                "AAK01300": 1900,
-                                "AAK00900": "",
-                                "AAK01200": "",
-                                "AAK00700": 1900,
-                                "AAE00900": 5200,
-                                "AAF00800": 997092,
-                                "AAI00450": -1400,
-                                "AAA00900": "北海道札幌道税事務所長",
-                                "AAB00800": 1,
-                                "AAB01800": 20000,
-                                "AAE00210": 3.5,
-                                "AAE00310": 5.3,
-                                "AAE00410": 7,
-                                "AAK00200": 37,
-                                "AAA_SHIHON5": "",
-                                "AAA_SHIHON": "",
-                                "AAA_SHIHON6": "",
-                                "AAA_SHIHON2": "",
-                                "AAA_SHIHON3": 2500000,
-                                "AAE00100": 697092,
-                                "AAA00800": {
-                                  "era": 5,
-                                  "yy": 8,
-                                  "mm": 3,
-                                  "dd": 25
-                                },
-                                "AAF00100": 985758,
-                                "AAF00200": 11667,
-                                "AAF00300": 111,
-                                "AAF00500": 444,
-                                "AAF00700": 300000,
-                                "AAG00100": 685758,
-                                "AAI00600": "2",
-                                "AAI00500": "2",
-                                "AAI00700": "2",
-                                "AAA_HONTEN_ZIP": {
-                                  "zip1": "141",
-                                  "zip2": "0032"
-                                },
-                                "AAA_HONTEN_TEL_NUM": {
-                                  "tel1": "03",
-                                  "tel2": "XXXX",
-                                  "tel3": "XXXX"
-                                },
-                                "AAJ_DAIRI_TEL_NUM": "03XXXXXXXX"
-                              }
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
                 }
               }
             }
@@ -947,7 +566,7 @@
       "get": {
         "operationId": "get_tax_return_corporate_financial_statement_sheet",
         "summary": "決算書取得",
-        "description": "指定した申告データの決算書を XML 形式 (application/xml) で取得します。\nレスポンスボディの XML は api-hub では検証・加工せずそのまま返却します。\nJSON 形式 (application/json) のレスポンスは廃止予定です。application/xml を利用してください。",
+        "description": "指定した申告データの決算書を XML 形式 (application/xml) で取得します。\nレスポンスの XML は e-Tax に提出する決算書 (XBRL) 形式に準拠します。\nXML の各項目の仕様は [tax_return API v3 帳票項目マッピング](https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/tax-return-references/index.md)で公開されている仕様書を参照してください。",
         "parameters": [
           {
             "$ref": "#/components/parameters/TaxReturn.Corporate.GetFinancialStatementSheetRequest.tax_return_id"
@@ -961,12 +580,18 @@
         ],
         "responses": {
           "200": {
-            "description": "帳票データ（XML形式）。\n国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。\nレスポンスボディは api-hub では検証・加工せずそのまま透過します。",
+            "description": "帳票データ（XML形式）。\n国税・地方税・決算書の帳票を XML 形式 (application/xml) で返却します。\nXML は国税帳票が e-Tax、地方税帳票が eLTAX、決算書が e-Tax に提出する XBRL の各形式に準拠します。",
             "content": {
               "application/xml": {
                 "schema": {
                   "type": "string",
                   "format": "binary"
+                },
+                "examples": {
+                  "損益計算書 (抜粋)": {
+                    "summary": "損益計算書 (抜粋)",
+                    "value": "<?xml version=\"1.0\"?>\n<XBRL2_1>\n  <XBRL2_1_INSTANCE VR=\"2.0\" id=\"HOT010-1\" page=\"1\" sakuseiDay=\"2026-07-30\" sakuseiNM=\"株式会社サンプル\" softNM=\"freee\">\n    <xbrli:xbrl xmlns:c-tax-2026-07-30=\"http://xbrlsoft.e-tax.nta.go.jp/XSD/c-tax-2026-07-30\" xmlns:iso4217=\"http://www.xbrl.org/2003/iso4217\" xmlns:jpfr-etax-cai-an=\"http://xml.e-tax.nta.go.jp/jp/fr/etax/r/cai/an/2013-03-25\" xmlns:jpfr-etax-di=\"http://xml.e-tax.nta.go.jp/jp/fr/etax/o/di/2013-03-25\" xmlns:jpfr-etax-dt=\"http://xml.e-tax.nta.go.jp/jp/fr/etax/o/dt/2013-03-25\" xmlns:jpfr-etax-pks-an=\"http://xml.e-tax.nta.go.jp/jp/fr/etax/r/pks/an/2013-03-25\" xmlns:jpfr-etax-t-cte=\"http://xml.e-tax.nta.go.jp/jp/fr/etax/t/cte/2013-03-25\" xmlns:jpfr-oe=\"http://info.edinet-fsa.go.jp/jp/fr/gaap/o/oe/2012-01-25\" xmlns:jpfr-rt=\"http://info.edinet-fsa.go.jp/jp/fr/gaap/o/rt/2012-01-25\" xmlns:jpfr-rt-etax=\"http://xml.e-tax.nta.go.jp/jp/fr/etax/o/rt/2013-03-25\" xmlns:jpfr-t-cns=\"http://info.edinet-fsa.go.jp/jp/fr/gaap/t/cns/2012-01-25\" xmlns:jpfr-t-cte=\"http://info.edinet-fsa.go.jp/jp/fr/gaap/t/cte/2012-01-25\" xmlns:link=\"http://www.xbrl.org/2003/linkbase\" xmlns:xbrli=\"http://www.xbrl.org/2003/instance\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n      <link:schemaRef xlink:type=\"simple\" xlink:href=\"#c-tax-2026-07-30.xsd\"/>\n      <!-- 中略 -->\n      <xbrli:context id=\"CurrentYearNonConsolidatedDuration\">\n        <xbrli:entity>\n          <xbrli:identifier scheme=\"http://www.e-tax.nta.go.jp/\">株式会社サンプル</xbrli:identifier>\n        </xbrli:entity>\n        <xbrli:period>\n          <xbrli:startDate>2025-01-01</xbrli:startDate>\n          <xbrli:endDate>2025-12-31</xbrli:endDate>\n        </xbrli:period>\n        <xbrli:scenario>\n          <jpfr-oe:NonConsolidated/>\n        </xbrli:scenario>\n      </xbrli:context>\n      <!-- 中略 -->\n      <xbrli:unit id=\"JPY\">\n        <xbrli:measure>iso4217:JPY</xbrli:measure>\n      </xbrli:unit>\n      <!-- 中略 -->\n      <jpfr-t-cte:NetSales decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">1148800</jpfr-t-cte:NetSales>\n      <jpfr-t-cte:CostOfGoodsSold decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">230760</jpfr-t-cte:CostOfGoodsSold>\n      <jpfr-t-cte:TotalPurchaseOfGoods decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">31760</jpfr-t-cte:TotalPurchaseOfGoods>\n      <jpfr-t-cte:PurchaseOfFinishedGoodsCOS decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">200000</jpfr-t-cte:PurchaseOfFinishedGoodsCOS>\n      <jpfr-t-cte:EndingGoodsCOS decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">1000</jpfr-t-cte:EndingGoodsCOS>\n      <jpfr-t-cte:GrossProfit decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">918040</jpfr-t-cte:GrossProfit>\n      <jpfr-t-cte:AdvertisingExpensesSGA decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">3000</jpfr-t-cte:AdvertisingExpensesSGA>\n      <jpfr-t-cte:EntertainmentExpensesSGA decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">25920</jpfr-t-cte:EntertainmentExpensesSGA>\n      <jpfr-t-cte:DepreciationSGA decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">5650000</jpfr-t-cte:DepreciationSGA>\n      <jpfr-t-cte:TravelingAndTransportationExpensesSGA decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">90000</jpfr-t-cte:TravelingAndTransportationExpensesSGA>\n      <jpfr-t-cte:OperatingIncome decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">-4850880</jpfr-t-cte:OperatingIncome>\n      <jpfr-t-cte:OrdinaryIncome decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">-4850880</jpfr-t-cte:OrdinaryIncome>\n      <jpfr-t-cte:IncomeBeforeIncomeTaxes decimals=\"0\" unitRef=\"JPY\" contextRef=\"CurrentYearNonConsolidatedDuration\">-4850880</jpfr-t-cte:IncomeBeforeIncomeTaxes>\n      <!-- 中略 -->\n      <jpfr-etax-di:EntityName contextRef=\"DocumentInfo\">株式会社サンプル</jpfr-etax-di:EntityName>\n    <!-- 中略 -->\n    </xbrli:xbrl>\n  </XBRL2_1_INSTANCE>\n<!-- 中略 -->\n</XBRL2_1>\n"
+                  }
                 }
               },
               "application/json": {
@@ -987,84 +612,6 @@
                     "data"
                   ],
                   "additionalProperties": false
-                },
-                "examples": {
-                  "損益計算書 (一部抜粋)": {
-                    "summary": "損益計算書 (一部抜粋)",
-                    "value": {
-                      "data": {
-                        "tax_data": {
-                          "sheet_key": "pl",
-                          "title": "損益計算書",
-                          "ctax_return_id": 4
-                        },
-                        "xtx": {
-                          "jpfr-t-cte_StatementsOfIncomeAbstract": {
-                            "xbrl_id": "jpfr-t-cte_StatementsOfIncomeAbstract",
-                            "name": "損益計算書",
-                            "value": null,
-                            "children": [
-                              {
-                                "xbrl_id": "jpfr-t-cte_NetSalesAbstract",
-                                "name": "売上高",
-                                "value": null,
-                                "children": [
-                                  {
-                                    "xbrl_id": "jpfr-t-cte_GrossSalesRevOA",
-                                    "name": "総売上高",
-                                    "value": null,
-                                    "children": [],
-                                    "non_xbrl_lines": []
-                                  },
-                                  {
-                                    "xbrl_id": "jpfr-t-cte_NetSalesOfGoodsRevOA",
-                                    "name": "商品売上高",
-                                    "value": null,
-                                    "children": [
-                                      {
-                                        "xbrl_id": "jpfr-etax-t-cte_MerchandiseSalesGross",
-                                        "name": "商品総売上高",
-                                        "value": null,
-                                        "children": [],
-                                        "non_xbrl_lines": []
-                                      },
-                                      {
-                                        "xbrl_id": "jpfr-etax-t-cte_MerchandiseSalesReturnsAllowances",
-                                        "name": "売上値引及び戻り高",
-                                        "value": null,
-                                        "children": [],
-                                        "non_xbrl_lines": []
-                                      }
-                                    ],
-                                    "non_xbrl_lines": []
-                                  }
-                                ],
-                                "non_xbrl_lines": []
-                              },
-                              {
-                                "xbrl_id": "jpfr-t-cte_CostOfSalesAbstract",
-                                "name": "売上原価",
-                                "value": null,
-                                "children": [],
-                                "non_xbrl_lines": [
-                                  {
-                                    "name": null,
-                                    "value": 200000,
-                                    "balance": null,
-                                    "xbrl_look_up": {
-                                      "to_xbrl_id": "jpfr-t-cte_PurchaseOfFinishedGoodsCOS",
-                                      "to_name": "当期製品仕入高"
-                                    }
-                                  }
-                                ]
-                              }
-                            ],
-                            "non_xbrl_lines": []
-                          }
-                        }
-                      }
-                    }
-                  }
                 }
               }
             }
