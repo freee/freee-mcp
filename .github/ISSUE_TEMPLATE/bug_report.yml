@@ -8,7 +8,7 @@ body:
       value: |
         ## ⚠️ 警告: このリポジトリは一般公開の OSS です
 
-        **社内 API キー、内部 URL、アカウント情報を絶対に含めないでください。**
+        **社内 API キー、内部 URL、アカウント情報、freee 社内でのみ閲覧できる情報を絶対に含めないでください。**
 
         Issue の本文と編集履歴は誰でも閲覧でき、投稿後に削除しても完全には消えない場合があります。
         次の情報は記載しないでください。
@@ -17,6 +17,7 @@ body:
         - 社内システムや検証環境の URL・ホスト名・IP アドレス
         - 実在する事業所名・会社名・個人名、事業所番号・ユーザー ID などの識別子
         - メールアドレス・電話番号などの連絡先
+        - freee 社内でのみ閲覧できる情報（社内ドキュメント・チケット・社内チャットの URL や引用・スクリーンショット、未公開の仕様やリリース予定、社外に公開していない運用情報など）
 
         再現手順やログは、上記をすべてダミー値に置き換えたうえで貼り付けてください。
 
@@ -24,18 +25,22 @@ body:
 
         ## ⚠️ Warning: this is a public open source repository
 
-        **Never include internal API keys, internal URLs, or account information.**
+        **Never include internal API keys, internal URLs, account information, or anything that is only
+        accessible inside freee.**
 
         Issue bodies and their edit history are visible to anyone and may persist even after deletion.
         Do not post access tokens, API keys, client secrets or passwords; internal or staging URLs,
-        hostnames or IP addresses; real company/office names, personal names, office/user IDs; or
-        contact information. Replace all of these with dummy values in repro steps and logs.
+        hostnames or IP addresses; real company/office names, personal names, office/user IDs;
+        contact information; or anything only visible inside freee, such as links to, quotations from
+        or screenshots of internal documents, tickets or chat, unreleased specifications and release
+        plans, or non-public operational details. Replace all of these with dummy values in repro
+        steps and logs.
   - type: checkboxes
     id: no-sensitive-info
     attributes:
       label: 機密情報の確認 / Sensitive information check
       options:
-        - label: この Issue に認証情報・内部 URL・アカウント情報などの機密情報を含めていません / This issue contains no credentials, internal URLs, or account information
+        - label: この Issue に認証情報・内部 URL・アカウント情報・freee 社内でのみ閲覧できる情報を含めていません / This issue contains no credentials, internal URLs, account information, or freee-internal-only information
           required: true
   - type: textarea
     id: description

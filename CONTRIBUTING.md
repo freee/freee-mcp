@@ -34,11 +34,14 @@ Issue を作成する際は、テンプレートに沿って記入してくだ�
 - [Feature Request / 機能要望](https://github.com/freee/freee-mcp/issues/new?template=feature_request.yml)
 
 > [!WARNING]
-> このリポジトリは一般公開の OSS です。社内 API キー、内部 URL、アカウント情報を絶対に含めないでください。
+> このリポジトリは一般公開の OSS です。社内 API キー、内部 URL、アカウント情報、freee 社内でのみ閲覧できる情報を絶対に含めないでください。
 > Issue の本文と編集履歴は誰でも閲覧でき、削除しても完全には消えない場合があります。
 > 認証情報・内部 URL・実在する事業所名や個人名・連絡先は、すべてダミー値に置き換えて記載してください。
+> 社内ドキュメントやチケット、社内チャットの URL・引用・スクリーンショット、未公開の仕様やリリース予定なども記載しないでください。
 >
-> This is a public open source repository. Never include internal API keys, internal URLs, or account
-> information. Issue bodies and their edit history are visible to anyone and may persist even after
-> deletion. Replace credentials, internal URLs, real company/personal names and contact information
-> with dummy values.
+> This is a public open source repository. Never include internal API keys, internal URLs, account
+> information, or anything only accessible inside freee. Issue bodies and their edit history are
+> visible to anyone and may persist even after deletion. Replace credentials, internal URLs, real
+> company/personal names and contact information with dummy values, and do not post links to,
+> quotations from or screenshots of internal documents, tickets or chat, or unreleased
+> specifications and release plans.
