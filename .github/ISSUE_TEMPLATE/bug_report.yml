@@ -8,40 +8,42 @@ body:
       value: |
         ## ⚠️ 警告: このリポジトリは一般公開の OSS です
 
-        **社内 API キー、内部 URL、アカウント情報、社内でのみ閲覧できる情報を絶対に含めないでください。**
+        **社内 API キー、内部 URL、アカウント情報など、公開できない情報を絶対に含めないでください。**
 
-        Issue の本文と編集履歴は誰でも閲覧でき、投稿後に削除しても完全には消えない場合があります。
-        次の情報は記載しないでください。
+        Issue の本文・コメント・添付ファイル・編集履歴は誰でも閲覧でき、投稿後に削除や修正をしても
+        完全には消えない場合があります（検索エンジンのキャッシュや fork に残ることがあります）。
 
-        - アクセストークン・API キー・client secret・パスワードなどの認証情報
-        - 社内システムや検証環境の URL・ホスト名・IP アドレス
-        - 実在する事業所名・会社名・個人名、事業所番号・ユーザー ID などの識別子
-        - メールアドレス・電話番号などの連絡先
-        - 社内でのみ閲覧できる情報（社内ドキュメント・チケット・社内チャットの URL や引用・スクリーンショット、未公開の仕様やリリース予定、社外に公開していない運用情報など）
+        記載しない情報の例:
 
-        再現手順やログは、上記をすべてダミー値に置き換えたうえで貼り付けてください。
+        - **認証情報**: アクセストークン、リフレッシュトークン、認可コード、API キー、client ID / client secret、パスワード、`.env` や設定ファイルの中身
+        - **社内・内部情報**: 社内システムや検証環境の URL・ホスト名・IP アドレス、社内ドキュメント・チケット・チャットの URL や引用・スクリーンショット、未公開の仕様やリリース予定、社外に公開していない運用情報
+        - **個人情報**: 氏名、メールアドレス、電話番号、住所などの個人を特定できる情報
+        - **事業者の実データ**: 実在する事業所名・会社名・取引先名、事業所 ID・ユーザー ID などの識別子、取引明細・金額・給与・口座情報などの業務データ
+        - **上記を含みがちなもの**: API の request / response の生ログ、MCP client のログ、画面のスクリーンショット、HAR ファイル
+
+        該当する値はすべてダミーに置き換え、スクリーンショットは該当箇所をマスクしてから貼り付けてください。
+        判断に迷う情報は記載しないでください。
 
         ---
 
         ## ⚠️ Warning: this is a public open source repository
 
-        **Never include internal API keys, internal URLs, account information, or anything that is
-        only accessible inside your organization.**
+        **Never include internal API keys, internal URLs, account information, or anything else that
+        cannot be made public.**
 
-        Issue bodies and their edit history are visible to anyone and may persist even after deletion.
-        Do not post access tokens, API keys, client secrets or passwords; internal or staging URLs,
-        hostnames or IP addresses; real company/office names, personal names, office/user IDs;
-        contact information; or anything only visible inside your organization, such as links to,
-        quotations from or screenshots of internal documents, tickets or chat, unreleased
-        specifications and release plans, or non-public operational details. Replace all of these
-        with dummy values in repro steps and logs.
-  - type: checkboxes
-    id: no-sensitive-info
-    attributes:
-      label: 機密情報の確認 / Sensitive information check
-      options:
-        - label: この Issue に認証情報・内部 URL・アカウント情報・社内でのみ閲覧できる情報を含めていません / This issue contains no credentials, internal URLs, account information, or organization-internal information
-          required: true
+        Issue bodies, comments, attachments and edit history are visible to anyone and may persist
+        even after you delete or edit them (search engine caches, forks).
+
+        Do not post:
+
+        - **Credentials**: access or refresh tokens, authorization codes, API keys, client IDs and secrets, passwords, the contents of `.env` or config files
+        - **Internal information**: internal or staging URLs, hostnames and IP addresses; links to, quotations from or screenshots of internal documents, tickets or chat; unreleased specifications, release plans or other non-public operational details
+        - **Personal data**: names, email addresses, phone numbers, postal addresses or any other personally identifiable information
+        - **Real business data**: real company, office or client names; office and user IDs; transactions, amounts, payroll or bank account details
+        - **Anything that tends to carry the above**: raw API request/response logs, MCP client logs, screenshots, HAR files
+
+        Replace such values with dummy data and mask screenshots before posting.
+        When in doubt, leave it out.
   - type: textarea
     id: description
     attributes:
