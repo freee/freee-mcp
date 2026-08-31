@@ -169,16 +169,19 @@ codex plugin marketplace add freee/freee-mcp
 
 ## Agent Skills の内容
 
-| API          | 内容                                                 | ファイル数 |
-| ------------ | ---------------------------------------------------- | ---------- |
-| 会計         | 取引、勘定科目、取引先、請求書、経費申請など         | 33         |
-| 人事労務     | 従業員、勤怠、給与明細、年末調整など                 | 28         |
-| 請求書       | 請求書、見積書、納品書、領収書、発注書、支払通知書   | 6          |
-| 工数管理     | プロジェクト、チーム、パートナー、工数、ユーザーなど | 9          |
-| 販売         | 案件、受注、マスタ                                   | 13         |
-| IT管理       | メンバー、SaaSアカウント、備品                       | 4          |
-| 業務委託管理 | 業務委託先の企業ユーザー、部門                       | 2          |
-| サイン       | 文書、フォルダ、テンプレート、マイ印鑑など           | 8          |
+| API          | 内容                                                     | ファイル数 |
+| ------------ | -------------------------------------------------------- | ---------- |
+| 会計         | 取引、勘定科目、取引先、請求書、経費申請など             | 33         |
+| 人事労務     | 従業員、勤怠、給与明細、年末調整など                     | 28         |
+| 請求書       | 請求書、見積書、納品書、領収書、発注書、支払通知書       | 6          |
+| 工数管理     | プロジェクト、チーム、パートナー、工数、ユーザーなど     | 9          |
+| 販売         | 案件、受注、マスタ                                       | 13         |
+| IT管理       | メンバー、SaaSアカウント、備品                           | 3          |
+| 固定資産     | 固定資産の一覧、詳細、登録、更新、削除                   | 1          |
+| 業務委託管理 | 業務委託先の企業ユーザー、部門、取引先                    | 3          |
+| サーベイ     | サーベイ企画、実施回（freee-mcp リモート版限定）         | 3          |
+| 申告         | 法人税申告データ、帳票（別表・決算書など）               | 58         |
+| サイン       | 文書、フォルダ、テンプレート、マイ印鑑など               | 8          |
 
 AI Agent との会話中に freee API の操作を依頼すると、これらのリファレンスやレシピを参照して正確に実行します。
 
@@ -313,6 +316,25 @@ npx --package=freee-mcp -- freee-sign-mcp configure
 <a href="https://github.com/Kanahiro"><img src="https://github.com/Kanahiro.png" width="40" height="40" alt="@Kanahiro"></a>
 <a href="https://github.com/kagemeka"><img src="https://github.com/kagemeka.png" width="40" height="40" alt="@kagemeka"></a>
 <a href="https://github.com/carrotRakko"><img src="https://github.com/carrotRakko.png" width="40" height="40" alt="@carrotRakko"></a>
+<a href="https://github.com/kouiso"><img src="https://github.com/kouiso.png" width="40" height="40" alt="@kouiso"></a>
+<a href="https://github.com/jimokada"><img src="https://github.com/jimokada.png" width="40" height="40" alt="@jimokada"></a>
+<a href="https://github.com/yuta-takase-ui"><img src="https://github.com/yuta-takase-ui.png" width="40" height="40" alt="@yuta-takase-ui"></a>
+<a href="https://github.com/at-k"><img src="https://github.com/at-k.png" width="40" height="40" alt="@at-k"></a>
+<a href="https://github.com/paveg"><img src="https://github.com/paveg.png" width="40" height="40" alt="@paveg"></a>
+<a href="https://github.com/yoneda1013"><img src="https://github.com/yoneda1013.png" width="40" height="40" alt="@yoneda1013"></a>
+<a href="https://github.com/kojamam"><img src="https://github.com/kojamam.png" width="40" height="40" alt="@kojamam"></a>
+<a href="https://github.com/nabechindesu"><img src="https://github.com/nabechindesu.png" width="40" height="40" alt="@nabechindesu"></a>
+<a href="https://github.com/Hamada-Hiroshi"><img src="https://github.com/Hamada-Hiroshi.png" width="40" height="40" alt="@Hamada-Hiroshi"></a>
+<a href="https://github.com/kitasan04"><img src="https://github.com/kitasan04.png" width="40" height="40" alt="@kitasan04"></a>
+<a href="https://github.com/Junpei-Nakasone"><img src="https://github.com/Junpei-Nakasone.png" width="40" height="40" alt="@Junpei-Nakasone"></a>
+<a href="https://github.com/sakakibara-setu"><img src="https://github.com/sakakibara-setu.png" width="40" height="40" alt="@sakakibara-setu"></a>
+<a href="https://github.com/takutin-f"><img src="https://github.com/takutin-f.png" width="40" height="40" alt="@takutin-f"></a>
+<a href="https://github.com/byplayer"><img src="https://github.com/byplayer.png" width="40" height="40" alt="@byplayer"></a>
+<a href="https://github.com/inomata137"><img src="https://github.com/inomata137.png" width="40" height="40" alt="@inomata137"></a>
+<a href="https://github.com/10965401"><img src="https://github.com/10965401.png" width="40" height="40" alt="@10965401"></a>
+<a href="https://github.com/nfphys"><img src="https://github.com/nfphys.png" width="40" height="40" alt="@nfphys"></a>
+<a href="https://github.com/analyn-cajocson"><img src="https://github.com/analyn-cajocson.png" width="40" height="40" alt="@analyn-cajocson"></a>
+<a href="https://github.com/RaphaelP07"><img src="https://github.com/RaphaelP07.png" width="40" height="40" alt="@RaphaelP07"></a>
 <!-- CONTRIBUTORS-END -->
 
 ## 開発者向け
