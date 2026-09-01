@@ -1,5 +1,16 @@
 # freee-mcp
 
+## 0.34.2
+
+### Patch Changes
+
+- [`87b79b4`](https://github.com/freee/freee-mcp/commit/87b79b474e44b807901b015f140d4777f0be6da4): README を更新
+
+  - Agent Skills の内容一覧に固定資産・サーベイ・申告を追加し、IT 管理・業務委託管理のファイル数を実態に合わせて修正
+  - Contributors に未反映だった 19 名を追加
+
+- [`114c279`](https://github.com/freee/freee-mcp/commit/114c27951e737a26fd0d663bad817c9d2d1ae5fd): OpenAPI スキーマを最新版に同期 ( 5 files changed, 53 insertions(+), 497 deletions(-))
+
 ## 0.34.1
 
 ### Patch Changes
