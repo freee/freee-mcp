@@ -1,5 +1,6 @@
 import { Readable } from 'node:stream';
-import type { Request, RequestHandler, Response } from 'express';
+// Aliased so the WHATWG global `Request` used by parseMultipart is unambiguous.
+import type { Request as ExpressRequest, RequestHandler, Response } from 'express';
 import { z } from 'zod';
 import {
   FileUploadError,
@@ -60,7 +61,7 @@ interface UploadEndpointDeps {
 }
 
 export function createUploadCorsMiddleware(): RequestHandler {
-  return (_req: Request, res: Response, next) => {
+  return (_req: ExpressRequest, res: Response, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
@@ -90,7 +91,7 @@ function sendError(
   res.status(status).json({ error, message });
 }
 
-function extractBearer(req: Request): string | null {
+function extractBearer(req: ExpressRequest): string | null {
   const header = req.headers.authorization;
   if (typeof header !== 'string') return null;
   const match = /^Bearer\s+(\S+)$/i.exec(header.trim());
@@ -101,7 +102,7 @@ function extractBearer(req: Request): string | null {
  * Wraps the inbound Node request stream in a byte-counting web stream so
  * chunked uploads without a Content-Length header are still capped.
  */
-function limitedBodyStream(req: Request, limit: number): ReadableStream<Uint8Array> {
+function limitedBodyStream(req: ExpressRequest, limit: number): ReadableStream<Uint8Array> {
   let total = 0;
   const counter = new TransformStream<Uint8Array, Uint8Array>({
     transform(chunk, controller) {
@@ -117,7 +118,7 @@ function limitedBodyStream(req: Request, limit: number): ReadableStream<Uint8Arr
   return source.pipeThrough(counter);
 }
 
-async function parseMultipart(req: Request, contentType: string): Promise<FormData> {
+async function parseMultipart(req: ExpressRequest, contentType: string): Promise<FormData> {
   // Reuse the WHATWG multipart parser instead of adding a dependency: build a
   // synthetic Request around the inbound stream and let the runtime parse it.
   const init = {
@@ -159,7 +160,7 @@ function statusForUploadError(err: FileUploadError): number {
 }
 
 export function createReceiptUploadHandler(deps: UploadEndpointDeps): RequestHandler {
-  return async (req: Request, res: Response): Promise<void> => {
+  return async (req: ExpressRequest, res: Response): Promise<void> => {
     const ticket = extractBearer(req);
     if (!ticket) {
       sendError(
