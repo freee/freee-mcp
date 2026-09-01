@@ -8,7 +8,7 @@ import {
   loadRemoteServerConfig,
   summarizeRemoteServerConfig,
 } from '../config.js';
-import { FREEE_CALLBACK_PATH } from '../constants.js';
+import { FREEE_CALLBACK_PATH, UPLOAD_RECEIPTS_PATH } from '../constants.js';
 import { createMcpServer } from '../mcp/handlers.js';
 import type { Redis } from '../storage/redis-client.js';
 import { closeRedisClient, getRedisClient } from '../storage/redis-client.js';
@@ -23,6 +23,7 @@ import { initLogger } from './logger.js';
 import { FreeeOAuthProvider } from './oauth-provider.js';
 import { OAuthStateStore } from './oauth-store.js';
 import { getCurrentRecorder } from './request-context.js';
+import { createReceiptUploadHandler, createUploadCorsMiddleware } from './upload-endpoint.js';
 import { initUserAgentTransportMode } from './user-agent.js';
 
 const BODY_SIZE_LIMIT = 1_048_576; // 1 MB
@@ -53,6 +54,9 @@ const RATE_LIMITS = {
   // Per-user cap for authenticated MCP traffic (keyed by user_id). Sized for
   // agentic clients (e.g. claude-code) that burst many tool calls in a loop.
   mcpVerified: { windowMs: MINUTE_MS, max: 300 },
+  // Browser upload endpoint (MCP Apps upload UI). Keyed per IP before the
+  // ticket is verified; matches freee's own 300 files / minute upload cap.
+  upload: { windowMs: MINUTE_MS, max: 300 },
 } as const;
 
 // Extend Express Request with request ID
@@ -154,32 +158,45 @@ export async function startHttpServer(options?: {
     }),
   );
 
-  // CORS
+  // CORS. The browser upload endpoint is exempt: its iframe origin is chosen
+  // by the MCP host and unknowable here, so it applies its own `*` policy and
+  // relies on the upload ticket for access control (see upload-endpoint.ts).
   const cors = (await import('cors')).default;
   const allowedOrigins = remoteConfig.corsAllowedOrigins
     ? remoteConfig.corsAllowedOrigins.split(',').map((s) => s.trim())
     : [remoteConfig.issuerUrl];
-  app.use(
-    cors({
-      origin: allowedOrigins,
-      methods: ['GET', 'POST', 'DELETE'],
-      // Headers missing from this list are blocked by the browser at preflight, so the
-      // request never reaches the server. Mcp-Protocol-Version is required by spec
-      // 2025-06-18; Mcp-Method / Mcp-Name by spec 2026-07-28 (SEP-2243).
-      allowedHeaders: [
-        'Content-Type',
-        'Authorization',
-        'Accept',
-        'Mcp-Session-Id',
-        'Mcp-Protocol-Version',
-        'Mcp-Method',
-        'Mcp-Name',
-      ],
-    }),
-  );
+  const isUploadRequest = (req: Request): boolean => req.path === UPLOAD_RECEIPTS_PATH;
+  const corsMiddleware = cors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'DELETE'],
+    // Headers missing from this list are blocked by the browser at preflight, so the
+    // request never reaches the server. Mcp-Protocol-Version is required by spec
+    // 2025-06-18; Mcp-Method / Mcp-Name by spec 2026-07-28 (SEP-2243).
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Mcp-Session-Id',
+      'Mcp-Protocol-Version',
+      'Mcp-Method',
+      'Mcp-Name',
+    ],
+  });
+  app.use((req: Request, res: Response, next: (err?: unknown) => void) => {
+    if (isUploadRequest(req)) {
+      next();
+      return;
+    }
+    corsMiddleware(req, res, next);
+  });
 
-  // Body size limit (Content-Length check, does not consume the stream)
+  // Body size limit (Content-Length check, does not consume the stream).
+  // The upload endpoint enforces its own, larger limit (64 MB file + overhead).
   app.use((req: Request, res: Response, next: () => void) => {
+    if (isUploadRequest(req)) {
+      next();
+      return;
+    }
     const contentLength = req.headers['content-length'];
     if (contentLength && Number.parseInt(contentLength, 10) > BODY_SIZE_LIMIT) {
       getCurrentRecorder()?.recordError({
@@ -213,6 +230,21 @@ export async function startHttpServer(options?: {
 
   // freee OAuth callback (browser redirect, no MCP auth required)
   app.get(FREEE_CALLBACK_PATH, freeeCallbackHandler);
+
+  // Browser upload endpoint for the MCP Apps upload UI (upload-ticket auth,
+  // not MCP bearer auth). Mounted before the MCP auth router so the SDK's
+  // routes never see it.
+  const uploadCors = createUploadCorsMiddleware();
+  const uploadHandler = createReceiptUploadHandler({
+    tokenStore,
+    jwtSecret: remoteConfig.jwtSecret,
+    issuerUrl: remoteConfig.issuerUrl,
+  });
+  app.options(UPLOAD_RECEIPTS_PATH, uploadCors);
+  const uploadMiddlewares = rateLimiters.upload
+    ? [uploadCors, rateLimiters.upload, uploadHandler]
+    : [uploadCors, uploadHandler];
+  app.post(UPLOAD_RECEIPTS_PATH, ...uploadMiddlewares);
 
   // MCP Auth Router: /.well-known/*, /authorize, /token, /register, /revoke
   const { mcpAuthRouter } = await import('@modelcontextprotocol/sdk/server/auth/router.js');
@@ -319,7 +351,10 @@ export async function startHttpServer(options?: {
       sessionIdGenerator: undefined,
     });
 
-    const mcpServer = createMcpServer(config, { remote: true });
+    const mcpServer = createMcpServer(config, {
+      remote: true,
+      upload: { issuerUrl: remoteConfig.issuerUrl, jwtSecret: remoteConfig.jwtSecret },
+    });
     await mcpServer.connect(transport);
 
     // Clean up transport when the HTTP response finishes (normal completion or client disconnect).
@@ -432,6 +467,7 @@ export async function startHttpServer(options?: {
 
 interface RateLimiters {
   mcpVerified?: RequestHandler;
+  upload?: RequestHandler;
 }
 
 export function rateLimitIpKey(req: Request): string {
@@ -656,6 +692,12 @@ export async function setupRateLimiting(
       RATE_LIMITS.mcpVerified.max,
       'mcp-user',
       verifiedMcpRateLimitKey,
+    ),
+    upload: createLimiter(
+      RATE_LIMITS.upload.windowMs,
+      RATE_LIMITS.upload.max,
+      'upload-ip',
+      rateLimitIpKey,
     ),
   };
 }

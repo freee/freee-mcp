@@ -11,9 +11,35 @@ import { getUserAgent } from '../server/user-agent.js';
 import { resolveCompanyId, type TokenContext } from '../storage/context.js';
 import { formatApiErrorMessage, formatResponseErrorInfo } from '../utils/error.js';
 
-const MAX_FILE_SIZE_BYTES = 64 * 1024 * 1024; // 64MB
+export const MAX_FILE_SIZE_BYTES = 64 * 1024 * 1024; // 64MB
 
-interface UploadReceiptOptions {
+export type FileUploadErrorKind =
+  | 'file_too_large'
+  | 'auth_required'
+  | 'company_mismatch'
+  | 'api_error'
+  | 'network_error'
+  | 'invalid_response';
+
+/**
+ * Typed failure raised by the upload path so that non-MCP callers (the
+ * browser-facing upload endpoint) can map it to an HTTP status without
+ * string-matching the Japanese message. `statusCode` is the upstream freee
+ * API status when the failure came from the API response.
+ */
+export class FileUploadError extends Error {
+  readonly kind: FileUploadErrorKind;
+  readonly statusCode?: number;
+
+  constructor(kind: FileUploadErrorKind, message: string, statusCode?: number) {
+    super(message);
+    this.name = 'FileUploadError';
+    this.kind = kind;
+    this.statusCode = statusCode;
+  }
+}
+
+export interface UploadReceiptOptions {
   description?: string;
   receipt_metadatum_partner_name?: string;
   receipt_metadatum_issue_date?: string;
@@ -33,21 +59,30 @@ const MIME_TYPES: Record<string, string> = {
   '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 };
 
-function getMimeType(filePath: string): string {
+export function getMimeType(filePath: string): string {
   const ext = path.extname(filePath).toLowerCase();
   return MIME_TYPES[ext] || 'application/octet-stream';
 }
 
+/**
+ * In-memory file handed to `uploadReceiptBuffer`. `fileName` is only used as
+ * the multipart filename; it is never written to disk.
+ */
+export interface UploadFile {
+  buffer: Buffer;
+  fileName: string;
+  mimeType: string;
+}
+
+/**
+ * Reads a local file and uploads it to ファイルボックス (stdio mode).
+ */
 export async function uploadReceipt(
   filePath: string,
   requestedCompanyId: string | number,
   options?: UploadReceiptOptions,
   tokenContext?: TokenContext,
 ): Promise<unknown> {
-  const recorder = getCurrentRecorder();
-  const startTime = Date.now();
-  const safePath = '/api/:id/receipts';
-  const userId = tokenContext?.userId ?? 'local';
   const resolvedPath = path.resolve(filePath);
 
   // Read file
@@ -65,10 +100,41 @@ export async function uploadReceipt(
     throw error;
   }
 
+  return uploadReceiptBuffer(
+    { buffer, fileName: path.basename(resolvedPath), mimeType: getMimeType(resolvedPath) },
+    requestedCompanyId,
+    options,
+    tokenContext,
+  );
+}
+
+/**
+ * Uploads an in-memory file to ファイルボックス (POST /api/1/receipts).
+ *
+ * Shared by the stdio `freee_file_upload` tool (after reading the file from
+ * disk) and by the remote-mode browser upload endpoint, which receives the
+ * bytes directly from the MCP Apps upload UI so the file never has to travel
+ * through the LLM context or the MCP JSON-RPC body.
+ */
+export async function uploadReceiptBuffer(
+  file: UploadFile,
+  requestedCompanyId: string | number,
+  options?: UploadReceiptOptions,
+  tokenContext?: TokenContext,
+): Promise<unknown> {
+  const recorder = getCurrentRecorder();
+  const startTime = Date.now();
+  const safePath = '/api/:id/receipts';
+  const userId = tokenContext?.userId ?? 'local';
+  const { buffer, fileName, mimeType } = file;
+
   // Check file size
   if (buffer.byteLength > MAX_FILE_SIZE_BYTES) {
     const sizeMB = (buffer.byteLength / (1024 * 1024)).toFixed(1);
-    throw new Error(`ファイルサイズが上限(64MB)を超えています: ${sizeMB}MB`);
+    throw new FileUploadError(
+      'file_too_large',
+      `ファイルサイズが上限(64MB)を超えています: ${sizeMB}MB`,
+    );
   }
 
   const [companyId, accessToken] = tokenContext
@@ -79,22 +145,22 @@ export async function uploadReceipt(
     : await Promise.all([getCurrentCompanyId(), getValidAccessToken()]);
 
   if (!accessToken) {
-    throw new Error(
+    throw new FileUploadError(
+      'auth_required',
       `認証が必要です。freee_authenticate ツールを使用して認証を行ってください。\n` +
         `現在の事業所ID: ${companyId}`,
     );
   }
 
   if (String(requestedCompanyId) !== String(companyId)) {
-    throw new Error(
+    throw new FileUploadError(
+      'company_mismatch',
       `company_id の不整合: リクエストの company_id (${requestedCompanyId}) と現在の事業所 (${companyId}) が異なります。\n` +
         `freee_set_current_company で事業所を切り替えるか、リクエストの company_id を修正してください。`,
     );
   }
 
   // Build FormData
-  const mimeType = getMimeType(resolvedPath);
-  const fileName = path.basename(resolvedPath);
   const blob = new Blob([new Uint8Array(buffer)], { type: mimeType });
 
   const formData = new FormData();
@@ -126,7 +192,7 @@ export async function uploadReceipt(
   const recordFailure = (
     statusCode: number | null,
     errorType: ApiCallErrorType,
-    err: Error,
+    err: FileUploadError,
   ): never => {
     recorder?.recordApiCall({
       method: 'POST',
@@ -183,7 +249,10 @@ export async function uploadReceipt(
       error_type: errorType,
       chain: serializeErrorChain(fetchError),
     });
-    throw fetchError;
+    throw new FileUploadError(
+      'network_error',
+      fetchError instanceof Error ? fetchError.message : String(fetchError),
+    );
   }
 
   if (response.status === 401) {
@@ -191,10 +260,12 @@ export async function uploadReceipt(
     recordFailure(
       401,
       'auth_error',
-      new Error(
+      new FileUploadError(
+        'api_error',
         `認証エラーが発生しました。freee_authenticate ツールを使用して再認証を行ってください。\n` +
           `現在の事業所ID: ${companyId}\n` +
           `エラー詳細: ${response.status} ${errorInfo}`,
+        401,
       ),
     );
   }
@@ -204,17 +275,23 @@ export async function uploadReceipt(
     recordFailure(
       403,
       'forbidden',
-      new Error(
+      new FileUploadError(
+        'api_error',
         `アクセス拒否 (403): ${errorInfo}\n` +
           `事業所ID: ${companyId}\n\n` +
           `レートリミットの可能性があります。数分待ってから再試行してください。`,
+        403,
       ),
     );
   }
 
   if (!response.ok) {
     const errorMessage = await formatApiErrorMessage(response, response.status);
-    recordFailure(response.status, 'http_error', new Error(errorMessage));
+    recordFailure(
+      response.status,
+      'http_error',
+      new FileUploadError('api_error', errorMessage, response.status),
+    );
   }
 
   const text = await response.text();
@@ -234,8 +311,10 @@ export async function uploadReceipt(
     });
     return parsed;
   } catch {
-    const parseError = new Error(
+    const parseError = new FileUploadError(
+      'invalid_response',
       `Failed to parse API response as JSON. Status: ${response.status}, Body preview: ${text.slice(0, 200)}`,
+      response.status,
     );
     recorder?.recordApiCall({
       method: 'POST',

@@ -68,6 +68,10 @@ Claude 及び Claude Desktop では「カスタマイズ」より「カスタム
 
 その他の AI ツールでは、それぞれの案内に従って Remote MCP サーバーを追加してください。
 
+#### Remote MCP でのファイルアップロード
+
+Remote MCP ではファイルの中身を MCP 経由で送れない（LLM のツール引数やリクエストボディのサイズ制限がある）ため、ファイルボックスへのアップロードは MCP Apps のアップロード画面で行います。「この領収書をファイルボックスにアップロードして」のように依頼すると `freee_file_upload_ui` ツールが会話内に画面を表示し、そこで選んだファイルはブラウザから freee MCP サーバーを経由して直接 freee API に送られます（1 ファイル 64MB まで、複数選択可）。MCP Apps に対応していないクライアントでは画面が表示されないため、freee Web からアップロードしてください。
+
 ### 方法 2: ローカルで MCP サーバーを起動する
 
 freee アプリケーションを自分で登録し、ローカルで MCP サーバーを起動する方法です。
@@ -212,6 +216,7 @@ AI Agent との会話中に freee API の操作を依頼すると、これらの
 | `freee_current_user`       | 現在のユーザー情報 |                  |
 | `freee_server_info`        | サーバー情報取得   |                  |
 | `freee_file_upload`        | ファイルアップロード | stdio のみ     |
+| `freee_file_upload_ui`     | ファイルアップロード画面を表示（MCP Apps） | Remote のみ |
 
 ### API ツール
 
