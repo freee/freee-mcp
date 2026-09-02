@@ -15,6 +15,7 @@ import { closeRedisClient, getRedisClient } from '../storage/redis-client.js';
 import { RedisTokenStore } from '../storage/redis-token-store.js';
 import { createTracingMiddleware } from '../telemetry/middleware.js';
 import { computeClientFingerprint, RedisClientStore } from './client-store.js';
+import { createDevUploadHarnessHandler, DEV_UPLOAD_HARNESS_PATH } from './dev-upload-harness.js';
 import { makeErrorChain, serializeErrorChain } from './error-serializer.js';
 import { RedisUnavailableError } from './errors.js';
 import { createFreeeCallbackHandler } from './freee-callback.js';
@@ -245,6 +246,14 @@ export async function startHttpServer(options?: {
     ? [uploadCors, rateLimiters.upload, uploadHandler]
     : [uploadCors, uploadHandler];
   app.post(UPLOAD_RECEIPTS_PATH, ...uploadMiddlewares);
+
+  // Development only: a page that plays the MCP Apps host so the upload view
+  // can be exercised locally without Claude.ai. Same gate as the insecure
+  // localhost CIMD allowance, so it never appears in cluster deployments.
+  if (remoteConfig.allowInsecureLocalhostCimd) {
+    app.get(DEV_UPLOAD_HARNESS_PATH, createDevUploadHarnessHandler());
+    logger.warn({ path: DEV_UPLOAD_HARNESS_PATH }, 'Dev upload harness enabled');
+  }
 
   // MCP Auth Router: /.well-known/*, /authorize, /token, /register, /revoke
   const { mcpAuthRouter } = await import('@modelcontextprotocol/sdk/server/auth/router.js');
