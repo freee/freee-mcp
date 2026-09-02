@@ -31,16 +31,28 @@ const HARNESS_HTML = `<!DOCTYPE html>
 <meta charset="utf-8">
 <title>freee-mcp dev: MCP Apps upload harness</title>
 <style>
-  body { font-family: system-ui, sans-serif; margin: 16px; max-width: 900px; color: #1f2933; }
-  h1 { font-size: 18px; }
-  label { display: block; font-size: 12px; color: #555; margin-top: 8px; }
-  input[type=text] { width: 100%; font: inherit; padding: 6px; box-sizing: border-box; }
-  button { font: inherit; padding: 6px 12px; margin-top: 8px; }
-  iframe { width: 100%; border: 1px solid #ccc; border-radius: 6px; margin-top: 12px; height: 200px; }
-  pre { background: #f5f7fa; padding: 8px; font-size: 12px; overflow: auto; max-height: 240px; }
-  .row { display: flex; gap: 16px; }
+  /* freee Vibes tokens, same set as the upload app (src/mcp/file-upload-app-html.ts). */
+  body {
+    font-family: "-apple-system", BlinkMacSystemFont, "Helvetica Neue", "ヒラギノ角ゴ ProN",
+      "Hiragino Kaku Gothic ProN", Arial, "メイリオ", Meiryo, sans-serif;
+    font-size: .875rem; line-height: 1.5; margin: 1rem; max-width: 900px; color: #323232;
+  }
+  h1 { font-size: 1.125rem; }
+  h3 { font-size: .875rem; }
+  label { display: block; font-size: .75rem; color: #6e6b6b; margin-top: .5rem; }
+  input[type=text] {
+    width: 100%; font-family: inherit; font-size: .875rem; height: 2.25rem; padding: 0 .5rem;
+    border: 1px solid #dcdcdc; border-radius: .5rem; box-sizing: border-box;
+  }
+  button {
+    font-family: inherit; font-size: .875rem; font-weight: bold; height: 2.25rem; padding: 0 1rem;
+    margin-top: .5rem; border: 0; border-radius: .5rem; background: #285ac8; color: #fff; cursor: pointer;
+  }
+  iframe { width: 100%; border: 1px solid #dcdcdc; border-radius: .5rem; margin-top: .75rem; height: 200px; }
+  pre { background: #f7f5f5; padding: .5rem; font-size: .75rem; overflow: auto; max-height: 240px; border-radius: .5rem; }
+  .row { display: flex; gap: 1rem; }
   .row > div { flex: 1; min-width: 0; }
-  .err { color: #dc2626; }
+  .err { color: #dc1e32; }
 </style>
 </head>
 <body>

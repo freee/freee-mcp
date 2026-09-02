@@ -27,6 +27,7 @@
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "generate:references": "bun run scripts/generate-references.ts",
+    "generate:vibes-css": "bun run scripts/generate-vibes-css.ts",
     "fetch:schemas": "bun run scripts/fetch-schemas.ts",
     "changeset": "changeset",
     "version": "changeset version",
