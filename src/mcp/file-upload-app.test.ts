@@ -80,6 +80,27 @@ describe('file-upload-app', () => {
     });
   });
 
+  it('UI tool passes metadata read from the conversation through as prefill', async () => {
+    const { tools } = setup();
+    const result = await tools.get(FILE_UPLOAD_UI_TOOL)?.handler(
+      {
+        document_type: 'receipt',
+        receipt_metadatum_partner_name: 'テストタクシー',
+        receipt_metadatum_issue_date: '2026-09-01',
+        receipt_metadatum_amount: 1200,
+      },
+      authExtra('12345'),
+    );
+    expect(result.isError).toBeUndefined();
+    expect(result.structuredContent.prefill).toEqual({
+      document_type: 'receipt',
+      receipt_metadatum_partner_name: 'テストタクシー',
+      receipt_metadatum_issue_date: '2026-09-01',
+      receipt_metadatum_amount: 1200,
+    });
+    expect(result.content[0].text).toContain('入力済み');
+  });
+
   it('UI tool returns the upload target for the current company', async () => {
     const { tools } = setup();
     const result = await tools.get(FILE_UPLOAD_UI_TOOL)?.handler({}, authExtra('12345'));

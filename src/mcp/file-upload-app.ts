@@ -1,7 +1,11 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { MAX_FILE_SIZE_BYTES } from '../api/file-upload.js';
+import {
+  MAX_FILE_SIZE_BYTES,
+  receiptFieldsSchema,
+  type UploadReceiptOptions,
+} from '../api/file-upload.js';
 import { UPLOAD_TICKET_TTL_SECONDS } from '../constants.js';
 import { serializeErrorChain } from '../server/error-serializer.js';
 import { getCurrentRecorder } from '../server/request-context.js';
@@ -91,17 +95,26 @@ export function addFileUploadApp(server: McpServer, options: FileUploadAppOption
         'ユーザーが画面上でファイルを選択すると、ブラウザから直接 freee にアップロードされます' +
         '（ファイルの内容を LLM やツール引数に渡す必要はありません）。' +
         'ファイルボックス (POST /api/1/receipts) へのアップロードを依頼されたら、' +
-        'ファイルパスを尋ねる代わりにこのツールを呼び出してください。詳細ガイドはfreee-api-skill skillを参照',
+        'ファイルパスを尋ねる代わりにこのツールを呼び出してください。' +
+        '会話に領収書や請求書が添付されていて発行日・金額・取引先などが読み取れる場合は、' +
+        'それらを引数で渡すと画面に入力済みの状態で開きます。詳細ガイドはfreee-api-skill skillを参照',
       inputSchema: {
         company_id: z
           .union([z.string(), z.number()])
           .optional()
           .describe('事業所ID（省略時は現在の事業所）。現在の事業所と異なる場合はエラー'),
+        // Prefill: when the file is already visible in the conversation (an
+        // attached receipt, say), the model can read the values off it and the
+        // user only has to pick the file. Nothing here is required.
+        ...receiptFieldsSchema.shape,
       },
       annotations: { readOnlyHint: true, openWorldHint: false },
       _meta: { ui: { resourceUri: FILE_UPLOAD_UI_RESOURCE_URI } },
     },
-    async (args: { company_id?: string | number }, extra?: AuthExtra): Promise<CallToolResult> => {
+    async (
+      args: { company_id?: string | number } & UploadReceiptOptions,
+      extra?: AuthExtra,
+    ): Promise<CallToolResult> => {
       const recorder = getCurrentRecorder();
       const toolStart = Date.now();
       try {
@@ -124,6 +137,9 @@ export function addFileUploadApp(server: McpServer, options: FileUploadAppOption
           .catch(() => null);
         const companyName = formatCompanyName(companyInfo?.display_name ?? companyInfo?.name);
 
+        const { company_id: _ignored, ...fields } = args;
+        const prefill: UploadReceiptOptions = receiptFieldsSchema.parse(fields);
+
         recorder?.recordToolCall({
           tool: FILE_UPLOAD_UI_TOOL,
           status: 'success',
@@ -135,6 +151,9 @@ export function addFileUploadApp(server: McpServer, options: FileUploadAppOption
               type: 'text',
               text:
                 `ファイルボックスのアップロード画面を表示しました（事業所: ${companyName} / ID: ${companyId}）。\n` +
+                (Object.keys(prefill).length > 0
+                  ? '会話から読み取れた発行日・金額・取引先などは画面に入力済みです。\n'
+                  : '') +
                 'ユーザーに画面上でファイルを選択してアップロードするよう案内してください。' +
                 'アップロード完了はユーザーからの報告、またはこの画面からの通知で確認できます。\n' +
                 'この画面が表示されない環境（MCP Apps 非対応クライアント）では、' +
@@ -147,6 +166,7 @@ export function addFileUploadApp(server: McpServer, options: FileUploadAppOption
             upload_url: uploadUrl,
             max_file_size_bytes: MAX_FILE_SIZE_BYTES,
             ticket_tool: FILE_UPLOAD_TICKET_TOOL,
+            prefill,
           },
         };
       } catch (error) {

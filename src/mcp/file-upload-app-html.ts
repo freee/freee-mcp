@@ -262,9 +262,20 @@ export const FILE_UPLOAD_APP_HTML =
       return;
     }
     uploadInfo = sc;
+    applyPrefill(sc.prefill);
     els.company.textContent = '事業所: ' + (sc.company_name || '') + ' (ID: ' + sc.company_id + ')';
     els.hint.textContent = 'PDF / 画像 など、1 ファイル ' + mb(sc.max_file_size_bytes) + ' まで。複数選択可';
     fetchTicket().then(function () { setMsg(''); refreshButtons(); });
+  }
+
+  // Values the tool call carried in, e.g. read off a receipt already visible in
+  // the conversation. Filling them here means the user only picks the file.
+  function applyPrefill(prefill) {
+    if (!prefill) return;
+    META_FIELDS.forEach(function (id) {
+      var v = prefill[id];
+      if (v !== undefined && v !== null && v !== '') $(id).value = String(v);
+    });
   }
 
   function textOf(content) {

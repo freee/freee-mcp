@@ -1,11 +1,11 @@
 import { Readable } from 'node:stream';
 // Aliased so the WHATWG global `Request` used by parseMultipart is unambiguous.
 import type { Request as ExpressRequest, RequestHandler, Response } from 'express';
-import { z } from 'zod';
 import {
   FileUploadError,
   getMimeType,
   MAX_FILE_SIZE_BYTES,
+  receiptFieldsSchema,
   type UploadReceiptOptions,
   uploadReceiptBuffer,
 } from '../api/file-upload.js';
@@ -34,18 +34,6 @@ const MULTIPART_OVERHEAD_BYTES = 1_048_576; // 1 MB
 const UPLOAD_BODY_SIZE_LIMIT = MAX_FILE_SIZE_BYTES + MULTIPART_OVERHEAD_BYTES;
 
 const UPLOAD_CORS_MAX_AGE_SECONDS = 600;
-
-const uploadFieldsSchema = z.object({
-  description: z.string().max(255).optional(),
-  receipt_metadatum_partner_name: z.string().max(255).optional(),
-  receipt_metadatum_issue_date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .optional(),
-  receipt_metadatum_amount: z.coerce.number().int().optional(),
-  qualified_invoice: z.enum(['qualified', 'not_qualified', 'unselected']).optional(),
-  document_type: z.enum(['receipt', 'invoice', 'other']).optional(),
-});
 
 class PayloadTooLargeError extends Error {
   constructor() {
@@ -244,13 +232,13 @@ export function createReceiptUploadHandler(deps: UploadEndpointDeps): RequestHan
     }
 
     const rawFields: Record<string, string> = {};
-    for (const key of Object.keys(uploadFieldsSchema.shape)) {
+    for (const key of Object.keys(receiptFieldsSchema.shape)) {
       const value = form.get(key);
       if (typeof value === 'string' && value.length > 0) {
         rawFields[key] = value;
       }
     }
-    const parsedFields = uploadFieldsSchema.safeParse(rawFields);
+    const parsedFields = receiptFieldsSchema.safeParse(rawFields);
     if (!parsedFields.success) {
       sendError(
         res,

@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { z } from 'zod';
 import { getValidAccessToken } from '../auth/tokens.js';
 import { getCurrentCompanyId } from '../config/companies.js';
 import { getConfig } from '../config.js';
@@ -39,14 +40,28 @@ export class FileUploadError extends Error {
   }
 }
 
-export interface UploadReceiptOptions {
-  description?: string;
-  receipt_metadatum_partner_name?: string;
-  receipt_metadatum_issue_date?: string;
-  receipt_metadatum_amount?: number;
-  qualified_invoice?: 'qualified' | 'not_qualified' | 'unselected';
-  document_type?: 'receipt' | 'invoice' | 'other';
-}
+/**
+ * Metadata that rides along with the file itself. Shared by the browser upload
+ * endpoint (as multipart fields) and by the MCP Apps view (as prefill), so the
+ * field names and validation stay in one place.
+ */
+export const receiptFieldsSchema = z.object({
+  description: z.string().max(255).optional().describe('メモ'),
+  receipt_metadatum_partner_name: z.string().max(255).optional().describe('取引先名'),
+  receipt_metadatum_issue_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .describe('発行日（yyyy-mm-dd）'),
+  receipt_metadatum_amount: z.coerce.number().int().optional().describe('金額（税込）'),
+  qualified_invoice: z
+    .enum(['qualified', 'not_qualified', 'unselected'])
+    .optional()
+    .describe('適格請求書区分'),
+  document_type: z.enum(['receipt', 'invoice', 'other']).optional().describe('書類の種類'),
+});
+
+export type UploadReceiptOptions = z.infer<typeof receiptFieldsSchema>;
 
 const MIME_TYPES: Record<string, string> = {
   '.pdf': 'application/pdf',
