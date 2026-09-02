@@ -76,6 +76,7 @@ API リファレンスが `references/` に含まれます。各リファレン�
 ファイル操作:
 
 - `freee_file_upload` - ファイルボックスにファイルをアップロード (POST /api/1/receipts) ※ローカルモードのみ
+- `freee_file_upload_ui` - ファイルボックスへのアップロード画面（MCP Apps）を会話内に表示 ※Remote MCP のみ。ファイルの中身は LLM を経由せずブラウザから直接送られる
 
 API 呼び出し:
 

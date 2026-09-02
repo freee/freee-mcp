@@ -4,9 +4,27 @@ freee会計APIを使った証憑ファイル（レシート・請求書等）の
 
 ## ファイルアップロード
 
-`POST /api/1/receipts` は multipart/form-data が必要なため、通常の `freee_api_post` では利用できない。ローカルファイルのアップロードにはカスタムツール `freee_file_upload` を使う。
+`POST /api/1/receipts` は multipart/form-data が必要なため、通常の `freee_api_post` では利用できない。接続モードに応じて専用ツールを使う。
 
-`freee_file_upload` はローカルモードでのみ利用可能。Remote MCP を利用している場合、ファイルのアップロードは freee Web UI から行う。
+- ローカルモード（stdio）: `freee_file_upload` にローカルファイルのパスを渡す
+- Remote MCP: `freee_file_upload_ui` でアップロード画面を表示し、ユーザーが画面上でファイルを選ぶ
+
+### Remote MCP でのアップロード（freee_file_upload_ui）
+
+Remote MCP ではファイルの中身を MCP 経由で送れない（LLM のツール引数・MCP のリクエストボディにサイズ制限がある）ため、ファイルの読み込み・Base64 化・`freee_api_post` への直接投入は行わない。代わりに `freee_file_upload_ui` を呼ぶと、MCP Apps 対応クライアントの会話内にアップロード画面が表示され、ユーザーが選んだファイルはブラウザから freee MCP サーバー経由で直接 freee API に送られる（1 ファイル 64MB まで、複数選択可。メモ・取引先名・発行日・金額・書類の種類・適格請求書区分も画面で指定できる）。
+
+```
+freee_file_upload_ui {
+  "company_id": 12345
+}
+```
+
+- company_id は省略可。指定した場合は現在の事業所と一致しないとエラーになる
+- 画面で選ぶのはユーザーなので、ファイルパスや内容を尋ねる必要はない。ツール呼び出し後は「画面でファイルを選んでアップロードしてください」と案内する
+- アップロード完了時、画面から会話にファイルボックス ID が通知される。以降のメタ情報更新は通常どおり `PUT /api/1/receipts/{id}` で行う
+- MCP Apps 非対応のクライアント（画面が出ない場合）は freee Web (https://secure.freee.co.jp/receipts) からアップロードするよう案内する
+
+### ローカルモードでのアップロード（freee_file_upload）
 
 ```
 freee_file_upload {

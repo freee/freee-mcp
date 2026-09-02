@@ -88,6 +88,10 @@ Sign development mode: Use `"command": "bun", "args": ["run", "src/sign/index.ts
 - `FREEE_API_BASE_URL_SURVEY` - サーベイAPI
 - `FREEE_SIGN_API_URL` - サインAPI（`src/sign/config.ts` で処理）
 
+### Remote モードのファイルアップロード UI（MCP Apps）
+
+Remote モードでは `freee_file_upload_ui`（`src/mcp/file-upload-app.ts`）が MCP Apps の UI リソースを返し、ブラウザから `POST /upload/receipts`（`src/server/upload-endpoint.ts`）へ直接送る。ローカルでの動作確認手順は `docs/local-upload-ui-testing.md` を参照（`NODE_ENV=development` で `/dev/upload-harness` が有効になる）。
+
 ### Remote モードのロギング (canonical log line)
 
 Remote モードは「1 HTTP リクエスト = 1 ログ行 = 1 trace」パターン。ペイロード形状は `CanonicalLogPayload` (`src/server/request-context.ts`)、emit は `src/telemetry/middleware.ts` の `res.on('finish')`。
