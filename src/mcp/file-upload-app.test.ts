@@ -61,6 +61,11 @@ describe('file-upload-app', () => {
     expect(result.contents[0].mimeType).toBe(FILE_UPLOAD_UI_MIME_TYPE);
     expect(result.contents[0].text).toContain('<!DOCTYPE html>');
     expect(result.contents[0].text).toContain(FILE_UPLOAD_TICKET_TOOL);
+    // The view reports the upload back to the conversation and then asks the
+    // host to continue, instead of waiting for the user to say it finished.
+    expect(result.contents[0].text).toContain('ui/update-model-context');
+    expect(result.contents[0].text).toContain("request('ui/message'");
+    expect(result.contents[0].text).toContain('hostCapabilities.message');
     expect(result.contents[0]._meta.ui.csp.connectDomains).toEqual(['https://mcp.example.com']);
   });
 

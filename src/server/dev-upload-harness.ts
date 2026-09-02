@@ -127,7 +127,7 @@ const HARNESS_HTML = `<!DOCTYPE html>
         reply(msg.id, {
           protocolVersion: '2026-01-26',
           hostInfo: { name: 'freee-mcp-dev-harness', version: '1' },
-          hostCapabilities: {},
+          hostCapabilities: { updateModelContext: {}, message: {}, openLinks: {} },
           hostContext: { theme: 'light', displayMode: 'inline', platform: 'web', locale: 'ja-JP' }
         });
         break;

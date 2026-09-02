@@ -13,7 +13,8 @@ import { VIBES_CSS } from './vibes-css.js';
  * `ui/notifications/tool-result` that carries the upload target from
  * `freee_file_upload_ui`, a `tools/call` of `freee_file_upload_ticket` to
  * obtain the short-lived ticket, and `ui/update-model-context` to report the
- * uploaded receipt ids back to the conversation.
+ * uploaded receipt ids back to the conversation, followed by a `ui/message`
+ * so the host actually continues instead of waiting for the user.
  *
  * Keep this file free of backticks and "${" so it stays a plain template
  * literal.
@@ -186,6 +187,7 @@ export const FILE_UPLOAD_APP_HTML =
   // ---- host bridge (JSON-RPC over postMessage) ----
   var nextId = 1;
   var pending = {};
+  var hostCapabilities = {};  // from the ui/initialize result
   var uploadInfo = null;   // from freee_file_upload_ui structuredContent
   var ticketInfo = null;   // from freee_file_upload_ticket structuredContent
   var ticketPromise = null;
@@ -245,6 +247,7 @@ export const FILE_UPLOAD_APP_HTML =
     appCapabilities: {},
     protocolVersion: PROTOCOL_VERSION
   }).then(function (result) {
+    hostCapabilities = (result && result.hostCapabilities) || {};
     applyHostContext((result && result.hostContext) || {});
     notify('ui/notifications/initialized', {});
     reportSize();
@@ -352,12 +355,30 @@ export const FILE_UPLOAD_APP_HTML =
   });
 
   // ---- upload ----
-  function metaForm() {
-    var fd = new FormData();
+  // A context update does not start a turn, so the host waits for the user to
+  // say the upload finished. Post a short message instead when the host
+  // supports it (MCP Apps: ui/message), and only after something succeeded.
+  function continueConversation(okCount) {
+    if (!okCount || !hostCapabilities.message) return;
+    return request('ui/message', {
+      role: 'user',
+      content: [{ type: 'text', text: 'ファイルボックスへのアップロードが完了しました。続きの作業を進めてください。' }]
+    }).catch(function () { /* host declined the message: leave it to the user */ });
+  }
+
+  function metaValues() {
+    var out = {};
     META_FIELDS.forEach(function (id) {
       var v = $(id).value;
-      if (v !== '') fd.append(id, v);
+      if (v !== '') out[id] = v;
     });
+    return out;
+  }
+
+  function metaForm() {
+    var fd = new FormData();
+    var values = metaValues();
+    Object.keys(values).forEach(function (id) { fd.append(id, values[id]); });
     return fd;
   }
 
@@ -442,11 +463,25 @@ export const FILE_UPLOAD_APP_HTML =
           ? '- ' + r.name + ': アップロード成功 (ファイルボックスID: ' + r.id + ')'
           : '- ' + r.name + ': 失敗 (' + r.error + ')';
       });
+      // The metadata typed into the screen is sent to freee with the file, but
+      // OCR fills it in asynchronously, so report it here too: otherwise the
+      // conversation has to ask the user for the issue date and amount again.
+      var meta = metaValues();
+      var metaKeys = Object.keys(meta);
+      var text = 'ファイルボックスへのアップロード結果 (事業所ID: ' +
+        (uploadInfo && uploadInfo.company_id) + '):\\n' + lines.join('\\n');
+      if (metaKeys.length) {
+        text += '\\n画面で入力された情報:\\n' + metaKeys.map(function (k) {
+          return '- ' + k + ': ' + meta[k];
+        }).join('\\n');
+      }
       request('ui/update-model-context', {
-        content: [{ type: 'text', text: 'ファイルボックスへのアップロード結果 (事業所ID: ' +
-          (uploadInfo && uploadInfo.company_id) + '):\\n' + lines.join('\\n') }],
-        structuredContent: { company_id: uploadInfo && uploadInfo.company_id, results: results }
-      }).catch(function () { /* host without model-context support: ignore */ });
+        content: [{ type: 'text', text: text }],
+        structuredContent: {
+          company_id: uploadInfo && uploadInfo.company_id, results: results, metadata: meta
+        }
+      }).catch(function () { /* host without model-context support: ignore */ })
+        .then(function () { return continueConversation(okCount); });
     });
   });
 })();
