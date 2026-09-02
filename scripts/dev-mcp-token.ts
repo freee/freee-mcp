@@ -48,7 +48,7 @@ let current = `${issuerUrl}/authorize?${new URLSearchParams({
   scope: 'mcp:read mcp:write',
 })}`;
 let code: string | null = null;
-for (let hop = 0; hop < 8 && !code; hop++) {
+for (let hop = 0; hop < 8; hop++) {
   const response = await fetch(current, { redirect: 'manual' });
   const location = response.headers.get('location');
   if (!location) {
