@@ -82,3 +82,7 @@ export const FETCH_TIMEOUT_FILE_UPLOAD_MS = 120_000; // freee file upload (64MB 
 export const HTTP_REQUEST_TIMEOUT_MS = 10 * 60 * 1000; // 10m
 export const HTTP_HEADERS_TIMEOUT_MS = 65 * 1000; // 65s
 export const HTTP_KEEP_ALIVE_TIMEOUT_MS = 60 * 1000; // 60s
+
+// Remote-mode browser upload endpoint (used by the MCP Apps upload UI).
+export const UPLOAD_RECEIPTS_PATH = '/upload/receipts';
+export const UPLOAD_TICKET_TTL_SECONDS = 15 * 60; // 15 minutes

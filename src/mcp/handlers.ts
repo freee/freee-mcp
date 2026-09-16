@@ -3,6 +3,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { type Config, loadConfig } from '../config.js';
 import { generateClientModeTool } from '../openapi/client-mode.js';
 import { getLogger } from '../server/logger.js';
+import { addFileUploadApp, type FileUploadAppOptions } from './file-upload-app.js';
 import { addFileUploadTool } from './file-upload-tool.js';
 import { addAuthenticationTools } from './tools.js';
 
@@ -10,6 +11,12 @@ export function createMcpServer(
   config: Config,
   options?: {
     remote?: boolean;
+    /**
+     * Remote mode only: enables the MCP Apps upload UI (browser-side upload
+     * that bypasses the MCP body limit). Requires the issuer URL / JWT secret
+     * to mint upload tickets.
+     */
+    upload?: FileUploadAppOptions;
   },
 ): McpServer {
   const server = new McpServer(
@@ -25,6 +32,8 @@ export function createMcpServer(
   addAuthenticationTools(server, options);
   if (!options?.remote) {
     addFileUploadTool(server);
+  } else if (options.upload) {
+    addFileUploadApp(server, options.upload);
   }
   generateClientModeTool(server);
 
