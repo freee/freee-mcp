@@ -33,7 +33,7 @@ export function addFileUploadTool(server: McpServer): void {
           .describe('適格請求書等の区分'),
         document_type: z.enum(['receipt', 'invoice', 'other']).optional().describe('書類の種類'),
       },
-      annotations: { destructiveHint: false },
+      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
     },
     async (
       args: {

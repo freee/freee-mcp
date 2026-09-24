@@ -67,7 +67,7 @@ export function addAuthenticationTools(server: McpServer, options?: { remote?: b
     {
       title: '現在のユーザー情報',
       description: '現在のユーザー情報を取得 (詳細ガイドはfreee-api-skill skillを参照)',
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     },
     async (extra: AuthExtra) => {
       const recorder = getCurrentRecorder();
@@ -123,7 +123,7 @@ export function addAuthenticationTools(server: McpServer, options?: { remote?: b
       {
         title: 'OAuth認証',
         description: 'OAuth認証を開始、初回のみ必要 (詳細ガイドはfreee-api-skill skillを参照)',
-        annotations: { destructiveHint: false },
+        annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
       },
       async () => {
         const recorder = getCurrentRecorder();
@@ -192,7 +192,7 @@ export function addAuthenticationTools(server: McpServer, options?: { remote?: b
     {
       title: '認証状態確認',
       description: '認証状態を確認 (詳細ガイドはfreee-api-skill skillを参照)',
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     },
     async (extra: AuthExtra) => {
       const recorder = getCurrentRecorder();
@@ -239,7 +239,12 @@ export function addAuthenticationTools(server: McpServer, options?: { remote?: b
     {
       title: '認証情報クリア',
       description: '認証情報をクリア (詳細ガイドはfreee-api-skill skillを参照)',
-      annotations: { idempotentHint: true, openWorldHint: false },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
     },
     async (extra: AuthExtra) => {
       const recorder = getCurrentRecorder();
@@ -282,7 +287,12 @@ export function addAuthenticationTools(server: McpServer, options?: { remote?: b
         name: z.string().optional().describe('事業所名'),
         description: z.string().optional().describe('説明'),
       },
-      annotations: { destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
     },
     async (
       args: { company_id: string; name?: string; description?: string },
@@ -351,7 +361,7 @@ export function addAuthenticationTools(server: McpServer, options?: { remote?: b
     {
       title: '現在の事業所情報',
       description: '現在の事業所情報を表示 (詳細ガイドはfreee-api-skill skillを参照)',
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     },
     async (extra: AuthExtra) => {
       const recorder = getCurrentRecorder();
@@ -395,7 +405,7 @@ export function addAuthenticationTools(server: McpServer, options?: { remote?: b
     {
       title: '事業所一覧',
       description: '事業所一覧を表示 (詳細ガイドはfreee-api-skill skillを参照)',
-      annotations: { readOnlyHint: true },
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     },
     async (extra: AuthExtra) => {
       const recorder = getCurrentRecorder();
@@ -477,7 +487,7 @@ export function addAuthenticationTools(server: McpServer, options?: { remote?: b
     {
       title: 'サーバー情報',
       description: 'freee-mcp サーバーの情報を取得（バージョンなど）',
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     },
     async () => {
       const recorder = getCurrentRecorder();
