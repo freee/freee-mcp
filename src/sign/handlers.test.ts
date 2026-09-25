@@ -132,17 +132,14 @@ describe('sign/handlers', () => {
         ]),
       );
 
-      expect(configs.get('sign_api_get')?.annotations).toEqual({ readOnlyHint: true });
-      expect(configs.get('sign_api_post')?.annotations).toEqual({ destructiveHint: true });
-      expect(configs.get('sign_api_put')?.annotations).toEqual({
-        destructiveHint: true,
-        idempotentHint: true,
-      });
-      expect(configs.get('sign_api_patch')?.annotations).toEqual({ destructiveHint: true });
-      expect(configs.get('sign_api_delete')?.annotations).toEqual({
-        destructiveHint: true,
-        idempotentHint: true,
-      });
+      const read = { readOnlyHint: true, destructiveHint: false, openWorldHint: false };
+      const write = { readOnlyHint: false, destructiveHint: true, openWorldHint: false };
+      const idempotentWrite = { ...write, idempotentHint: true };
+      expect(configs.get('sign_api_get')?.annotations).toEqual(read);
+      expect(configs.get('sign_api_post')?.annotations).toEqual(write);
+      expect(configs.get('sign_api_put')?.annotations).toEqual(idempotentWrite);
+      expect(configs.get('sign_api_patch')?.annotations).toEqual(write);
+      expect(configs.get('sign_api_delete')?.annotations).toEqual(idempotentWrite);
     });
 
     it('sign_api_post の説明が sign_file_upload へ誘導する', () => {

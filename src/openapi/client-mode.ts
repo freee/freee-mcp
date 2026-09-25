@@ -394,7 +394,7 @@ export function generateClientModeTool(server: McpServer): void {
     {
       title: 'API エンドポイント一覧',
       description: 'freee API エンドポイント一覧 (詳細ガイドはfreee-api-skill skillを参照)',
-      annotations: { readOnlyHint: true, openWorldHint: false },
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     },
     async () => {
       const recorder = getCurrentRecorder();
