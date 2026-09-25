@@ -82,6 +82,7 @@ freee_api_get {
 - `references/pm-projects.md` - プロジェクト
 - `references/pm-workloads.md` - 工数実績・工数サマリ
 - `references/pm-workload-tag-groups.md` - 工数タグ
+- `references/pm-project-tag-groups.md` - プロジェクトタグ
 - `references/pm-sales-order-statuses.md` - 受注ステータス
 - `references/pm-labor-budgets.md` - 人件費予算
 - `references/pm-people.md` - 従業員
