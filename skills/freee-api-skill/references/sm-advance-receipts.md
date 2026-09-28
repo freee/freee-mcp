@@ -284,3 +284,22 @@ PATCH /advance_receipts/{id} と同じ
     - segment_tag_1_id: integer(int64) - セグメントタグ1のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
     - segment_tag_2_id: integer(int64) - セグメントタグ2のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
     - segment_tag_3_id: integer(int64) - セグメントタグ3のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
+
+## PUT /advance_receipts/{id}/collection_status — 決済ステータス変更
+
+概要 指定されたIDの前受金の決済ステータスを変更します。
+
+定義
+collection_status : 決済ステータス (未決済: not_settled, 決済済み: settled, 対象外: none)
+
+注意点
+freee会計と連携している前受金の決済ステータスはfreee会計の決済状況が反映されるため、本APIでは変更できません。該当データを変更しようとした場合はエラーになります。
+
+### パラメータ
+
+PATCH /advance_receipts/{id} と同じ
+
+### リクエストボディ*
+
+- company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- collection_status*: string - 決済ステータス (未決済: not_settled, 決済済み: settled, 対象外: none) (選択肢: not_settled, settled, none) 例: `settled`

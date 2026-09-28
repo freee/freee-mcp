@@ -19,8 +19,8 @@
 - end_billing_date: string(date) - 請求日の終了日
 - start_payment_date: string(date) - 入金期日の開始日
 - end_payment_date: string(date) - 入金期日の終了日
-- limit: integer - 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)
-- offset: integer - 取得レコードのオフセット (デフォルト: 0)
+- limit: integer - 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。
+- offset: integer - 取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。
 - sales_management_origin: boolean - freee販売から作成された帳票データを含める。trueを指定する場合はfreee販売から作成された帳票へのアクセス権限が必要です。
 
 ### レスポンス

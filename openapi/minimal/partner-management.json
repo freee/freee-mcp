@@ -770,6 +770,123 @@
           }
         ]
       }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/delivery_data/custom_fields": {
+      "get": {
+        "summary": "タスク納品データのカスタム項目一覧取得（β版）",
+        "description": "タスクの納品データに設定されたカスタム項目の一覧を取得する",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "freee事業所ID",
+            "explode": false
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "取得対象のタスク（発注書）ID"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト20、最大100）",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "カーソルトークン。前回レスポンスの next_page_token を指定する",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/task_line_items": {
+      "get": {
+        "summary": "タスク品目一覧取得（β版）",
+        "description": "指定したタスクに紐づくタスク品目を一覧取得する",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "freee事業所ID",
+            "explode": false
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "取得対象のタスクID"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト20、最大100）",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "カーソルトークン。前回レスポンスの next_page_token を指定する",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/task_line_items/{task_line_item_id}/custom_fields": {
+      "get": {
+        "summary": "タスク品目のカスタム項目一覧取得（β版）",
+        "description": "指定タスク品目のカスタム項目の一覧を取得する",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "freee事業所ID",
+            "explode": false
+          },
+          {
+            "name": "task_line_item_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "取得対象のタスク品目 ID"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト20、最大100）",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "カーソルトークン。前回レスポンスの next_page_token を指定する",
+            "explode": false
+          }
+        ]
+      }
     }
   }
 }

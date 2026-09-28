@@ -4245,7 +4245,7 @@
       },
       "put": {
         "summary": "経費科目の更新",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費科目を更新する</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIはリクエストボディで指定した内容への全置換で更新します。任意パラメータ（item_id, description, line_description, required_receipt）を未指定にした場合、その項目は未設定（required_receiptは任意 = false）にリセットされます。更新前の値を維持したい場合は、経費科目の取得APIで現在の値を確認し、すべてのパラメータを指定してください。</li>\n  <li>\n    以下のいずれかに該当する経費科目はWeb版freee会計専用のため、本APIでは404エラーになります。\n    <ul>\n      <li>カスタム申請項目を含む</li>\n      <li>内容の入力設定が「必須」以外</li>\n      <li>金額の設定が「なし」以外</li>\n    </ul>\n  </li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費科目を更新する</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIはリクエストボディで指定した内容への全置換で更新します。任意パラメータ（item_id, description, line_description, required_receipt）を未指定にした場合、その項目は未設定（required_receiptは任意 = false）にリセットされます。更新前の値を維持したい場合は、経費科目の取得APIで現在の値を確認し、すべてのパラメータを指定してください。</li>\n  <li>custom_form_parts と amount_calculation_setting は、パラメータ自体を省略した場合のみ現在の設定を維持します。指定した場合はその内容で全置換し、空配列（custom_form_parts: []）を指定した場合はカスタム申請項目をすべて削除します。既存のカスタム申請項目を残す場合は取得した id と key をそのまま指定してください。</li>\n  <li>\n    更新内容によっては経費科目が作り直され、レスポンスのidが更新前と変わります。カスタム申請項目や金額計算設定を変更した場合に発生し、custom_form_parts[].idも同時に振り直されます。custom_form_parts[].key は作り直されても変わらないため、カスタム申請項目を識別する用途には key を使ってください。\n    <ul>\n      <li>設定を変更してもsource_line_template_idは変わりません。経費科目を長期的に識別する用途にはこちらを保存してください。</li>\n      <li>本APIのidパラメータは変更前の経費科目IDでも受け付けますが、取得・更新・削除の前に一覧取得または経費科目の取得APIで最新のidを引き直すことを推奨します。</li>\n    </ul>\n  </li>\n  <li>\n    以下のいずれかに該当する経費科目はWeb版freee会計専用のため、本APIでは404エラーになります。\n    <ul>\n      <li>カスタム申請項目を含む</li>\n      <li>内容の入力設定が「必須」以外</li>\n      <li>金額の設定が「なし」以外</li>\n    </ul>\n  </li>\n</ul>",
         "parameters": [
           {
             "name": "id",

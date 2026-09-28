@@ -199,3 +199,22 @@ PATCH /procurements/{id} と同じ
 ### リクエストボディ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+
+## PUT /procurements/{id}/payment_status — 決済ステータス変更
+
+概要 指定されたIDの仕入の決済ステータスを変更します。
+
+定義
+payment_status : 決済ステータス (未決済: not_settled, 一部決済済み: partially_settled, 決済済み: settled, 対象外: none)
+
+注意点
+freee会計と連携している仕入の決済ステータスはfreee会計の決済状況が反映されるため、本APIでは変更できません。該当データを変更しようとした場合はエラーになります。
+
+### パラメータ
+
+PATCH /procurements/{id} と同じ
+
+### リクエストボディ*
+
+- company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- payment_status*: string - 手動設定する決済ステータス (未決済: not_settled, 一部決済済み: partially_settled, 決済済み: settled, 対象外: none) (選択肢: not_settled, partially_settled, settled, none) 例: `settled`

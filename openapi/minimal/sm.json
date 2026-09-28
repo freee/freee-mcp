@@ -1510,6 +1510,22 @@
         ]
       }
     },
+    "/sales/{id}/collection_status": {
+      "put": {
+        "summary": "決済ステータス変更",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの売上の決済ステータスを変更します。</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>collection_status : 決済ステータス (未決済: not_settled, 一部決済済み: partially_settled, 決済済み: settled, 対象外: none)</p>\n</li>\n</ul>\n<h2 id=\"_3\">注意点</h2>\n<p>freee会計と連携している売上の決済ステータスはfreee会計の決済状況が反映されるため、本APIでは変更できません。該当データを変更しようとした場合はエラーになります。</p>",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "売上ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/periodic_sales": {
       "get": {
         "summary": "定期売上一覧",
@@ -2283,6 +2299,22 @@
         ]
       }
     },
+    "/procurements/{id}/payment_status": {
+      "put": {
+        "summary": "決済ステータス変更",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの仕入の決済ステータスを変更します。</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>payment_status : 決済ステータス (未決済: not_settled, 一部決済済み: partially_settled, 決済済み: settled, 対象外: none)</p>\n</li>\n</ul>\n<h2 id=\"_3\">注意点</h2>\n<p>freee会計と連携している仕入の決済ステータスはfreee会計の決済状況が反映されるため、本APIでは変更できません。該当データを変更しようとした場合はエラーになります。</p>",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "仕入ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/advance_receipts": {
       "get": {
         "summary": "前受金一覧",
@@ -2491,6 +2523,22 @@
             "description": "前受金ID"
           }
         ]
+      }
+    },
+    "/advance_receipts/{id}/collection_status": {
+      "put": {
+        "summary": "決済ステータス変更",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの前受金の決済ステータスを変更します。</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>collection_status : 決済ステータス (未決済: not_settled, 決済済み: settled, 対象外: none)</p>\n</li>\n</ul>\n<h2 id=\"_3\">注意点</h2>\n<p>freee会計と連携している前受金の決済ステータスはfreee会計の決済状況が反映されるため、本APIでは変更できません。該当データを変更しようとした場合はエラーになります。</p>",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "前受金ID"
+          }
+        ],
+        "hasJsonBody": true
       }
     }
   }

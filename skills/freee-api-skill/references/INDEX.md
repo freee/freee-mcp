@@ -90,6 +90,7 @@
 - pm-labor-budgets.md — LaborBudgets
 - pm-partners.md — Partners
 - pm-people.md — People
+- pm-project-tag-groups.md — ProjectTagGroups
 - pm-projects.md — Projects
 - pm-sales-order-statuses.md — SalesOrderStatuses
 - pm-teams.md — Teams
@@ -136,6 +137,9 @@
 - partner-management-partner-management-orderer-project-company-users.md — partner_management_orderer_project_company_users
 - partner-management-partner-management-orderer-project-partners.md — partner_management_orderer_project_partners
 - partner-management-partner-management-orderer-projects.md — partner_management_orderer_projects
+- partner-management-partner-management-orderer-task-delivery-data-custom-fields.md — partner_management_orderer_task_delivery_data_custom_fields
+- partner-management-partner-management-orderer-task-line-items-custom-fields.md — partner_management_orderer_task_line_items_custom_fields
+- partner-management-partner-management-orderer-task-line-items.md — partner_management_orderer_task_line_items
 - partner-management-partner-management-orderer-tasks.md — partner_management_orderer_tasks
 
 ## survey - freeeサーベイ
