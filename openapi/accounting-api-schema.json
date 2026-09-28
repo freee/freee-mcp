@@ -16465,7 +16465,7 @@
           "Expense application line templates"
         ],
         "summary": "経費科目の更新",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費科目を更新する</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIはリクエストボディで指定した内容への全置換で更新します。任意パラメータ（item_id, description, line_description, required_receipt）を未指定にした場合、その項目は未設定（required_receiptは任意 = false）にリセットされます。更新前の値を維持したい場合は、経費科目の取得APIで現在の値を確認し、すべてのパラメータを指定してください。</li>\n  <li>\n    以下のいずれかに該当する経費科目はWeb版freee会計専用のため、本APIでは404エラーになります。\n    <ul>\n      <li>カスタム申請項目を含む</li>\n      <li>内容の入力設定が「必須」以外</li>\n      <li>金額の設定が「なし」以外</li>\n    </ul>\n  </li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費科目を更新する</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIはリクエストボディで指定した内容への全置換で更新します。任意パラメータ（item_id, description, line_description, required_receipt）を未指定にした場合、その項目は未設定（required_receiptは任意 = false）にリセットされます。更新前の値を維持したい場合は、経費科目の取得APIで現在の値を確認し、すべてのパラメータを指定してください。</li>\n  <li>custom_form_parts と amount_calculation_setting は、パラメータ自体を省略した場合のみ現在の設定を維持します。指定した場合はその内容で全置換し、空配列（custom_form_parts: []）を指定した場合はカスタム申請項目をすべて削除します。既存のカスタム申請項目を残す場合は取得した id と key をそのまま指定してください。</li>\n  <li>\n    更新内容によっては経費科目が作り直され、レスポンスのidが更新前と変わります。カスタム申請項目や金額計算設定を変更した場合に発生し、custom_form_parts[].idも同時に振り直されます。custom_form_parts[].key は作り直されても変わらないため、カスタム申請項目を識別する用途には key を使ってください。\n    <ul>\n      <li>設定を変更してもsource_line_template_idは変わりません。経費科目を長期的に識別する用途にはこちらを保存してください。</li>\n      <li>本APIのidパラメータは変更前の経費科目IDでも受け付けますが、取得・更新・削除の前に一覧取得または経費科目の取得APIで最新のidを引き直すことを推奨します。</li>\n    </ul>\n  </li>\n  <li>\n    以下のいずれかに該当する経費科目はWeb版freee会計専用のため、本APIでは404エラーになります。\n    <ul>\n      <li>カスタム申請項目を含む</li>\n      <li>内容の入力設定が「必須」以外</li>\n      <li>金額の設定が「なし」以外</li>\n    </ul>\n  </li>\n</ul>",
         "operationId": "update_expense_application_line_template",
         "parameters": [
           {
@@ -40366,6 +40366,716 @@
             "$ref": "#/components/schemas/expense_application_line_template"
           }
         }
+      },
+      "expenseApplicationLineTemplateCustomFormPart": {
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "type",
+          "required",
+          "annotation",
+          "default_value",
+          "unit",
+          "options"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "カスタム申請項目ID。サーバーが採番し、レスポンスでは常に返します。\n更新時に既存の項目を指す場合だけ指定し、新規に追加する項目では省略します。\n経費科目の更新で経費科目が作り直されると振り直されるため、項目を安定して識別する用途にはkeyを使ってください。",
+            "example": 1
+          },
+          "key": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "カスタム申請項目を識別する永続キー。英小文字で始まる1〜64文字の半角英小文字・数字・アンダースコアで、経費科目内で一意です。\n金額計算式からはこのキーを {key} の形式で参照します。\nWeb版freee会計で作成した項目など、キーが未設定の項目にはシステムが custom_field_ の後ろにカスタム申請項目IDを付けたキー (例: custom_field_12) を補って返します。\ncustom_field_ で始まるキーはシステム採番に予約されているため、新しい項目には指定できません。既存の項目には取得した値をそのまま送り返せます。",
+            "example": "transport"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "カスタム申請項目名 (255文字以内)",
+            "example": "交通手段"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "single_line_string",
+              "multi_line_string",
+              "date",
+              "date_range",
+              "datetime",
+              "number",
+              "pulldown",
+              "checkbox",
+              "radio_button"
+            ],
+            "description": "カスタム申請項目の入力形式 (single_line_string: 一行文字列, multi_line_string: 複数行文字列, date: 日付, date_range: 期間, datetime: 日時, number: 数値, pulldown: プルダウン, checkbox: チェックボックス, radio_button: ラジオボタン)。\n金額計算式から参照できるのは number (入力された数値)、pulldown (選択された選択肢の calculation_value)、date_range (開始日から終了日までの日数) の項目です。",
+            "example": "pulldown"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "経費申請の作成時にこの項目の入力を必須にするかどうか (true: 必須, false: 任意)",
+            "example": true
+          },
+          "annotation": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 65535,
+            "description": "カスタム申請項目の補足説明。未設定の場合はnull",
+            "example": "利用した交通手段を選択してください"
+          },
+          "default_value": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "type": "string",
+                "nullable": true,
+                "maxLength": 10000
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "カスタム申請項目の初期値。typeに応じた値で指定します (single_line_string: 255文字以内の文字列, multi_line_string: 10000文字以内の文字列, number: 整数部10桁・小数部3桁以内の数値)。\nそれ以外のtypeでは初期値を持てないためnullを指定します。未設定の場合はnull",
+            "example": "電車"
+          },
+          "unit": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "description": "数値の単位 (255文字以内)。typeがnumberの場合だけ指定できます。未設定の場合はnull",
+            "example": "km"
+          },
+          "options": {
+            "type": "array",
+            "description": "選択肢。typeがpulldown、checkbox、radio_buttonの場合に1件以上指定し、それ以外のtypeでは空配列を指定します。\ncalculation_valueはpulldownの選択肢を金額計算式から参照するときの評価値で、計算に使わない場合はすべての選択肢でnullにします。calculation_valueを指定する場合はすべての選択肢に指定します。",
+            "items": {
+              "type": "object",
+              "required": [
+                "value",
+                "calculation_value"
+              ],
+              "properties": {
+                "value": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "選択肢の表示値",
+                  "example": "電車"
+                },
+                "calculation_value": {
+                  "type": "number",
+                  "nullable": true,
+                  "description": "金額計算式から参照されたときの評価値。計算に使わない選択肢はnull",
+                  "example": 100
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationLineTemplateAmountCalculationSetting": {
+        "description": "金額計算設定。methodの値によって指定できるフィールドが変わります。\n- none: 金額設定なし (申請者が金額を入力します)。他のフィールドは持ちません\n- fixed: 固定金額。fixed_amountを持ちます\n- formula: 計算式から算出。rounding、rules、default_formulaを持ちます",
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "金額設定なし。申請者が経費申請の作成時に金額を入力します",
+            "required": [
+              "method"
+            ],
+            "properties": {
+              "method": {
+                "type": "string",
+                "enum": [
+                  "none"
+                ],
+                "description": "金額設定 (none: 金額設定なし)",
+                "example": "none"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "固定金額。経費申請の作成時にfixed_amountの金額が自動で入ります",
+            "required": [
+              "method",
+              "fixed_amount"
+            ],
+            "properties": {
+              "method": {
+                "type": "string",
+                "enum": [
+                  "fixed"
+                ],
+                "description": "金額設定 (fixed: 固定金額)",
+                "example": "fixed"
+              },
+              "fixed_amount": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "description": "固定金額 (1以上の整数)",
+                "example": 1200
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "計算式から算出。rulesを先頭から評価し、条件に一致した最初のルールの計算式で金額を算出します。どのルールにも一致しない場合はdefault_formulaを適用します",
+            "required": [
+              "method",
+              "rounding",
+              "rules",
+              "default_formula"
+            ],
+            "properties": {
+              "method": {
+                "type": "string",
+                "enum": [
+                  "formula"
+                ],
+                "description": "金額設定 (formula: 計算式から算出)",
+                "example": "formula"
+              },
+              "rounding": {
+                "type": "string",
+                "enum": [
+                  "omit",
+                  "round_up",
+                  "round"
+                ],
+                "description": "計算結果の端数処理 (omit: 切り捨て, round_up: 切り上げ, round: 四捨五入)。申請フォーム設定のauto_calculation_amount_fractionと同じ語彙です",
+                "example": "round"
+              },
+              "rules": {
+                "type": "array",
+                "maxItems": 50,
+                "description": "条件付きの金額計算ルール (50件以内)。配列の並び順に評価し、最初に条件へ一致したルールの計算式を適用します",
+                "items": {
+                  "type": "object",
+                  "description": "条件付きの金額計算ルール",
+                  "required": [
+                    "condition",
+                    "formula"
+                  ],
+                  "properties": {
+                    "condition": {
+                      "description": "ルールの適用条件。typeで条件の種類を表します。\n- applicant_position: 申請者の役職による条件。match と position_ids を持ちます\n- unsupported: 本APIで表現できない条件 (Web版freee会計の旧設定で作成された条件式)。レスポンス専用で、リクエストには指定できません。条件を変更する場合は applicant_position の条件で送り直してください",
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "description": "申請者の役職による条件",
+                          "required": [
+                            "type",
+                            "match",
+                            "position_ids"
+                          ],
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "applicant_position"
+                              ],
+                              "description": "条件の種類 (applicant_position: 申請者の役職による条件)",
+                              "example": "applicant_position"
+                            },
+                            "match": {
+                              "type": "string",
+                              "enum": [
+                                "any_of",
+                                "none_of"
+                              ],
+                              "description": "役職の比較方法 (any_of: いずれかに一致, none_of: いずれにも一致しない)",
+                              "example": "any_of"
+                            },
+                            "position_ids": {
+                              "type": "array",
+                              "minItems": 1,
+                              "description": "条件に使用する役職IDの配列 (1件以上)。役職IDは人事労務の役職から取得します",
+                              "items": {
+                                "type": "integer",
+                                "format": "int64",
+                                "minimum": 1
+                              },
+                              "example": [
+                                3,
+                                7
+                              ]
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "description": "本APIで表現できない条件。レスポンス専用で、リクエストには指定できません",
+                          "required": [
+                            "type"
+                          ],
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "unsupported"
+                              ],
+                              "description": "条件の種類 (unsupported: 本APIで表現できない条件)",
+                              "example": "unsupported"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      ],
+                      "discriminator": {
+                        "propertyName": "type",
+                        "mapping": {
+                          "applicant_position": "#/components/schemas/expenseApplicationLineTemplateApplicantPositionCondition",
+                          "unsupported": "#/components/schemas/expenseApplicationLineTemplateUnsupportedCondition"
+                        }
+                      }
+                    },
+                    "formula": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 65535,
+                      "description": "条件に一致した場合の金額計算式。次の文法 (EBNF) で表記します。\n<pre>\nformula  = expr ;\nexpr     = term { ( \"+\" | \"-\" ) term } ;\nterm     = factor { ( \"*\" | \"/\" ) factor } ;\nfactor   = number | variable | \"(\" expr \")\" ;\nvariable = \"{\" key \"}\" ;             key はカスタム申請項目の key\nnumber   = digit+ [ \".\" digit{1,3} ] ;  整数部10桁まで、負数は不可\n</pre>\n四則演算・括弧・符号なし数値・{key} 以外は指定できません。トークンの間の空白は無視し、レスポンスでは空白を除いた式を返します。\n参照できるカスタム申請項目と評価値は次のとおりです。\n- number: 入力された数値\n- pulldown: 選択された選択肢のcalculation_value (calculation_valueがnullの選択肢を持つ項目は参照できません)\n- date_range: 開始日から終了日までの日数\n- それ以外のtypeの項目は参照できません\n評価結果はroundingの指定で整数円に丸めます。\n式が文法に合わない場合は400エラーになり、エラーメッセージにエラーコード・原因のトークン・位置 (先頭を0とした文字位置) を含めます。\n除数が{key}を含まず定数として0になる式 ({amount}/0、{amount}/(1-1) など) も、同じ形式の400エラー (エラーコード division_by_zero、位置は該当する「/」) になります。除数に{key}を含む式は保存でき、申請時に0で割ることになった場合は経費申請の作成・更新が400エラーになります。",
+                      "example": "{transport}*{travel_days}*2"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "default_formula": {
+                "type": "string",
+                "nullable": true,
+                "minLength": 1,
+                "maxLength": 65535,
+                "description": "どのルールにも一致しない場合に適用する金額計算式。ルールを持たない場合はこの式で金額を算出します。\n式の文法は rules[].formula と同じです。既定の式を持たない場合はnull",
+                "example": "{transport}*{travel_days}"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "discriminator": {
+          "propertyName": "method",
+          "mapping": {
+            "none": "#/components/schemas/expenseApplicationLineTemplateAmountCalculationSettingNone",
+            "fixed": "#/components/schemas/expenseApplicationLineTemplateAmountCalculationSettingFixed",
+            "formula": "#/components/schemas/expenseApplicationLineTemplateAmountCalculationSettingFormula"
+          }
+        }
+      },
+      "expenseApplicationLineTemplateAmountCalculationSettingNone": {
+        "type": "object",
+        "description": "金額設定なし。申請者が経費申請の作成時に金額を入力します",
+        "required": [
+          "method"
+        ],
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "none"
+            ],
+            "description": "金額設定 (none: 金額設定なし)",
+            "example": "none"
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationLineTemplateAmountCalculationSettingFixed": {
+        "type": "object",
+        "description": "固定金額。経費申請の作成時にfixed_amountの金額が自動で入ります",
+        "required": [
+          "method",
+          "fixed_amount"
+        ],
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "fixed"
+            ],
+            "description": "金額設定 (fixed: 固定金額)",
+            "example": "fixed"
+          },
+          "fixed_amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "固定金額 (1以上の整数)",
+            "example": 1200
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationLineTemplateAmountCalculationSettingFormula": {
+        "type": "object",
+        "description": "計算式から算出。rulesを先頭から評価し、条件に一致した最初のルールの計算式で金額を算出します。どのルールにも一致しない場合はdefault_formulaを適用します",
+        "required": [
+          "method",
+          "rounding",
+          "rules",
+          "default_formula"
+        ],
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "formula"
+            ],
+            "description": "金額設定 (formula: 計算式から算出)",
+            "example": "formula"
+          },
+          "rounding": {
+            "type": "string",
+            "enum": [
+              "omit",
+              "round_up",
+              "round"
+            ],
+            "description": "計算結果の端数処理 (omit: 切り捨て, round_up: 切り上げ, round: 四捨五入)。申請フォーム設定のauto_calculation_amount_fractionと同じ語彙です",
+            "example": "round"
+          },
+          "rules": {
+            "type": "array",
+            "maxItems": 50,
+            "description": "条件付きの金額計算ルール (50件以内)。配列の並び順に評価し、最初に条件へ一致したルールの計算式を適用します",
+            "items": {
+              "type": "object",
+              "description": "条件付きの金額計算ルール",
+              "required": [
+                "condition",
+                "formula"
+              ],
+              "properties": {
+                "condition": {
+                  "description": "ルールの適用条件。typeで条件の種類を表します。\n- applicant_position: 申請者の役職による条件。match と position_ids を持ちます\n- unsupported: 本APIで表現できない条件 (Web版freee会計の旧設定で作成された条件式)。レスポンス専用で、リクエストには指定できません。条件を変更する場合は applicant_position の条件で送り直してください",
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "description": "申請者の役職による条件",
+                      "required": [
+                        "type",
+                        "match",
+                        "position_ids"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "applicant_position"
+                          ],
+                          "description": "条件の種類 (applicant_position: 申請者の役職による条件)",
+                          "example": "applicant_position"
+                        },
+                        "match": {
+                          "type": "string",
+                          "enum": [
+                            "any_of",
+                            "none_of"
+                          ],
+                          "description": "役職の比較方法 (any_of: いずれかに一致, none_of: いずれにも一致しない)",
+                          "example": "any_of"
+                        },
+                        "position_ids": {
+                          "type": "array",
+                          "minItems": 1,
+                          "description": "条件に使用する役職IDの配列 (1件以上)。役職IDは人事労務の役職から取得します",
+                          "items": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1
+                          },
+                          "example": [
+                            3,
+                            7
+                          ]
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "description": "本APIで表現できない条件。レスポンス専用で、リクエストには指定できません",
+                      "required": [
+                        "type"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "unsupported"
+                          ],
+                          "description": "条件の種類 (unsupported: 本APIで表現できない条件)",
+                          "example": "unsupported"
+                        }
+                      },
+                      "additionalProperties": false
+                    }
+                  ],
+                  "discriminator": {
+                    "propertyName": "type",
+                    "mapping": {
+                      "applicant_position": "#/components/schemas/expenseApplicationLineTemplateApplicantPositionCondition",
+                      "unsupported": "#/components/schemas/expenseApplicationLineTemplateUnsupportedCondition"
+                    }
+                  }
+                },
+                "formula": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 65535,
+                  "description": "条件に一致した場合の金額計算式。次の文法 (EBNF) で表記します。\n<pre>\nformula  = expr ;\nexpr     = term { ( \"+\" | \"-\" ) term } ;\nterm     = factor { ( \"*\" | \"/\" ) factor } ;\nfactor   = number | variable | \"(\" expr \")\" ;\nvariable = \"{\" key \"}\" ;             key はカスタム申請項目の key\nnumber   = digit+ [ \".\" digit{1,3} ] ;  整数部10桁まで、負数は不可\n</pre>\n四則演算・括弧・符号なし数値・{key} 以外は指定できません。トークンの間の空白は無視し、レスポンスでは空白を除いた式を返します。\n参照できるカスタム申請項目と評価値は次のとおりです。\n- number: 入力された数値\n- pulldown: 選択された選択肢のcalculation_value (calculation_valueがnullの選択肢を持つ項目は参照できません)\n- date_range: 開始日から終了日までの日数\n- それ以外のtypeの項目は参照できません\n評価結果はroundingの指定で整数円に丸めます。\n式が文法に合わない場合は400エラーになり、エラーメッセージにエラーコード・原因のトークン・位置 (先頭を0とした文字位置) を含めます。\n除数が{key}を含まず定数として0になる式 ({amount}/0、{amount}/(1-1) など) も、同じ形式の400エラー (エラーコード division_by_zero、位置は該当する「/」) になります。除数に{key}を含む式は保存でき、申請時に0で割ることになった場合は経費申請の作成・更新が400エラーになります。",
+                  "example": "{transport}*{travel_days}*2"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "default_formula": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1,
+            "maxLength": 65535,
+            "description": "どのルールにも一致しない場合に適用する金額計算式。ルールを持たない場合はこの式で金額を算出します。\n式の文法は rules[].formula と同じです。既定の式を持たない場合はnull",
+            "example": "{transport}*{travel_days}"
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationLineTemplateAmountCalculationRule": {
+        "type": "object",
+        "description": "条件付きの金額計算ルール",
+        "required": [
+          "condition",
+          "formula"
+        ],
+        "properties": {
+          "condition": {
+            "description": "ルールの適用条件。typeで条件の種類を表します。\n- applicant_position: 申請者の役職による条件。match と position_ids を持ちます\n- unsupported: 本APIで表現できない条件 (Web版freee会計の旧設定で作成された条件式)。レスポンス専用で、リクエストには指定できません。条件を変更する場合は applicant_position の条件で送り直してください",
+            "oneOf": [
+              {
+                "type": "object",
+                "description": "申請者の役職による条件",
+                "required": [
+                  "type",
+                  "match",
+                  "position_ids"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "applicant_position"
+                    ],
+                    "description": "条件の種類 (applicant_position: 申請者の役職による条件)",
+                    "example": "applicant_position"
+                  },
+                  "match": {
+                    "type": "string",
+                    "enum": [
+                      "any_of",
+                      "none_of"
+                    ],
+                    "description": "役職の比較方法 (any_of: いずれかに一致, none_of: いずれにも一致しない)",
+                    "example": "any_of"
+                  },
+                  "position_ids": {
+                    "type": "array",
+                    "minItems": 1,
+                    "description": "条件に使用する役職IDの配列 (1件以上)。役職IDは人事労務の役職から取得します",
+                    "items": {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1
+                    },
+                    "example": [
+                      3,
+                      7
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "description": "本APIで表現できない条件。レスポンス専用で、リクエストには指定できません",
+                "required": [
+                  "type"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "unsupported"
+                    ],
+                    "description": "条件の種類 (unsupported: 本APIで表現できない条件)",
+                    "example": "unsupported"
+                  }
+                },
+                "additionalProperties": false
+              }
+            ],
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "applicant_position": "#/components/schemas/expenseApplicationLineTemplateApplicantPositionCondition",
+                "unsupported": "#/components/schemas/expenseApplicationLineTemplateUnsupportedCondition"
+              }
+            }
+          },
+          "formula": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65535,
+            "description": "条件に一致した場合の金額計算式。次の文法 (EBNF) で表記します。\n<pre>\nformula  = expr ;\nexpr     = term { ( \"+\" | \"-\" ) term } ;\nterm     = factor { ( \"*\" | \"/\" ) factor } ;\nfactor   = number | variable | \"(\" expr \")\" ;\nvariable = \"{\" key \"}\" ;             key はカスタム申請項目の key\nnumber   = digit+ [ \".\" digit{1,3} ] ;  整数部10桁まで、負数は不可\n</pre>\n四則演算・括弧・符号なし数値・{key} 以外は指定できません。トークンの間の空白は無視し、レスポンスでは空白を除いた式を返します。\n参照できるカスタム申請項目と評価値は次のとおりです。\n- number: 入力された数値\n- pulldown: 選択された選択肢のcalculation_value (calculation_valueがnullの選択肢を持つ項目は参照できません)\n- date_range: 開始日から終了日までの日数\n- それ以外のtypeの項目は参照できません\n評価結果はroundingの指定で整数円に丸めます。\n式が文法に合わない場合は400エラーになり、エラーメッセージにエラーコード・原因のトークン・位置 (先頭を0とした文字位置) を含めます。\n除数が{key}を含まず定数として0になる式 ({amount}/0、{amount}/(1-1) など) も、同じ形式の400エラー (エラーコード division_by_zero、位置は該当する「/」) になります。除数に{key}を含む式は保存でき、申請時に0で割ることになった場合は経費申請の作成・更新が400エラーになります。",
+            "example": "{transport}*{travel_days}*2"
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationLineTemplateAmountCalculationCondition": {
+        "description": "ルールの適用条件。typeで条件の種類を表します。\n- applicant_position: 申請者の役職による条件。match と position_ids を持ちます\n- unsupported: 本APIで表現できない条件 (Web版freee会計の旧設定で作成された条件式)。レスポンス専用で、リクエストには指定できません。条件を変更する場合は applicant_position の条件で送り直してください",
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "申請者の役職による条件",
+            "required": [
+              "type",
+              "match",
+              "position_ids"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "applicant_position"
+                ],
+                "description": "条件の種類 (applicant_position: 申請者の役職による条件)",
+                "example": "applicant_position"
+              },
+              "match": {
+                "type": "string",
+                "enum": [
+                  "any_of",
+                  "none_of"
+                ],
+                "description": "役職の比較方法 (any_of: いずれかに一致, none_of: いずれにも一致しない)",
+                "example": "any_of"
+              },
+              "position_ids": {
+                "type": "array",
+                "minItems": 1,
+                "description": "条件に使用する役職IDの配列 (1件以上)。役職IDは人事労務の役職から取得します",
+                "items": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 1
+                },
+                "example": [
+                  3,
+                  7
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "本APIで表現できない条件。レスポンス専用で、リクエストには指定できません",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "unsupported"
+                ],
+                "description": "条件の種類 (unsupported: 本APIで表現できない条件)",
+                "example": "unsupported"
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "applicant_position": "#/components/schemas/expenseApplicationLineTemplateApplicantPositionCondition",
+            "unsupported": "#/components/schemas/expenseApplicationLineTemplateUnsupportedCondition"
+          }
+        }
+      },
+      "expenseApplicationLineTemplateApplicantPositionCondition": {
+        "type": "object",
+        "description": "申請者の役職による条件",
+        "required": [
+          "type",
+          "match",
+          "position_ids"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "applicant_position"
+            ],
+            "description": "条件の種類 (applicant_position: 申請者の役職による条件)",
+            "example": "applicant_position"
+          },
+          "match": {
+            "type": "string",
+            "enum": [
+              "any_of",
+              "none_of"
+            ],
+            "description": "役職の比較方法 (any_of: いずれかに一致, none_of: いずれにも一致しない)",
+            "example": "any_of"
+          },
+          "position_ids": {
+            "type": "array",
+            "minItems": 1,
+            "description": "条件に使用する役職IDの配列 (1件以上)。役職IDは人事労務の役職から取得します",
+            "items": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            },
+            "example": [
+              3,
+              7
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationLineTemplateUnsupportedCondition": {
+        "type": "object",
+        "description": "本APIで表現できない条件。レスポンス専用で、リクエストには指定できません",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "unsupported"
+            ],
+            "description": "条件の種類 (unsupported: 本APIで表現できない条件)",
+            "example": "unsupported"
+          }
+        },
+        "additionalProperties": false
       },
       "paymentRequestResponse": {
         "type": "object",

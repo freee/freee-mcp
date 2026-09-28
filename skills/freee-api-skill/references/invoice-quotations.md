@@ -17,8 +17,8 @@
 - end_quotation_date: string(date) - 見積日の終了日
 - start_expiration_date: string(date) - 有効期限の開始日
 - end_expiration_date: string(date) - 有効期限の終了日
-- limit: integer - 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)
-- offset: integer - 取得レコードのオフセット (デフォルト: 0)
+- limit: integer - 取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。
+- offset: integer - 取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。
 - sales_management_origin: boolean - freee販売から作成された帳票データを含める。trueを指定する場合はfreee販売から作成された帳票へのアクセス権限が必要です。
 
 ### レスポンス

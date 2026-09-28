@@ -2642,6 +2642,67 @@
         }
       }
     },
+    "/sales/{id}/collection_status": {
+      "put": {
+        "tags": [
+          "sales"
+        ],
+        "summary": "決済ステータス変更",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの売上の決済ステータスを変更します。</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>collection_status : 決済ステータス (未決済: not_settled, 一部決済済み: partially_settled, 決済済み: settled, 対象外: none)</p>\n</li>\n</ul>\n<h2 id=\"_3\">注意点</h2>\n<p>freee会計と連携している売上の決済ステータスはfreee会計の決済状況が反映されるため、本APIでは変更できません。該当データを変更しようとした場合はエラーになります。</p>",
+        "operationId": "update_sale_collection_status",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "売上ID",
+            "schema": {
+              "type": "string",
+              "minLength": 26,
+              "maxLength": 26,
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "決済ステータス変更リクエスト",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaleCollectionStatusChangeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SaleUpdateResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
     "/periodic_sales": {
       "get": {
         "tags": [
@@ -3917,6 +3978,67 @@
         }
       }
     },
+    "/procurements/{id}/payment_status": {
+      "put": {
+        "tags": [
+          "procurements"
+        ],
+        "summary": "決済ステータス変更",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの仕入の決済ステータスを変更します。</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>payment_status : 決済ステータス (未決済: not_settled, 一部決済済み: partially_settled, 決済済み: settled, 対象外: none)</p>\n</li>\n</ul>\n<h2 id=\"_3\">注意点</h2>\n<p>freee会計と連携している仕入の決済ステータスはfreee会計の決済状況が反映されるため、本APIでは変更できません。該当データを変更しようとした場合はエラーになります。</p>",
+        "operationId": "update_procurement_payment_status",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "仕入ID",
+            "schema": {
+              "type": "string",
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM",
+              "maxLength": 26,
+              "minLength": 26
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "決済ステータス変更リクエスト",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProcurementPaymentStatusChangeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ProcurementUpdateResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
     "/advance_receipts": {
       "get": {
         "tags": [
@@ -4279,6 +4401,67 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/AdvanceReceiptPeriodicReductionResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestErrorResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/ConflictErrorResponse"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequestsErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/advance_receipts/{id}/collection_status": {
+      "put": {
+        "tags": [
+          "advance_receipts"
+        ],
+        "summary": "決済ステータス変更",
+        "description": "<h2 id=\"\">概要</h2>\n<p>指定されたIDの前受金の決済ステータスを変更します。</p>\n<h2 id=\"_2\">定義</h2>\n<ul>\n<li>\n<p>collection_status : 決済ステータス (未決済: not_settled, 決済済み: settled, 対象外: none)</p>\n</li>\n</ul>\n<h2 id=\"_3\">注意点</h2>\n<p>freee会計と連携している前受金の決済ステータスはfreee会計の決済状況が反映されるため、本APIでは変更できません。該当データを変更しようとした場合はエラーになります。</p>",
+        "operationId": "update_advance_receipt_collection_status",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "前受金ID",
+            "schema": {
+              "type": "string",
+              "minLength": 26,
+              "maxLength": 26,
+              "example": "01JPP4FD1CVQWCDSWA90VE1ZTM"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "決済ステータス変更リクエスト",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdvanceReceiptCollectionStatusChangeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AdvanceReceiptUpdateResponse"
           },
           "400": {
             "$ref": "#/components/responses/BadRequestErrorResponse"
@@ -11551,6 +11734,37 @@
           }
         ]
       },
+      "ManualSettlementStatus": {
+        "description": "手動設定する決済ステータス (未決済: not_settled, 一部決済済み: partially_settled, 決済済み: settled, 対象外: none)",
+        "enum": [
+          "not_settled",
+          "partially_settled",
+          "settled",
+          "none"
+        ],
+        "type": "string",
+        "example": "settled"
+      },
+      "SaleCollectionStatusChangeRequest": {
+        "description": "決済ステータス変更リクエスト",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WithCompanyId"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "collection_status": {
+                "$ref": "#/components/schemas/ManualSettlementStatus"
+              }
+            },
+            "required": [
+              "collection_status"
+            ]
+          }
+        ]
+      },
       "PeriodicSaleDigest": {
         "type": "object",
         "properties": {
@@ -13860,6 +14074,26 @@
         },
         "additionalProperties": false
       },
+      "ProcurementPaymentStatusChangeRequest": {
+        "description": "決済ステータス変更リクエスト",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WithCompanyId"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "payment_status": {
+                "$ref": "#/components/schemas/ManualSettlementStatus"
+              }
+            },
+            "required": [
+              "payment_status"
+            ]
+          }
+        ]
+      },
       "AdvanceReceiptDigest": {
         "type": "object",
         "description": "前受金一覧情報",
@@ -14833,6 +15067,33 @@
           "last_updated_at"
         ],
         "additionalProperties": false
+      },
+      "AdvanceReceiptCollectionStatusChangeRequest": {
+        "description": "決済ステータス変更リクエスト",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/WithCompanyId"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "collection_status": {
+                "type": "string",
+                "description": "決済ステータス (未決済: not_settled, 決済済み: settled, 対象外: none)",
+                "enum": [
+                  "not_settled",
+                  "settled",
+                  "none"
+                ],
+                "example": "settled"
+              }
+            },
+            "required": [
+              "collection_status"
+            ]
+          }
+        ]
       }
     },
     "responses": {

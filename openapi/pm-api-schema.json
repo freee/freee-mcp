@@ -1831,6 +1831,88 @@
           }
         }
       }
+    },
+    "/project_tag_groups": {
+      "get": {
+        "operationId": "/project_tag_groups/index",
+        "summary": "プロジェクトタググループの取得",
+        "description": "事業所のプロジェクトタググループと、その配下に属するプロジェクトタグの一覧を取得します。",
+        "tags": [
+          "ProjectTagGroups"
+        ],
+        "parameters": [
+          {
+            "description": "事業所ID",
+            "in": "query",
+            "name": "company_id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "取得レコードの件数（デフォルト：50, 最小：1, 最大：100）",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "description": "取得レコードのオフセット（デフォルト：0）",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9223372036854776000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功時",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "project_tag_groups": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/project_tag_group"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/paths/~1projects/get/responses/200/content/application~1json/schema/properties/meta"
+                    }
+                  },
+                  "required": [
+                    "project_tag_groups",
+                    "meta"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/paths/~1users~1me/get/responses/400"
+          },
+          "401": {
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
+          },
+          "500": {
+            "$ref": "#/paths/~1users~1me/get/responses/500"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2223,7 +2305,7 @@
                   "example": 11
                 },
                 "unit_cost_id": {
-                  "description": "このプロジェクトで使用する従業員単価マスタID\n`use_standard_unit_cost: true` の場合は無視されます（その場合でも値の指定が必要です）",
+                  "description": "このプロジェクトで使用する従業員単価マスタID\n`use_standard_unit_cost: false` の場合は必須です。\n`use_standard_unit_cost: true` の場合は無視されるため省略可能です。",
                   "format": "int32",
                   "type": "integer",
                   "example": 3
@@ -2242,7 +2324,6 @@
               },
               "required": [
                 "person_id",
-                "unit_cost_id",
                 "budgets_cost"
               ]
             }
@@ -2391,7 +2472,7 @@
                   "example": 11
                 },
                 "unit_cost_id": {
-                  "description": "このプロジェクトで使用する従業員単価マスタID\n`use_standard_unit_cost: true` の場合は無視されます（その場合でも値の指定が必要です）",
+                  "description": "このプロジェクトで使用する従業員単価マスタID\n`use_standard_unit_cost: false` の場合は必須です。\n`use_standard_unit_cost: true` の場合は無視されるため省略可能です。",
                   "format": "int32",
                   "type": "integer",
                   "example": 3
@@ -2410,7 +2491,6 @@
               },
               "required": [
                 "person_id",
-                "unit_cost_id",
                 "budgets_cost"
               ]
             }
@@ -3035,6 +3115,21 @@
             "description": "プロジェクトコード",
             "example": "PRJ-A"
           },
+          "unit_cost_id": {
+            "type": "integer",
+            "description": "工数に適用された従業員単価マスタID。工数の人件費をエクスポートする権限がある場合のみ返却します。",
+            "example": 1
+          },
+          "unit_cost_name": {
+            "type": "string",
+            "description": "工数に適用された従業員単価マスタ名。工数の人件費をエクスポートする権限がある場合のみ返却します。",
+            "example": "エンジニア"
+          },
+          "unit_cost_amount": {
+            "type": "integer",
+            "description": "工数に適用された従業員単価の金額（円）。工数の人件費をエクスポートする権限がある場合のみ返却します。",
+            "example": 2000
+          },
           "memo": {
             "type": "string",
             "description": "業務内容",
@@ -3452,6 +3547,56 @@
           "id",
           "name",
           "workload_tags"
+        ]
+      },
+      "project_tag_group": {
+        "type": "object",
+        "description": "プロジェクトタググループ（配下のプロジェクトタグを含む）",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "プロジェクトタググループID",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "プロジェクトタググループ名",
+            "example": "事業部"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "プロジェクトでのタグ付けを必須にするか",
+            "example": true
+          },
+          "project_tags": {
+            "type": "array",
+            "description": "配下のプロジェクトタグ",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "description": "プロジェクトタグID",
+                  "example": 10
+                },
+                "name": {
+                  "type": "string",
+                  "description": "プロジェクトタグ名",
+                  "example": "第一チーム"
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "required",
+          "project_tags"
         ]
       },
       "error": {

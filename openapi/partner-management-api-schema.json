@@ -49,6 +49,21 @@
       "name": "partner_management_orderer_tasks",
       "description": "partner_management_orderer_tasks",
       "x-displayName": "タスク"
+    },
+    {
+      "name": "partner_management_orderer_task_delivery_data_custom_fields",
+      "description": "partner_management_orderer_task_delivery_data_custom_fields",
+      "x-displayName": "納品データのカスタム項目"
+    },
+    {
+      "name": "partner_management_orderer_task_line_items",
+      "description": "partner_management_orderer_task_line_items",
+      "x-displayName": "タスク品目"
+    },
+    {
+      "name": "partner_management_orderer_task_line_items_custom_fields",
+      "description": "partner_management_orderer_task_line_items_custom_fields",
+      "x-displayName": "タスク品目カスタム項目"
     }
   ],
   "paths": {
@@ -791,6 +806,183 @@
         },
         "tags": [
           "partner_management_orderer_tasks"
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/delivery_data/custom_fields": {
+      "get": {
+        "operationId": "list_partner_management_orderer_task_delivery_data_custom_fields",
+        "summary": "タスク納品データのカスタム項目一覧取得（β版）",
+        "description": "タスクの納品データに設定されたカスタム項目の一覧を取得する",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskDeliveryDataCustomFields.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskDeliveryDataCustomFields.ListRequest.task_id"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskDeliveryDataCustomFields.ListRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskDeliveryDataCustomFields.ListRequest.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "タスク納品データのカスタム項目一覧レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskDeliveryDataCustomFields.DeliveryCustomField"
+                      },
+                      "description": "納品データのカスタム項目一覧"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次ページのカーソルトークン。最終ページは null",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_task_delivery_data_custom_fields"
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/task_line_items": {
+      "get": {
+        "operationId": "list_partner_management_orderer_task_line_items",
+        "summary": "タスク品目一覧取得（β版）",
+        "description": "指定したタスクに紐づくタスク品目を一覧取得する",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskLineItems.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskLineItems.ListRequest.task_id"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskLineItems.ListRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskLineItems.ListRequest.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "タスク品目一覧レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItems.TaskLineItem"
+                      },
+                      "description": "タスク品目の一覧。タスク内の表示順で返す"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次ページのカーソルトークン。最終ページは null",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_task_line_items"
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/task_line_items/{task_line_item_id}/custom_fields": {
+      "get": {
+        "operationId": "list_partner_management_orderer_task_line_items_custom_fields",
+        "summary": "タスク品目のカスタム項目一覧取得（β版）",
+        "description": "指定タスク品目のカスタム項目の一覧を取得する",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskLineItemsCustomFields.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskLineItemsCustomFields.ListRequest.task_line_item_id"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskLineItemsCustomFields.ListRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskLineItemsCustomFields.ListRequest.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "タスク品目のカスタム項目一覧レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItemsCustomFields.TaskLineItemCustomField"
+                      },
+                      "description": "タスク品目カスタム項目一覧"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次ページのカーソルトークン。最終ページは null",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_task_line_items_custom_fields"
         ]
       }
     }
@@ -1766,6 +1958,141 @@
           "type": "integer",
           "format": "int32"
         }
+      },
+      "PartnerManagement.Orderer.TaskDeliveryDataCustomFields.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "freee事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.TaskDeliveryDataCustomFields.ListRequest.task_id": {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "description": "取得対象のタスク（発注書）ID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "PartnerManagement.Orderer.TaskDeliveryDataCustomFields.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト20、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.TaskDeliveryDataCustomFields.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "カーソルトークン。前回レスポンスの next_page_token を指定する",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.TaskLineItems.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "freee事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.TaskLineItems.ListRequest.task_id": {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "description": "取得対象のタスクID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "PartnerManagement.Orderer.TaskLineItems.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト20、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.TaskLineItems.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "カーソルトークン。前回レスポンスの next_page_token を指定する",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.TaskLineItemsCustomFields.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "freee事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.TaskLineItemsCustomFields.ListRequest.task_line_item_id": {
+        "name": "task_line_item_id",
+        "in": "path",
+        "required": true,
+        "description": "取得対象のタスク品目 ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "PartnerManagement.Orderer.TaskLineItemsCustomFields.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト20、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.TaskLineItemsCustomFields.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "カーソルトークン。前回レスポンスの next_page_token を指定する",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
       }
     },
     "schemas": {
@@ -2999,6 +3326,471 @@
           }
         },
         "description": "タスク",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.TaskLineItems.ItemCalculationType": {
+        "type": "string",
+        "enum": [
+          "normal",
+          "variable_work_time",
+          "time_based"
+        ],
+        "description": "品目種別 (normal: 通常, variable_work_time: 精算幅, time_based: 時間単価)"
+      },
+      "PartnerManagement.Orderer.TaskLineItems.SalesTaxRateType": {
+        "type": "string",
+        "enum": [
+          "rate_8",
+          "rate_8_keigen",
+          "rate_10",
+          "disregarded"
+        ],
+        "description": "消費税率 (rate_8: 8 %, rate_8_keigen: 軽減 8 %, rate_10: 10 %, disregarded: 対象外)"
+      },
+      "PartnerManagement.Orderer.TaskLineItems.UnitFractionType": {
+        "type": "string",
+        "enum": [
+          "ceil",
+          "round",
+          "floor"
+        ],
+        "description": "端数処理 (ceil: 切り上げ, round: 四捨五入, floor: 切り捨て)"
+      },
+      "PartnerManagement.Orderer.TaskLineItems.ItemWorkTimeVariationRule": {
+        "type": "object",
+        "required": [
+          "deduction_threshold",
+          "excess_threshold",
+          "deduction_unit_price",
+          "excess_unit_price",
+          "unit_minutes",
+          "unit_fraction_type"
+        ],
+        "properties": {
+          "deduction_threshold": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "精算幅下限 (時間)。この時間を下回った分に控除単価が適用される",
+            "example": 140
+          },
+          "excess_threshold": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "精算幅上限 (時間)。この時間を超えた分に超過単価が適用される",
+            "example": 180
+          },
+          "deduction_unit_price": {
+            "type": "integer",
+            "format": "int64",
+            "description": "控除単価 (1時間あたり)",
+            "example": 1200
+          },
+          "excess_unit_price": {
+            "type": "integer",
+            "format": "int64",
+            "description": "超過単価 (1時間あたり)",
+            "example": 1500
+          },
+          "unit_minutes": {
+            "type": "integer",
+            "format": "int32",
+            "description": "精算幅単位 (分)。1 / 15 / 30 / 60 のいずれか",
+            "example": 15
+          },
+          "unit_fraction_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItems.UnitFractionType"
+              }
+            ],
+            "description": "精算幅端数処理 (ceil: 切り上げ, round: 四捨五入, floor: 切り捨て)"
+          }
+        },
+        "description": "精算幅の設定",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.TaskLineItems.ItemTimeBasedRule": {
+        "type": "object",
+        "required": [
+          "estimated_work_time_minutes",
+          "is_following_actual",
+          "unit_minutes",
+          "unit_fraction_type"
+        ],
+        "properties": {
+          "estimated_work_time_minutes": {
+            "type": "integer",
+            "format": "int32",
+            "description": "稼働目安 (分)",
+            "example": 2400
+          },
+          "is_following_actual": {
+            "type": "boolean",
+            "description": "実績に準じるか。true のとき稼働目安ではなく提出時の実績稼働時間で数量を算出する",
+            "example": true
+          },
+          "unit_minutes": {
+            "type": "integer",
+            "format": "int32",
+            "description": "稼働時間単位 (分)。1 / 15 / 30 / 60 のいずれか",
+            "example": 15
+          },
+          "unit_fraction_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItems.UnitFractionType"
+              }
+            ],
+            "description": "稼働時間端数処理 (ceil: 切り上げ, round: 四捨五入, floor: 切り捨て)"
+          }
+        },
+        "description": "時間単価の設定",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.TaskLineItems.FreeeIntegrationItem": {
+        "type": "object",
+        "required": [
+          "freee_account_item_identifier",
+          "freee_section_identifier",
+          "freee_item_identifier",
+          "freee_tag_identifiers",
+          "freee_segment_1_tag_identifier",
+          "freee_segment_2_tag_identifier",
+          "freee_segment_3_tag_identifier"
+        ],
+        "properties": {
+          "freee_account_item_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "freee会計の勘定科目ID",
+            "example": 9001
+          },
+          "freee_section_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "freee会計の部門ID",
+            "example": 9002
+          },
+          "freee_item_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "freee会計の品目ID",
+            "example": 9003
+          },
+          "freee_tag_identifiers": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "freee会計のメモタグIDの配列",
+            "example": [
+              9004,
+              9005
+            ]
+          },
+          "freee_segment_1_tag_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "freee会計のセグメントタグID"
+          },
+          "freee_segment_2_tag_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "freee会計のセグメントタグID"
+          },
+          "freee_segment_3_tag_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "freee会計のセグメントタグID"
+          }
+        },
+        "description": "freee会計項目",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.TaskLineItems.TaskLineItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "item_calculation_type",
+          "title",
+          "estimate_quantity",
+          "quantity",
+          "quantity_unit",
+          "estimate_unit_price",
+          "unit_price",
+          "sales_tax_rate_type",
+          "estimate_total",
+          "total",
+          "work_time_minutes",
+          "work_report_target",
+          "item_work_time_variation_rule",
+          "item_time_based_rule",
+          "account_title_id",
+          "subsidiary_account_title_id",
+          "section_id",
+          "freee_integration_item",
+          "created_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "タスク品目ID",
+            "example": 45678
+          },
+          "item_calculation_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItems.ItemCalculationType"
+              }
+            ],
+            "description": "品目種別 (normal: 通常, variable_work_time: 精算幅, time_based: 時間単価)。作成後は変更不可"
+          },
+          "title": {
+            "type": "string",
+            "description": "品目名",
+            "example": "LP デザイン制作"
+          },
+          "estimate_quantity": {
+            "type": "string",
+            "nullable": true,
+            "format": "decimal",
+            "description": "発注時の数量",
+            "example": "1.0"
+          },
+          "quantity": {
+            "type": "string",
+            "nullable": true,
+            "format": "decimal",
+            "description": "提出時の数量。未提出のタスクでは estimate_quantity と同じ値が入り、提出時に数量が変更された場合に上書きされる。ただし品目種別が時間単価の場合は提出時の稼働時間から算出されるため、未提出では null"
+          },
+          "quantity_unit": {
+            "type": "string",
+            "description": "単位",
+            "example": "件"
+          },
+          "estimate_unit_price": {
+            "type": "string",
+            "nullable": true,
+            "format": "decimal",
+            "description": "発注単価 (税抜き)。\n通常: 入力した単価。estimate_quantity と掛けたものが estimate_total になる。\n時間単価: 1 時間あたりの単価。\n精算幅: 稼働時間が精算幅 (deduction_threshold 〜 excess_threshold) に収まり、超過も控除も発生しない場合の単価。\n金額の閲覧権限が無い場合は null",
+            "example": "300000.0"
+          },
+          "unit_price": {
+            "type": "string",
+            "nullable": true,
+            "format": "decimal",
+            "description": "実績単価 (税抜き)。未提出のタスクでは estimate_unit_price と同じ値が入り、提出時に精算幅の控除・超過が発生した場合に上書きされる。金額の閲覧権限が無い場合は null"
+          },
+          "sales_tax_rate_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItems.SalesTaxRateType"
+              }
+            ],
+            "nullable": true,
+            "description": "消費税率 (rate_8: 8 %, rate_8_keigen: 軽減 8 %, rate_10: 10 %, disregarded: 対象外)。金額の閲覧権限が無い場合は null"
+          },
+          "estimate_total": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "発注額 (税抜き)。estimate_unit_price × estimate_quantity を算出して保存する。金額の閲覧権限が無い場合と発注額が未確定の場合は null",
+            "example": 300000
+          },
+          "total": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "提出時の金額 (税抜き)。未提出のタスクでは estimate_total と同じ値が入り、提出時に数量や単価が変更された場合に上書きされる。提出時の数量が無い場合 (品目種別が時間単価で未提出のとき) は null。金額の閲覧権限が無い場合と発注額が未確定の場合は null"
+          },
+          "work_time_minutes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "稼働時間 (分)。提出時の入力値。品目種別が精算幅 / 時間単価の場合のみ値が入る。金額の閲覧権限が無い場合は null"
+          },
+          "work_report_target": {
+            "type": "boolean",
+            "description": "作業報告対象にするか",
+            "example": false
+          },
+          "item_work_time_variation_rule": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItems.ItemWorkTimeVariationRule"
+              }
+            ],
+            "nullable": true,
+            "description": "精算幅の設定。品目種別が精算幅の場合のみ値が入る。金額の閲覧権限が無い場合は null"
+          },
+          "item_time_based_rule": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItems.ItemTimeBasedRule"
+              }
+            ],
+            "nullable": true,
+            "description": "時間単価の設定。品目種別が時間単価の場合のみ値が入る。金額の閲覧権限が無い場合は null"
+          },
+          "account_title_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "勘定科目ID",
+            "example": 12
+          },
+          "subsidiary_account_title_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "補助科目ID。企業設定で補助科目が有効な場合のみ値が入る"
+          },
+          "section_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "部門ID",
+            "example": 34
+          },
+          "freee_integration_item": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItems.FreeeIntegrationItem"
+              }
+            ],
+            "nullable": true,
+            "description": "freee会計項目。企業が freee 会計と連携している場合のみ値が入る"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時",
+            "example": "2026-09-01T10:00:00+09:00"
+          }
+        },
+        "description": "タスク品目",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.TaskDeliveryDataCustomFields.DeliveryCustomFieldDataType": {
+        "type": "string",
+        "enum": [
+          "free_text",
+          "calendar",
+          "alphanumeric",
+          "number"
+        ],
+        "description": "納品データのカスタム項目のデータ型 (free_text: フリーテキスト, calendar: カレンダー, alphanumeric: 英数字, number: 数字)"
+      },
+      "PartnerManagement.Orderer.TaskDeliveryDataCustomFields.DeliveryCustomField": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "is_required",
+          "data_type",
+          "value"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "カスタム項目ID",
+            "example": 10
+          },
+          "name": {
+            "type": "string",
+            "description": "カスタム項目名",
+            "example": "検収番号"
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "入力必須かどうか",
+            "example": true
+          },
+          "data_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskDeliveryDataCustomFields.DeliveryCustomFieldDataType"
+              }
+            ],
+            "description": "データ形式"
+          },
+          "value": {
+            "type": "string",
+            "nullable": true,
+            "description": "入力された値。未入力の場合はnull",
+            "example": "ABC123"
+          }
+        },
+        "description": "納品データのカスタム項目",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.TaskLineItemsCustomFields.TaskLineItemCustomFieldDataType": {
+        "type": "string",
+        "enum": [
+          "free_text",
+          "calendar",
+          "alphanumeric",
+          "number"
+        ],
+        "description": "タスク品目カスタム項目のデータ型 (free_text: フリーテキスト, calendar: カレンダー, alphanumeric: 英数字, number: 数字)"
+      },
+      "PartnerManagement.Orderer.TaskLineItemsCustomFields.TaskLineItemCustomField": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "is_required",
+          "data_type",
+          "value"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "カスタム項目ID",
+            "example": 10
+          },
+          "name": {
+            "type": "string",
+            "description": "カスタム項目名",
+            "example": "契約種別"
+          },
+          "is_required": {
+            "type": "boolean",
+            "description": "入力必須かどうか",
+            "example": true
+          },
+          "data_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItemsCustomFields.TaskLineItemCustomFieldDataType"
+              }
+            ],
+            "description": "データ形式 (free_text: フリーテキスト, calendar: カレンダー, alphanumeric: 英数字, number: 数字)",
+            "example": "free_text"
+          },
+          "value": {
+            "type": "string",
+            "nullable": true,
+            "description": "入力された値。未入力の場合は null",
+            "example": "ABC123"
+          }
+        },
+        "description": "タスク品目のカスタム項目",
         "additionalProperties": false
       }
     },

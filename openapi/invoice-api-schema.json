@@ -166,7 +166,7 @@
             "name": "limit",
             "in": "query",
             "required": false,
-            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)",
+            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -177,7 +177,7 @@
             "name": "offset",
             "in": "query",
             "required": false,
-            "description": "取得レコードのオフセット (デフォルト: 0)",
+            "description": "取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。",
             "schema": {
               "type": "integer",
               "minimum": 0,
@@ -987,7 +987,7 @@
             "name": "limit",
             "in": "query",
             "required": false,
-            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)",
+            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -998,7 +998,7 @@
             "name": "offset",
             "in": "query",
             "required": false,
-            "description": "取得レコードのオフセット (デフォルト: 0)",
+            "description": "取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。",
             "schema": {
               "type": "integer",
               "minimum": 0,
@@ -1779,7 +1779,7 @@
             "name": "limit",
             "in": "query",
             "required": false,
-            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)",
+            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -1790,7 +1790,7 @@
             "name": "offset",
             "in": "query",
             "required": false,
-            "description": "取得レコードのオフセット (デフォルト: 0)",
+            "description": "取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。",
             "schema": {
               "type": "integer",
               "minimum": 0,
@@ -3370,7 +3370,7 @@
             "name": "limit",
             "in": "query",
             "required": false,
-            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)",
+            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -3381,7 +3381,7 @@
             "name": "offset",
             "in": "query",
             "required": false,
-            "description": "取得レコードのオフセット (デフォルト: 0)",
+            "description": "取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。",
             "schema": {
               "type": "integer",
               "minimum": 0,
@@ -4167,7 +4167,7 @@
             "name": "limit",
             "in": "query",
             "required": false,
-            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)",
+            "description": "取得レコードの件数 (デフォルト: 20, 最小: 1, 最大: 100)。limit と offset の合計は 10,000 を超えることはできません。",
             "schema": {
               "type": "integer",
               "minimum": 1,
@@ -4178,7 +4178,7 @@
             "name": "offset",
             "in": "query",
             "required": false,
-            "description": "取得レコードのオフセット (デフォルト: 0)",
+            "description": "取得レコードのオフセット (デフォルト: 0)。limit と offset の合計は 10,000 を超えることはできません。",
             "schema": {
               "type": "integer",
               "minimum": 0,
@@ -6544,9 +6544,11 @@
             "enum": [
               "transfer",
               "direct_debit",
-              "card"
+              "card",
+              "cash",
+              "bill_payable"
             ],
-            "description": "入金方法 (振込: transfer, 振替: direct_debit, カード: card)\n- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。"
+            "description": "入金方法 (振込: transfer, 振替: direct_debit, カード: card, 現金: cash, 手形: bill_payable)\n- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。\n- cash（現金）、bill_payable（手形）はレスポンスでのみ返却される値です。既存データやインポート、freee販売連携などで登録された請求書で返却されます。Public APIの請求書の作成・更新では指定できません。"
           },
           "memo": {
             "type": "string",
@@ -7144,9 +7146,11 @@
             "enum": [
               "transfer",
               "direct_debit",
-              "card"
+              "card",
+              "cash",
+              "bill_payable"
             ],
-            "description": "入金方法 (振込: transfer, 振替: direct_debit, カード: card)\n- payment_typeがcardの場合、決済連携（M's PayBridge連携）の設定が必要です。\n- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。"
+            "description": "入金方法 (振込: transfer, 振替: direct_debit, カード: card, 現金: cash, 手形: bill_payable)\n- payment_typeがcardの場合、決済連携（M's PayBridge連携）の設定が必要です。\n- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。\n- cash（現金）、bill_payable（手形）はレスポンスでのみ返却される値です。既存データやインポート、freee販売連携などで登録された請求書で返却されます。Public APIの請求書の作成・更新では指定できません。"
           },
           "invoice_note": {
             "type": "string",
@@ -7740,9 +7744,11 @@
             "enum": [
               "transfer",
               "direct_debit",
-              "card"
+              "card",
+              "cash",
+              "bill_payable"
             ],
-            "description": "入金方法 (振込: transfer, 振替: direct_debit, カード: card)\n- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。"
+            "description": "入金方法 (振込: transfer, 振替: direct_debit, カード: card, 現金: cash, 手形: bill_payable)\n- payment_typeがdirect_debitの場合、決済連携（M's PayBridge連携）の設定状況によって入金方法種別が異なります。M's PayBridge連携を設定済みで取引先決済連携で有効な口座が登録されている取引先の場合は、M's PayBridgeを通じて口座振替を行う入金方法種別「振替（M's PayBridge）」の請求書であることを示します。それ以外の場合は、決済基盤と連携しない入金方法種別「振替」の請求書であることを示します。\n- cash（現金）、bill_payable（手形）はレスポンスでのみ返却される値です。既存データやインポート、freee販売連携などで登録された請求書で返却されます。Public APIの請求書の作成・更新では指定できません。"
           },
           "invoice_note": {
             "type": "string",

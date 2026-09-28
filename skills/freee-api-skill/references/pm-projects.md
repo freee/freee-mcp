@@ -28,8 +28,9 @@
   ※プロジェクトマネージャーは `members` ではなく `manager_person_id` で指定する必要があります。
   配列の要素:
     - person_id*: integer(int32) - 従業員ID 例: `11`
-    - unit_cost_id*: integer(int32) - このプロジェクトで使用する従業員単価マスタID
-      `use_standard_unit_cost: true` の場合は無視されます（その場合でも値の指定が必要です） 例: `3`
+    - unit_cost_id: integer(int32) - このプロジェクトで使用する従業員単価マスタID
+      `use_standard_unit_cost: false` の場合は必須です。
+      `use_standard_unit_cost: true` の場合は無視されるため省略可能です。 例: `3`
     - budgets_cost*: integer(int32) - 予算計算用の単価(円) 例: `2000`
     - use_standard_unit_cost: boolean - 標準の従業員単価マスタの単価を利用（デフォルト：false） 例: `true`
 - orderer_ids: array[integer] - 発注元として指定する取引先IDの配列
@@ -112,8 +113,9 @@ IDに該当するプロジェクトを編集します。 プロジェクト変�
   ※プロジェクトマネージャーは `members` ではなく `manager_person_id` で指定する必要があります。
   配列の要素:
     - person_id*: integer(int32) - 従業員ID 例: `11`
-    - unit_cost_id*: integer(int32) - このプロジェクトで使用する従業員単価マスタID
-      `use_standard_unit_cost: true` の場合は無視されます（その場合でも値の指定が必要です） 例: `3`
+    - unit_cost_id: integer(int32) - このプロジェクトで使用する従業員単価マスタID
+      `use_standard_unit_cost: false` の場合は必須です。
+      `use_standard_unit_cost: true` の場合は無視されるため省略可能です。 例: `3`
     - budgets_cost*: integer(int32) - 予算計算用の単価(円) 例: `2000`
     - use_standard_unit_cost: boolean - 標準の従業員単価マスタの単価を利用（デフォルト：false） 例: `true`
 - orderer_ids: array[integer] - 発注元として指定する取引先IDの配列

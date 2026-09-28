@@ -69,7 +69,7 @@ POST /api/1/expense_application_line_templates と同じ
 概要 指定した事業所の経費科目を更新する
 
 注意点
-本APIはリクエストボディで指定した内容への全置換で更新します。任意パラメータ（item_id, description, line_description, required_receipt）を未指定にした場合、その項目は未設定（required_receiptは任意 = false）にリセットされます。更新前の値を維持したい場合は、経費科目の取得APIで現在の値を確認し、すべてのパラメータを指定してください。 以下のいずれかに該当する経費科目はWeb版freee会計専用のため、本APIでは404エラーになります。 カスタム申請項目を含む 内容の入力設定が「必須」以外 金額の設定が「なし」以外
+本APIはリクエストボディで指定した内容への全置換で更新します。任意パラメータ（item_id, description, line_description, required_receipt）を未指定にした場合、その項目は未設定（required_receiptは任意 = false）にリセットされます。更新前の値を維持したい場合は、経費科目の取得APIで現在の値を確認し、すべてのパラメータを指定してください。 custom_form_parts と amount_calculation_setting は、パラメータ自体を省略した場合のみ現在の設定を維持します。指定した場合はその内容で全置換し、空配列（custom_form_parts: []）を指定した場合はカスタム申請項目をすべて削除します。既存のカスタム申請項目を残す場合は取得した id と key をそのまま指定してください。 更新内容によっては経費科目が作り直され、レスポンスのidが更新前と変わります。カスタム申請項目や金額計算設定を変更した場合に発生し、custom_f...
 
 ### パラメータ
 
