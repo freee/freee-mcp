@@ -1,5 +1,11 @@
 # freee-mcp
 
+## 0.36.2
+
+### Patch Changes
+
+- [`8fd3dff`](https://github.com/freee/freee-mcp/commit/8fd3dff6a7426a1858723bbe36b7f11405f20b29): OpenAPI スキーマを最新版に同期 ( 11 files changed, 2228 insertions(+), 116 deletions(-))
+
 ## 0.36.1
 
 ### Patch Changes
