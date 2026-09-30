@@ -133,6 +133,7 @@ serviceパラメータ (必須):
 - `recipes/pm-operations.md` - 工数管理（プロジェクト・工数実績）
 - `recipes/pm-workload-registration.md` - 工数の安全な登録（PM・HR連携ワークフロー）
 - `recipes/sm-operations.md` - 販売管理（案件・受注）
+- `recipes/partner-management-operations.md` - 業務委託管理（パートナー・企業ユーザー・部門・プロジェクト・タスクの参照）
 - `recipes/it-management-operations.md` - IT管理（メンバー・SaaSアカウント・備品）
 - `recipes/survey-operations.md` - サーベイ（サーベイ企画・実施回の取得）
 - `recipes/launch-operations.md` - 開業（開業申請用データの参照・更新）
