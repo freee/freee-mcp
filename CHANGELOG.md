@@ -1,5 +1,12 @@
 # freee-mcp
 
+## 0.36.3
+
+### Patch Changes
+
+- [`bb6a00b`](https://github.com/freee/freee-mcp/commit/bb6a00bbbf60890443ab2432317ea6e05383886f): 工数管理スキルのレシピにプロジェクトタグ（pm-project-tag-groups）リファレンスへのリンクを追加
+- [`e1eb779`](https://github.com/freee/freee-mcp/commit/e1eb779649c6baeadc939fa080bcf4c2b5f45cfc): 業務委託管理 API のレシピを追加。`company_id` をクエリで明示指定する必要があること、および 403「事業所を作成してください。」が `company_id` 指定漏れで発生しうることと復旧手順を記載した。
+
 ## 0.36.2
 
 ### Patch Changes
