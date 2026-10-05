@@ -87,6 +87,7 @@
 
 ## pm - freee工数管理
 
+- pm-daily-attendances.md — DailyAttendances
 - pm-labor-budgets.md — LaborBudgets
 - pm-partners.md — Partners
 - pm-people.md — People

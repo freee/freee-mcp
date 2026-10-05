@@ -597,6 +597,13 @@
           }
         ]
       }
+    },
+    "/daily_attendances/bulk": {
+      "put": {
+        "summary": "勤怠情報の一括登録・更新",
+        "description": "外部勤怠データを工数管理に取り込み、工数照合に必要な日単位の勤怠情報を登録・更新します。対象従業員の勤怠連携設定が「Public API」になっていない場合はエラーになります。",
+        "hasJsonBody": true
+      }
     }
   }
 }

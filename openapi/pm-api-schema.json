@@ -1913,6 +1913,75 @@
           }
         }
       }
+    },
+    "/daily_attendances/bulk": {
+      "put": {
+        "operationId": "/daily_attendances/bulk_update",
+        "summary": "勤怠情報の一括登録・更新",
+        "description": "外部勤怠データを工数管理に取り込み、工数照合に必要な日単位の勤怠情報を登録・更新します。対象従業員の勤怠連携設定が「Public API」になっていない場合はエラーになります。",
+        "tags": [
+          "DailyAttendances"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/bulk_update_daily_attendances_param"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功時",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "person_id": {
+                      "description": "対象従業員ID",
+                      "format": "int32",
+                      "type": "integer",
+                      "example": 10
+                    },
+                    "daily_attendances": {
+                      "description": "登録・更新された勤怠情報",
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/daily_attendance"
+                      }
+                    }
+                  },
+                  "required": [
+                    "person_id",
+                    "daily_attendances"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/paths/~1users~1me/get/responses/400"
+          },
+          "401": {
+            "$ref": "#/paths/~1projects/post/responses/401"
+          },
+          "402": {
+            "$ref": "#/paths/~1projects/post/responses/402"
+          },
+          "403": {
+            "$ref": "#/paths/~1projects/post/responses/403"
+          },
+          "404": {
+            "$ref": "#/paths/~1projects/post/responses/404"
+          },
+          "500": {
+            "$ref": "#/paths/~1users~1me/get/responses/500"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2087,25 +2156,6 @@
                 "description": "受注ステータス",
                 "example": "受注済み"
               },
-              "members": {
-                "type": "array",
-                "description": "プロジェクトメンバー",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "person_id": {
-                      "type": "integer",
-                      "description": "ユーザID",
-                      "example": 1
-                    },
-                    "person_name": {
-                      "type": "string",
-                      "description": "氏名",
-                      "example": "田中太郎"
-                    }
-                  }
-                }
-              },
               "workload_tag_groups": {
                 "type": "array",
                 "description": "プロジェクトで使える工数タグのグループ",
@@ -2204,6 +2254,25 @@
           {
             "type": "object",
             "properties": {
+              "members": {
+                "type": "array",
+                "description": "プロジェクトメンバー",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "person_id": {
+                      "type": "integer",
+                      "description": "ユーザID",
+                      "example": 1
+                    },
+                    "person_name": {
+                      "type": "string",
+                      "description": "氏名",
+                      "example": "田中太郎"
+                    }
+                  }
+                }
+              },
               "project_tags": {
                 "type": "array",
                 "description": "プロジェクトタグ",
@@ -2630,25 +2699,6 @@
                 "description": "受注ステータス",
                 "example": "受注済み"
               },
-              "members": {
-                "type": "array",
-                "description": "プロジェクトメンバー",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "person_id": {
-                      "type": "integer",
-                      "description": "ユーザID",
-                      "example": 1
-                    },
-                    "person_name": {
-                      "type": "string",
-                      "description": "氏名",
-                      "example": "田中太郎"
-                    }
-                  }
-                }
-              },
               "workload_tag_groups": {
                 "type": "array",
                 "description": "プロジェクトで使える工数タグのグループ",
@@ -2747,6 +2797,49 @@
           {
             "type": "object",
             "properties": {
+              "members": {
+                "type": "array",
+                "description": "プロジェクトメンバー",
+                "items": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "person_id": {
+                          "type": "integer",
+                          "description": "ユーザID",
+                          "example": 1
+                        },
+                        "person_name": {
+                          "type": "string",
+                          "description": "氏名",
+                          "example": "田中太郎"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "unit_cost_id": {
+                          "type": "integer",
+                          "description": "このプロジェクトで使用する従業員単価マスタID\n標準の従業員単価マスタを利用している場合は、その従業員の標準単価マスタIDが入ります\n人件費の閲覧権限がある場合のみ返します",
+                          "example": 3
+                        },
+                        "budgets_cost": {
+                          "type": "integer",
+                          "description": "予算計算用の単価(円)\n人件費の閲覧権限がある場合のみ返します",
+                          "example": 2000
+                        },
+                        "use_standard_unit_cost": {
+                          "type": "boolean",
+                          "description": "従業員の標準単価マスタを使用しているかどうか\n人件費の閲覧権限がある場合のみ返します",
+                          "example": false
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
               "common_business_id": {
                 "type": "string",
                 "description": "紐づいている案件マスタの案件ID",
@@ -2754,7 +2847,7 @@
               },
               "balance": {
                 "type": "object",
-                "description": "収支管理詳細",
+                "description": "収支管理詳細\n人件費の閲覧権限がある場合のみ返します",
                 "properties": {
                   "labor_costs": {
                     "type": "object",
@@ -3325,6 +3418,104 @@
         },
         "required": [
           "company_id"
+        ]
+      },
+      "daily_attendance": {
+        "type": "object",
+        "description": "勤怠情報",
+        "properties": {
+          "date": {
+            "description": "対象日（YYYY-MM-DD）",
+            "type": "string",
+            "format": "date",
+            "example": "2026-09-21"
+          },
+          "day_status": {
+            "description": "工数カレンダー上のその日の扱い（workday: 出勤日、holiday: 休日、full_day_leave: 有給休暇・特別休暇・代休などによる全休、absence: 欠勤）",
+            "type": "string",
+            "enum": [
+              "workday",
+              "holiday",
+              "full_day_leave",
+              "absence"
+            ],
+            "example": "workday"
+          },
+          "worked_minutes": {
+            "description": "勤務時間（分）",
+            "format": "int32",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1440,
+            "example": 480
+          }
+        },
+        "required": [
+          "date",
+          "day_status",
+          "worked_minutes"
+        ]
+      },
+      "bulk_update_daily_attendances_param": {
+        "type": "object",
+        "description": "勤怠情報の一括登録・更新リクエスト",
+        "properties": {
+          "company_id": {
+            "description": "事業所ID",
+            "format": "int32",
+            "type": "integer",
+            "example": 1
+          },
+          "person_id": {
+            "description": "対象従業員ID。本人以外を指定できるのは、管理者か、対象従業員が所属するチームのリーダーとしてログインしている場合のみです。省略時はAPI利用者本人が対象です。",
+            "format": "int32",
+            "type": "integer",
+            "example": 10
+          },
+          "daily_attendances": {
+            "description": "登録・更新する勤怠情報（最大31件）。同一 date を複数指定することはできません。",
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 31,
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "description": "対象日（YYYY-MM-DD）",
+                  "type": "string",
+                  "format": "date",
+                  "example": "2026-09-21"
+                },
+                "day_status": {
+                  "description": "工数カレンダー上のその日の扱い（workday: 出勤日、holiday: 休日、full_day_leave: 有給休暇・特別休暇・代休などによる全休、absence: 欠勤）",
+                  "type": "string",
+                  "enum": [
+                    "workday",
+                    "holiday",
+                    "full_day_leave",
+                    "absence"
+                  ],
+                  "example": "workday"
+                },
+                "worked_minutes": {
+                  "description": "勤務時間（分）。省略時は0分として扱います。day_status が full_day_leave または absence の場合は0または未指定にしてください。それ以外を指定した場合はエラーになります。",
+                  "format": "int32",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1440,
+                  "example": 480
+                }
+              },
+              "required": [
+                "date",
+                "day_status"
+              ]
+            }
+          }
+        },
+        "required": [
+          "company_id",
+          "daily_attendances"
         ]
       },
       "workload_summary": {
