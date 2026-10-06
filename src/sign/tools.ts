@@ -205,7 +205,7 @@ export function addSignApiTools(server: McpServer, options?: { remote?: boolean 
           if (apiResponse === null) {
             return createTextResponse('操作が完了しました（レスポンスなし）。');
           }
-          return createTextResponse(JSON.stringify(apiResponse, null, 2));
+          return createTextResponse(JSON.stringify(apiResponse));
         } catch (error) {
           return createTextResponse(formatErrorMessage(error));
         }

@@ -65,7 +65,7 @@ export function addFileUploadTool(server: McpServer): void {
         if (receiptData.status) {
           lines.push(`ステータス: ${receiptData.status}`);
         }
-        lines.push('', JSON.stringify(result, null, 2));
+        lines.push('', JSON.stringify(result));
 
         recorder?.recordToolCall({
           tool: 'freee_file_upload',

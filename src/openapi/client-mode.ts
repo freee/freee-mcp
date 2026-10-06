@@ -276,7 +276,7 @@ function createMethodTool(method: string) {
         return createTextResponse('リクエストが正常に完了しました。');
       }
 
-      return createTextResponse(JSON.stringify(result, null, 2));
+      return createTextResponse(JSON.stringify(result));
     } catch (error) {
       recorder?.recordToolCall({
         tool: toolName,

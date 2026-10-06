@@ -76,7 +76,7 @@ export function addSignFileUploadTool(server: McpServer, options?: { remote?: bo
         if (document?.status) {
           lines.push(`ステータス: ${document.status}`);
         }
-        lines.push('', JSON.stringify(apiResponse, null, 2));
+        lines.push('', JSON.stringify(apiResponse));
         return createTextResponse(lines.join('\n'));
       } catch (error) {
         return createTextResponse(`ファイルアップロードに失敗: ${formatErrorMessage(error)}`);
