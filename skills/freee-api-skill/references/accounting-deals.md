@@ -26,6 +26,7 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
 - end_due_date: string - 支払期日で絞込：終了日(yyyy-mm-dd)
 - start_renew_date: string - +更新日で絞込：開始日(yyyy-mm-dd)
 - end_renew_date: string - +更新日で絞込：終了日(yyyy-mm-dd)
+- min_due_amount: integer(int64) - 支払残額（due_amount、未決済残高）の下限値（円）で絞込。指定した金額以上の支払残額を持つ取引のみを返します。支払残額がマイナスの取引（赤伝）は本条件で除外されます。
 - offset: integer(int64) - 取得レコードのオフセット (デフォルト: 0)
 - limit: integer(int64) - 取得レコードの件数 (デフォルト: 20, 最大: 100)
 - accruals: string - 取引の債権債務行の表示（without: 表示しない(デフォルト), with: 表示する）。withを指定した場合、債権債務行が存在する取引のレスポンスにaccrualsが含まれます。 (選択肢: without, with)

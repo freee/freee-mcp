@@ -246,6 +246,7 @@ bank_accountant_staff_users | アドバイザー事業所内でのメンバー�
 - docs*: object
 - doc_postings*: object
 - receipts*: object
+- receipt_folders*: object
 - receipt_stream_editor*: object
 - spreadsheets*: object
 - expense_applications*: object

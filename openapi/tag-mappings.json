@@ -85,7 +85,8 @@
     "LaborBudgets": "labor-budgets",
     "WorkloadTagGroups": "workload-tag-groups",
     "SalesOrderStatuses": "sales-order-statuses",
-    "ProjectTagGroups": "project-tag-groups"
+    "ProjectTagGroups": "project-tag-groups",
+    "DailyAttendances": "daily-attendances"
   },
   "sm-api": {
     "businesses": "businesses",

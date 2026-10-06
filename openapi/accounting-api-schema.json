@@ -2568,7 +2568,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/badRequestError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/badRequestError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/messagesError"
+                    }
+                  ]
                 }
               }
             }
@@ -2598,7 +2605,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/badRequestNotFoundError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/messagesError"
+                    }
+                  ]
                 }
               }
             }
@@ -2765,7 +2779,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/badRequestError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/badRequestError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/messagesError"
+                    }
+                  ]
                 }
               }
             }
@@ -2795,7 +2816,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/badRequestNotFoundError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/messagesError"
+                    }
+                  ]
                 }
               }
             }
@@ -2855,7 +2883,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/badRequestError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/badRequestError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/messagesError"
+                    }
+                  ]
                 }
               }
             }
@@ -2885,7 +2920,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/badRequestNotFoundError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/messagesError"
+                    }
+                  ]
                 }
               }
             }
@@ -3017,7 +3059,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/badRequestError"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/badRequestError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/messagesError"
+                    }
+                  ]
                 }
               }
             }
@@ -3737,6 +3786,17 @@
             "description": "+更新日で絞込：終了日(yyyy-mm-dd)",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "min_due_amount",
+            "in": "query",
+            "description": "支払残額（due_amount、未決済残高）の下限値（円）で絞込。指定した金額以上の支払残額を持つ取引のみを返します。支払残額がマイナスの取引（赤伝）は本条件で除外されます。",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 0,
+              "maximum": 9223372036854776000
             }
           },
           {
@@ -5924,6 +5984,7 @@
                     "payroll_item_sets",
                     "proxy_application_settings",
                     "purchase_requests",
+                    "receipt_folders",
                     "receipt_stream_editor",
                     "receipts",
                     "reports",
@@ -5982,6 +6043,9 @@
                     },
                     "receipts": {
                       "$ref": "#/components/schemas/userCapabilityWithSelfOnly"
+                    },
+                    "receipt_folders": {
+                      "$ref": "#/components/schemas/userCapabilityJustReadWrite"
                     },
                     "receipt_stream_editor": {
                       "$ref": "#/components/schemas/userCapabilityJustRead"
@@ -16188,7 +16252,7 @@
           "Expense application line templates"
         ],
         "summary": "経費科目一覧の取得",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費科目一覧を取得する</p>\n\n<p>経費科目は、経費申請の作成時に申請者が選択する項目で、勘定科目・税区分・品目などの組み合わせをあらかじめ設定したものです。</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>カスタム申請項目を含むなど、Web版freee会計専用の設定を含む経費科目も一覧には含まれます。ただし、これらの経費科目は経費科目の取得・更新APIでは404エラーになります。</li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費科目一覧を取得する</p>\n\n<p>経費科目は、経費申請の作成時に申請者が選択する項目で、勘定科目・税区分・品目などの組み合わせをあらかじめ設定したものです。</p>",
         "operationId": "get_expense_application_line_templates",
         "parameters": [
           {
@@ -16222,6 +16286,19 @@
               "format": "int64",
               "minimum": 1,
               "maximum": 100
+            }
+          },
+          {
+            "name": "section_ids[]",
+            "in": "query",
+            "description": "申請部門ID。指定した場合、指定部門と認証ユーザー（申請者）で利用可能な経費科目のみを返します。指定しない場合は利用可能範囲による絞り込みを行わず、従来どおりの経費科目を返します。",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1
+              }
             }
           }
         ],
@@ -16371,7 +16448,7 @@
           "Expense application line templates"
         ],
         "summary": "経費科目の取得",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費科目を取得する</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>\n    以下のいずれかに該当する経費科目はWeb版freee会計専用のため、本APIでは404エラーになります（経費科目一覧の取得APIでは取得できます）。\n    <ul>\n      <li>カスタム申請項目を含む</li>\n      <li>内容の入力設定が「必須」以外</li>\n      <li>金額の設定が「なし」以外</li>\n    </ul>\n  </li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費科目を取得する</p>",
         "operationId": "get_expense_application_line_template",
         "parameters": [
           {
@@ -16465,7 +16542,7 @@
           "Expense application line templates"
         ],
         "summary": "経費科目の更新",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費科目を更新する</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIはリクエストボディで指定した内容への全置換で更新します。任意パラメータ（item_id, description, line_description, required_receipt）を未指定にした場合、その項目は未設定（required_receiptは任意 = false）にリセットされます。更新前の値を維持したい場合は、経費科目の取得APIで現在の値を確認し、すべてのパラメータを指定してください。</li>\n  <li>custom_form_parts と amount_calculation_setting は、パラメータ自体を省略した場合のみ現在の設定を維持します。指定した場合はその内容で全置換し、空配列（custom_form_parts: []）を指定した場合はカスタム申請項目をすべて削除します。既存のカスタム申請項目を残す場合は取得した id と key をそのまま指定してください。</li>\n  <li>\n    更新内容によっては経費科目が作り直され、レスポンスのidが更新前と変わります。カスタム申請項目や金額計算設定を変更した場合に発生し、custom_form_parts[].idも同時に振り直されます。custom_form_parts[].key は作り直されても変わらないため、カスタム申請項目を識別する用途には key を使ってください。\n    <ul>\n      <li>設定を変更してもsource_line_template_idは変わりません。経費科目を長期的に識別する用途にはこちらを保存してください。</li>\n      <li>本APIのidパラメータは変更前の経費科目IDでも受け付けますが、取得・更新・削除の前に一覧取得または経費科目の取得APIで最新のidを引き直すことを推奨します。</li>\n    </ul>\n  </li>\n  <li>\n    以下のいずれかに該当する経費科目はWeb版freee会計専用のため、本APIでは404エラーになります。\n    <ul>\n      <li>カスタム申請項目を含む</li>\n      <li>内容の入力設定が「必須」以外</li>\n      <li>金額の設定が「なし」以外</li>\n    </ul>\n  </li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費科目を更新する</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIはリクエストボディで指定した内容への全置換で更新します。任意パラメータ（item_id, description, line_description, required_receipt）を未指定にした場合、その項目は未設定（required_receiptは任意 = false）にリセットされます。更新前の値を維持したい場合は、経費科目の取得APIで現在の値を確認し、すべてのパラメータを指定してください。</li>\n  <li>custom_form_parts と amount_calculation_setting は、パラメータ自体を省略した場合のみ現在の設定を維持します。指定した場合はその内容で全置換し、空配列（custom_form_parts: []）を指定した場合はカスタム申請項目をすべて削除します。既存のカスタム申請項目を残す場合は取得した id と key をそのまま指定してください。</li>\n  <li>\n    更新内容によっては経費科目が作り直され、レスポンスのidが更新前と変わります。カスタム申請項目や金額計算設定を変更した場合に発生し、custom_form_parts[].idも同時に振り直されます。custom_form_parts[].key は作り直されても変わらないため、カスタム申請項目を識別する用途には key を使ってください。\n    <ul>\n      <li>設定を変更してもsource_line_template_idは変わりません。経費科目を長期的に識別する用途にはこちらを保存してください。</li>\n      <li>本APIのidパラメータは変更前の経費科目IDでも受け付けますが、取得・更新・削除の前に一覧取得または経費科目の取得APIで最新のidを引き直すことを推奨します。</li>\n    </ul>\n  </li>\n</ul>",
         "operationId": "update_expense_application_line_template",
         "parameters": [
           {
@@ -23592,7 +23669,7 @@
                         "type": "integer",
                         "format": "int64",
                         "minimum": 1,
-                        "description": "経費科目ID",
+                        "description": "経費科目ID<br>\n申請時（draftにfalseを指定した時）は、経費科目の利用可能範囲（部門・申請者）により、section_idの部門と申請者で利用できない経費科目を指定すると400エラーになります。下書きでは利用可否を検証しません。<br>\n利用可能な経費科目は、経費科目一覧APIのsection_ids[]に部門IDを指定して取得してください。",
                         "example": 505
                       }
                     }
@@ -23788,7 +23865,7 @@
                         "type": "integer",
                         "format": "int64",
                         "minimum": 1,
-                        "description": "経費科目ID",
+                        "description": "経費科目ID<br>\n申請時（draftにfalseを指定した時）は、経費科目の利用可能範囲（部門・申請者）により、section_idの部門と申請者で利用できない経費科目を指定すると400エラーになります。下書きでは利用可否を検証しません。<br>\n利用可能な経費科目は、経費科目一覧APIのsection_ids[]に部門IDを指定して取得してください。",
                         "example": 505
                       }
                     }
@@ -34233,7 +34310,8 @@
                     "description": {
                       "type": "string",
                       "description": "備考",
-                      "example": "備考"
+                      "example": "備考",
+                      "nullable": true
                     },
                     "entry_side": {
                       "type": "string",
@@ -34814,7 +34892,8 @@
                 "description": {
                   "type": "string",
                   "description": "備考",
-                  "example": "備考"
+                  "example": "備考",
+                  "nullable": true
                 },
                 "entry_side": {
                   "type": "string",
@@ -36143,8 +36222,8 @@
           },
           "name": {
             "type": "string",
-            "maxLength": 30,
-            "description": "品目名 (30文字以内)。事業所内で重複しません。",
+            "maxLength": 255,
+            "description": "品目名 (255文字以内)。事業所内で重複しません。",
             "example": "タクシー代"
           },
           "update_date": {
@@ -36464,7 +36543,8 @@
                 "description": {
                   "type": "string",
                   "description": "備考",
-                  "example": "備考"
+                  "example": "備考",
+                  "nullable": true
                 }
               }
             }
@@ -36653,7 +36733,18 @@
                     "simple_accounting",
                     "self_only",
                     "read_only",
-                    "workflow"
+                    "workflow",
+                    "product_linkage",
+                    "bookkeeping",
+                    "bookkeeping_report",
+                    "bookkeeping_simple",
+                    "bookkeeping_simple_report",
+                    "bookkeeping_prime",
+                    "bookkeeping_prime_report",
+                    "voucher_mgt",
+                    "voucher_mgt_report",
+                    "bank_accountant",
+                    "bank_accountant_report"
                   ]
                 }
               }
@@ -36809,7 +36900,18 @@
                   "simple_accounting",
                   "self_only",
                   "read_only",
-                  "workflow"
+                  "workflow",
+                  "product_linkage",
+                  "bookkeeping",
+                  "bookkeeping_report",
+                  "bookkeeping_simple",
+                  "bookkeeping_simple_report",
+                  "bookkeeping_prime",
+                  "bookkeeping_prime_report",
+                  "voucher_mgt",
+                  "voucher_mgt_report",
+                  "bank_accountant",
+                  "bank_accountant_report"
                 ]
               },
               "phone1": {
@@ -37156,8 +37258,8 @@
                     },
                     "name": {
                       "type": "string",
-                      "maxLength": 30,
-                      "description": "品目名 (30文字以内)",
+                      "maxLength": 255,
+                      "description": "品目名 (255文字以内)",
                       "example": "タクシー代"
                     },
                     "shortcut1": {
@@ -37357,26 +37459,205 @@
         }
       },
       "unauthorizedError": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
+        "anyOf": [
+          {
+            "type": "object",
+            "description": "アクセストークンやプラン限定アプリの判定で返るエラー",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "messages": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string",
+                "example": "not_available_plan_limited_app"
+              }
+            }
           },
-          "messages": {
-            "type": "string"
+          {
+            "type": "object",
+            "description": "事業所・ユーザー・IP アドレスの判定で返るエラー",
+            "required": [
+              "status_code",
+              "errors"
+            ],
+            "properties": {
+              "status_code": {
+                "type": "integer",
+                "example": 401
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "required": [
+                    "messages",
+                    "type"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "ログインしたユーザーに権限がありません。"
+                      }
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "status",
+                      "enum": [
+                        "status",
+                        "validation",
+                        "error"
+                      ]
+                    },
+                    "codes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "company_not_found"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
-        }
+        ]
       },
       "forbiddenError": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "messages": {
+                "type": "string"
+              }
+            }
           },
-          "messages": {
-            "type": "string"
+          {
+            "type": "object",
+            "description": "事業所ロック等の判定で返るエラー",
+            "required": [
+              "status_code",
+              "errors"
+            ],
+            "properties": {
+              "status_code": {
+                "type": "integer",
+                "example": 403
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "required": [
+                    "messages",
+                    "type"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "アクセス権限がありません。"
+                      }
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "status",
+                      "enum": [
+                        "status",
+                        "validation",
+                        "error"
+                      ]
+                    },
+                    "codes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "user_do_not_have_permission"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "アクセストークンのスコープ不足で返るエラー",
+            "required": [
+              "error",
+              "message"
+            ],
+            "properties": {
+              "error": {
+                "type": "string",
+                "example": "access_denied"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "事業所の利用準備が完了していない場合に返るエラー",
+            "required": [
+              "message",
+              "error_code"
+            ],
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "error_code": {
+                "type": "string",
+                "example": "not_activated"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "管理者による代理ログイン中の操作制限で返るエラー",
+            "required": [
+              "result",
+              "message",
+              "info"
+            ],
+            "properties": {
+              "result": {
+                "type": "string",
+                "example": "error"
+              },
+              "message": {
+                "type": "string"
+              },
+              "info": {
+                "type": "object",
+                "required": [
+                  "result",
+                  "message"
+                ],
+                "properties": {
+                  "result": {
+                    "type": "string",
+                    "example": "error"
+                  },
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
           }
-        }
+        ]
       },
       "badRequestError": {
         "type": "object",
@@ -37570,41 +37851,76 @@
         }
       },
       "serviceUnavailableError": {
-        "type": "object",
-        "required": [
-          "status_code",
-          "errors"
-        ],
-        "properties": {
-          "status_code": {
-            "type": "integer",
-            "example": 503
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "required": [
-                "messages",
-                "type"
-              ],
-              "type": "object",
-              "properties": {
-                "messages": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "example": "このAPIは現在ご利用いただけません。"
+        "anyOf": [
+          {
+            "type": "object",
+            "required": [
+              "status_code",
+              "errors"
+            ],
+            "properties": {
+              "status_code": {
+                "type": "integer",
+                "example": 503
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "required": [
+                    "messages",
+                    "type"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "このAPIは現在ご利用いただけません。"
+                      }
+                    },
+                    "type": {
+                      "type": "string",
+                      "example": "error",
+                      "enum": [
+                        "status",
+                        "error"
+                      ]
+                    }
                   }
-                },
-                "type": {
-                  "type": "string",
-                  "example": "error",
-                  "enum": [
-                    "status",
-                    "error"
-                  ]
                 }
               }
+            }
+          },
+          {
+            "type": "object",
+            "description": "一時的な利用停止や年度締めの処理中に返るエラー",
+            "required": [
+              "message"
+            ],
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string",
+                "example": "temporarily_unavailable"
+              }
+            }
+          }
+        ]
+      },
+      "messagesError": {
+        "type": "object",
+        "required": [
+          "messages"
+        ],
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "存在しないか既に削除された部門です。"
             }
           }
         }
@@ -39049,7 +39365,17 @@
                         "self_only",
                         "read_only",
                         "workflow",
-                        "product_linkage"
+                        "product_linkage",
+                        "bookkeeping",
+                        "bookkeeping_report",
+                        "bookkeeping_simple",
+                        "bookkeeping_simple_report",
+                        "bookkeeping_prime",
+                        "bookkeeping_prime_report",
+                        "voucher_mgt",
+                        "voucher_mgt_report",
+                        "bank_accountant",
+                        "bank_accountant_report"
                       ]
                     },
                     "use_custom_role": {
@@ -40353,6 +40679,31 @@
             "type": "boolean",
             "description": "添付ファイルの必須/任意（true: 経費申請の作成時に領収書などのファイル添付が必須, false: ファイル添付は任意）",
             "example": true
+          },
+          "line_content_setting": {
+            "type": "string",
+            "enum": [
+              "optional",
+              "required",
+              "disable"
+            ],
+            "description": "内容の入力設定（optional: 経費申請の作成時に内容欄の入力が任意, required: 内容欄の入力が必須, disable: 内容欄を表示しない）",
+            "example": "required"
+          },
+          "custom_form_parts": {
+            "type": "array",
+            "description": "カスタム申請項目。表示順に並びます。定義はリクエストと共通で、取得した内容をそのまま作成・更新へ送り返せます",
+            "items": {
+              "$ref": "#/components/schemas/expenseApplicationLineTemplateCustomFormPart"
+            }
+          },
+          "amount_calculation_setting": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/expenseApplicationLineTemplateAmountCalculationSetting"
+              }
+            ],
+            "description": "金額計算設定。定義はリクエストと共通で、取得した内容をそのまま作成・更新へ送り返せます"
           }
         }
       },
@@ -40384,7 +40735,7 @@
             "type": "integer",
             "format": "int64",
             "minimum": 1,
-            "description": "カスタム申請項目ID。サーバーが採番し、レスポンスでは常に返します。\n更新時に既存の項目を指す場合だけ指定し、新規に追加する項目では省略します。\n経費科目の更新で経費科目が作り直されると振り直されるため、項目を安定して識別する用途にはkeyを使ってください。",
+            "description": "カスタム申請項目ID。サーバーが採番し、レスポンスでは常に返します。\n更新時に既存の項目を指す場合だけ指定し、新規に追加する項目では省略します。\n作成時は指定しても無視され、新しいIDが採番されます。取得した経費科目の内容をそのまま送ると、その内容をコピーした経費科目を作成できます。\n経費科目の更新で経費科目が作り直されると振り直されるため、項目を安定して識別する用途にはkeyを使ってください。",
             "example": 1
           },
           "key": {
@@ -42507,6 +42858,60 @@
             "type": "boolean",
             "example": true,
             "description": "添付ファイルの必須/任意<br>\nfalseを指定した時は申請時の領収書の添付を任意とします。<br>\ntrueを指定した時は申請時の領収書の添付を必須とします。<br>\n未指定の時は申請時の領収書の添付を任意とします。"
+          },
+          "line_content_setting": {
+            "type": "string",
+            "enum": [
+              "optional",
+              "required",
+              "disable"
+            ],
+            "example": "required",
+            "description": "内容の入力設定（optional: 経費申請の作成時に内容欄の入力が任意, required: 内容欄の入力が必須, disable: 内容欄を表示しない）<br>\n作成時に未指定の場合はrequiredになります。<br>\n更新時に省略した場合は変更しません（他の基本項目と異なり全置換の対象外です）。"
+          },
+          "available_section_ids": {
+            "type": "array",
+            "maxItems": 500,
+            "items": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            },
+            "example": [
+              1,
+              2
+            ],
+            "description": "利用可能な部門IDの配列。経費申請の部門が指定した部門のいずれかの場合に、この経費科目を選択できます（申請者の所属部門ではなく、経費申請で指定した部門で判定します）。<br>\navailable_user_idsと両方を設定した場合は、どちらかの設定に該当すれば選択できます。両方が空の場合は制限なしとなり、全従業員が選択できます。<br>\n空配列を指定すると部門による制限を解除します。更新時に省略した場合は変更しません。"
+          },
+          "available_user_ids": {
+            "type": "array",
+            "maxItems": 500,
+            "items": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            },
+            "example": [
+              10,
+              11
+            ],
+            "description": "利用可能な事業所メンバー (ユーザー) IDの配列。経費申請の申請者が指定したメンバーのいずれかの場合に、経費申請の部門に関わらずこの経費科目を選択できます。<br>\navailable_section_idsと両方を設定した場合は、どちらかの設定に該当すれば選択できます。両方が空の場合は制限なしとなり、全従業員が選択できます。<br>\n空配列を指定するとメンバーによる制限を解除します。更新時に省略した場合は変更しません。"
+          },
+          "custom_form_parts": {
+            "type": "array",
+            "maxItems": 20,
+            "description": "カスタム申請項目 (20件以内)。配列の並び順が経費申請の作成時の表示順になります。定義はレスポンスと共通で、取得した内容をそのまま送り返せます。\n作成時はidを指定しても無視され、すべて新しい項目として作成されます。\n更新時は指定した内容でカスタム申請項目を全置換します。既存の項目を残す場合はidとkeyを、新しく追加する項目はidを省略してkeyを指定します。\n更新時に省略した場合は変更しません。空配列を指定した場合はカスタム申請項目をすべて削除します。",
+            "items": {
+              "$ref": "#/components/schemas/expenseApplicationLineTemplateCustomFormPart"
+            }
+          },
+          "amount_calculation_setting": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/expenseApplicationLineTemplateAmountCalculationSetting"
+              }
+            ],
+            "description": "金額計算設定。定義はレスポンスと共通で、取得した内容をそのまま送り返せます。\n計算式はカスタム申請項目のkeyを {key} の形式で参照します。同じリクエストのcustom_form_partsで指定したkeyを参照できます。\n更新時は指定した内容で金額計算設定を全置換します。更新時に省略した場合は変更しません。"
           }
         }
       },
