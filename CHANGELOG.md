@@ -1,5 +1,12 @@
 # freee-mcp
 
+## 0.36.4
+
+### Patch Changes
+
+- [`b18138f`](https://github.com/freee/freee-mcp/commit/b18138f920624ba77d42e6ff55690d1766f350e0): API レスポンスを minified JSON で返すようにし、コンテキストのトークン消費を削減
+- [`9290dd3`](https://github.com/freee/freee-mcp/commit/9290dd3f522e6731422a6ab853abc9e931cc3843): OpenAPI スキーマを最新版に同期 ( 5 files changed, 725 insertions(+), 109 deletions(-))
+
 ## 0.36.3
 
 ### Patch Changes
