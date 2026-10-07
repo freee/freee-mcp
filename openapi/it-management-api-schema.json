@@ -11,9 +11,19 @@
   },
   "tags": [
     {
+      "name": "it_management_applications",
+      "description": "applications",
+      "x-displayName": "アプリ"
+    },
+    {
       "name": "it_management_application_accounts",
       "description": "application_accounts",
       "x-displayName": "アカウント"
+    },
+    {
+      "name": "it_management_application_masters",
+      "description": "application_masters",
+      "x-displayName": "アプリマスタ"
     },
     {
       "name": "it_management_assets",
@@ -21,14 +31,34 @@
       "x-displayName": "備品"
     },
     {
+      "name": "it_management_asset_attributes",
+      "description": "asset_attributes",
+      "x-displayName": "備品属性"
+    },
+    {
       "name": "it_management_asset_categories",
       "description": "asset_categories",
       "x-displayName": "備品種別"
     },
     {
+      "name": "it_management_asset_locations",
+      "description": "asset_locations",
+      "x-displayName": "備品保管場所"
+    },
+    {
+      "name": "it_management_asset_members",
+      "description": "asset_members",
+      "x-displayName": "備品利用者"
+    },
+    {
       "name": "it_management_asset_statuses",
       "description": "asset_statuses",
       "x-displayName": "備品ステータス"
+    },
+    {
+      "name": "it_management_custom_application_masters",
+      "description": "custom_application_masters",
+      "x-displayName": "カスタムアプリマスタ"
     },
     {
       "name": "it_management_departments",
@@ -42,6 +72,158 @@
     }
   ],
   "paths": {
+    "/hub/it_management/applications": {
+      "get": {
+        "operationId": "list_it_management_applications",
+        "summary": "アプリ一覧取得（β版）",
+        "description": "利用中 (未アーカイブ) のアプリ一覧をカーソルページネーションで取得します。\n`keyword` を指定すると、テナント名、アプリ名、標準アプリの slug、標準アプリの提供会社名を対象に部分一致検索を行います (空白区切りで AND 検索)。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Applications.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Applications.ListRequest.keyword"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Applications.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Applications.ListRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "アプリ一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ItManagement.Applications.Application"
+                      },
+                      "description": "アプリのリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_applications"
+        ]
+      }
+    },
+    "/hub/it_management/applications/{id}": {
+      "get": {
+        "operationId": "get_it_management_application",
+        "summary": "アプリ詳細取得（β版）",
+        "description": "アプリの詳細を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Applications.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Applications.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "アプリ詳細取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.Applications.Application"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_applications"
+        ]
+      },
+      "patch": {
+        "operationId": "partial_update_it_management_application",
+        "summary": "アプリ部分更新（β版）",
+        "description": "アプリの所属会社 / テナント名を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。\n- アプリ名はこの API では変更できません。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Applications.PartialUpdateRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "アプリ部分更新レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.Applications.Application"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_applications"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "it_management_company_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "所属会社 (IT管理の会社) の ID。指定すると、アプリの所属会社を変更します。存在しない ID を指定すると 422 になります (エラーの invalid_fields では company_id と表示されます)",
+                    "example": "550e8400-e29b-41d4-a716-446655440001"
+                  },
+                  "tenant_name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "各テナントで管理しているアプリ表示名。標準アプリ / カスタムアプリのどちらも更新できます",
+                    "example": "本社 Slack"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
     "/hub/it_management/application_accounts": {
       "get": {
         "operationId": "list_it_management_application_accounts",
@@ -345,6 +527,98 @@
         ]
       }
     },
+    "/hub/it_management/application_masters": {
+      "get": {
+        "operationId": "list_it_management_application_masters",
+        "summary": "アプリマスタ一覧取得（β版）",
+        "description": "freee IT管理 のアプリカタログに含まれる標準アプリマスタの一覧をカーソルページネーションで取得します。\n`keyword` を指定すると、アプリ名、slug、提供会社名を対象に部分一致検索を行います (空白区切りで AND 検索)。\n\n## 注意点\n\n- ロールが「一般」のユーザーでは、一覧は常に空になります。詳細取得は利用できます。\n- フリープランでは、プランで利用できるアプリマスタだけが返ります。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ApplicationMasters.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ApplicationMasters.ListRequest.keyword"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ApplicationMasters.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ApplicationMasters.ListRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "アプリマスタ一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ItManagement.ApplicationMasters.ApplicationMaster"
+                      },
+                      "description": "アプリマスタのリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_application_masters"
+        ]
+      }
+    },
+    "/hub/it_management/application_masters/{id}": {
+      "get": {
+        "operationId": "get_it_management_application_master",
+        "summary": "アプリマスタ詳細取得（β版）",
+        "description": "アプリマスタの詳細を取得します。\n\n## 注意点\n\n- フリープランでは、プランで利用できないアプリマスタを指定すると 404 になります。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ApplicationMasters.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ApplicationMasters.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "アプリマスタ詳細取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.ApplicationMasters.ApplicationMaster"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_application_masters"
+        ]
+      }
+    },
     "/hub/it_management/assets": {
       "get": {
         "operationId": "list_it_management_assets",
@@ -487,6 +761,20 @@
                     "format": "uuid",
                     "description": "種別ID",
                     "example": "550e8400-e29b-41d4-a716-446655440002"
+                  },
+                  "asset_location_id": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "uuid",
+                    "description": "保管場所ID",
+                    "example": "550e8400-e29b-41d4-a716-446655440004"
+                  },
+                  "asset_attribute_values": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ItManagement.Assets.AssetAttributeValueInput"
+                    },
+                    "description": "備品属性の値のリスト。asset_attribute_id には、指定した種別に紐づく備品属性を指定します"
                   }
                 },
                 "required": [
@@ -613,6 +901,20 @@
                     "format": "uuid",
                     "description": "種別ID",
                     "example": "550e8400-e29b-41d4-a716-446655440002"
+                  },
+                  "asset_location_id": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "uuid",
+                    "description": "保管場所ID。null を指定すると保管場所の紐付けを解除します。省略した場合は現在の紐付けを維持します",
+                    "example": "550e8400-e29b-41d4-a716-446655440004"
+                  },
+                  "asset_attribute_values": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ItManagement.Assets.AssetAttributeValueInput"
+                    },
+                    "description": "備品属性の値のリスト。指定した備品属性の値だけを更新し、指定しなかった備品属性の値は維持します。省略した場合は値を変更しません。asset_attribute_id には、備品の種別に紐づく備品属性を指定します"
                   }
                 },
                 "additionalProperties": false
@@ -644,6 +946,300 @@
         },
         "tags": [
           "it_management_assets"
+        ]
+      }
+    },
+    "/hub/it_management/asset_attributes": {
+      "get": {
+        "operationId": "list_it_management_asset_attributes",
+        "summary": "備品属性一覧取得（β版）",
+        "description": "備品属性の一覧をカーソルページネーションで取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetAttributes.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetAttributes.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetAttributes.ListRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "備品属性一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ItManagement.AssetAttributes.AssetAttribute"
+                      },
+                      "description": "備品属性のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_attributes"
+        ]
+      },
+      "post": {
+        "operationId": "create_it_management_asset_attribute",
+        "summary": "備品属性作成（β版）",
+        "description": "備品属性を作成します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "備品属性作成レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.AssetAttributes.AssetAttribute"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_attributes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "description": "備品属性名",
+                    "example": "シリアル番号"
+                  },
+                  "input_kind": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/ItManagement.AssetAttributes.InputKind"
+                      }
+                    ],
+                    "description": "入力種別"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "アイコン識別子",
+                    "example": "hash"
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "options": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "選択肢のリスト",
+                        "example": [
+                          "新品",
+                          "中古"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "options"
+                    ],
+                    "nullable": true,
+                    "description": "`select` 種別の選択肢 (`select` の場合は必須)",
+                    "additionalProperties": false
+                  },
+                  "allow_duplicate": {
+                    "type": "boolean",
+                    "description": "重複を許可するか (`integer` 種別のみ意味を持つ、デフォルト true)",
+                    "example": true
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "name",
+                  "input_kind"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/it_management/asset_attributes/{id}": {
+      "get": {
+        "operationId": "get_it_management_asset_attribute",
+        "summary": "備品属性詳細取得（β版）",
+        "description": "備品属性の詳細を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetAttributes.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetAttributes.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "備品属性詳細取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.AssetAttributes.AssetAttribute"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_attributes"
+        ]
+      },
+      "patch": {
+        "operationId": "partial_update_it_management_asset_attribute",
+        "summary": "備品属性部分更新（β版）",
+        "description": "備品属性を部分的に更新します。system-managed な属性は更新できません。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetAttributes.PartialUpdateRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "備品属性部分更新レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.AssetAttributes.AssetAttribute"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_attributes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "description": "備品属性名",
+                    "example": "シリアル番号"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "アイコン識別子",
+                    "example": "hash"
+                  },
+                  "options": {
+                    "type": "object",
+                    "properties": {
+                      "options": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "description": "選択肢のリスト",
+                        "example": [
+                          "新品",
+                          "中古"
+                        ]
+                      }
+                    },
+                    "nullable": true,
+                    "description": "`select` 種別の選択肢",
+                    "additionalProperties": false
+                  },
+                  "allow_duplicate": {
+                    "type": "boolean",
+                    "description": "重複を許可するか (`integer` 種別のみ意味を持つ)",
+                    "example": true
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      },
+      "delete": {
+        "operationId": "delete_it_management_asset_attribute",
+        "summary": "備品属性削除（β版）",
+        "description": "備品属性を削除します。system-managed な属性は削除できません。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetAttributes.DeleteRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetAttributes.DeleteRequest.id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "備品属性削除レスポンス"
+          }
+        },
+        "tags": [
+          "it_management_asset_attributes"
         ]
       }
     },
@@ -866,6 +1462,532 @@
         },
         "tags": [
           "it_management_asset_categories"
+        ]
+      }
+    },
+    "/hub/it_management/asset_locations": {
+      "get": {
+        "operationId": "list_it_management_asset_locations",
+        "summary": "備品保管場所一覧取得（β版）",
+        "description": "備品保管場所の一覧をカーソルページネーションで取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetLocations.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetLocations.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetLocations.ListRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "備品保管場所一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ItManagement.AssetLocations.AssetLocation"
+                      },
+                      "description": "備品保管場所のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_locations"
+        ]
+      },
+      "post": {
+        "operationId": "create_it_management_asset_location",
+        "summary": "備品保管場所作成（β版）",
+        "description": "備品保管場所を作成します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "備品保管場所作成レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.AssetLocations.AssetLocation"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_locations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "備品保管場所名",
+                    "example": "本社"
+                  },
+                  "zipcode": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 7,
+                    "description": "郵便番号(ハイフンなし、7桁)",
+                    "example": "1410033"
+                  },
+                  "prefecture": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "都道府県名 (北海道、東京都 等) または都道府県コード (\"01\"〜\"47\")",
+                    "example": "東京都"
+                  },
+                  "address": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255,
+                    "description": "住所",
+                    "example": "品川区西品川1丁目2-1"
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/it_management/asset_locations/{id}": {
+      "get": {
+        "operationId": "get_it_management_asset_location",
+        "summary": "備品保管場所詳細取得（β版）",
+        "description": "備品保管場所の詳細を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetLocations.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetLocations.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "備品保管場所詳細取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.AssetLocations.AssetLocation"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_locations"
+        ]
+      },
+      "patch": {
+        "operationId": "partial_update_it_management_asset_location",
+        "summary": "備品保管場所部分更新（β版）",
+        "description": "備品保管場所を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetLocations.PartialUpdateRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "備品保管場所部分更新レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.AssetLocations.AssetLocation"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_locations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "備品保管場所名",
+                    "example": "本社"
+                  },
+                  "zipcode": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 7,
+                    "description": "郵便番号(ハイフンなし、7桁)",
+                    "example": "1410033"
+                  },
+                  "prefecture": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "都道府県名 (北海道、東京都 等) または都道府県コード (\"01\"〜\"47\")",
+                    "example": "東京都"
+                  },
+                  "address": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255,
+                    "description": "住所",
+                    "example": "品川区西品川1丁目2-1"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      },
+      "delete": {
+        "operationId": "delete_it_management_asset_location",
+        "summary": "備品保管場所削除（β版）",
+        "description": "備品保管場所を削除します。使用中 (アクティブな備品配置がある) の保管場所は削除できません。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetLocations.DeleteRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetLocations.DeleteRequest.id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "備品保管場所削除レスポンス"
+          }
+        },
+        "tags": [
+          "it_management_asset_locations"
+        ]
+      }
+    },
+    "/hub/it_management/assets/{asset_id}/members": {
+      "get": {
+        "operationId": "list_it_management_asset_members",
+        "summary": "備品利用者一覧取得（β版）",
+        "description": "指定した備品の利用者履歴をカーソルページネーションで取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.ListRequest.asset_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.ListRequest.current"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.ListRequest.member_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.ListRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "備品利用者一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ItManagement.AssetMembers.AssetMember"
+                      },
+                      "description": "備品利用者のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_members"
+        ]
+      },
+      "post": {
+        "operationId": "create_it_management_asset_member",
+        "summary": "備品にメンバーを割当（β版）",
+        "description": "備品にメンバーを割当てます。\n\n## 注意点\n\n- start_at を省略すると当日になります。\n- 現在割当中のメンバーがいて、start_at を省略するか現在の割当の開始日以降を指定した場合、現在の割当は自動で終了します。終了日には新しい start_at (省略時は当日) が設定されます。\n- end_at を省略すると null (現在割当中) になります。ただし start_at を指定し、その日以降に始まる別の履歴がある場合は、その履歴の start_at が end_at に設定されます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.CreateRequest.asset_id"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "備品利用者作成レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.AssetMembers.AssetMember"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_members"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "member_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "メンバーID",
+                    "example": "550e8400-e29b-41d4-a716-446655440001"
+                  },
+                  "start_at": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date",
+                    "description": "割当開始日 (YYYY-MM-DD)。省略時は当日",
+                    "example": "2026-01-01"
+                  },
+                  "end_at": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date",
+                    "description": "割当終了日 (YYYY-MM-DD)。省略時は null (現在割当中)。ただし start_at を指定し、その日以降に始まる別の履歴がある場合は、その履歴の start_at が設定されます",
+                    "example": "2026-12-31"
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "member_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/it_management/assets/{asset_id}/members/{id}": {
+      "get": {
+        "operationId": "get_it_management_asset_member",
+        "summary": "備品利用者詳細取得（β版）",
+        "description": "指定した備品利用者の詳細を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.GetRequest.asset_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "備品利用者詳細取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.AssetMembers.AssetMember"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_members"
+        ]
+      },
+      "patch": {
+        "operationId": "partial_update_it_management_asset_member",
+        "summary": "備品利用者部分更新（β版）",
+        "description": "備品利用者の start_at / end_at を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.PartialUpdateRequest.asset_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.PartialUpdateRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "備品利用者部分更新レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.AssetMembers.AssetMember"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_asset_members"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "start_at": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "割当開始日 (YYYY-MM-DD)",
+                    "example": "2026-01-01"
+                  },
+                  "end_at": {
+                    "type": "string",
+                    "nullable": true,
+                    "format": "date",
+                    "description": "割当終了日 (YYYY-MM-DD)",
+                    "example": "2026-12-31"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      },
+      "delete": {
+        "operationId": "delete_it_management_asset_member",
+        "summary": "備品利用者削除（β版）",
+        "description": "備品利用者の履歴を物理削除します。履歴を残したまま利用を終了する場合は、部分更新 (PATCH) で end_at を指定してください。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.DeleteRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.DeleteRequest.asset_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.AssetMembers.DeleteRequest.id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "備品利用者削除レスポンス"
+          }
+        },
+        "tags": [
+          "it_management_asset_members"
         ]
       }
     },
@@ -1105,6 +2227,152 @@
         "tags": [
           "it_management_asset_statuses"
         ]
+      }
+    },
+    "/hub/it_management/custom_application_masters": {
+      "get": {
+        "operationId": "list_it_management_custom_application_masters",
+        "summary": "カスタムアプリマスタ一覧取得（β版）",
+        "description": "テナント内で定義されているカスタムアプリマスタ (カスタムアプリの元になるカタログ) の一覧をカーソルページネーションで取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.CustomApplicationMasters.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.CustomApplicationMasters.ListRequest.keyword"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.CustomApplicationMasters.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.CustomApplicationMasters.ListRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "カスタムアプリマスタ一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ItManagement.CustomApplicationMasters.CustomApplicationMaster"
+                      },
+                      "description": "カスタムアプリマスタのリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_custom_application_masters"
+        ]
+      }
+    },
+    "/hub/it_management/custom_application_masters/{id}": {
+      "get": {
+        "operationId": "get_it_management_custom_application_master",
+        "summary": "カスタムアプリマスタ詳細取得（β版）",
+        "description": "カスタムアプリマスタの詳細を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.CustomApplicationMasters.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.CustomApplicationMasters.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "カスタムアプリマスタ詳細取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.CustomApplicationMasters.CustomApplicationMaster"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_custom_application_masters"
+        ]
+      },
+      "patch": {
+        "operationId": "partial_update_it_management_custom_application_master",
+        "summary": "カスタムアプリマスタ部分更新（β版）",
+        "description": "カスタムアプリマスタの name を部分的に更新します。\n\n## 注意点\n\n- 同じマスタを複数のカスタムアプリ (Application) が共有している場合、\n  rename は共有している全 Application の表示 name に反映されます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.CustomApplicationMasters.PartialUpdateRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "カスタムアプリマスタ部分更新レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.CustomApplicationMasters.CustomApplicationMaster"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_custom_application_masters"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "カスタムアプリマスタ名",
+                    "example": "社内システム"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
       }
     },
     "/hub/it_management/departments": {
@@ -1819,6 +3087,81 @@
           ]
         }
       },
+      "ItManagement.Applications.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.Applications.ListRequest.keyword": {
+        "name": "keyword",
+        "in": "query",
+        "required": false,
+        "description": "テナント名 / アプリ名 / 標準アプリの slug / 標準アプリの提供会社名の部分一致検索キーワード (空白区切りで AND 検索)",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.Applications.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.Applications.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "explode": false
+      },
+      "ItManagement.Applications.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.Applications.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "アプリID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.Applications.PartialUpdateRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "アプリID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
       "ItManagement.ApplicationAccounts.ListRequest.company_id": {
         "name": "company_id",
         "in": "query",
@@ -1943,6 +3286,71 @@
         "in": "path",
         "required": true,
         "description": "アカウントID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.ApplicationMasters.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.ApplicationMasters.ListRequest.keyword": {
+        "name": "keyword",
+        "in": "query",
+        "required": false,
+        "description": "アプリ名 / slug / 提供会社名の部分一致検索キーワード (空白区切りで AND 検索)",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.ApplicationMasters.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.ApplicationMasters.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "explode": false
+      },
+      "ItManagement.ApplicationMasters.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.ApplicationMasters.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "アプリマスタID",
         "schema": {
           "type": "string",
           "format": "uuid"
@@ -2077,6 +3485,92 @@
           "format": "uuid"
         }
       },
+      "ItManagement.AssetAttributes.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetAttributes.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetAttributes.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "explode": false
+      },
+      "ItManagement.AssetAttributes.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetAttributes.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "備品属性ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetAttributes.PartialUpdateRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "備品属性ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetAttributes.DeleteRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetAttributes.DeleteRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "備品属性ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
       "ItManagement.AssetCategories.ListRequest.company_id": {
         "name": "company_id",
         "in": "query",
@@ -2163,6 +3657,249 @@
           "format": "uuid"
         }
       },
+      "ItManagement.AssetLocations.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetLocations.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetLocations.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "explode": false
+      },
+      "ItManagement.AssetLocations.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetLocations.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "備品保管場所ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetLocations.PartialUpdateRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "備品保管場所ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetLocations.DeleteRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetLocations.DeleteRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "備品保管場所ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetMembers.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetMembers.ListRequest.asset_id": {
+        "name": "asset_id",
+        "in": "path",
+        "required": true,
+        "description": "備品ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetMembers.ListRequest.current": {
+        "name": "current",
+        "in": "query",
+        "required": false,
+        "description": "`true` の場合、現在割当中 (end_at が null) のみを返す",
+        "schema": {
+          "type": "boolean"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetMembers.ListRequest.member_id": {
+        "name": "member_id",
+        "in": "query",
+        "required": false,
+        "description": "メンバー ID による絞り込み",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetMembers.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetMembers.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "explode": false
+      },
+      "ItManagement.AssetMembers.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetMembers.GetRequest.asset_id": {
+        "name": "asset_id",
+        "in": "path",
+        "required": true,
+        "description": "備品ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetMembers.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "備品利用者ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetMembers.CreateRequest.asset_id": {
+        "name": "asset_id",
+        "in": "path",
+        "required": true,
+        "description": "備品ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetMembers.PartialUpdateRequest.asset_id": {
+        "name": "asset_id",
+        "in": "path",
+        "required": true,
+        "description": "備品ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetMembers.PartialUpdateRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "備品利用者ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetMembers.DeleteRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.AssetMembers.DeleteRequest.asset_id": {
+        "name": "asset_id",
+        "in": "path",
+        "required": true,
+        "description": "備品ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.AssetMembers.DeleteRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "備品利用者ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
       "ItManagement.AssetStatuses.ListRequest.company_id": {
         "name": "company_id",
         "in": "query",
@@ -2244,6 +3981,81 @@
         "in": "path",
         "required": true,
         "description": "備品ステータスID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.CustomApplicationMasters.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.CustomApplicationMasters.ListRequest.keyword": {
+        "name": "keyword",
+        "in": "query",
+        "required": false,
+        "description": "名前の部分一致検索キーワード",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.CustomApplicationMasters.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.CustomApplicationMasters.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "explode": false
+      },
+      "ItManagement.CustomApplicationMasters.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.CustomApplicationMasters.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "カスタムアプリマスタID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.CustomApplicationMasters.PartialUpdateRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "カスタムアプリマスタID",
         "schema": {
           "type": "string",
           "format": "uuid"
@@ -2529,6 +4341,138 @@
       }
     },
     "schemas": {
+      "ItManagement.Applications.ResourceType": {
+        "type": "string",
+        "enum": [
+          "ApplicationMaster",
+          "CustomApplicationMaster"
+        ],
+        "description": "アプリマスタ種別"
+      },
+      "ItManagement.Applications.CompanyRef": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "会社ID",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          },
+          "name": {
+            "type": "string",
+            "description": "会社名",
+            "example": "株式会社サンプル"
+          }
+        },
+        "description": "会社参照",
+        "additionalProperties": false
+      },
+      "ItManagement.Applications.Application": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "tenant_name",
+          "external_id",
+          "slug",
+          "resource_type",
+          "resource_id",
+          "custom_application",
+          "archived",
+          "order",
+          "company",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "アプリID",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "description": "アプリ名 (標準アプリはアプリマスタの名前、カスタムアプリはカスタムアプリマスタの名前)",
+            "example": "Slack"
+          },
+          "tenant_name": {
+            "type": "string",
+            "description": "各テナントで管理しているアプリ表示名",
+            "example": "本社 Slack"
+          },
+          "external_id": {
+            "type": "string",
+            "description": "アプリの外部識別子",
+            "example": "slack-ent-001"
+          },
+          "slug": {
+            "type": "string",
+            "nullable": true,
+            "description": "標準アプリの slug (custom_application が true の場合は null)",
+            "example": "slack"
+          },
+          "resource_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItManagement.Applications.ResourceType"
+              }
+            ],
+            "description": "紐づくアプリマスタの種別"
+          },
+          "resource_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "紐づくアプリマスタの id",
+            "example": "550e8400-e29b-41d4-a716-446655440010"
+          },
+          "custom_application": {
+            "type": "boolean",
+            "description": "カスタムアプリかどうか",
+            "example": false
+          },
+          "archived": {
+            "type": "boolean",
+            "description": "アーカイブ済みかどうか。一覧取得では常に false。詳細取得ではアーカイブ済みのアプリも返す",
+            "example": false
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "表示順",
+            "example": 1
+          },
+          "company": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItManagement.Applications.CompanyRef"
+              }
+            ],
+            "nullable": true,
+            "description": "所属会社。作成時に既定の会社が割り当てられる。アーカイブ済みのアプリでは null"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時(ISO8601)",
+            "example": "2026-01-01T00:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新日時(ISO8601)",
+            "example": "2026-01-01T00:00:00Z"
+          }
+        },
+        "description": "アプリ (契約中のアプリケーション)",
+        "additionalProperties": false
+      },
       "ItManagement.ApplicationAccounts.AccountKind": {
         "type": "string",
         "enum": [
@@ -2849,6 +4793,153 @@
         "description": "アカウント",
         "additionalProperties": false
       },
+      "ItManagement.ApplicationMasters.Stage": {
+        "type": "string",
+        "enum": [
+          "release",
+          "nightly",
+          "beta"
+        ],
+        "description": "アプリマスタの公開ステージ"
+      },
+      "ItManagement.ApplicationMasters.ApplicationMasterCategory": {
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "カテゴリID",
+            "example": "550e8400-e29b-41d4-a716-446655440020"
+          },
+          "slug": {
+            "type": "string",
+            "description": "カテゴリ slug",
+            "example": "productivity"
+          },
+          "name": {
+            "type": "string",
+            "description": "カテゴリ名",
+            "example": "生産性"
+          }
+        },
+        "description": "アプリマスタのカテゴリ",
+        "additionalProperties": false
+      },
+      "ItManagement.ApplicationMasters.ApplicationMasterCompany": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "url"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "提供会社ID",
+            "example": "550e8400-e29b-41d4-a716-446655440021"
+          },
+          "name": {
+            "type": "string",
+            "description": "提供会社名",
+            "example": "Slack Technologies"
+          },
+          "url": {
+            "type": "string",
+            "description": "提供会社の URL",
+            "example": "https://slack.com"
+          }
+        },
+        "description": "アプリマスタの提供会社",
+        "additionalProperties": false
+      },
+      "ItManagement.ApplicationMasters.ApplicationMaster": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "description",
+          "service_url",
+          "privacy_url",
+          "terms_url",
+          "stage",
+          "category",
+          "company"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "アプリマスタID",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "name": {
+            "type": "string",
+            "description": "アプリマスタ名",
+            "example": "Slack"
+          },
+          "slug": {
+            "type": "string",
+            "description": "アプリマスタの一意 slug",
+            "example": "slack"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "説明",
+            "example": "チーム向けチャットツール"
+          },
+          "service_url": {
+            "type": "string",
+            "description": "サービスの公式サイト URL",
+            "example": "https://slack.com"
+          },
+          "privacy_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "プライバシーポリシー URL",
+            "example": "https://slack.com/privacy"
+          },
+          "terms_url": {
+            "type": "string",
+            "nullable": true,
+            "description": "利用規約 URL",
+            "example": "https://slack.com/terms"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItManagement.ApplicationMasters.Stage"
+              }
+            ],
+            "description": "公開ステージ"
+          },
+          "category": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItManagement.ApplicationMasters.ApplicationMasterCategory"
+              }
+            ],
+            "description": "カテゴリ"
+          },
+          "company": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItManagement.ApplicationMasters.ApplicationMasterCompany"
+              }
+            ],
+            "description": "提供会社"
+          }
+        },
+        "description": "アプリマスタ",
+        "additionalProperties": false
+      },
       "ItManagement.Assets.AssetStatusRef": {
         "type": "object",
         "required": [
@@ -2893,6 +4984,28 @@
         "description": "備品種別参照",
         "additionalProperties": false
       },
+      "ItManagement.Assets.AssetLocationRef": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "保管場所ID",
+            "example": "550e8400-e29b-41d4-a716-446655440004"
+          },
+          "name": {
+            "type": "string",
+            "description": "保管場所名",
+            "example": "本社"
+          }
+        },
+        "description": "備品保管場所参照",
+        "additionalProperties": false
+      },
       "ItManagement.Assets.MemberRef": {
         "type": "object",
         "required": [
@@ -2915,6 +5028,45 @@
         "description": "メンバー参照",
         "additionalProperties": false
       },
+      "ItManagement.Assets.AssetAttributeValue": {
+        "type": "object",
+        "required": [
+          "asset_attribute_id",
+          "string_value",
+          "integer_value",
+          "date_value"
+        ],
+        "properties": {
+          "asset_attribute_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "備品属性ID",
+            "example": "550e8400-e29b-41d4-a716-446655440005"
+          },
+          "string_value": {
+            "type": "string",
+            "nullable": true,
+            "description": "文字列の値。入力種別が string / text / select の備品属性で使用する",
+            "example": "Apple M3"
+          },
+          "integer_value": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "整数の値。入力種別が integer の備品属性で使用する",
+            "example": 512
+          },
+          "date_value": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "日付の値(yyyy-mm-dd)。入力種別が date の備品属性で使用する",
+            "example": "2024-04-01"
+          }
+        },
+        "description": "備品属性の値",
+        "additionalProperties": false
+      },
       "ItManagement.Assets.Asset": {
         "type": "object",
         "required": [
@@ -2926,7 +5078,9 @@
           "last_scanned_at",
           "asset_status",
           "asset_category",
+          "asset_location",
           "current_member",
+          "asset_attribute_values",
           "created_at",
           "updated_at"
         ],
@@ -2983,6 +5137,16 @@
             ],
             "description": "種別"
           },
+          "asset_location": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItManagement.Assets.AssetLocationRef"
+              }
+            ],
+            "nullable": true,
+            "description": "現在の保管場所。未設定の場合は null"
+          },
           "current_member": {
             "type": "object",
             "allOf": [
@@ -2992,6 +5156,13 @@
             ],
             "nullable": true,
             "description": "現在の利用者"
+          },
+          "asset_attribute_values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItManagement.Assets.AssetAttributeValue"
+            },
+            "description": "備品属性の値のリスト"
           },
           "created_at": {
             "type": "string",
@@ -3007,6 +5178,151 @@
           }
         },
         "description": "備品",
+        "additionalProperties": false
+      },
+      "ItManagement.Assets.AssetAttributeValueInput": {
+        "type": "object",
+        "required": [
+          "asset_attribute_id"
+        ],
+        "properties": {
+          "asset_attribute_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "備品属性ID",
+            "example": "550e8400-e29b-41d4-a716-446655440005"
+          },
+          "string_value": {
+            "type": "string",
+            "nullable": true,
+            "description": "文字列の値。入力種別が string / text / select の備品属性で使用する",
+            "example": "Apple M3"
+          },
+          "integer_value": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "整数の値。入力種別が integer の備品属性で使用する",
+            "example": 512
+          },
+          "date_value": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "日付の値(yyyy-mm-dd)。入力種別が date の備品属性で使用する",
+            "example": "2024-04-01"
+          }
+        },
+        "description": "備品属性の値の入力",
+        "additionalProperties": false
+      },
+      "ItManagement.AssetAttributes.InputKind": {
+        "type": "string",
+        "enum": [
+          "string",
+          "text",
+          "integer",
+          "date",
+          "select"
+        ],
+        "description": "備品属性の入力種別"
+      },
+      "ItManagement.AssetAttributes.AssetAttribute": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "input_kind",
+          "icon",
+          "options",
+          "order",
+          "allow_duplicate",
+          "system_attribute",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "備品属性ID",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "name": {
+            "type": "string",
+            "description": "備品属性名",
+            "example": "シリアル番号"
+          },
+          "input_kind": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItManagement.AssetAttributes.InputKind"
+              }
+            ],
+            "description": "入力種別"
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true,
+            "description": "アイコン識別子",
+            "example": "hash"
+          },
+          "options": {
+            "type": "object",
+            "properties": {
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "選択肢のリスト (`select` 種別)",
+                "example": [
+                  "新品",
+                  "中古"
+                ]
+              },
+              "suffix": {
+                "type": "string",
+                "description": "値の単位 (`integer` 種別)",
+                "example": "GB"
+              }
+            },
+            "nullable": true,
+            "description": "種別ごとの設定。`select` 種別では選択肢、`integer` 種別では単位が入る。設定がない場合は null",
+            "additionalProperties": false
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "表示順",
+            "example": 1
+          },
+          "allow_duplicate": {
+            "type": "boolean",
+            "description": "重複を許可するか (`integer` 種別のみ意味を持つ)",
+            "example": true
+          },
+          "system_attribute": {
+            "type": "string",
+            "nullable": true,
+            "description": "システム管理属性の識別子 (`null` の場合はユーザー作成属性)",
+            "example": null
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時(ISO8601)",
+            "example": "2026-01-01T00:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新日時(ISO8601)",
+            "example": "2026-01-01T00:00:00Z"
+          }
+        },
+        "description": "備品属性",
         "additionalProperties": false
       },
       "ItManagement.AssetCategories.AssetCategory": {
@@ -3031,6 +5347,134 @@
         "description": "備品種別",
         "additionalProperties": false
       },
+      "ItManagement.AssetLocations.AssetLocation": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "zipcode",
+          "prefecture",
+          "address"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "備品保管場所ID",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "name": {
+            "type": "string",
+            "description": "備品保管場所名",
+            "example": "本社"
+          },
+          "zipcode": {
+            "type": "string",
+            "nullable": true,
+            "description": "郵便番号(ハイフンなし、7桁)",
+            "example": "1410033"
+          },
+          "prefecture": {
+            "type": "string",
+            "nullable": true,
+            "description": "都道府県名(北海道、東京都 等)。作成/更新時は都道府県コード (\"01\"〜\"47\") でも指定可能",
+            "example": "東京都"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true,
+            "description": "住所",
+            "example": "品川区西品川1丁目2-1"
+          }
+        },
+        "description": "備品保管場所",
+        "additionalProperties": false
+      },
+      "ItManagement.AssetMembers.MemberRef": {
+        "type": "object",
+        "required": [
+          "id",
+          "display_name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "メンバーID",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "メンバー表示名",
+            "example": "山田 太郎"
+          }
+        },
+        "description": "メンバー参照",
+        "additionalProperties": false
+      },
+      "ItManagement.AssetMembers.AssetMember": {
+        "type": "object",
+        "required": [
+          "id",
+          "asset_id",
+          "start_at",
+          "end_at",
+          "member",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "備品利用者ID",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "asset_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "割当先の備品ID",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "start_at": {
+            "type": "string",
+            "format": "date",
+            "description": "割当開始日 (YYYY-MM-DD)",
+            "example": "2026-01-01"
+          },
+          "end_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date",
+            "description": "割当終了日 (YYYY-MM-DD)。null の場合は現在割当中",
+            "example": "2026-12-31"
+          },
+          "member": {
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItManagement.AssetMembers.MemberRef"
+              }
+            ],
+            "nullable": true,
+            "description": "割当先メンバー"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時(ISO8601)",
+            "example": "2026-01-01T00:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新日時(ISO8601)",
+            "example": "2026-01-01T00:00:00Z"
+          }
+        },
+        "description": "備品利用者",
+        "additionalProperties": false
+      },
       "ItManagement.AssetStatuses.AssetStatus": {
         "type": "object",
         "required": [
@@ -3051,6 +5495,42 @@
           }
         },
         "description": "備品ステータス",
+        "additionalProperties": false
+      },
+      "ItManagement.CustomApplicationMasters.CustomApplicationMaster": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "カスタムアプリマスタID",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "name": {
+            "type": "string",
+            "description": "カスタムアプリマスタ名",
+            "example": "社内システム"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時(ISO8601)",
+            "example": "2026-01-01T00:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新日時(ISO8601)",
+            "example": "2026-01-01T00:00:00Z"
+          }
+        },
+        "description": "カスタムアプリマスタ",
         "additionalProperties": false
       },
       "ItManagement.Departments.DepartmentRef": {

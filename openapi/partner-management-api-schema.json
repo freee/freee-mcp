@@ -6,7 +6,7 @@
     "license": {
       "name": "© Since 2013 freee K.K."
     },
-    "description": "<h2 id=\"start_guide\">スタートガイド</h2>\n<p>freee API開発がはじめての方は<a href=\"https://developer.freee.co.jp/getting-started\">freee APIスタートガイド</a>を参照してください。</p>\n<hr />\n<h2 id=\"specification\">仕様</h2>\n<h3 id=\"api_endpoint\">APIエンドポイント</h3>\n<p>https://api.freee.co.jp/hub/</p>\n<h3 id=\"about_authorize\">認証について</h3>\n<p>OAuth2.0を利用します。詳細は<a href=\"https://developer.freee.co.jp/reference/#%e8%aa%8d%e8%a8%bc\" target=\"_blank\">リファレンスの認証に関する記載</a>を参照してください。</p>\n<h3 id=\"data_format\">データフォーマット</h3>\n<p>リクエスト、レスポンスともにJSON形式をサポートしていますが、詳細は、API毎の説明欄（application/jsonなど）を確認してください。</p>\n<h3 id=\"compatibility\">後方互換性ありの変更</h3>\n<p>freeeでは、APIを改善していくために以下のような変更は後方互換性ありとして通知なく変更を入れることがあります。アプリケーション実装者は以下を踏まえて開発を行ってください。</p>\n<ul>\n<li>新しいAPIリソース・エンドポイントの追加</li>\n<li>既存のAPIに対して必須ではない新しいリクエストパラメータの追加</li>\n<li>既存のAPIレスポンスに対する新しいプロパティの追加</li>\n<li>既存のAPIレスポンスに対するプロパティの順番の入れ変え</li>\n<li>keyとなっているidやcodeの長さの変更（長くする）</li>\n<li>エラーメッセージの変更</li>\n</ul>\n<h3 id=\"common_response_header\">共通レスポンスヘッダー</h3>\n<p>すべてのAPIのレスポンスには以下のHTTPヘッダーが含まれます。</p>\n<ul>\n<li>\n<p>Freee-Request-Id</p>\n<ul>\n<li>各リクエスト毎に発行されるID</li>\n</ul>\n</li>\n</ul>\n<h3 id=\"common_error_response\">共通エラーレスポンス</h3>\n<p>APIリクエストでエラーが発生した場合は、エラー原因に応じたステータスコードおよびメッセージを返します。</p>\n<table border=\"1\">\n<tbody>\n<tr>\n<th style=\"padding: 10px\"><strong>ステータスコード</strong></th>\n<th style=\"padding: 10px\"><strong>原因</strong></th>\n</tr>\n<tr><td style=\"padding: 10px\">400</td><td style=\"padding: 10px\">リクエストパラメータが不正</td></tr>\n<tr><td style=\"padding: 10px\">401</td><td style=\"padding: 10px\">アクセストークンが無効</td></tr>\n<tr><td style=\"padding: 10px\">403</td><td style=\"padding: 10px\">アクセス権限がない</td></tr>\n<tr><td style=\"padding: 10px\">404</td><td style=\"padding: 10px\">リソースが存在しない</td></tr>\n<tr><td style=\"padding: 10px\">429</td><td style=\"padding: 10px\">リクエスト回数制限を超えた</td></tr>\n<tr><td style=\"padding: 10px\">500</td><td style=\"padding: 10px\">システム内で予期しないエラーが発生</td></tr>\n</tbody>\n</table>\n<p>エラーレスポンスは以下の形式で返されます。</p>\n<pre><code>{\n&nbsp;&nbsp;\"code\": \"AHB-3003-0002\",\n&nbsp;&nbsp;\"message\": \"リクエストの形式が正しくありません。\",\n&nbsp;&nbsp;\"fields\": [\n&nbsp;&nbsp;&nbsp;&nbsp;{\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"name\": \"company_id\",\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"message\": \"事業所IDは必須です。\"\n&nbsp;&nbsp;&nbsp;&nbsp;}\n&nbsp;&nbsp;]\n}</code></pre>\n<h3 id=\"api_rate_limit\">API使用制限</h3>\n<p>APIリクエストは1分あたり60回、1時間あたり1500回、1日あたり3000回を上限としています。<br>\nAPI使用ステータスはRFC準拠のレスポンスヘッダに付与されます。各ヘッダの意味は次のとおりです。</p>\n<table>\n<thead>\n<tr>\n<th>ヘッダ名</th>\n<th>説明</th>\n<th>例</th>\n</tr>\n</thead>\n<tbody>\n<tr><td>RateLimit-Policy</td><td>ポリシー情報（上限と期間）</td><td><code>\"base_rate_limit_minute\";q=60;w=60</code></td></tr>\n<tr><td>RateLimit</td><td>残り回数とリセットまでの秒数</td><td><code>\"base_rate_limit_minute\";r=59;t=45</code></td></tr>\n</tbody>\n</table>\n<p>この上限を超えた場合APIアクセスは制限され、http status codeは429となります。</p>\n<p>また、上記に加えfreeeは一定期間に過度のアクセスを検知した場合、APIアクセスをコントロールする場合があります。<br>\nその際のhttp status codeは403となります。制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>\n<h3 id=\"open_beta\">オープンベータ版のご利用について</h3> <p>本リファレンスには、現在オープンベータ版として提供されているAPIエンドポイントが含まれています。これらのエンドポイントには、タイトルや説明に「（β版）」の表記があります。</p> <p>オープンベータ版APIのご利用にあたっては、通常の一般公開APIとは異なり、事前の予告なく後方互換性のない変更などが起こりえます。詳しい制約および免責事項は <a href=\"https://developer.freee.co.jp/reference/open-beta\">オープンベータ版の仕様</a> をご覧ください。</p> <h4>現状の方針</h4> <p>日常業務で利用される操作のAPIを順次追加し、対応完了後に正式リリースする予定です。</p>",
+    "description": "<h2 id=\"start_guide\">スタートガイド</h2>\n<p>freee API開発がはじめての方は<a href=\"https://developer.freee.co.jp/getting-started\">freee APIスタートガイド</a>を参照してください。</p>\n<hr />\n<h2 id=\"specification\">仕様</h2><h3 id=\"freee_account_link\">freeeアカウント連携について</h3><p>※本APIをご利用いただくためには、事前に<a href=\"https://support.freee.co.jp/hc/ja/articles/40755173206041--%E4%BC%81%E6%A5%AD%E3%83%A6%E3%83%BC%E3%82%B6%E3%83%BC-freee%E3%82%A2%E3%82%AB%E3%82%A6%E3%83%B3%E3%83%88%E3%81%A7%E3%83%AD%E3%82%B0%E3%82%A4%E3%83%B3%E3%81%99%E3%82%8B#h_01JZ1WMQYAQ5KFBNQK5AQGME10\" target=\"_blank\">freeeアカウント連携を設定</a>してください。</p>\n<h3 id=\"api_endpoint\">APIエンドポイント</h3>\n<p>https://api.freee.co.jp/hub/</p>\n<h3 id=\"about_authorize\">認証について</h3>\n<p>OAuth2.0を利用します。詳細は<a href=\"https://developer.freee.co.jp/reference/#%e8%aa%8d%e8%a8%bc\" target=\"_blank\">リファレンスの認証に関する記載</a>を参照してください。</p>\n<h3 id=\"data_format\">データフォーマット</h3>\n<p>リクエスト、レスポンスともにJSON形式をサポートしていますが、詳細は、API毎の説明欄（application/jsonなど）を確認してください。</p>\n<h3 id=\"compatibility\">後方互換性ありの変更</h3>\n<p>freeeでは、APIを改善していくために以下のような変更は後方互換性ありとして通知なく変更を入れることがあります。アプリケーション実装者は以下を踏まえて開発を行ってください。</p>\n<ul>\n<li>新しいAPIリソース・エンドポイントの追加</li>\n<li>既存のAPIに対して必須ではない新しいリクエストパラメータの追加</li>\n<li>既存のAPIレスポンスに対する新しいプロパティの追加</li>\n<li>既存のAPIレスポンスに対するプロパティの順番の入れ変え</li>\n<li>keyとなっているidやcodeの長さの変更（長くする）</li>\n<li>エラーメッセージの変更</li>\n</ul>\n<h3 id=\"common_response_header\">共通レスポンスヘッダー</h3>\n<p>すべてのAPIのレスポンスには以下のHTTPヘッダーが含まれます。</p>\n<ul>\n<li>\n<p>Freee-Request-Id</p>\n<ul>\n<li>各リクエスト毎に発行されるID</li>\n</ul>\n</li>\n</ul>\n<h3 id=\"common_error_response\">共通エラーレスポンス</h3>\n<p>APIリクエストでエラーが発生した場合は、エラー原因に応じたステータスコードおよびメッセージを返します。</p>\n<table border=\"1\">\n<tbody>\n<tr>\n<th style=\"padding: 10px\"><strong>ステータスコード</strong></th>\n<th style=\"padding: 10px\"><strong>原因</strong></th>\n</tr>\n<tr><td style=\"padding: 10px\">400</td><td style=\"padding: 10px\">リクエストパラメータが不正</td></tr>\n<tr><td style=\"padding: 10px\">401</td><td style=\"padding: 10px\">アクセストークンが無効</td></tr>\n<tr><td style=\"padding: 10px\">403</td><td style=\"padding: 10px\">アクセス権限がない</td></tr>\n<tr><td style=\"padding: 10px\">404</td><td style=\"padding: 10px\">リソースが存在しない</td></tr>\n<tr><td style=\"padding: 10px\">429</td><td style=\"padding: 10px\">リクエスト回数制限を超えた</td></tr>\n<tr><td style=\"padding: 10px\">500</td><td style=\"padding: 10px\">システム内で予期しないエラーが発生</td></tr>\n</tbody>\n</table>\n<p>エラーレスポンスは以下の形式で返されます。</p>\n<pre><code>{\n&nbsp;&nbsp;\"code\": \"AHB-3003-0002\",\n&nbsp;&nbsp;\"message\": \"リクエストの形式が正しくありません。\",\n&nbsp;&nbsp;\"fields\": [\n&nbsp;&nbsp;&nbsp;&nbsp;{\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"name\": \"company_id\",\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"message\": \"事業所IDは必須です。\"\n&nbsp;&nbsp;&nbsp;&nbsp;}\n&nbsp;&nbsp;]\n}</code></pre>\n<h3 id=\"api_rate_limit\">API使用制限</h3>\n<p>APIリクエストは1分あたり60回、1時間あたり1500回、1日あたり3000回を上限としています。<br>\nAPI使用ステータスはRFC準拠のレスポンスヘッダに付与されます。各ヘッダの意味は次のとおりです。</p>\n<table>\n<thead>\n<tr>\n<th>ヘッダ名</th>\n<th>説明</th>\n<th>例</th>\n</tr>\n</thead>\n<tbody>\n<tr><td>RateLimit-Policy</td><td>ポリシー情報（上限と期間）</td><td><code>\"base_rate_limit_minute\";q=60;w=60</code></td></tr>\n<tr><td>RateLimit</td><td>残り回数とリセットまでの秒数</td><td><code>\"base_rate_limit_minute\";r=59;t=45</code></td></tr>\n</tbody>\n</table>\n<p>この上限を超えた場合APIアクセスは制限され、http status codeは429となります。</p>\n<p>また、上記に加えfreeeは一定期間に過度のアクセスを検知した場合、APIアクセスをコントロールする場合があります。<br>\nその際のhttp status codeは403となります。制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>\n<h3 id=\"open_beta\">オープンベータ版のご利用について</h3> <p>本リファレンスには、現在オープンベータ版として提供されているAPIエンドポイントが含まれています。これらのエンドポイントには、タイトルや説明に「（β版）」の表記があります。</p> <p>オープンベータ版APIのご利用にあたっては、通常の一般公開APIとは異なり、事前の予告なく後方互換性のない変更などが起こりえます。詳しい制約および免責事項は <a href=\"https://developer.freee.co.jp/reference/open-beta\">オープンベータ版の仕様</a> をご覧ください。</p> <h4>現状の方針</h4> <p>日常業務で利用される操作のAPIを順次追加し、対応完了後に正式リリースする予定です。</p>",
     "version": "0.0.0"
   },
   "tags": [
@@ -807,6 +807,614 @@
         "tags": [
           "partner_management_orderer_tasks"
         ]
+      }
+    },
+    "/hub/partner_management/orderer/projects/{project_id}/tasks": {
+      "post": {
+        "operationId": "create_partner_management_orderer_task",
+        "summary": "タスク作成（β版）",
+        "description": "指定プロジェクトにタスクを 1 件作成します。ステータスは下書きで作成されます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Tasks.CreateRequest.project_id"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "タスク作成レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer",
+                      "format": "int32",
+                      "description": "タスクID",
+                      "example": 12345
+                    },
+                    "project_id": {
+                      "type": "integer",
+                      "format": "int32",
+                      "description": "プロジェクトID",
+                      "example": 678
+                    },
+                    "status": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.TaskStatus"
+                        }
+                      ],
+                      "description": "ステータス"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "タスクタイトル",
+                      "example": "LP デザイン一式"
+                    },
+                    "submit_date_type": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.SubmitDateType"
+                        }
+                      ],
+                      "description": "納期または期間 (deadline: 納期, period: 期間)"
+                    },
+                    "deadline": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time",
+                      "description": "納期。submit_date_type が deadline のときに入る",
+                      "example": "2026-09-30T18:00:00+09:00"
+                    },
+                    "submit_period_start_date": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date",
+                      "description": "提出期間の開始日。submit_date_type が period のときに入る",
+                      "example": "2026-09-01"
+                    },
+                    "submit_period_end_date": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date",
+                      "description": "提出期間の終了日。submit_date_type が period のときに入る",
+                      "example": "2026-09-30"
+                    },
+                    "inspection_date": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date",
+                      "description": "検収日",
+                      "example": "2026-10-05"
+                    },
+                    "payment_date_type": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.PaymentDateType"
+                        }
+                      ],
+                      "description": "支払期日の指定方式 (note: テキスト, next_month_end: 納期/終了日の翌月末日を反映, days_from_deadline: 納期/終了日から日数反映, fixed_date: 指定日)"
+                    },
+                    "payment_date_note": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "支払期日（テキスト）。payment_date_type が note のときに入り、それ以外のときは null",
+                      "example": "月末締め翌月末払い"
+                    },
+                    "payment_date": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date",
+                      "description": "支払期日 (日付)。payment_date_type が next_month_end / days_from_deadline / fixed_date のときに指定方式に即して計算された日付が入る",
+                      "example": "2026-10-31"
+                    },
+                    "delivery_types": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.DeliveryType"
+                      },
+                      "description": "納品形式"
+                    },
+                    "task_work_report_configuration": {
+                      "type": "object",
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.TaskWorkReportConfiguration"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "稼働時間の丸め設定。delivery_types に work_report / work_report_quantity が含まれるときに入る"
+                    },
+                    "deliverables_detail": {
+                      "type": "string",
+                      "description": "納品内容",
+                      "example": "納品用データ一式"
+                    },
+                    "delivery_place": {
+                      "type": "string",
+                      "description": "納品場所",
+                      "example": "共有ドライブ /projects/lp/"
+                    },
+                    "subcontracted": {
+                      "type": "boolean",
+                      "description": "再委託ありかどうか",
+                      "example": true
+                    },
+                    "client_name": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "元委託者の氏名又は名称。subcontracted が true のときに入る",
+                      "example": "株式会社サンプル"
+                    },
+                    "client_contract_due_date": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "元委託業務の対価の支払期日。subcontracted が true のときに入る",
+                      "example": "2026-08-01"
+                    },
+                    "body": {
+                      "type": "string",
+                      "description": "タスク内容",
+                      "example": "LP デザインを1式作成してください。"
+                    },
+                    "enable_change_quantity_on_submit": {
+                      "type": "boolean",
+                      "description": "提出時の数量変更を可能にするか",
+                      "example": false
+                    },
+                    "enable_undecided_amount_order": {
+                      "type": "boolean",
+                      "description": "発注額を未定で発注するか",
+                      "example": false
+                    },
+                    "undecided_amount_reason": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "発注額未定の理由。enable_undecided_amount_order が true のときに入る",
+                      "example": "要件確定待ち"
+                    },
+                    "amount_decided_date": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date",
+                      "description": "発注額確定予定日。enable_undecided_amount_order が true のときに入る",
+                      "example": "2026-09-15"
+                    },
+                    "orderer_company_user_id": {
+                      "type": "integer",
+                      "format": "int32",
+                      "nullable": true,
+                      "description": "担当者の企業ユーザーID",
+                      "example": 55
+                    },
+                    "watcher_company_user_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "format": "int32"
+                      },
+                      "description": "担当者（参加）の企業ユーザーIDの配列",
+                      "example": [
+                        56,
+                        57
+                      ]
+                    },
+                    "assignee": {
+                      "type": "object",
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.Assignee"
+                        }
+                      ],
+                      "nullable": true,
+                      "description": "パートナー"
+                    },
+                    "watcher_partner_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "format": "int32"
+                      },
+                      "description": "パートナー（参加）",
+                      "example": [
+                        790,
+                        791
+                      ]
+                    },
+                    "worker_partner_id": {
+                      "type": "integer",
+                      "format": "int32",
+                      "nullable": true,
+                      "description": "パートナー（タスク実行）",
+                      "example": 792
+                    },
+                    "order_note": {
+                      "type": "string",
+                      "description": "備考",
+                      "example": "参考リンクは Slack を参照"
+                    },
+                    "estimate_total": {
+                      "type": "integer",
+                      "format": "int32",
+                      "nullable": true,
+                      "description": "見積小計 (税抜)。金額の閲覧権限が無い場合は null",
+                      "example": 300000
+                    },
+                    "estimate_grand_total": {
+                      "type": "integer",
+                      "format": "int32",
+                      "nullable": true,
+                      "description": "見積総額 (税込)。金額の閲覧権限が無い場合は null",
+                      "example": 330000
+                    },
+                    "total": {
+                      "type": "integer",
+                      "format": "int32",
+                      "nullable": true,
+                      "description": "実績小計 (税抜)。金額の閲覧権限が無い場合は null",
+                      "example": 300000
+                    },
+                    "grand_total": {
+                      "type": "integer",
+                      "format": "int32",
+                      "nullable": true,
+                      "description": "実績総額 (税込)。金額の閲覧権限が無い場合は null",
+                      "example": 330000
+                    },
+                    "tax_expression": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.TaxExpression"
+                        }
+                      ],
+                      "description": "消費税表示 (external: 外税, internal: 内税)"
+                    },
+                    "delivery_data": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.TaskDeliveryData"
+                        }
+                      ],
+                      "description": "納品データ"
+                    },
+                    "special_note": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "特記事項",
+                      "example": "特記事項なし"
+                    },
+                    "tax_calculation_type": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.TaxCalculationType"
+                        }
+                      ],
+                      "description": "消費税の計算単位 (gross: 総額まとめ, each_item: 明細行ごと)"
+                    },
+                    "sales_tax_fraction_type": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.FractionType"
+                        }
+                      ],
+                      "description": "消費税端数処理 (floor: 切り捨て, ceil: 切り上げ, round: 四捨五入)"
+                    },
+                    "task_line_item_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "description": "タスク明細のIDの配列。明細の表示順 (row_order) の昇順で返す",
+                      "example": [
+                        45001,
+                        45002
+                      ]
+                    },
+                    "task_order_approval_flow_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "nullable": true,
+                      "description": "発注承認フローID",
+                      "example": 98765
+                    },
+                    "task_submit_approval_flow_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "nullable": true,
+                      "description": "検収承認フローID",
+                      "example": 98766
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "作成日時",
+                      "example": "2026-08-01T09:00:00+09:00"
+                    },
+                    "assigned_at": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time",
+                      "description": "発注時刻",
+                      "example": "2026-08-02T10:00:00+09:00"
+                    },
+                    "submitted_at": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time",
+                      "description": "直近の提出時刻",
+                      "example": "2026-09-25T17:00:00+09:00"
+                    },
+                    "last_submitted_at": {
+                      "type": "string",
+                      "nullable": true,
+                      "format": "date-time",
+                      "description": "最終提出時刻",
+                      "example": "2026-09-28T11:00:00+09:00"
+                    },
+                    "task_line_item": {
+                      "allOf": [
+                        {
+                          "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItems.TaskLineItem"
+                        }
+                      ],
+                      "description": "作成した品目 1 件。task_line_item_ids と同じ品目を指す"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "project_id",
+                    "status",
+                    "title",
+                    "submit_date_type",
+                    "deadline",
+                    "submit_period_start_date",
+                    "submit_period_end_date",
+                    "inspection_date",
+                    "payment_date_type",
+                    "payment_date_note",
+                    "payment_date",
+                    "delivery_types",
+                    "task_work_report_configuration",
+                    "deliverables_detail",
+                    "delivery_place",
+                    "subcontracted",
+                    "client_name",
+                    "client_contract_due_date",
+                    "body",
+                    "enable_change_quantity_on_submit",
+                    "enable_undecided_amount_order",
+                    "undecided_amount_reason",
+                    "amount_decided_date",
+                    "orderer_company_user_id",
+                    "watcher_company_user_ids",
+                    "assignee",
+                    "watcher_partner_ids",
+                    "worker_partner_id",
+                    "order_note",
+                    "estimate_total",
+                    "estimate_grand_total",
+                    "total",
+                    "grand_total",
+                    "tax_expression",
+                    "delivery_data",
+                    "special_note",
+                    "tax_calculation_type",
+                    "sales_tax_fraction_type",
+                    "task_line_item_ids",
+                    "task_order_approval_flow_id",
+                    "task_submit_approval_flow_id",
+                    "created_at",
+                    "assigned_at",
+                    "submitted_at",
+                    "last_submitted_at",
+                    "task_line_item"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_tasks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "freee事業所ID",
+                    "example": 1
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "description": "タスクタイトル",
+                    "example": "LP デザイン一式"
+                  },
+                  "submit_date_type": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.SubmitDateType"
+                      }
+                    ],
+                    "description": "納期 (deadline) または期間 (period)。企業設定の「納期/期間および検収日の必須化」が有効なとき必須。"
+                  },
+                  "deadline": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "納期。submit_date_type が deadline のときに値を設定する。企業設定の「納期/期間および検収日の必須化」が有効なとき必須。",
+                    "example": "2026-09-30T18:00:00+09:00"
+                  },
+                  "submit_period_start_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "開始日。submit_date_type が period のときに値を設定する。企業設定の「納期/期間および検収日の必須化」が有効なとき必須。"
+                  },
+                  "submit_period_end_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "終了日。submit_date_type が period のときに値を設定する。企業設定の「納期/期間および検収日の必須化」が有効なとき必須。"
+                  },
+                  "inspection_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "検収日。企業設定の「納期/期間および検収日の必須化」が有効なとき必須"
+                  },
+                  "payment_date_type": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.PaymentDateTypeForCreate"
+                      }
+                    ],
+                    "description": "支払期日の指定方式 (note: 自由テキスト, fixed_date: 日付)。企業設定の「タスクの支払期日の必須化」が有効なとき必須。指定を省略した場合は note になる。備考や支払い期日と異なり、企業設定のデフォルト値は反映されない。"
+                  },
+                  "payment_date_note": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "description": "支払い期日。payment_date_type が note のときに値を設定する。企業設定の「タスクの支払期日の必須化」が有効なとき必須。指定を省略した場合は企業設定のデフォルト値が設定される。",
+                    "example": "月末締め翌月末払い"
+                  },
+                  "payment_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "支払期日。payment_date_type が fixed_date のときに値を設定する。企業設定の「タスクの支払期日の必須化」が有効なとき必須。"
+                  },
+                  "delivery_types": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.DeliveryTypeForCreate"
+                    },
+                    "description": "納品形式。file: ファイル, url: URL, other: その他, work_report: 作業報告書 (時間)。作業報告書 (品目数量) は指定不可。"
+                  },
+                  "task_work_report_configuration": {
+                    "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.TaskWorkReportConfigurationForCreate"
+                  },
+                  "deliverables_detail": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "description": "納品内容。企業設定の「給付内容の必須化」が有効なとき必須"
+                  },
+                  "delivery_place": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "description": "納入場所。企業設定の「納入場所の必須化」が有効なとき必須"
+                  },
+                  "subcontracted": {
+                    "type": "boolean",
+                    "description": "再委託かどうか"
+                  },
+                  "client_name": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "description": "元委託者の氏名又は名称。subcontracted が true のときに値を設定する"
+                  },
+                  "client_contract_due_date": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "description": "元委託業務の対価の支払期日。subcontracted が true のときに値を設定する"
+                  },
+                  "body": {
+                    "type": "string",
+                    "maxLength": 10000,
+                    "description": "タスク内容"
+                  },
+                  "order_note": {
+                    "type": "string",
+                    "maxLength": 10000,
+                    "description": "備考。指定を省略した場合はプロジェクト詳細設定で設定されているデフォルト値が設定される。"
+                  },
+                  "special_note": {
+                    "type": "string",
+                    "maxLength": 3000,
+                    "description": "特記事項。企業設定で「特記事項の有効化およびデフォルト設定」が有効の場合のみ設定可能。「特記事項の有効化およびデフォルト設定」が有効であっても、指定を省略した場合は企業設定のデフォルト値が設定される。"
+                  },
+                  "orderer_company_user_id": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "担当者",
+                    "example": 55
+                  },
+                  "watcher_company_user_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "description": "担当者 (参加)"
+                  },
+                  "assignee": {
+                    "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.Assignee"
+                  },
+                  "watcher_partner_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    },
+                    "description": "パートナー (参加)"
+                  },
+                  "worker_partner_id": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "パートナー (タスク実行)"
+                  },
+                  "enable_change_quantity_on_submit": {
+                    "type": "boolean",
+                    "description": "提出時の数量変更"
+                  },
+                  "enable_undecided_amount_order": {
+                    "type": "boolean",
+                    "description": "発注額の未定。企業設定の「発注額未定機能の利用設定」が有効の場合のみtrueを指定可能"
+                  },
+                  "undecided_amount_reason": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "description": "発注額未定の理由。enable_undecided_amount_order が true のとき必須"
+                  },
+                  "amount_decided_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "発注額の確定予定日。enable_undecided_amount_order が true のときに必須"
+                  },
+                  "tax_expression": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.TaxExpression"
+                      }
+                    ],
+                    "description": "消費税表示 (external: 外税, internal: 内税)。企業のデフォルト設定・パートナーの登録番号の有無による判定は優先されず、指定された値で保存されます。"
+                  },
+                  "task_line_item": {
+                    "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.TaskLineItemForCreate"
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "title",
+                  "delivery_types",
+                  "subcontracted",
+                  "enable_change_quantity_on_submit",
+                  "enable_undecided_amount_order",
+                  "tax_expression",
+                  "task_line_item"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
       }
     },
     "/hub/partner_management/orderer/tasks/{task_id}/delivery_data/custom_fields": {
@@ -1954,6 +2562,16 @@
         "in": "path",
         "required": true,
         "description": "取得対象のタスクID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "PartnerManagement.Orderer.Tasks.CreateRequest.project_id": {
+        "name": "project_id",
+        "in": "path",
+        "required": true,
+        "description": "作成先のプロジェクトID",
         "schema": {
           "type": "integer",
           "format": "int32"
@@ -3682,6 +4300,214 @@
           }
         },
         "description": "タスク品目",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.Tasks.PaymentDateTypeForCreate": {
+        "type": "string",
+        "enum": [
+          "note",
+          "fixed_date"
+        ],
+        "description": "支払期日の指定方式 (note: 自由テキスト, fixed_date: 日付)"
+      },
+      "PartnerManagement.Orderer.Tasks.DeliveryTypeForCreate": {
+        "type": "string",
+        "enum": [
+          "file",
+          "url",
+          "other",
+          "work_report"
+        ],
+        "description": "納品形式 (file: ファイル, url: URL, other: その他, work_report: 作業報告書 (時間))"
+      },
+      "PartnerManagement.Orderer.Tasks.UnitMinutes": {
+        "type": "number",
+        "enum": [
+          1,
+          15,
+          30,
+          60
+        ],
+        "description": "丸め単位 (分)。1 / 15 / 30 / 60 のいずれか"
+      },
+      "PartnerManagement.Orderer.Tasks.TaskWorkReportConfigurationForCreate": {
+        "type": "object",
+        "required": [
+          "unit_group_type",
+          "unit_minutes",
+          "unit_fraction_type"
+        ],
+        "properties": {
+          "unit_group_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.UnitGroupType"
+              }
+            ],
+            "description": "稼働時間の丸め設定の集計単位 (date: 日毎, month: 月毎, all: 合算)"
+          },
+          "unit_minutes": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.UnitMinutes"
+              }
+            ],
+            "description": "稼働時間の丸め設定の単位 (one_minute: 1分, quarter_hour: 15分, half_hour: 30分, one_hour: 1時間)",
+            "example": 15
+          },
+          "unit_fraction_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.FractionType"
+              }
+            ],
+            "description": "稼働時間の丸め設定の端数処理 (ceil: 切り上げ, round: 四捨五入, floor: 切り捨て)"
+          }
+        },
+        "description": "稼働時間の丸め設定。納品形式 (delivery_types) に「作業報告書 (時間)」(work_report) を含めたときに指定する。指定を省略した場合は既定値が設定される。含めていないときは指定できない。",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.Tasks.FreeeIntegrationItemForCreate": {
+        "type": "object",
+        "properties": {
+          "freee_account_item_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "description": "freee会計の勘定科目ID"
+          },
+          "freee_section_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "description": "freee会計の部門ID"
+          },
+          "freee_item_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "description": "freee会計の品目ID"
+          },
+          "freee_tag_identifiers": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "freee会計のメモタグIDの配列"
+          },
+          "freee_segment_1_tag_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "description": "freee会計のセグメントタグID (セグメント1)。プロプラン以上で指定できる"
+          },
+          "freee_segment_2_tag_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "description": "freee会計のセグメントタグID (セグメント2)。アドバンスプラン以上で指定できる"
+          },
+          "freee_segment_3_tag_identifier": {
+            "type": "integer",
+            "format": "int64",
+            "description": "freee会計のセグメントタグID (セグメント3)。アドバンスプラン以上で指定できる"
+          }
+        },
+        "description": "freee会計項目。事前にサービス連携でfreee連携用の同期アカウントの設定がされている必要があります。各IDはfreee会計項目のマスタと突き合わせて検証するため、事前にマスタ同期を済ませてください。同期は画面の「freee会計項目のマスタ連携」から行います。",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.Tasks.CustomFieldValueForCreate": {
+        "type": "object",
+        "required": [
+          "custom_field_id"
+        ],
+        "properties": {
+          "custom_field_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "入力対象のカスタム項目ID"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "入力値。data_type によらず文字列で渡す。カスタム項目側で必須設定のものは設定必須。"
+          }
+        },
+        "description": "タスク品目カスタム項目作成リクエスト",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.Tasks.TaskLineItemForCreate": {
+        "type": "object",
+        "required": [
+          "item_calculation_type",
+          "title",
+          "sales_tax_rate_type"
+        ],
+        "properties": {
+          "item_calculation_type": {
+            "type": "string",
+            "enum": [
+              "normal"
+            ],
+            "description": "品目種別 (normal: 通常)。現在「通常」のみ作成可能です。作成後の変更は不可。"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "品目名",
+            "example": "LP デザイン制作"
+          },
+          "estimate_quantity": {
+            "type": "string",
+            "nullable": true,
+            "format": "decimal",
+            "description": "数量。企業設定で「小数点入力の利用設定」が有効な場合のみ小数での設定が可能",
+            "example": "1.0"
+          },
+          "quantity_unit": {
+            "type": "string",
+            "maxLength": 5,
+            "description": "単位",
+            "example": "件"
+          },
+          "estimate_unit_price": {
+            "type": "string",
+            "nullable": true,
+            "format": "decimal",
+            "description": "発注単価 (税抜き)",
+            "example": "300000.0"
+          },
+          "sales_tax_rate_type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskLineItems.SalesTaxRateType"
+              }
+            ],
+            "description": "消費税設定 (rate_8: 8 %, rate_8_keigen: 軽減 8 %, rate_10: 10 %, disregarded: 対象外)"
+          },
+          "account_title_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "勘定科目ID。企業設定の「勘定科目の必須化」が有効なとき必須"
+          },
+          "subsidiary_account_title_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "補助科目ID。企業設定の「補助科目の必須化」が有効なとき必須"
+          },
+          "section_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "部門ID。企業設定の「部門の必須化」が有効なとき必須"
+          },
+          "freee_integration_item": {
+            "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.FreeeIntegrationItemForCreate"
+          },
+          "custom_field_values": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.CustomFieldValueForCreate"
+            },
+            "description": "タスク品目のカスタム項目。カスタム項目側で必須設定のものは設定必須"
+          }
+        },
+        "description": "タスク品目。タスク作成時に1件同時登録が必要",
         "additionalProperties": false
       },
       "PartnerManagement.Orderer.TaskDeliveryDataCustomFields.DeliveryCustomFieldDataType": {
