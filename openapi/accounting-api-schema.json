@@ -17055,7 +17055,7 @@
           "Payment requests"
         ],
         "summary": "支払依頼の作成",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼を作成する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した支払依頼は作成できません。</li>\n  <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼を作成する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n  <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>\n</ul>",
         "operationId": "create_payment_request",
         "requestBody": {
           "content": {
@@ -17226,7 +17226,7 @@
           "Payment requests"
         ],
         "summary": "支払依頼の更新",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼を更新する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、支払依頼を更新することができます。</li>\n  <li>本APIでは、status(申請ステータス): draft:下書き, in_progress:申請中, feedback:差戻しのみ更新可能です。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した支払依頼は更新できません。</li>\n  <li>申請ステータスが申請中の場合には、申請タイトル(title)、申請日(application_date)、申請経路ID(approval_flow_route_id)、承認者のユーザーID(approver_id)は更新ができません。</li>\n  <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼を更新する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、支払依頼を更新することができます。</li>\n  <li>本APIでは、status(申請ステータス): draft:下書き, in_progress:申請中, feedback:差戻しのみ更新可能です。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n  <li>申請ステータスが申請中の場合には、申請タイトル(title)、申請日(application_date)、申請経路ID(approval_flow_route_id)、承認者のユーザーID(approver_id)は更新ができません。</li>\n  <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>\n</ul>",
         "operationId": "update_payment_request",
         "parameters": [
           {
@@ -17414,7 +17414,7 @@
           "Payment requests"
         ],
         "summary": "支払依頼の承認操作",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼の承認操作を行う</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、支払依頼の承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）を行うことができます。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    次の承認ステップが部門選択型の場合は next_group_id を指定してください。\n  </li>\n  <li>本APIは条件分岐を含む申請経路には非対応です。条件分岐を含む申請経路を使用した支払依頼は承認操作できません。</li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼の承認操作を行う</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、支払依頼の承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）を行うことができます。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    次の承認ステップが部門選択型の場合は next_group_id を指定してください。\n  </li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n</ul>",
         "operationId": "update_payment_request_action",
         "parameters": [
           {
@@ -19157,7 +19157,7 @@
           "Approval flow routes"
         ],
         "summary": "申請経路一覧の取得",
-        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の申請経路一覧を取得する</p>\n\n<p>各種申請APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-approval-requests\" target=\"_blank\">freee会計の各種申請APIの使い方</a>をご参照ください</p>\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計の経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"\">注意点</h2>\n\n<ul>\n  <li>\n    <p>承認ステップの詳細（steps）は本APIのレスポンスには含まれません。承認方法や分岐条件を確認する場合は、申請経路の取得（GET /api/1/approval_flow_routes/{id}）をご利用ください。</p>\n  </li>\n  <li>\n    <p>支払依頼では、条件分岐を含む申請経路を指定した作成・更新・承認操作はできません。</p>\n  </li>\n</ul>",
+        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の申請経路一覧を取得する</p>\n\n<p>各種申請APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-approval-requests\" target=\"_blank\">freee会計の各種申請APIの使い方</a>をご参照ください</p>\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計の経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"\">注意点</h2>\n\n<ul>\n  <li>\n    <p>承認ステップの詳細（steps）は本APIのレスポンスには含まれません。承認方法や分岐条件を確認する場合は、申請経路の取得（GET /api/1/approval_flow_routes/{id}）をご利用ください。</p>\n  </li>\n</ul>",
         "operationId": "get_approval_flow_routes",
         "parameters": [
           {
@@ -19281,7 +19281,7 @@
           "Approval flow routes"
         ],
         "summary": "申請経路の取得",
-        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の申請経路を取得する</p>\n\n<p>各種申請APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-approval-requests\" target=\"_blank\">freee会計の各種申請APIの使い方</a>をご参照ください</p>\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計の経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"\">注意点</h2>\n\n<ul>\n  <li>\n    <p>承認ステップごとの承認方法は steps[].resource_type で判別できます。役職で承認者を指定する承認ステップ（and_position / or_position）では steps[].approver_determination_type、steps[].group、steps[].position_types を、条件分岐の承認ステップ（switchable）では steps[].switching_rules をご参照ください。</p>\n  </li>\n  <li>\n    <p>支払依頼では、条件分岐を含む申請経路を指定した作成・更新・承認操作はできません。</p>\n  </li>\n</ul>",
+        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の申請経路を取得する</p>\n\n<p>各種申請APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-approval-requests\" target=\"_blank\">freee会計の各種申請APIの使い方</a>をご参照ください</p>\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計の経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"\">注意点</h2>\n\n<ul>\n  <li>\n    <p>承認ステップごとの承認方法は steps[].resource_type で判別できます。役職で承認者を指定する承認ステップ（and_position / or_position）では steps[].approver_determination_type、steps[].group、steps[].position_types を、条件分岐の承認ステップ（switchable）では steps[].switching_rules をご参照ください。</p>\n  </li>\n</ul>",
         "operationId": "get_approval_flow_route",
         "parameters": [
           {
@@ -36094,6 +36094,252 @@
                                 "example": "課対仕入（控30）8%（軽）"
                               }
                             }
+                          }
+                        }
+                      },
+                      "account_item": {
+                        "type": "object",
+                        "description": "勘定科目の詳細情報",
+                        "required": [
+                          "a_chart_template_id",
+                          "a_order",
+                          "a_report_code",
+                          "account_category_id",
+                          "account_item_index",
+                          "category_entry_side",
+                          "cf_category_id",
+                          "company_id",
+                          "corresponding_type_expense",
+                          "corresponding_type_income",
+                          "created_at",
+                          "entry_side",
+                          "group_id",
+                          "group_index",
+                          "group_name",
+                          "id",
+                          "master_code",
+                          "name",
+                          "origin_code",
+                          "report_order",
+                          "searchable",
+                          "shortcut",
+                          "shortcut_num",
+                          "status",
+                          "sys_locked",
+                          "tax_business_code",
+                          "tax_calc_type_code",
+                          "tax_code",
+                          "tax_truncate_code",
+                          "template_code",
+                          "updated_at",
+                          "walletable_id",
+                          "walletable_type"
+                        ],
+                        "properties": {
+                          "a_chart_template_id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "勘定科目テンプレートID",
+                            "example": 126,
+                            "nullable": true
+                          },
+                          "cf_category_id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "内部管理用のID。設定されていない場合は null になります。",
+                            "nullable": true
+                          },
+                          "company_id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1,
+                            "description": "事業所ID",
+                            "example": 1
+                          },
+                          "corresponding_type_expense": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "支出取引相手勘定科目の種別。設定されていない場合は null になります。",
+                            "example": 3,
+                            "nullable": true
+                          },
+                          "corresponding_type_income": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "収入取引相手勘定科目の種別。設定されていない場合は null になります。",
+                            "example": 2,
+                            "nullable": true
+                          },
+                          "created_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "作成日時（ISO 8601）",
+                            "example": "2023-10-06T11:58:12+09:00"
+                          },
+                          "entry_side": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "勘定科目の貸借（0: 未定義、1: 貸方、-1: 借方）",
+                            "example": -1,
+                            "nullable": true
+                          },
+                          "id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1,
+                            "description": "勘定科目ID（親の id と同じ値）",
+                            "example": 1
+                          },
+                          "master_code": {
+                            "type": "string",
+                            "description": "勘定科目コード。事業所の設定によらず返ります。設定されていない場合は null になります。",
+                            "nullable": true
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "勘定科目名（親の name と同じ値）",
+                            "example": "会議費"
+                          },
+                          "origin_code": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "勘定科目の作成元（0: 未定義、1: 初期登録、2: 口座、3: 事業所独自）",
+                            "example": 1
+                          },
+                          "report_order": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "内部管理用の並び順",
+                            "example": 229,
+                            "nullable": true
+                          },
+                          "searchable": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "検索可能の設定（2: 検索可能。0, 1 は旧区分）",
+                            "example": 2
+                          },
+                          "shortcut": {
+                            "type": "string",
+                            "description": "勘定科目を検索するためのショートカット（親の shortcut と同じ値）。設定されていない場合は null になります。",
+                            "example": "KAIGI",
+                            "nullable": true
+                          },
+                          "shortcut_num": {
+                            "type": "string",
+                            "description": "勘定科目を検索するためのショートカット番号。設定されていない場合は null になります。",
+                            "example": "754",
+                            "nullable": true
+                          },
+                          "status": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "勘定科目のステータス（0: 有効）",
+                            "example": 0,
+                            "nullable": true
+                          },
+                          "sys_locked": {
+                            "type": "boolean",
+                            "description": "システムによる編集制限の有無",
+                            "example": false
+                          },
+                          "tax_business_code": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "内部管理用のコード",
+                            "nullable": true
+                          },
+                          "tax_calc_type_code": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "内部管理用のコード",
+                            "nullable": true
+                          },
+                          "tax_code": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "税区分コード",
+                            "example": 34,
+                            "nullable": true
+                          },
+                          "tax_truncate_code": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "内部管理用のコード",
+                            "nullable": true
+                          },
+                          "template_code": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "内部管理用のコード",
+                            "nullable": true
+                          },
+                          "updated_at": {
+                            "type": "string",
+                            "format": "date-time",
+                            "description": "更新日時（ISO 8601）",
+                            "example": "2023-10-06T11:58:12+09:00"
+                          },
+                          "walletable_id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "勘定科目に紐づく口座ID。口座に紐づかない場合は null になります。",
+                            "nullable": true
+                          },
+                          "walletable_type": {
+                            "type": "string",
+                            "description": "勘定科目に紐づく口座の種別。口座に紐づかない場合は null になります。",
+                            "nullable": true
+                          },
+                          "group_id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "決算書表示名（小カテゴリー）ID",
+                            "example": 643667300
+                          },
+                          "group_name": {
+                            "type": "string",
+                            "description": "決算書表示名（小カテゴリー）",
+                            "example": "会議費"
+                          },
+                          "group_index": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "決算書表示名の並び順",
+                            "example": 15
+                          },
+                          "account_category_id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "決算書表示名が属する勘定科目カテゴリーのID",
+                            "example": 93
+                          },
+                          "account_item_index": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "決算書表示名内での勘定科目の並び順",
+                            "example": 126
+                          },
+                          "a_report_code": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "勘定科目カテゴリーのレポート区分（0: 貸借対照表、1: 損益計算書、2: 製造原価報告書、3: 不動産所得）",
+                            "example": 1,
+                            "nullable": true
+                          },
+                          "a_order": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "勘定科目カテゴリーの表示順",
+                            "example": 740,
+                            "nullable": true
+                          },
+                          "category_entry_side": {
+                            "type": "integer",
+                            "format": "int64",
+                            "description": "勘定科目カテゴリーの貸借（0: 未定義、1: 貸方、-1: 借方）",
+                            "example": -1,
+                            "nullable": true
                           }
                         }
                       }

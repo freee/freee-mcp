@@ -123,6 +123,12 @@
 - it-management-asset-statuses.md — asset_statuses
 - it-management-assets.md — assets
 - it-management-departments.md — departments
+- it-management-it-management-application-masters.md — application_masters
+- it-management-it-management-applications.md — applications
+- it-management-it-management-asset-attributes.md — asset_attributes
+- it-management-it-management-asset-locations.md — asset_locations
+- it-management-it-management-asset-members.md — asset_members
+- it-management-it-management-custom-application-masters.md — custom_application_masters
 - it-management-members.md — members
 
 ## fixed_asset_management - freee固定資産

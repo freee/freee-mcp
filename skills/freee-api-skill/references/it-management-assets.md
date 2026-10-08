@@ -40,6 +40,13 @@ assets
 - external_id: string - 外部システムID（チーム内一意） 例: `EXT-001`
 - asset_status_id*: string(uuid) - ステータスID 例: `550e8400-e29b-41d4-a716-446655440001`
 - asset_category_id*: string(uuid) - 種別ID 例: `550e8400-e29b-41d4-a716-446655440002`
+- asset_location_id: string(uuid) - 保管場所ID 例: `550e8400-e29b-41d4-a716-446655440004`
+- asset_attribute_values: array[object] - 備品属性の値のリスト。asset_attribute_id には、指定した種別に紐づく備品属性を指定します
+  配列の要素:
+    - asset_attribute_id*: string(uuid) - 備品属性ID 例: `550e8400-e29b-41d4-a716-446655440005`
+    - string_value: string - 文字列の値。入力種別が string / text / select の備品属性で使用する 例: `Apple M3`
+    - integer_value: integer(int32) - 整数の値。入力種別が integer の備品属性で使用する 例: `512`
+    - date_value: string(date) - 日付の値(yyyy-mm-dd)。入力種別が date の備品属性で使用する 例: `2024-04-01`
 
 ### レスポンス
 
@@ -52,7 +59,9 @@ assets
 - last_scanned_at*: string(date-time) - 最終スキャン日時(ISO8601)
 - asset_status*: object - ステータス
 - asset_category*: object - 種別
+- asset_location*: object - 現在の保管場所。未設定の場合は null
 - current_member*: object - 現在の利用者
+- asset_attribute_values*: array[object] - 備品属性の値のリスト
 - created_at*: string(date-time) - 作成日時(ISO8601)
 - updated_at*: string(date-time) - 更新日時(ISO8601)
 
@@ -77,7 +86,9 @@ assets
 - last_scanned_at*: string(date-time) - 最終スキャン日時(ISO8601)
 - asset_status*: object - ステータス
 - asset_category*: object - 種別
+- asset_location*: object - 現在の保管場所。未設定の場合は null
 - current_member*: object - 現在の利用者
+- asset_attribute_values*: array[object] - 備品属性の値のリスト
 - created_at*: string(date-time) - 作成日時(ISO8601)
 - updated_at*: string(date-time) - 更新日時(ISO8601)
 
@@ -102,6 +113,13 @@ assets
 - external_id: string - 外部システムID（チーム内一意） 例: `EXT-001`
 - asset_status_id: string(uuid) - ステータスID 例: `550e8400-e29b-41d4-a716-446655440001`
 - asset_category_id: string(uuid) - 種別ID 例: `550e8400-e29b-41d4-a716-446655440002`
+- asset_location_id: string(uuid) - 保管場所ID。null を指定すると保管場所の紐付けを解除します。省略した場合は現在の紐付けを維持します 例: `550e8400-e29b-41d4-a716-446655440004`
+- asset_attribute_values: array[object] - 備品属性の値のリスト。指定した備品属性の値だけを更新し、指定しなかった備品属性の値は維持します。省略した場合は値を変更しません。asset_attribute_id には、備品の種別に紐づく備品属性を指定します
+  配列の要素:
+    - asset_attribute_id*: string(uuid) - 備品属性ID 例: `550e8400-e29b-41d4-a716-446655440005`
+    - string_value: string - 文字列の値。入力種別が string / text / select の備品属性で使用する 例: `Apple M3`
+    - integer_value: integer(int32) - 整数の値。入力種別が integer の備品属性で使用する 例: `512`
+    - date_value: string(date) - 日付の値(yyyy-mm-dd)。入力種別が date の備品属性で使用する 例: `2024-04-01`
 
 ### レスポンス
 
@@ -114,7 +132,9 @@ assets
 - last_scanned_at*: string(date-time) - 最終スキャン日時(ISO8601)
 - asset_status*: object - ステータス
 - asset_category*: object - 種別
+- asset_location*: object - 現在の保管場所。未設定の場合は null
 - current_member*: object - 現在の利用者
+- asset_attribute_values*: array[object] - 備品属性の値のリスト
 - created_at*: string(date-time) - 作成日時(ISO8601)
 - updated_at*: string(date-time) - 更新日時(ISO8601)
 

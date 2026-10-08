@@ -771,6 +771,22 @@
         ]
       }
     },
+    "/hub/partner_management/orderer/projects/{project_id}/tasks": {
+      "post": {
+        "summary": "タスク作成（β版）",
+        "description": "指定プロジェクトにタスクを 1 件作成します。ステータスは下書きで作成されます。",
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "作成先のプロジェクトID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/hub/partner_management/orderer/tasks/{task_id}/delivery_data/custom_fields": {
       "get": {
         "summary": "タスク納品データのカスタム項目一覧取得（β版）",

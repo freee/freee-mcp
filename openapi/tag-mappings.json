@@ -109,7 +109,13 @@
     "it_management_members": "members",
     "it_management_asset_categories": "asset-categories",
     "it_management_asset_statuses": "asset-statuses",
-    "it_management_departments": "departments"
+    "it_management_departments": "departments",
+    "it_management_application_masters": "it-management-application-masters",
+    "it_management_applications": "it-management-applications",
+    "it_management_asset_attributes": "it-management-asset-attributes",
+    "it_management_asset_locations": "it-management-asset-locations",
+    "it_management_asset_members": "it-management-asset-members",
+    "it_management_custom_application_masters": "it-management-custom-application-masters"
   },
   "fixed-asset-management-api": {
     "fixed_asset_management_fixed_assets": "fixed-assets"

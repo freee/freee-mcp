@@ -7,7 +7,7 @@
 概要 指定した事業所の申請経路一覧を取得する 各種申請APIの使い方については、 freee会計の各種申請APIの使い方 をご参照ください 経費精算APIの使い方については、 freee会計の経費精算APIの使い方 をご参照ください
 
 注意点
-承認ステップの詳細（steps）は本APIのレスポンスには含まれません。承認方法や分岐条件を確認する場合は、申請経路の取得（GET /api/1/approval_flow_routes/{id}）をご利用ください。 支払依頼では、条件分岐を含む申請経路を指定した作成・更新・承認操作はできません。
+承認ステップの詳細（steps）は本APIのレスポンスには含まれません。承認方法や分岐条件を確認する場合は、申請経路の取得（GET /api/1/approval_flow_routes/{id}）をご利用ください。
 
 ### パラメータ
 
@@ -30,7 +30,7 @@
 概要 指定した事業所の申請経路を取得する 各種申請APIの使い方については、 freee会計の各種申請APIの使い方 をご参照ください 経費精算APIの使い方については、 freee会計の経費精算APIの使い方 をご参照ください
 
 注意点
-承認ステップごとの承認方法は steps[].resource_type で判別できます。役職で承認者を指定する承認ステップ（and_position / or_position）では steps[].approver_determination_type、steps[].group、steps[].position_types を、条件分岐の承認ステップ（switchable）では steps[].switching_rules をご参照ください。 支払依頼では、条件分岐を含む申請経路を指定した作成・更新・承認操作はできません。
+承認ステップごとの承認方法は steps[].resource_type で判別できます。役職で承認者を指定する承認ステップ（and_position / or_position）では steps[].approver_determination_type、steps[].group、steps[].position_types を、条件分岐の承認ステップ（switchable）では steps[].switching_rules をご参照ください。
 
 ### パラメータ
 

@@ -1,5 +1,82 @@
 {
   "paths": {
+    "/hub/it_management/applications": {
+      "get": {
+        "summary": "アプリ一覧取得（β版）",
+        "description": "利用中 (未アーカイブ) のアプリ一覧をカーソルページネーションで取得します。\n`keyword` を指定すると、テナント名、アプリ名、標準アプリの slug、標準アプリの提供会社名を対象に部分一致検索を行います (空白区切りで AND 検索)。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "テナント名 / アプリ名 / 標準アプリの slug / 標準アプリの提供会社名の部分一致検索キーワード (空白区切りで AND 検索)",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "ページネーションのトークン",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/it_management/applications/{id}": {
+      "get": {
+        "summary": "アプリ詳細取得（β版）",
+        "description": "アプリの詳細を取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "アプリID"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "アプリ部分更新（β版）",
+        "description": "アプリの所属会社 / テナント名を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。\n- アプリ名はこの API では変更できません。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "アプリID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/hub/it_management/application_accounts": {
       "get": {
         "summary": "アカウント一覧取得（β版）",
@@ -125,6 +202,69 @@
           }
         ],
         "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/application_masters": {
+      "get": {
+        "summary": "アプリマスタ一覧取得（β版）",
+        "description": "freee IT管理 のアプリカタログに含まれる標準アプリマスタの一覧をカーソルページネーションで取得します。\n`keyword` を指定すると、アプリ名、slug、提供会社名を対象に部分一致検索を行います (空白区切りで AND 検索)。\n\n## 注意点\n\n- ロールが「一般」のユーザーでは、一覧は常に空になります。詳細取得は利用できます。\n- フリープランでは、プランで利用できるアプリマスタだけが返ります。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "アプリ名 / slug / 提供会社名の部分一致検索キーワード (空白区切りで AND 検索)",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "ページネーションのトークン",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/it_management/application_masters/{id}": {
+      "get": {
+        "summary": "アプリマスタ詳細取得（β版）",
+        "description": "アプリマスタの詳細を取得します。\n\n## 注意点\n\n- フリープランでは、プランで利用できないアプリマスタを指定すると 404 になります。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "アプリマスタID"
+          }
+        ]
       }
     },
     "/hub/it_management/assets": {
@@ -254,6 +394,101 @@
         "hasJsonBody": true
       }
     },
+    "/hub/it_management/asset_attributes": {
+      "get": {
+        "summary": "備品属性一覧取得（β版）",
+        "description": "備品属性の一覧をカーソルページネーションで取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "ページネーションのトークン",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+            "explode": false
+          }
+        ]
+      },
+      "post": {
+        "summary": "備品属性作成（β版）",
+        "description": "備品属性を作成します。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/asset_attributes/{id}": {
+      "get": {
+        "summary": "備品属性詳細取得（β版）",
+        "description": "備品属性の詳細を取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品属性ID"
+          }
+        ]
+      },
+      "delete": {
+        "summary": "備品属性削除（β版）",
+        "description": "備品属性を削除します。system-managed な属性は削除できません。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品属性ID"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "備品属性部分更新（β版）",
+        "description": "備品属性を部分的に更新します。system-managed な属性は更新できません。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品属性ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/hub/it_management/asset_categories": {
       "get": {
         "summary": "備品種別一覧取得（β版）",
@@ -349,6 +584,249 @@
         "hasJsonBody": true
       }
     },
+    "/hub/it_management/asset_locations": {
+      "get": {
+        "summary": "備品保管場所一覧取得（β版）",
+        "description": "備品保管場所の一覧をカーソルページネーションで取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "ページネーションのトークン",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+            "explode": false
+          }
+        ]
+      },
+      "post": {
+        "summary": "備品保管場所作成（β版）",
+        "description": "備品保管場所を作成します。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/asset_locations/{id}": {
+      "get": {
+        "summary": "備品保管場所詳細取得（β版）",
+        "description": "備品保管場所の詳細を取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品保管場所ID"
+          }
+        ]
+      },
+      "delete": {
+        "summary": "備品保管場所削除（β版）",
+        "description": "備品保管場所を削除します。使用中 (アクティブな備品配置がある) の保管場所は削除できません。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品保管場所ID"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "備品保管場所部分更新（β版）",
+        "description": "備品保管場所を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品保管場所ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/assets/{asset_id}/members": {
+      "get": {
+        "summary": "備品利用者一覧取得（β版）",
+        "description": "指定した備品の利用者履歴をカーソルページネーションで取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "asset_id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品ID"
+          },
+          {
+            "name": "current",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "`true` の場合、現在割当中 (end_at が null) のみを返す",
+            "explode": false
+          },
+          {
+            "name": "member_id",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "メンバー ID による絞り込み",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "ページネーションのトークン",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+            "explode": false
+          }
+        ]
+      },
+      "post": {
+        "summary": "備品にメンバーを割当（β版）",
+        "description": "備品にメンバーを割当てます。\n\n## 注意点\n\n- start_at を省略すると当日になります。\n- 現在割当中のメンバーがいて、start_at を省略するか現在の割当の開始日以降を指定した場合、現在の割当は自動で終了します。終了日には新しい start_at (省略時は当日) が設定されます。\n- end_at を省略すると null (現在割当中) になります。ただし start_at を指定し、その日以降に始まる別の履歴がある場合は、その履歴の start_at が end_at に設定されます。",
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/assets/{asset_id}/members/{id}": {
+      "get": {
+        "summary": "備品利用者詳細取得（β版）",
+        "description": "指定した備品利用者の詳細を取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "asset_id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品ID"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品利用者ID"
+          }
+        ]
+      },
+      "delete": {
+        "summary": "備品利用者削除（β版）",
+        "description": "備品利用者の履歴を物理削除します。履歴を残したまま利用を終了する場合は、部分更新 (PATCH) で end_at を指定してください。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "asset_id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品ID"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品利用者ID"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "備品利用者部分更新（β版）",
+        "description": "備品利用者の start_at / end_at を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。",
+        "parameters": [
+          {
+            "name": "asset_id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品ID"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "備品利用者ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/hub/it_management/asset_statuses": {
       "get": {
         "summary": "備品ステータス一覧取得（β版）",
@@ -439,6 +917,83 @@
             "type": "string",
             "required": true,
             "description": "備品ステータスID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/custom_application_masters": {
+      "get": {
+        "summary": "カスタムアプリマスタ一覧取得（β版）",
+        "description": "テナント内で定義されているカスタムアプリマスタ (カスタムアプリの元になるカタログ) の一覧をカーソルページネーションで取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "名前の部分一致検索キーワード",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "ページネーションのトークン",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/it_management/custom_application_masters/{id}": {
+      "get": {
+        "summary": "カスタムアプリマスタ詳細取得（β版）",
+        "description": "カスタムアプリマスタの詳細を取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "カスタムアプリマスタID"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "カスタムアプリマスタ部分更新（β版）",
+        "description": "カスタムアプリマスタの name を部分的に更新します。\n\n## 注意点\n\n- 同じマスタを複数のカスタムアプリ (Application) が共有している場合、\n  rename は共有している全 Application の表示 name に反映されます。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "カスタムアプリマスタID"
           }
         ],
         "hasJsonBody": true
