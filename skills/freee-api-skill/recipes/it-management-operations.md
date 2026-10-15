@@ -69,7 +69,7 @@ API ごとに削除の意味が違うので注意。
 
 ### Write 系はカスタムアプリ限定
 
-`POST` / `PATCH` / `DELETE /hub/it_management/application_accounts/*` はカスタムアプリ（ユーザーが手動で追加した管理対象 SaaS）配下のアカウントのみ受け付ける。Slack / Microsoft 365 等の自動同期で取り込まれた標準アプリのアカウントは Write 系が拒否され、`ITM-05-02-0003` が返る。
+`POST` / `PATCH` / `DELETE /hub/it_management/application_accounts/*` はカスタムアプリ（ユーザーが手動で追加した管理対象 SaaS）配下のアカウントのみ受け付ける。Slack / Microsoft 365 等の自動同期で取り込まれた標準アプリのアカウントは Write 系が拒否され、400 + `ITM-05-01-0006` が返る。
 
 カスタムアプリかどうかを事前判定する API は提供されていないため、Write 試行時のエラーで判別する。
 
@@ -93,14 +93,14 @@ PATCH /hub/it_management/application_accounts/{id}
 ```
 
 - 部分更新では送信していない attribute は既存値が維持される。明示的に `null` を送れば NULL クリア可能
-- `is_display: true` の属性は必須。既存値が無い状態で省略すると `ITM-05-02-0001 表示名を入力してください` (422)。一度値をセットすれば、以降の部分更新で省略しても既存値が保持される
+- `is_display: true` の属性は必須。既存値が無い状態で省略すると `ITM-05-01-0001 表示名を入力してください` (422)。一度値をセットすれば、以降の部分更新で省略しても既存値が保持される
 - `is_status: true` の属性に値をセットすると `status.id` が連動切替される
 - 未知の title キーは無音で無視される（エラーにならない）。タイポに気付けないため、送信前に `application.attributes` の title セットに含まれていることを確認すること
 
 ### ステータス・ロール
 
 - `application_account_status_id` / `application_account_role_id` を PATCH ボディで指定可能
-- 不正な UUID は `ITM-05-02-0001` + `fields` で 422
+- 不正な UUID は `ITM-05-01-0001` + `fields` で 422
 - `application_account_role_id: null` で既存ロールをクリア
 
 ## よくある操作の流れ
@@ -110,7 +110,7 @@ PATCH /hub/it_management/application_accounts/{id}
 1. メンバーを作成（POST `/hub/it_management/members`）
 2. レスポンスの `id` を `application_account` の `member_id` 系フィールドに利用してアカウント作成（POST `/hub/it_management/application_accounts`、カスタムアプリのみ）
 
-メンバーの `department_ids` は `GET /hub/it_management/departments`、`position_id` は `/positions`、`employment_type_id` は `/employment_types` で参照可能。同様に、備品の `asset_status_id` は `/asset_statuses`、`asset_category_id` は `/asset_categories`、`asset_location_id` は `/asset_locations` で一覧を取得してから割り当てられる。不正な ID は 422 で返り（メンバー API は `ITM-05-03-0001`、備品 API は `ITM-05-01-0001`）、`fields` 配列で具体的なフィールド名が判別できる。
+メンバーの `department_ids` は `GET /hub/it_management/departments`、`position_id` は `/positions`、`employment_type_id` は `/employment_types` で参照可能。同様に、備品の `asset_status_id` は `/asset_statuses`、`asset_category_id` は `/asset_categories`、`asset_location_id` は `/asset_locations` で一覧を取得してから割り当てられる。不正な ID は 422 + `ITM-05-01-0001` で返り、`fields` 配列で具体的なフィールド名が判別できる。
 
 メンバーの primary email（`PATCH /members/{id}` の `email`）は API での更新に対応していない。
 
@@ -150,17 +150,18 @@ PATCH /hub/it_management/application_accounts/{id}
 
 `code` を見れば発生源と扱い方が分かる。`ITM-` 系と `AHB-3003-0002` はいずれも `fields` を持つので、具体的なフィールドエラーはそこから取得する。
 
-- `ITM-05-02-XXXX` は SaaS アカウント API、`ITM-05-03-XXXX` はメンバー API、`ITM-05-01-XXXX` はそれ以外（備品・各マスタ・アプリ等）の API 由来
+- `ITM-05-01-XXXX` は IT管理 API 由来。メンバー・SaaS アカウント・備品・各マスタ・アプリなど、すべての API で共通（末尾の番号で種類が分かる）
 - `AHB-3003-0002` は API ゲートウェイ層のスキーマ違反（必須項目欠落 / 型不一致 / `unsupported` フィールド送信 / `page_size` 上限超過 等）
 - `AHB-1002-9001` はシステムエラー（5xx）。通常運用では発生しない
 
 よくあるケース:
 
 - 401/403: 認証エラー。`freee_auth_status` で確認。Remote MCP は再認証を促される。ローカルは `freee_clear_auth` → `freee_authenticate`
-- 404 + `ITM-05-XX-0002`: 指定 ID のリソースが存在しない、または既にソフトデリート済み
-- 422 + `ITM-05-XX-0001`: 不正な参照 ID（status_id / role_id / position_id 等）
-- 400 + `ITM-05-XX-0001`: 一意制約違反（`asset_number`, `serial_number`, `external_id`, `code` 等のチーム内一意フィールド）
-- 400 + `ITM-05-02-0003`: カスタムアプリでない SaaS アカウントへの Write
+- 403 + `ITM-05-01-0003`: IT管理のロールに、その操作の権限がない
+- 404 + `ITM-05-01-0002`: 指定 ID のリソースが存在しない、または既にソフトデリート済み
+- 422 + `ITM-05-01-0001`: バリデーションエラー。必須項目の欠落、不正な参照 ID（status_id / role_id / position_id 等）、一意制約違反（`asset_number`, `serial_number`, `external_id`, `code` 等のチーム内一意フィールド）
+- 400 + `ITM-05-01-0004` / `ITM-05-01-0005`: `page_token` が不正。1 ページ目から取り直す
+- 400 + `ITM-05-01-0006`: 業務ルール違反（カスタムアプリでない SaaS アカウントへの Write など）
 - 400 + `ITM-05-01-0007`: 削除・更新の制約に当たった（制約の内容は各リファレンスの削除・更新 API の説明を確認する）
 
 ## リファレンス
