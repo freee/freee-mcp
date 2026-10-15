@@ -119,19 +119,22 @@
 ## it_management - freeeIT管理
 
 - it-management-application-account.md — application_accounts
+- it-management-application-masters.md — application_masters
+- it-management-applications.md — applications
+- it-management-asset-attributes.md — asset_attributes
 - it-management-asset-categories.md — asset_categories
+- it-management-asset-locations.md — asset_locations
+- it-management-asset-members.md — asset_members
 - it-management-asset-statuses.md — asset_statuses
 - it-management-assets.md — assets
+- it-management-custom-application-masters.md — custom_application_masters
 - it-management-departments.md — departments
-- it-management-it-management-application-masters.md — application_masters
-- it-management-it-management-applications.md — applications
-- it-management-it-management-asset-attributes.md — asset_attributes
-- it-management-it-management-asset-locations.md — asset_locations
-- it-management-it-management-asset-members.md — asset_members
-- it-management-it-management-custom-application-masters.md — custom_application_masters
-- it-management-it-management-employment-types.md — employment_types
-- it-management-it-management-guests.md — guests
+- it-management-employment-types.md — employment_types
+- it-management-guests.md — guests
 - it-management-members.md — members
+- it-management-positions.md — positions
+- it-management-product-companies.md — product_companies
+- it-management-system-account-owners.md — system_account_owners
 
 ## fixed_asset_management - freee固定資産
 

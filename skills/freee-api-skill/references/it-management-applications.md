@@ -43,7 +43,7 @@ applications
 - custom_application*: boolean - カスタムアプリかどうか
 - archived*: boolean - アーカイブ済みかどうか。一覧取得では常に false。詳細取得ではアーカイブ済みのアプリも返す
 - order*: integer(int32) - 表示順
-- company*: object - 所属会社。作成時に既定の会社が割り当てられる。アーカイブ済みのアプリでは null
+- product_company*: object - 所属会社 (IT管理の会社)。作成時に既定の会社が割り当てられる。アーカイブ済みのアプリでは null
 - created_at*: string(date-time) - 作成日時(ISO8601)
 - updated_at*: string(date-time) - 更新日時(ISO8601)
 
@@ -62,7 +62,7 @@ applications
 ### リクエストボディ*
 
 - company_id: integer(int64) - 事業所ID 例: `1`
-- it_management_company_id: string(uuid) - 所属会社 (IT管理の会社) の ID。指定すると、アプリの所属会社を変更します。存在しない ID を指定すると 422 になります (エラーの invalid_fields では company_id と表示されます) 例: `550e8400-e29b-41d4-a716-446655440001`
+- product_company_id: string(uuid) - 所属会社 (IT管理の会社) の ID。会社一覧取得 (GET /hub/it_management/product_companies) で取得できます。指定すると、アプリの所属会社を変更します。存在しない ID を指定すると 422 になります (エラーの invalid_fields では company_id と表示されます) 例: `550e8400-e29b-41d4-a716-446655440001`
 - tenant_name: string - 各テナントで管理しているアプリ表示名。標準アプリ / カスタムアプリのどちらも更新できます 例: `本社 Slack`
 
 ### レスポンス
@@ -78,6 +78,6 @@ applications
 - custom_application*: boolean - カスタムアプリかどうか
 - archived*: boolean - アーカイブ済みかどうか。一覧取得では常に false。詳細取得ではアーカイブ済みのアプリも返す
 - order*: integer(int32) - 表示順
-- company*: object - 所属会社。作成時に既定の会社が割り当てられる。アーカイブ済みのアプリでは null
+- product_company*: object - 所属会社 (IT管理の会社)。作成時に既定の会社が割り当てられる。アーカイブ済みのアプリでは null
 - created_at*: string(date-time) - 作成日時(ISO8601)
 - updated_at*: string(date-time) - 更新日時(ISO8601)

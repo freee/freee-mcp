@@ -34,6 +34,7 @@ departments
 - company_id*: integer(int64) - 事業所ID 例: `1`
 - name*: string - 部署名 例: `開発部`
 - code: string - 部署コード 例: `DEV`
+- product_company_id: string(uuid) - 所属会社 (IT管理の会社) の ID。会社一覧取得 (GET /hub/it_management/product_companies) で取得できます。省略すると既定の会社 (default = true) に作成します。親部署を指定する場合は、親部署と同じ会社を指定してください。存在しない ID を指定すると 422 になります (エラーの invalid_fields では company_id と表示されます) 例: `550e8400-e29b-41d4-a716-446655440002`
 - parent_id: string(uuid) - 親部署ID 例: `550e8400-e29b-41d4-a716-446655440001`
 - manager_ids: array[string] - マネージャーのメンバーID (最大 1 名) 例: `["550e8400-e29b-41d4-a716-446655440003"]`
 
@@ -44,7 +45,7 @@ departments
 - name*: string - 部署名
 - code*: string - 部署コード
 - parent*: object - 親部署
-- company*: object - 所属会社
+- product_company*: object - 所属会社 (IT管理の会社)
 - managers*: array[object] - マネージャー一覧
 - created_at*: string(date-time) - 作成日時(ISO8601)
 - updated_at*: string(date-time) - 更新日時(ISO8601)
@@ -66,7 +67,7 @@ departments
 - name*: string - 部署名
 - code*: string - 部署コード
 - parent*: object - 親部署
-- company*: object - 所属会社
+- product_company*: object - 所属会社 (IT管理の会社)
 - managers*: array[object] - マネージャー一覧
 - created_at*: string(date-time) - 作成日時(ISO8601)
 - updated_at*: string(date-time) - 更新日時(ISO8601)
@@ -76,7 +77,7 @@ departments
 部署を部分的に更新します。 ##
 
 注意点
-- 指定されたパラメーターのみが更新されます。
+- 指定されたパラメーターのみが更新されます。 - 所属会社 (product_company) は変更できません。
 
 ### パラメータ
 
@@ -98,7 +99,7 @@ departments
 - name*: string - 部署名
 - code*: string - 部署コード
 - parent*: object - 親部署
-- company*: object - 所属会社
+- product_company*: object - 所属会社 (IT管理の会社)
 - managers*: array[object] - マネージャー一覧
 - created_at*: string(date-time) - 作成日時(ISO8601)
 - updated_at*: string(date-time) - 更新日時(ISO8601)
