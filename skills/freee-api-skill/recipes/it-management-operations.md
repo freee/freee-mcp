@@ -71,7 +71,7 @@ API ごとに削除の意味が違うので注意。
 
 `POST` / `PATCH` / `DELETE /hub/it_management/application_accounts/*` はカスタムアプリ（ユーザーが手動で追加した管理対象 SaaS）配下のアカウントのみ受け付ける。Slack / Microsoft 365 等の自動同期で取り込まれた標準アプリのアカウントへの Write は拒否される。
 
-カスタムアプリかどうかは、Write の前に GET `/hub/it_management/applications/{id}` の `custom_application` で確認する。Write を試してエラーで判別しようとすると、権限がないユーザーではカスタムアプリの判定より先に権限のエラーが返り、状況を読み違える。
+カスタムアプリかどうかは、Write の前に GET `/hub/it_management/applications/{id}` の `custom_application` で確認する。
 
 ### POST と PATCH で受け付けるフィールドの差
 
@@ -110,7 +110,7 @@ PATCH /hub/it_management/application_accounts/{id}
 1. メンバーを作成（POST `/hub/it_management/members`）
 2. レスポンスの `id` を `application_account` の `member_id` 系フィールドに利用してアカウント作成（POST `/hub/it_management/application_accounts`、カスタムアプリのみ）
 
-メンバーの `department_ids` は `GET /hub/it_management/departments`、`position_id` は `/positions`、`employment_type_id` は `/employment_types` で参照可能。同様に、備品の `asset_status_id` は `/asset_statuses`、`asset_category_id` は `/asset_categories`、`asset_location_id` は `/asset_locations` で一覧を取得してから割り当てられる。存在しない ID を渡してもエラーにならず、その値が無視される API がある（メンバーの `position_id` / `employment_type_id` / `department_ids` など）。作成・更新のあとは、レスポンスで値が反映されたかを確認してから、ユーザーに結果を伝える。
+メンバーの `department_ids` は `GET /hub/it_management/departments`、`position_id` は `/positions`、`employment_type_id` は `/employment_types` で参照可能。同様に、備品の `asset_status_id` は `/asset_statuses`、`asset_category_id` は `/asset_categories`、`asset_location_id` は `/asset_locations` で一覧を取得してから割り当てられる。
 
 メンバーの primary email（`PATCH /members/{id}` の `email`）は API での更新に対応していない。
 
