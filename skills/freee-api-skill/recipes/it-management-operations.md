@@ -28,7 +28,7 @@ freeeIT管理APIを使った SaaSアカウント・備品・メンバー管理�
 - 操作対象の事業所を `company_id` で指定する。指定値は現在の事業所（`freee_get_current_company`）と一致する必要があり、不一致だとエラーになる。切り替えは `freee_set_current_company` を使う
 - `company_id` の位置はメソッドで異なる。GET（一覧・単体取得）/ DELETE はクエリパラメータ、POST / PATCH はリクエストボディ（いずれも必須）
 - `company_id` は freee の事業所 ID（整数）。IT管理の会社（`product_companies`）の ID（UUID）は `product_company_id` / レスポンスの `product_company` で扱い、`company_id` とは別物なので混同しない
-- ただし `product_company_id` に不正な値を送ったときの 422 は、`fields` の `name` が `company_id` で返る。このエラーで事業所を切り替えず、`product_company_id` の値を見直す
+- ただし `product_company_id` に不正な値を送ったときの 400 は、`fields` の `name` が `company_id` で返る。このエラーで事業所を切り替えず、`product_company_id` の値を見直す
 
 ## ページネーション
 
@@ -93,14 +93,14 @@ PATCH /hub/it_management/application_accounts/{id}
 ```
 
 - 部分更新では送信していない attribute は既存値が維持される。明示的に `null` を送れば NULL クリア可能
-- `is_display: true` の属性は必須。既存値が無い状態で省略すると `ITM-05-01-0001 表示名を入力してください` (422)。一度値をセットすれば、以降の部分更新で省略しても既存値が保持される
+- `is_display: true` の属性は必須。既存値が無い状態で省略すると `ITM-05-01-0001 表示名を入力してください` (400)。一度値をセットすれば、以降の部分更新で省略しても既存値が保持される
 - `is_status: true` の属性に値をセットすると `status.id` が連動切替される
 - 未知の title キーは無音で無視される（エラーにならない）。タイポに気付けないため、送信前に `application.attributes` の title セットに含まれていることを確認すること
 
 ### ステータス・ロール
 
 - `application_account_status_id` / `application_account_role_id` を PATCH ボディで指定可能
-- 不正な UUID は `ITM-05-01-0001` + `fields` で 422
+- 不正な UUID は `ITM-05-01-0001` + `fields` で 400
 - `application_account_role_id: null` で既存ロールをクリア
 
 ## よくある操作の流れ
@@ -110,7 +110,7 @@ PATCH /hub/it_management/application_accounts/{id}
 1. メンバーを作成（POST `/hub/it_management/members`）
 2. レスポンスの `id` を `application_account` の `member_id` 系フィールドに利用してアカウント作成（POST `/hub/it_management/application_accounts`、カスタムアプリのみ）
 
-メンバーの `department_ids` は `GET /hub/it_management/departments`、`position_id` は `/positions`、`employment_type_id` は `/employment_types` で参照可能。同様に、備品の `asset_status_id` は `/asset_statuses`、`asset_category_id` は `/asset_categories`、`asset_location_id` は `/asset_locations` で一覧を取得してから割り当てられる。不正な ID は 422 + `ITM-05-01-0001` で返り、`fields` 配列で具体的なフィールド名が判別できる。
+メンバーの `department_ids` は `GET /hub/it_management/departments`、`position_id` は `/positions`、`employment_type_id` は `/employment_types` で参照可能。同様に、備品の `asset_status_id` は `/asset_statuses`、`asset_category_id` は `/asset_categories`、`asset_location_id` は `/asset_locations` で一覧を取得してから割り当てられる。不正な ID は 400 + `ITM-05-01-0001` で返り、`fields` 配列で具体的なフィールド名が判別できる。
 
 メンバーの primary email（`PATCH /members/{id}` の `email`）は API での更新に対応していない。
 
@@ -157,9 +157,9 @@ PATCH /hub/it_management/application_accounts/{id}
 よくあるケース:
 
 - 401/403: 認証エラー。`freee_auth_status` で確認。Remote MCP は再認証を促される。ローカルは `freee_clear_auth` → `freee_authenticate`
-- 403 + `ITM-05-01-0003`: IT管理のロールに、その操作の権限がない
-- 404 + `ITM-05-01-0002`: 指定 ID のリソースが存在しない、または既にソフトデリート済み
-- 422 + `ITM-05-01-0001`: バリデーションエラー。必須項目の欠落、不正な参照 ID（status_id / role_id / position_id 等）、一意制約違反（`asset_number`, `serial_number`, `external_id`, `code` 等のチーム内一意フィールド）
+- 403 + `ITM-05-01-0003`: IT管理のロールに、作成・更新・削除の権限がない
+- 404 + `ITM-05-01-0002`: 指定 ID のリソースが存在しない、ソフトデリート済み、または参照権限がない
+- 400 + `ITM-05-01-0001`: バリデーションエラー。必須項目の欠落、不正な参照 ID（status_id / role_id / position_id 等）、一意制約違反（`asset_number`, `serial_number`, `external_id`, `code` 等のチーム内一意フィールド）
 - 400 + `ITM-05-01-0004` / `ITM-05-01-0005`: `page_token` が不正。1 ページ目から取り直す
 - 400 + `ITM-05-01-0006`: 業務ルール違反（カスタムアプリでない SaaS アカウントへの Write など）
 - 400 + `ITM-05-01-0007`: 削除・更新の制約に当たった（制約の内容は各リファレンスの削除・更新 API の説明を確認する）
