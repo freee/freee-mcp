@@ -37,6 +37,7 @@ asset_categories
 備品種別作成レスポンス
 - id*: string(uuid) - 備品種別ID
 - name*: string - 備品種別名
+- asset_attributes*: array[object] - この備品種別に紐づく備品属性のリスト (表示順)。備品の作成・更新で asset_attribute_values に指定できるのはこれらの備品属性です
 
 ## GET /hub/it_management/asset_categories/{id} — 備品種別詳細取得（β版）
 
@@ -53,6 +54,7 @@ asset_categories
 備品種別詳細取得レスポンス
 - id*: string(uuid) - 備品種別ID
 - name*: string - 備品種別名
+- asset_attributes*: array[object] - この備品種別に紐づく備品属性のリスト (表示順)。備品の作成・更新で asset_attribute_values に指定できるのはこれらの備品属性です
 
 ## PATCH /hub/it_management/asset_categories/{id} — 備品種別部分更新（β版）
 
@@ -76,6 +78,7 @@ asset_categories
 備品種別部分更新レスポンス
 - id*: string(uuid) - 備品種別ID
 - name*: string - 備品種別名
+- asset_attributes*: array[object] - この備品種別に紐づく備品属性のリスト (表示順)。備品の作成・更新で asset_attribute_values に指定できるのはこれらの備品属性です
 
 ## DELETE /hub/it_management/asset_categories/{id} — 備品種別削除（β版）
 

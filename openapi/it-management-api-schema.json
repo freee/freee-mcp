@@ -79,6 +79,21 @@
       "name": "it_management_members",
       "description": "members",
       "x-displayName": "メンバー"
+    },
+    {
+      "name": "it_management_positions",
+      "description": "positions",
+      "x-displayName": "役職"
+    },
+    {
+      "name": "it_management_product_companies",
+      "description": "product_companies",
+      "x-displayName": "会社"
+    },
+    {
+      "name": "it_management_system_account_owners",
+      "description": "system_account_owners",
+      "x-displayName": "システムアカウント"
     }
   ],
   "paths": {
@@ -213,10 +228,10 @@
                     "description": "事業所ID",
                     "example": 1
                   },
-                  "it_management_company_id": {
+                  "product_company_id": {
                     "type": "string",
                     "format": "uuid",
-                    "description": "所属会社 (IT管理の会社) の ID。指定すると、アプリの所属会社を変更します。存在しない ID を指定すると 422 になります (エラーの invalid_fields では company_id と表示されます)",
+                    "description": "所属会社 (IT管理の会社) の ID。会社一覧取得 (GET /hub/it_management/product_companies) で取得できます。指定すると、アプリの所属会社を変更します。存在しない ID を指定すると 422 になります (エラーの invalid_fields では company_id と表示されます)",
                     "example": "550e8400-e29b-41d4-a716-446655440001"
                   },
                   "tenant_name": {
@@ -924,7 +939,7 @@
                     "items": {
                       "$ref": "#/components/schemas/ItManagement.Assets.AssetAttributeValueInput"
                     },
-                    "description": "備品属性の値のリスト。指定した備品属性の値だけを更新し、指定しなかった備品属性の値は維持します。省略した場合は値を変更しません。asset_attribute_id には、備品の種別に紐づく備品属性を指定します"
+                    "description": "備品属性の値のリスト。指定した備品属性の値だけを更新し、指定しなかった備品属性の値は維持します。省略した場合は値を変更しません。asset_attribute_id には、備品の種別に紐づく備品属性を指定します。値が保存されていない必須の備品属性は含める必要があります"
                   }
                 },
                 "additionalProperties": false
@@ -2496,6 +2511,12 @@
                     "description": "部署コード",
                     "example": "DEV"
                   },
+                  "product_company_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "所属会社 (IT管理の会社) の ID。会社一覧取得 (GET /hub/it_management/product_companies) で取得できます。省略すると既定の会社 (default = true) に作成します。親部署を指定する場合は、親部署と同じ会社を指定してください。存在しない ID を指定すると 422 になります (エラーの invalid_fields では company_id と表示されます)",
+                    "example": "550e8400-e29b-41d4-a716-446655440002"
+                  },
                   "parent_id": {
                     "type": "string",
                     "nullable": true,
@@ -2562,7 +2583,7 @@
       "patch": {
         "operationId": "partial_update_it_management_department",
         "summary": "部署部分更新（β版）",
-        "description": "部署を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。",
+        "description": "部署を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。\n- 所属会社 (product_company) は変更できません。",
         "parameters": [
           {
             "$ref": "#/components/parameters/FreeeUsingBetaHeader"
@@ -3339,7 +3360,7 @@
                     "type": "string",
                     "nullable": true,
                     "format": "uuid",
-                    "description": "役職ID",
+                    "description": "役職 (IT管理の役職) の ID。役職一覧取得 (GET /hub/it_management/positions) で取得できます",
                     "example": "550e8400-e29b-41d4-a716-446655440001"
                   },
                   "employment_type_id": {
@@ -3514,7 +3535,7 @@
                     "type": "string",
                     "nullable": true,
                     "format": "uuid",
-                    "description": "役職ID",
+                    "description": "役職 (IT管理の役職) の ID。役職一覧取得 (GET /hub/it_management/positions) で取得できます",
                     "example": "550e8400-e29b-41d4-a716-446655440001"
                   },
                   "employment_type_id": {
@@ -3564,6 +3585,698 @@
         },
         "tags": [
           "it_management_members"
+        ]
+      }
+    },
+    "/hub/it_management/positions": {
+      "get": {
+        "operationId": "list_it_management_positions",
+        "summary": "役職一覧取得（β版）",
+        "description": "役職の一覧をカーソルページネーションで取得します。\n\n## 注意点\n\n- この API の「役職」は、IT管理で管理している役職を指します。freee人事労務の役職とは別のものです。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Positions.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Positions.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Positions.ListRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "役職一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ItManagement.Positions.Position"
+                      },
+                      "description": "役職のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_positions"
+        ]
+      },
+      "post": {
+        "operationId": "create_it_management_position",
+        "summary": "役職作成（β版）",
+        "description": "役職を作成します。\n\n## 注意点\n\n- この API の「役職」は、IT管理で管理している役職を指します。freee人事労務の役職とは別のものです。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "役職作成レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.Positions.Position"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_positions"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "役職名",
+                    "example": "部長"
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/it_management/positions/{id}": {
+      "get": {
+        "operationId": "get_it_management_position",
+        "summary": "役職詳細取得（β版）",
+        "description": "役職の詳細を取得します。\n\n## 注意点\n\n- この API の「役職」は、IT管理で管理している役職を指します。freee人事労務の役職とは別のものです。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Positions.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Positions.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "役職詳細取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.Positions.Position"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_positions"
+        ]
+      },
+      "patch": {
+        "operationId": "partial_update_it_management_position",
+        "summary": "役職部分更新（β版）",
+        "description": "役職を部分的に更新します。\n\n## 注意点\n\n- この API の「役職」は、IT管理で管理している役職を指します。freee人事労務の役職とは別のものです。\n- 指定されたパラメーターのみが更新されます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Positions.PartialUpdateRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "役職部分更新レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.Positions.Position"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_positions"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "役職名",
+                    "example": "部長"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      },
+      "delete": {
+        "operationId": "delete_it_management_position",
+        "summary": "役職削除（β版）",
+        "description": "役職を削除します。\n\n## 注意点\n\n- この API の「役職」は、IT管理で管理している役職を指します。freee人事労務の役職とは別のものです。\n- 役職が設定されているメンバーがいる場合は削除できません。\n- グループのルールの条件で使われている役職は削除できません。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Positions.DeleteRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.Positions.DeleteRequest.id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "役職削除レスポンス"
+          }
+        },
+        "tags": [
+          "it_management_positions"
+        ]
+      }
+    },
+    "/hub/it_management/product_companies": {
+      "get": {
+        "operationId": "list_it_management_product_companies",
+        "summary": "会社一覧取得（β版）",
+        "description": "IT管理 内で管理している会社の一覧をカーソルページネーションで取得します。\nアプリの所属先や、テナント内の複数の会社を分けて管理するために利用します。\n\n## 注意点\n\n- この API の「会社」は、IT管理で管理している会社を指します。freee の事業所 (`company_id`) とは別のものです。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ProductCompanies.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ProductCompanies.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ProductCompanies.ListRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "会社一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ItManagement.ProductCompanies.ProductCompany"
+                      },
+                      "description": "会社のリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_product_companies"
+        ]
+      },
+      "post": {
+        "operationId": "create_it_management_product_company",
+        "summary": "会社作成（β版）",
+        "description": "会社を作成します。\n\n## 注意点\n\n- この API の「会社」は、IT管理で管理している会社を指します。freee の事業所 (`company_id`) とは別のものです。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "会社作成レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.ProductCompanies.ProductCompany"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_product_companies"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "description": "会社名",
+                    "example": "株式会社サンプル"
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/it_management/product_companies/{id}": {
+      "get": {
+        "operationId": "get_it_management_product_company",
+        "summary": "会社詳細取得（β版）",
+        "description": "会社の詳細を取得します。\n\n## 注意点\n\n- この API の「会社」は、IT管理で管理している会社を指します。freee の事業所 (`company_id`) とは別のものです。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ProductCompanies.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ProductCompanies.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "会社詳細取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.ProductCompanies.ProductCompany"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_product_companies"
+        ]
+      },
+      "patch": {
+        "operationId": "partial_update_it_management_product_company",
+        "summary": "会社部分更新（β版）",
+        "description": "会社を部分的に更新します。\n\n## 注意点\n\n- この API の「会社」は、IT管理で管理している会社を指します。freee の事業所 (`company_id`) とは別のものです。\n- 指定されたパラメーターのみが更新されます。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ProductCompanies.PartialUpdateRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "会社部分更新レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.ProductCompanies.ProductCompany"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_product_companies"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "description": "会社名",
+                    "example": "株式会社サンプル"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      },
+      "delete": {
+        "operationId": "delete_it_management_product_company",
+        "summary": "会社削除（β版）",
+        "description": "会社を削除します。既定会社 (default = true) は削除できません。会社に紐づくアプリ・部署が残っている場合や、メンバーフィルターの条件で使われている場合も削除できません。\n\n## 注意点\n\n- この API の「会社」は、IT管理で管理している会社を指します。freee の事業所 (`company_id`) とは別のものです。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ProductCompanies.DeleteRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.ProductCompanies.DeleteRequest.id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "会社削除レスポンス"
+          }
+        },
+        "tags": [
+          "it_management_product_companies"
+        ]
+      }
+    },
+    "/hub/it_management/system_account_owners": {
+      "get": {
+        "operationId": "list_it_management_system_account_owners",
+        "summary": "システムアカウント一覧取得（β版）",
+        "description": "システムアカウント (人ではないサービス / bot / 共有アカウント等の所有者情報) の一覧をカーソルページネーションで取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.SystemAccountOwners.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.SystemAccountOwners.ListRequest.keyword"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.SystemAccountOwners.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.SystemAccountOwners.ListRequest.page_size"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "システムアカウント一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ItManagement.SystemAccountOwners.SystemAccountOwner"
+                      },
+                      "description": "システムアカウントのリスト"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのカーソルトークン。次ページがない場合はnull",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_system_account_owners"
+        ]
+      },
+      "post": {
+        "operationId": "create_it_management_system_account_owner",
+        "summary": "システムアカウント作成（β版）",
+        "description": "システムアカウントを作成します。\n\n## 注意点\n\n- 同じ事業所の他のメンバー・ゲスト・システムアカウントで使用中のメールアドレスは登録できません。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "システムアカウント作成レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.SystemAccountOwners.SystemAccountOwner"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_system_account_owners"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "システムアカウント名",
+                    "example": "prod-monitoring-bot"
+                  },
+                  "emails": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ItManagement.SystemAccountOwners.SystemAccountOwnerEmail"
+                    },
+                    "minItems": 1,
+                    "description": "メールアドレス (1 個以上)",
+                    "example": [
+                      "prod-monitoring-bot@example.com"
+                    ]
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "name",
+                  "emails"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/it_management/system_account_owners/{id}": {
+      "get": {
+        "operationId": "get_it_management_system_account_owner",
+        "summary": "システムアカウント詳細取得（β版）",
+        "description": "システムアカウントの詳細を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.SystemAccountOwners.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.SystemAccountOwners.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "システムアカウント詳細取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.SystemAccountOwners.SystemAccountOwner"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_system_account_owners"
+        ]
+      },
+      "patch": {
+        "operationId": "partial_update_it_management_system_account_owner",
+        "summary": "システムアカウント部分更新（β版）",
+        "description": "システムアカウントを部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。\n- emails を指定した場合は指定した内容で置き換えられ、含まれない既存のメールアドレスは削除されます。\n- 同じ事業所の他のメンバー・ゲスト・システムアカウントで使用中のメールアドレスは登録できません。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.SystemAccountOwners.PartialUpdateRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "システムアカウント部分更新レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItManagement.SystemAccountOwners.SystemAccountOwner"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "it_management_system_account_owners"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "システムアカウント名",
+                    "example": "prod-monitoring-bot"
+                  },
+                  "emails": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ItManagement.SystemAccountOwners.SystemAccountOwnerEmail"
+                    },
+                    "minItems": 1,
+                    "description": "メールアドレス (1 個以上)",
+                    "example": [
+                      "prod-monitoring-bot@example.com"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      },
+      "delete": {
+        "operationId": "delete_it_management_system_account_owner",
+        "summary": "システムアカウント削除（β版）",
+        "description": "システムアカウントを削除します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.SystemAccountOwners.DeleteRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ItManagement.SystemAccountOwners.DeleteRequest.id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "システムアカウント削除レスポンス"
+          }
+        },
+        "tags": [
+          "it_management_system_account_owners"
         ]
       }
     }
@@ -5023,6 +5736,274 @@
           "type": "string",
           "format": "uuid"
         }
+      },
+      "ItManagement.Positions.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.Positions.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.Positions.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "explode": false
+      },
+      "ItManagement.Positions.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.Positions.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "役職ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.Positions.PartialUpdateRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "役職ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.Positions.DeleteRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.Positions.DeleteRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "役職ID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.ProductCompanies.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.ProductCompanies.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.ProductCompanies.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "explode": false
+      },
+      "ItManagement.ProductCompanies.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.ProductCompanies.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "IT管理の会社の ID (freee の事業所 ID とは別)",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.ProductCompanies.PartialUpdateRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "IT管理の会社の ID (freee の事業所 ID とは別)",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.ProductCompanies.DeleteRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.ProductCompanies.DeleteRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "IT管理の会社の ID (freee の事業所 ID とは別)",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.SystemAccountOwners.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.SystemAccountOwners.ListRequest.keyword": {
+        "name": "keyword",
+        "in": "query",
+        "required": false,
+        "description": "名前 / メールアドレスの部分一致検索キーワード。空白で区切って複数指定した場合は、すべてに一致するものを返します",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.SystemAccountOwners.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "ページネーションのトークン",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
+      "ItManagement.SystemAccountOwners.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "explode": false
+      },
+      "ItManagement.SystemAccountOwners.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.SystemAccountOwners.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "システムアカウントID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.SystemAccountOwners.PartialUpdateRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "システムアカウントID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ItManagement.SystemAccountOwners.DeleteRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ItManagement.SystemAccountOwners.DeleteRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "システムアカウントID",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
       }
     },
     "schemas": {
@@ -5034,7 +6015,7 @@
         ],
         "description": "アプリマスタ種別"
       },
-      "ItManagement.Applications.CompanyRef": {
+      "ItManagement.Applications.ProductCompanyRef": {
         "type": "object",
         "required": [
           "id",
@@ -5044,7 +6025,7 @@
           "id": {
             "type": "string",
             "format": "uuid",
-            "description": "会社ID",
+            "description": "IT管理の会社の ID (freee の事業所 ID とは別)",
             "example": "550e8400-e29b-41d4-a716-446655440001"
           },
           "name": {
@@ -5053,7 +6034,7 @@
             "example": "株式会社サンプル"
           }
         },
-        "description": "会社参照",
+        "description": "IT管理の会社の参照",
         "additionalProperties": false
       },
       "ItManagement.Applications.Application": {
@@ -5069,7 +6050,7 @@
           "custom_application",
           "archived",
           "order",
-          "company",
+          "product_company",
           "created_at",
           "updated_at"
         ],
@@ -5132,15 +6113,15 @@
             "description": "表示順",
             "example": 1
           },
-          "company": {
+          "product_company": {
             "type": "object",
             "allOf": [
               {
-                "$ref": "#/components/schemas/ItManagement.Applications.CompanyRef"
+                "$ref": "#/components/schemas/ItManagement.Applications.ProductCompanyRef"
               }
             ],
             "nullable": true,
-            "description": "所属会社。作成時に既定の会社が割り当てられる。アーカイブ済みのアプリでは null"
+            "description": "所属会社 (IT管理の会社)。作成時に既定の会社が割り当てられる。アーカイブ済みのアプリでは null"
           },
           "created_at": {
             "type": "string",
@@ -6010,11 +6991,49 @@
         "description": "備品属性",
         "additionalProperties": false
       },
+      "ItManagement.AssetCategories.AssetCategoryAttribute": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "input_kind",
+          "required"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "備品属性ID",
+            "example": "550e8400-e29b-41d4-a716-446655440003"
+          },
+          "name": {
+            "type": "string",
+            "description": "備品属性名",
+            "example": "シリアル番号"
+          },
+          "input_kind": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItManagement.AssetAttributes.InputKind"
+              }
+            ],
+            "description": "入力種別"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "この備品種別で値の入力が必須か。必須の備品属性に値を指定しないと、備品の作成はエラーになります。備品の更新で asset_attribute_values を指定する場合、値が保存されていない必須の備品属性は含める必要があります",
+            "example": true
+          }
+        },
+        "description": "備品種別に紐づく備品属性",
+        "additionalProperties": false
+      },
       "ItManagement.AssetCategories.AssetCategory": {
         "type": "object",
         "required": [
           "id",
-          "name"
+          "name",
+          "asset_attributes"
         ],
         "properties": {
           "id": {
@@ -6027,6 +7046,13 @@
             "type": "string",
             "description": "備品種別名",
             "example": "ノートPC"
+          },
+          "asset_attributes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItManagement.AssetCategories.AssetCategoryAttribute"
+            },
+            "description": "この備品種別に紐づく備品属性のリスト (表示順)。備品の作成・更新で asset_attribute_values に指定できるのはこれらの備品属性です"
           }
         },
         "description": "備品種別",
@@ -6240,7 +7266,7 @@
         "description": "部署参照",
         "additionalProperties": false
       },
-      "ItManagement.Departments.CompanyRef": {
+      "ItManagement.Departments.ProductCompanyRef": {
         "type": "object",
         "required": [
           "id",
@@ -6250,7 +7276,7 @@
           "id": {
             "type": "string",
             "format": "uuid",
-            "description": "会社ID",
+            "description": "IT管理の会社の ID (freee の事業所 ID とは別)",
             "example": "550e8400-e29b-41d4-a716-446655440002"
           },
           "name": {
@@ -6259,7 +7285,7 @@
             "example": "株式会社Freee"
           }
         },
-        "description": "会社参照",
+        "description": "IT管理の会社の参照",
         "additionalProperties": false
       },
       "ItManagement.Departments.MemberRef": {
@@ -6291,7 +7317,7 @@
           "name",
           "code",
           "parent",
-          "company",
+          "product_company",
           "managers",
           "created_at",
           "updated_at"
@@ -6324,13 +7350,13 @@
             "nullable": true,
             "description": "親部署"
           },
-          "company": {
+          "product_company": {
             "allOf": [
               {
-                "$ref": "#/components/schemas/ItManagement.Departments.CompanyRef"
+                "$ref": "#/components/schemas/ItManagement.Departments.ProductCompanyRef"
               }
             ],
-            "description": "所属会社"
+            "description": "所属会社 (IT管理の会社)"
           },
           "managers": {
             "type": "array",
@@ -6481,7 +7507,7 @@
           "id": {
             "type": "string",
             "format": "uuid",
-            "description": "役職ID",
+            "description": "IT管理の役職の ID (freee人事労務の役職 ID とは別)",
             "example": "550e8400-e29b-41d4-a716-446655440001"
           },
           "name": {
@@ -6490,7 +7516,7 @@
             "example": "マネージャー"
           }
         },
-        "description": "役職参照",
+        "description": "IT管理の役職の参照",
         "additionalProperties": false
       },
       "ItManagement.Members.EmploymentTypeRef": {
@@ -6655,7 +7681,7 @@
               }
             ],
             "nullable": true,
-            "description": "役職"
+            "description": "役職 (IT管理の役職)"
           },
           "employment_type": {
             "type": "object",
@@ -6689,6 +7715,110 @@
         },
         "description": "メンバー",
         "additionalProperties": false
+      },
+      "ItManagement.Positions.Position": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "役職ID",
+            "example": "550e8400-e29b-41d4-a716-446655440001"
+          },
+          "name": {
+            "type": "string",
+            "description": "役職名",
+            "example": "部長"
+          }
+        },
+        "description": "役職",
+        "additionalProperties": false
+      },
+      "ItManagement.ProductCompanies.ProductCompany": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "default"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "IT管理の会社の ID (freee の事業所 ID とは別)",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "name": {
+            "type": "string",
+            "description": "会社名",
+            "example": "株式会社サンプル"
+          },
+          "default": {
+            "type": "boolean",
+            "description": "既定会社かどうか (テナント内で 1 社のみ true)",
+            "example": true
+          }
+        },
+        "description": "IT管理の会社 (freee の事業所とは別)",
+        "additionalProperties": false
+      },
+      "ItManagement.SystemAccountOwners.SystemAccountOwner": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "emails",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "システムアカウントID",
+            "example": "550e8400-e29b-41d4-a716-446655440002"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "description": "システムアカウント名",
+            "example": "prod-monitoring-bot"
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "メールアドレス (複数可)",
+            "example": [
+              "prod-monitoring-bot@example.com"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "作成日時(ISO8601)",
+            "example": "2026-01-01T00:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新日時(ISO8601)",
+            "example": "2026-01-01T00:00:00Z"
+          }
+        },
+        "description": "システムアカウント (人ではないサービス / bot / 共有アカウント等の所有者情報)",
+        "additionalProperties": false
+      },
+      "ItManagement.SystemAccountOwners.SystemAccountOwnerEmail": {
+        "type": "string",
+        "maxLength": 200,
+        "description": "メールアドレス",
+        "example": "prod-monitoring-bot@example.com"
       }
     },
     "securitySchemes": {

@@ -114,7 +114,7 @@ assets
 - asset_status_id: string(uuid) - ステータスID 例: `550e8400-e29b-41d4-a716-446655440001`
 - asset_category_id: string(uuid) - 種別ID 例: `550e8400-e29b-41d4-a716-446655440002`
 - asset_location_id: string(uuid) - 保管場所ID。null を指定すると保管場所の紐付けを解除します。省略した場合は現在の紐付けを維持します 例: `550e8400-e29b-41d4-a716-446655440004`
-- asset_attribute_values: array[object] - 備品属性の値のリスト。指定した備品属性の値だけを更新し、指定しなかった備品属性の値は維持します。省略した場合は値を変更しません。asset_attribute_id には、備品の種別に紐づく備品属性を指定します
+- asset_attribute_values: array[object] - 備品属性の値のリスト。指定した備品属性の値だけを更新し、指定しなかった備品属性の値は維持します。省略した場合は値を変更しません。asset_attribute_id には、備品の種別に紐づく備品属性を指定します。値が保存されていない必須の備品属性は含める必要があります
   配列の要素:
     - asset_attribute_id*: string(uuid) - 備品属性ID 例: `550e8400-e29b-41d4-a716-446655440005`
     - string_value: string - 文字列の値。入力種別が string / text / select の備品属性で使用する 例: `Apple M3`

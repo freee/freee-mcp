@@ -110,14 +110,17 @@
     "it_management_asset_categories": "asset-categories",
     "it_management_asset_statuses": "asset-statuses",
     "it_management_departments": "departments",
-    "it_management_application_masters": "it-management-application-masters",
-    "it_management_applications": "it-management-applications",
-    "it_management_asset_attributes": "it-management-asset-attributes",
-    "it_management_asset_locations": "it-management-asset-locations",
-    "it_management_asset_members": "it-management-asset-members",
-    "it_management_custom_application_masters": "it-management-custom-application-masters",
-    "it_management_employment_types": "it-management-employment-types",
-    "it_management_guests": "it-management-guests"
+    "it_management_application_masters": "application-masters",
+    "it_management_applications": "applications",
+    "it_management_asset_attributes": "asset-attributes",
+    "it_management_asset_locations": "asset-locations",
+    "it_management_asset_members": "asset-members",
+    "it_management_custom_application_masters": "custom-application-masters",
+    "it_management_employment_types": "employment-types",
+    "it_management_guests": "guests",
+    "it_management_positions": "positions",
+    "it_management_product_companies": "product-companies",
+    "it_management_system_account_owners": "system-account-owners"
   },
   "fixed-asset-management-api": {
     "fixed_asset_management_fixed_assets": "fixed-assets"

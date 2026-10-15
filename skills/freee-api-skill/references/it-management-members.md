@@ -48,7 +48,7 @@ members
 - code: string - 社員番号（チーム内一意） 例: `EMP-001`
 - status: string - 在籍ステータス（デフォルト: employed） (選択肢: employed, retired, in_leaving, pre_employment)
 - entered_at: string(date) - 入社日(yyyy-mm-dd) 例: `2020-04-01`
-- position_id: string(uuid) - 役職ID 例: `550e8400-e29b-41d4-a716-446655440001`
+- position_id: string(uuid) - 役職 (IT管理の役職) の ID。役職一覧取得 (GET /hub/it_management/positions) で取得できます 例: `550e8400-e29b-41d4-a716-446655440001`
 - employment_type_id: string(uuid) - 雇用形態ID 例: `550e8400-e29b-41d4-a716-446655440002`
 - department_ids: array[string] - 所属部署IDの配列 例: `["550e8400-e29b-41d4-a716-446655440003"]`
 
@@ -69,7 +69,7 @@ members
 - status*: string - 在籍ステータス
 - entered_at*: string(date) - 入社日(yyyy-mm-dd)
 - resigned_at*: string(date) - 離職日(yyyy-mm-dd)
-- position*: object - 役職
+- position*: object - 役職 (IT管理の役職)
 - employment_type*: object - 雇用形態
 - departments*: array[object] - 所属部署一覧
 - created_at*: string(date-time) - 作成日時(ISO8601)
@@ -102,7 +102,7 @@ members
 - status*: string - 在籍ステータス
 - entered_at*: string(date) - 入社日(yyyy-mm-dd)
 - resigned_at*: string(date) - 離職日(yyyy-mm-dd)
-- position*: object - 役職
+- position*: object - 役職 (IT管理の役職)
 - employment_type*: object - 雇用形態
 - departments*: array[object] - 所属部署一覧
 - created_at*: string(date-time) - 作成日時(ISO8601)
@@ -133,7 +133,7 @@ members
 - status: string - 在籍ステータス (選択肢: employed, retired, in_leaving, pre_employment)
 - entered_at: string(date) - 入社日(yyyy-mm-dd) 例: `2020-04-01`
 - resigned_at: string(date) - 離職日(yyyy-mm-dd) 例: `2024-03-31`
-- position_id: string(uuid) - 役職ID 例: `550e8400-e29b-41d4-a716-446655440001`
+- position_id: string(uuid) - 役職 (IT管理の役職) の ID。役職一覧取得 (GET /hub/it_management/positions) で取得できます 例: `550e8400-e29b-41d4-a716-446655440001`
 - employment_type_id: string(uuid) - 雇用形態ID 例: `550e8400-e29b-41d4-a716-446655440002`
 - department_ids: array[string] - 所属部署IDの配列 例: `["550e8400-e29b-41d4-a716-446655440003"]`
 
@@ -154,7 +154,7 @@ members
 - status*: string - 在籍ステータス
 - entered_at*: string(date) - 入社日(yyyy-mm-dd)
 - resigned_at*: string(date) - 離職日(yyyy-mm-dd)
-- position*: object - 役職
+- position*: object - 役職 (IT管理の役職)
 - employment_type*: object - 雇用形態
 - departments*: array[object] - 所属部署一覧
 - created_at*: string(date-time) - 作成日時(ISO8601)

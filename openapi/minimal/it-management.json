@@ -1097,7 +1097,7 @@
       },
       "patch": {
         "summary": "部署部分更新（β版）",
-        "description": "部署を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。",
+        "description": "部署を部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。\n- 所属会社 (product_company) は変更できません。",
         "parameters": [
           {
             "name": "id",
@@ -1462,6 +1462,299 @@
             "type": "string",
             "required": true,
             "description": "メンバーID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/positions": {
+      "get": {
+        "summary": "役職一覧取得（β版）",
+        "description": "役職の一覧をカーソルページネーションで取得します。\n\n## 注意点\n\n- この API の「役職」は、IT管理で管理している役職を指します。freee人事労務の役職とは別のものです。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "ページネーションのトークン",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+            "explode": false
+          }
+        ]
+      },
+      "post": {
+        "summary": "役職作成（β版）",
+        "description": "役職を作成します。\n\n## 注意点\n\n- この API の「役職」は、IT管理で管理している役職を指します。freee人事労務の役職とは別のものです。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/positions/{id}": {
+      "get": {
+        "summary": "役職詳細取得（β版）",
+        "description": "役職の詳細を取得します。\n\n## 注意点\n\n- この API の「役職」は、IT管理で管理している役職を指します。freee人事労務の役職とは別のものです。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "役職ID"
+          }
+        ]
+      },
+      "delete": {
+        "summary": "役職削除（β版）",
+        "description": "役職を削除します。\n\n## 注意点\n\n- この API の「役職」は、IT管理で管理している役職を指します。freee人事労務の役職とは別のものです。\n- 役職が設定されているメンバーがいる場合は削除できません。\n- グループのルールの条件で使われている役職は削除できません。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "役職ID"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "役職部分更新（β版）",
+        "description": "役職を部分的に更新します。\n\n## 注意点\n\n- この API の「役職」は、IT管理で管理している役職を指します。freee人事労務の役職とは別のものです。\n- 指定されたパラメーターのみが更新されます。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "役職ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/product_companies": {
+      "get": {
+        "summary": "会社一覧取得（β版）",
+        "description": "IT管理 内で管理している会社の一覧をカーソルページネーションで取得します。\nアプリの所属先や、テナント内の複数の会社を分けて管理するために利用します。\n\n## 注意点\n\n- この API の「会社」は、IT管理で管理している会社を指します。freee の事業所 (`company_id`) とは別のものです。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "ページネーションのトークン",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+            "explode": false
+          }
+        ]
+      },
+      "post": {
+        "summary": "会社作成（β版）",
+        "description": "会社を作成します。\n\n## 注意点\n\n- この API の「会社」は、IT管理で管理している会社を指します。freee の事業所 (`company_id`) とは別のものです。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/product_companies/{id}": {
+      "get": {
+        "summary": "会社詳細取得（β版）",
+        "description": "会社の詳細を取得します。\n\n## 注意点\n\n- この API の「会社」は、IT管理で管理している会社を指します。freee の事業所 (`company_id`) とは別のものです。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "IT管理の会社の ID (freee の事業所 ID とは別)"
+          }
+        ]
+      },
+      "delete": {
+        "summary": "会社削除（β版）",
+        "description": "会社を削除します。既定会社 (default = true) は削除できません。会社に紐づくアプリ・部署が残っている場合や、メンバーフィルターの条件で使われている場合も削除できません。\n\n## 注意点\n\n- この API の「会社」は、IT管理で管理している会社を指します。freee の事業所 (`company_id`) とは別のものです。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "IT管理の会社の ID (freee の事業所 ID とは別)"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "会社部分更新（β版）",
+        "description": "会社を部分的に更新します。\n\n## 注意点\n\n- この API の「会社」は、IT管理で管理している会社を指します。freee の事業所 (`company_id`) とは別のものです。\n- 指定されたパラメーターのみが更新されます。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "IT管理の会社の ID (freee の事業所 ID とは別)"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/system_account_owners": {
+      "get": {
+        "summary": "システムアカウント一覧取得（β版）",
+        "description": "システムアカウント (人ではないサービス / bot / 共有アカウント等の所有者情報) の一覧をカーソルページネーションで取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "名前 / メールアドレスの部分一致検索キーワード。空白で区切って複数指定した場合は、すべてに一致するものを返します",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "ページネーションのトークン",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1ページあたりの取得件数（デフォルト25、最大100）",
+            "explode": false
+          }
+        ]
+      },
+      "post": {
+        "summary": "システムアカウント作成（β版）",
+        "description": "システムアカウントを作成します。\n\n## 注意点\n\n- 同じ事業所の他のメンバー・ゲスト・システムアカウントで使用中のメールアドレスは登録できません。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/it_management/system_account_owners/{id}": {
+      "get": {
+        "summary": "システムアカウント詳細取得（β版）",
+        "description": "システムアカウントの詳細を取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "システムアカウントID"
+          }
+        ]
+      },
+      "delete": {
+        "summary": "システムアカウント削除（β版）",
+        "description": "システムアカウントを削除します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "システムアカウントID"
+          }
+        ]
+      },
+      "patch": {
+        "summary": "システムアカウント部分更新（β版）",
+        "description": "システムアカウントを部分的に更新します。\n\n## 注意点\n\n- 指定されたパラメーターのみが更新されます。\n- emails を指定した場合は指定した内容で置き換えられ、含まれない既存のメールアドレスは削除されます。\n- 同じ事業所の他のメンバー・ゲスト・システムアカウントで使用中のメールアドレスは登録できません。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "システムアカウントID"
           }
         ],
         "hasJsonBody": true
