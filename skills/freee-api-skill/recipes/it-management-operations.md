@@ -28,7 +28,7 @@ freeeIT管理APIを使った SaaSアカウント・備品・メンバー管理�
 - 操作対象の事業所を `company_id` で指定する。指定値は現在の事業所（`freee_get_current_company`）と一致する必要があり、不一致だとエラーになる。切り替えは `freee_set_current_company` を使う
 - `company_id` の位置はメソッドで異なる。GET（一覧・単体取得）/ DELETE はクエリパラメータ、POST / PATCH はリクエストボディ（いずれも必須）
 - `company_id` は freee の事業所 ID（整数）。IT管理の会社（`product_companies`）の ID（UUID）は `product_company_id` / レスポンスの `product_company` で扱い、`company_id` とは別物なので混同しない
-- ただし `product_company_id` に不正な値を送ったときの 400 は、`fields` の `name` が `company_id` で返る。このエラーで事業所を切り替えず、`product_company_id` の値を見直す
+- ただし `product_company_id` に不正な値を送ったときのバリデーションエラーは、`fields` の `name` が `company_id` で返る。このエラーで事業所を切り替えず、`product_company_id` の値を見直す
 
 ## ページネーション
 
@@ -62,16 +62,16 @@ API ごとに削除の意味が違うので注意。
 - 備品削除: ハードデリート（復元不可）。誤削除すると戻せないため、削除前にユーザー確認を行うこと
 - 備品ステータス・備品種別: 該当マスタを参照している備品が1件でも残っていると削除できない（`system-managed` な備品種別も削除不可）。移行が必要なら先に対象備品の `asset_status_id` / `asset_category_id` を別のマスタに付け替える
 - 部署: 子部署が存在する、またはメンバーの `department_ids` に含まれている場合は削除できない
-- そのほかのマスタ（会社・役職・備品属性・保管場所など）にも、参照が残っていると削除できないなどの制約がある。削除する前に、各リファレンスの削除 API の説明を確認する。制約に当たると 400 + `ITM-05-01-0007` が返る
+- そのほかのマスタ（会社・役職・備品属性・保管場所など）にも、参照が残っていると削除できないなどの制約がある。削除する前に、各リファレンスの削除 API の説明を確認する（制約に当たったときのエラーは「エラーコードの読み方」）
 - 雇用形態: メンバーに設定されていても削除でき、そのメンバーの雇用形態は未設定になる。削除の前に、影響するメンバーをユーザーに確認すること
 
 ## SaaSアカウント (application_accounts) の特殊仕様
 
 ### Write 系はカスタムアプリ限定
 
-`POST` / `PATCH` / `DELETE /hub/it_management/application_accounts/*` はカスタムアプリ（ユーザーが手動で追加した管理対象 SaaS）配下のアカウントのみ受け付ける。Slack / Microsoft 365 等の自動同期で取り込まれた標準アプリのアカウントは Write 系が拒否され、400 + `ITM-05-01-0006` が返る。
+`POST` / `PATCH` / `DELETE /hub/it_management/application_accounts/*` はカスタムアプリ（ユーザーが手動で追加した管理対象 SaaS）配下のアカウントのみ受け付ける。Slack / Microsoft 365 等の自動同期で取り込まれた標準アプリのアカウントへの Write は拒否される。
 
-カスタムアプリかどうかを事前判定する API は提供されていないため、Write 試行時のエラーで判別する。
+カスタムアプリかどうかは、Write の前に GET `/hub/it_management/applications/{id}` の `custom_application` で確認する。Write を試してエラーで判別しようとすると、権限がないユーザーではカスタムアプリの判定より先に権限のエラーが返り、状況を読み違える。
 
 ### POST と PATCH で受け付けるフィールドの差
 
@@ -93,14 +93,14 @@ PATCH /hub/it_management/application_accounts/{id}
 ```
 
 - 部分更新では送信していない attribute は既存値が維持される。明示的に `null` を送れば NULL クリア可能
-- `is_display: true` の属性は必須。既存値が無い状態で省略すると `ITM-05-01-0001 表示名を入力してください` (400)。一度値をセットすれば、以降の部分更新で省略しても既存値が保持される
+- `is_display: true` の属性は必須。既存値が無い状態で省略すると、バリデーションエラー（「表示名を入力してください」）になる。一度値をセットすれば、以降の部分更新で省略しても既存値が保持される
 - `is_status: true` の属性に値をセットすると `status.id` が連動切替される
 - 未知の title キーは無音で無視される（エラーにならない）。タイポに気付けないため、送信前に `application.attributes` の title セットに含まれていることを確認すること
 
 ### ステータス・ロール
 
 - `application_account_status_id` / `application_account_role_id` を PATCH ボディで指定可能
-- 不正な UUID は `ITM-05-01-0001` + `fields` で 400
+- 不正な UUID はバリデーションエラーになる
 - `application_account_role_id: null` で既存ロールをクリア
 
 ## よくある操作の流れ
@@ -110,7 +110,7 @@ PATCH /hub/it_management/application_accounts/{id}
 1. メンバーを作成（POST `/hub/it_management/members`）
 2. レスポンスの `id` を `application_account` の `member_id` 系フィールドに利用してアカウント作成（POST `/hub/it_management/application_accounts`、カスタムアプリのみ）
 
-メンバーの `department_ids` は `GET /hub/it_management/departments`、`position_id` は `/positions`、`employment_type_id` は `/employment_types` で参照可能。同様に、備品の `asset_status_id` は `/asset_statuses`、`asset_category_id` は `/asset_categories`、`asset_location_id` は `/asset_locations` で一覧を取得してから割り当てられる。不正な ID は 400 + `ITM-05-01-0001` で返り、`fields` 配列で具体的なフィールド名が判別できる。
+メンバーの `department_ids` は `GET /hub/it_management/departments`、`position_id` は `/positions`、`employment_type_id` は `/employment_types` で参照可能。同様に、備品の `asset_status_id` は `/asset_statuses`、`asset_category_id` は `/asset_categories`、`asset_location_id` は `/asset_locations` で一覧を取得してから割り当てられる。存在しない ID を渡してもエラーにならず、その値が無視される API がある（メンバーの `position_id` / `employment_type_id` / `department_ids` など）。作成・更新のあとは、レスポンスで値が反映されたかを確認してから、ユーザーに結果を伝える。
 
 メンバーの primary email（`PATCH /members/{id}` の `email`）は API での更新に対応していない。
 
@@ -148,20 +148,29 @@ PATCH /hub/it_management/application_accounts/{id}
 
 ## エラーコードの読み方
 
-`code` を見れば発生源と扱い方が分かる。`fields` を持つのはバリデーションエラー（400 + `ITM-05-01-0001`）と `AHB-3003-0002` だけで、具体的なフィールドエラーはそこから取得する。
+エラーのステータスとコードの説明はこの節にまとめる。`code` を見れば発生源と扱い方が分かる。`fields` を持つのはバリデーションエラー（400 + `ITM-05-01-0001`）と `AHB-3003-0002` だけで、具体的なフィールドエラーはそこから取得する。
 
 - `ITM-05-01-XXXX` は IT管理 API 由来。メンバー・SaaS アカウント・備品・各マスタ・アプリなど、すべての API で共通（末尾の番号で種類が分かる）。ページネーション内部のエラーでだけ、まれに 500 + `ITM-05-02-0001` が返る
-- IT管理 API からは、想定外のエラーで 500 + `ITM-99-99-9999`、認証エラーで 401 + `ITM-01-01-0001` も返る
-- `AHB-3003-0002` は API ゲートウェイ層のスキーマ違反（必須項目欠落 / 型不一致 / `unsupported` フィールド送信 / `page_size` 上限超過 等）
+- IT管理 API からは、ほかに `ITM-01-01-0001` / `ITM-02-01-0001`（401。下記）と、想定外のエラーの 500 + `ITM-99-99-9999` も返る
+- `AHB-` で始まるコードは API ゲートウェイ由来。`AHB-3003-0002` はスキーマ違反（必須項目欠落 / 型不一致 / `unsupported` フィールド送信 / `page_size` 上限超過 等）
 - `AHB-1002-9001` は内部 API へのリクエスト送信の失敗（5xx）。内部 API がエラーコードなしの 5xx を返した場合は `AHB-2000-9001`。どちらも通常運用では発生しない
 
-よくあるケース:
+### 401 / 403
 
-- 401、または `AHB-` で始まるコードの 403: 認証・認可のエラー（トークン切れ、スコープ不足など）。`freee_auth_status` で確認。Remote MCP は再認証を促される。ローカルは `freee_clear_auth` → `freee_authenticate`
-- 403 + `ITM-05-01-0003`: IT管理のロールに、作成・更新・削除の権限がない。再認証では解決しないので、ユーザーに権限を確認してもらう
+再認証で解決するのは、アクセストークンの問題だけ。それ以外で再認証を繰り返さない。
+
+- 401 + `AHB-3002-0001` / `AHB-3002-0002`（無効なトークン・期限切れ）: 再認証する。`freee_auth_status` で確認。Remote MCP は再認証を促される。ローカルは `freee_clear_auth` → `freee_authenticate`
+- 401 + `ITM-02-01-0001`: 事業所で IT管理 が使われていない（IT管理 のチームがない）。IT管理 の利用開始を案内する
+- 401 + `ITM-01-01-0001`: ログイン中の freee ユーザーが、IT管理 のユーザーになっていない。IT管理 の管理者にユーザーとして追加してもらうよう案内する
+- 401 + `AHB-3002-0004`（事業所へのアクセス権限がない）/ `AHB-3006-0001`（契約プランで利用できない）: 再認証では解決しない。エラーのメッセージをそのままユーザーに伝える
+- 403 + `AHB-3002-0003`（スコープ不足）/ `AHB-3004-*`（アプリケーションから使えない）/ `AHB-3005-0001`（freeeアドバイザー制度の加入者限定）/ `AHB-3007-*`（必須ヘッダー不足）: 再認証では解決しない。エラーのメッセージをそのままユーザーに伝える
+- 403（短時間に大量のリクエストを送ったとき）: 10 分ほど待ってから再試行する。回数制限を超えたときは 429
+- 403 + `ITM-05-01-0003`: IT管理 のロールに、作成・更新・削除の権限がない。再認証では解決しないので、ユーザーに権限を確認してもらう
+
+### そのほかのケース
+
 - 404 + `ITM-05-01-0002`: 指定 ID のリソースが存在しない、ソフトデリート済み、または参照権限がない。備品と SaaS アカウントの削除は、削除権限がない場合も 404 になるので、「すでに削除済み」と決めつけない
-- 400 + `ITM-05-01-0001`: バリデーションエラー。必須項目の欠落、不正な参照 ID（status_id / role_id / position_id 等）、一意制約違反（`asset_number`, `serial_number`, `code` 等のチーム内一意フィールド。SaaS アカウントの作成時の `external_id` も含む）
-- 500 + `ITM-99-99-9999`: 想定外のエラー。現在、`external_id` の重複（備品の作成・更新と、SaaS アカウントの更新）はこのエラーになるので、`external_id` を指定した操作で 500 が返ったら、ほかの備品・アカウントと重複していないかを確認する
+- 400 + `ITM-05-01-0001`: バリデーションエラー。必須項目の欠落、不正な値、一意制約違反など。一意の範囲はリソースごとに違う（備品の `asset_number` / `serial_number` はチーム内、SaaS アカウントの `external_id` はアプリごと（アーカイブされていないもの）、部署の `code` は IT管理 の会社ごと）。重複を調べるときは、同じ範囲のレコードだけを見る
 - 400 + `ITM-05-01-0004` / `ITM-05-01-0005`: `page_token` が不正。1 ページ目から取り直す
 - 400 + `ITM-05-01-0006`: 業務ルール違反（現在はカスタムアプリでない SaaS アカウントへの Write だけ）
 - 400 + `ITM-05-01-0007`: 削除・更新の制約に当たった（制約の内容は各リファレンスの削除・更新 API の説明を確認する）
