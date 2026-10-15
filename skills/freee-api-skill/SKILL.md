@@ -94,7 +94,7 @@ serviceパラメータ (必須):
 - `invoice` - freee請求書（請求書、見積書、納品書） 例: `/invoices`
 - `pm` - freee工数管理（プロジェクト、工数など） 例: `/projects`
 - `sm` - freee販売（見積、受注、売上など） 例: `/businesses`
-- `it_management` - freeeIT管理（SaaSアカウント、備品、メンバー） 例: `/hub/it_management/members`
+- `it_management` - freeeIT管理（メンバー、SaaSアカウント、アプリ、備品、部署、会社など） 例: `/hub/it_management/members`
 - `fixed_asset_management` - freee固定資産（固定資産の一覧、詳細、登録、更新、削除） 例: `/hub/fixed_asset_management/fixed_assets`
 - `partner_management` - freee業務委託管理（業務委託先の企業ユーザー・部門） 例: `/hub/partner_management/orderer/company_users`
 - `survey` - freeeサーベイ（サーベイ企画、実施回）※ freee-mcp（リモート版） 限定 例: `/hub/survey/base_surveys`
@@ -134,7 +134,7 @@ serviceパラメータ (必須):
 - `recipes/pm-workload-registration.md` - 工数の安全な登録（PM・HR連携ワークフロー）
 - `recipes/sm-operations.md` - 販売管理（案件・受注）
 - `recipes/partner-management-operations.md` - 業務委託管理（パートナー・企業ユーザー・部門・プロジェクト・タスクの参照）
-- `recipes/it-management-operations.md` - IT管理（メンバー・SaaSアカウント・備品）
+- `recipes/it-management-operations.md` - IT管理（メンバー・SaaSアカウント・アプリ・備品・部署・会社など）
 - `recipes/survey-operations.md` - サーベイ（サーベイ企画・実施回の取得）
 - `recipes/launch-operations.md` - 開業（開業申請用データの参照・更新）
 - `recipes/fixed-asset-management-operations.md` - 固定資産管理（安全な更新・削除判断・Web画面への引き継ぎ）

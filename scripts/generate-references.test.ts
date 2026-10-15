@@ -251,6 +251,42 @@ describe("buildEndpointsMarkdown - $ref / allOf の解決", () => {
 
     expect(md).toContain("- emails: array[string] - メールアドレス");
   });
+
+  it("クエリパラメーターの配列の要素が $ref でも、参照先の型を要素の型として出力する", () => {
+    const md = buildEndpointsMarkdown(
+      {
+        paths: {},
+        components: {
+          schemas: {
+            TeamId: { type: "integer" },
+          },
+        },
+      },
+      [
+        {
+          path: "/teams",
+          operations: [
+            {
+              method: "GET",
+              parameters: [
+                {
+                  name: "ids[]",
+                  in: "query",
+                  description: "チームID",
+                  schema: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/TeamId" },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ]
+    );
+
+    expect(md).toContain("- ids[]: array[integer] - チームID");
+  });
 });
 
 describe("buildEndpointsMarkdown - anyOf の解決", () => {

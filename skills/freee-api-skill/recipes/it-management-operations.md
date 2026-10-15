@@ -50,13 +50,9 @@ freee_api_get {
 
 ## キーワード検索の対象
 
-`keyword` クエリは部分一致検索。空白区切りで複数語を渡したときの扱い（AND / OR）と検索対象はリソースごとに異なるので、各リファレンスの `keyword` の説明を確認する。主なリソースの検索対象:
+`keyword` クエリは部分一致検索。検索対象はリソースごとに異なるので、各リファレンスの `keyword` の説明を確認する。空白区切りで複数語を渡したときの扱い（AND / OR）もリソースごとに違い、リファレンスに書かれていない場合は 1 語で検索する。
 
-- メンバー: `family_name` / `given_name` / `yomi` / `code` / `phone_number` / 部署名 / `login_email` / カスタム属性
-- SaaS アカウント: `account` / `external_id` / `data` 内 attribute 値
-- 備品: `asset_number` / `serial_number` / 利用者名 / 各 attribute 値
-
-ヒット範囲が広いため、絞り込みたい場合は別途フィルタ（`status_id`, `application_id` 等）と組み合わせる。
+絞り込みたい場合は、別途フィルタ（`status_id`, `application_id` 等）と組み合わせる。
 
 ## 削除の挙動
 
@@ -66,7 +62,8 @@ API ごとに削除の意味が違うので注意。
 - 備品削除: ハードデリート（復元不可）。誤削除すると戻せないため、削除前にユーザー確認を行うこと
 - 備品ステータス・備品種別: 該当マスタを参照している備品が1件でも残っていると削除できない（`system-managed` な備品種別も削除不可）。移行が必要なら先に対象備品の `asset_status_id` / `asset_category_id` を別のマスタに付け替える
 - 部署: 子部署が存在する、またはメンバーの `department_ids` に含まれている場合は削除できない
-- そのほかのマスタ（会社・役職・雇用形態・備品属性・保管場所など）にも、参照が残っていると削除できないなどの制約がある。削除する前に、各リファレンスの削除 API の説明を確認する。制約に当たると 400 + `ITM-05-01-0007` が返る
+- そのほかのマスタ（会社・役職・備品属性・保管場所など）にも、参照が残っていると削除できないなどの制約がある。削除する前に、各リファレンスの削除 API の説明を確認する。制約に当たると 400 + `ITM-05-01-0007` が返る
+- 雇用形態: メンバーに設定されていても削除でき、そのメンバーの雇用形態は未設定になる。削除の前に、影響するメンバーをユーザーに確認すること
 
 ## SaaSアカウント (application_accounts) の特殊仕様
 
@@ -103,7 +100,7 @@ PATCH /hub/it_management/application_accounts/{id}
 ### ステータス・ロール
 
 - `application_account_status_id` / `application_account_role_id` を PATCH ボディで指定可能
-- 不正な UUID は `ITM-05-02-0001` + `invalid_fields` で 422
+- 不正な UUID は `ITM-05-02-0001` + `fields` で 422
 - `application_account_role_id: null` で既存ロールをクリア
 
 ## よくある操作の流れ
@@ -139,7 +136,7 @@ PATCH /hub/it_management/application_accounts/{id}
 
 1. GET `/hub/it_management/asset_categories/{id}` の `asset_attributes` で、紐づく属性と必須かどうかを確認する
 2. 入力種別（`input_kind`）が `select` の属性は、GET `/hub/it_management/asset_attributes/{id}` で選択肢を確認する
-3. 備品を作成・更新する（POST `/assets` / PATCH `/assets/{id}`）。必須の属性の扱いは作成と更新で違うので、リファレンスの `asset_attribute_values` の説明を確認する
+3. 備品を作成・更新する（POST `/assets` / PATCH `/assets/{id}`）。作成時は、1 で `required` が true の属性をすべて含める。更新時の扱いは、リファレンスの PATCH の `asset_attribute_values` の説明を確認する
 
 ### 会社（product_companies）を割り当てる
 
