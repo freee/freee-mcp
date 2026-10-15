@@ -8,7 +8,7 @@
 
 - page: integer - 取得ページ番号
 - per_page: integer - 取得件数
-- ids[]: array[integer] - 配列でユーザーIDを指定して、ユーザー一覧を取得できる
+- ids[]: array[object] - 配列でユーザーIDを指定して、ユーザー一覧を取得できる
 - team_id: integer(int64) - チームID
 - email: string(email) - メールアドレスを指定してユーザー情報を取得できる（完全一致）
 - status: string - ユーザーのステータス

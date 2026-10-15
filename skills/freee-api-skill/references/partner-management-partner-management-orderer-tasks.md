@@ -18,7 +18,7 @@ partner_management_orderer_tasks
   指定できるのは1人のみ（複数指定は不可）。assignee_type と必ずセットで指定する（単独指定は不可）。
   利用停止中・削除済みのパートナーを指定した場合も、該当タスクを検索結果として返す
 - company_user_id: integer(int32) - 担当者（企業ユーザー）のIDで絞り込む
-- status[]: array[string] - ステータスで絞り込む（複数指定。OR 条件）。opened / not_accepted は廃止済みステータスのため、通常は該当なし
+- status[]: array[object] - ステータスで絞り込む（複数指定。OR 条件）。opened / not_accepted は廃止済みステータスのため、通常は該当なし
 - title: string - タスクタイトルで絞り込む（部分一致）
 - estimate_grand_total_from: integer(int32) - 発注額（税込）の下限で絞り込む
 - estimate_grand_total_to: integer(int32) - 発注額（税込）の上限で絞り込む
@@ -67,7 +67,7 @@ partner_management_orderer_tasks
 - payment_date_type*: string - 支払期日の指定方式 (note: テキスト, next_month_end: 納期/終了日の翌月末日を反映, days_from_deadline: 納期/終了日から日数反映, fixed_date: 指定日)
 - payment_date_note*: string - 支払期日（テキスト）。payment_date_type が note のときに入り、それ以外のときは null
 - payment_date*: string(date) - 支払期日 (日付)。payment_date_type が next_month_end / days_from_deadline / fixed_date のときに指定方式に即して計算された日付が入る
-- delivery_types*: array[string] - 納品形式
+- delivery_types*: array[object] - 納品形式
 - task_work_report_configuration*: object - 稼働時間の丸め設定。delivery_types に work_report / work_report_quantity が含まれるときに入る
 - deliverables_detail*: string - 納品内容
 - delivery_place*: string - 納品場所
@@ -123,7 +123,7 @@ partner_management_orderer_tasks
 - payment_date_type: string - 支払期日の指定方式 (note: 自由テキスト, fixed_date: 日付)。企業設定の「タスクの支払期日の必須化」が有効なとき必須。指定を省略した場合は note になる。備考や支払い期日と異なり、企業設定のデフォルト値は反映されない。 (選択肢: note, fixed_date)
 - payment_date_note: string - 支払い期日。payment_date_type が note のときに値を設定する。企業設定の「タスクの支払期日の必須化」が有効なとき必須。指定を省略した場合は企業設定のデフォルト値が設定される。 例: `月末締め翌月末払い`
 - payment_date: string(date) - 支払期日。payment_date_type が fixed_date のときに値を設定する。企業設定の「タスクの支払期日の必須化」が有効なとき必須。
-- delivery_types*: array[string] - 納品形式。file: ファイル, url: URL, other: その他, work_report: 作業報告書 (時間)。作業報告書 (品目数量) は指定不可。
+- delivery_types*: array[object] - 納品形式。file: ファイル, url: URL, other: その他, work_report: 作業報告書 (時間)。作業報告書 (品目数量) は指定不可。
 - task_work_report_configuration: object - 稼働時間の丸め設定。納品形式 (delivery_types) に「作業報告書 (時間)」(work_report) を含めたときに指定する。指定を省略した場合は既定値が設定される。含めていないときは指定できない。
   - unit_group_type*: string - 稼働時間の丸め設定の集計単位 (date: 日毎, month: 月毎, all: 合算) (選択肢: date, month, all)
   - unit_minutes*: number - 稼働時間の丸め設定の単位 (one_minute: 1分, quarter_hour: 15分, half_hour: 30分, one_hour: 1時間) (選択肢: 1, 15, 30, 60)
@@ -176,7 +176,7 @@ partner_management_orderer_tasks
 - payment_date_type*: string - 支払期日の指定方式 (note: テキスト, next_month_end: 納期/終了日の翌月末日を反映, days_from_deadline: 納期/終了日から日数反映, fixed_date: 指定日)
 - payment_date_note*: string - 支払期日（テキスト）。payment_date_type が note のときに入り、それ以外のときは null
 - payment_date*: string(date) - 支払期日 (日付)。payment_date_type が next_month_end / days_from_deadline / fixed_date のときに指定方式に即して計算された日付が入る
-- delivery_types*: array[string] - 納品形式
+- delivery_types*: array[object] - 納品形式
 - task_work_report_configuration*: object - 稼働時間の丸め設定。delivery_types に work_report / work_report_quantity が含まれるときに入る
 - deliverables_detail*: string - 納品内容
 - delivery_place*: string - 納品場所
