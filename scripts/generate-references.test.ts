@@ -210,6 +210,47 @@ describe("buildEndpointsMarkdown - $ref / allOf の解決", () => {
       "- executor_id: integer(int64) - 退会処理を実行するユーザーのID 例: `1`"
     );
   });
+
+  it("配列の要素が $ref でも、参照先の型を要素の型として出力する", () => {
+    const md = buildEndpointsMarkdown(
+      {
+        paths: {},
+        components: {
+          schemas: {
+            Email: { type: "string", maxLength: 200 },
+          },
+        },
+      },
+      [
+        {
+          path: "/owners",
+          operations: [
+            {
+              method: "POST",
+              requestBody: {
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        emails: {
+                          type: "array",
+                          items: { $ref: "#/components/schemas/Email" },
+                          description: "メールアドレス",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      ]
+    );
+
+    expect(md).toContain("- emails: array[string] - メールアドレス");
+  });
 });
 
 describe("buildEndpointsMarkdown - anyOf の解決", () => {

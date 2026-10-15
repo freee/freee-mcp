@@ -34,7 +34,7 @@
 - page: integer - 取得ページ番号
 - per_page: integer - 取得件数
 - name: string - チーム名に一致する一覧を取得できる（部分一致も可）
-- ids[]: array[object] - 配列でチームIDを指定して、チーム一覧を取得できる
+- ids[]: array[integer] - 配列でチームIDを指定して、チーム一覧を取得できる
 
 ### レスポンス
 

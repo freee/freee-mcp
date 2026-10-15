@@ -315,9 +315,12 @@ function resolveSchema(
 /**
  * Get type description from schema
  */
-function getTypeDescription(schema: SchemaObject): string {
+function getTypeDescription(
+  apiSchema: OpenAPISchema,
+  schema: SchemaObject
+): string {
   if (schema.type === "array" && schema.items) {
-    const itemType = schema.items.type || "object";
+    const itemType = resolveSchema(apiSchema, schema.items).type || "object";
     return `array[${itemType}]`;
   }
   if (schema.format) {
@@ -378,7 +381,7 @@ function formatSchemaProperties(
     // Resolve $ref or `allOf: [{ $ref }]` wrapper.
     const resolvedSchema = resolveSchema(apiSchema, propSchema);
 
-    const typeDesc = getTypeDescription(resolvedSchema);
+    const typeDesc = getTypeDescription(apiSchema, resolvedSchema);
     result += `${indent}- ${propName}${requiredMark}: ${typeDesc}`;
 
     const propDesc = resolvedSchema.description
@@ -484,7 +487,9 @@ function formatParameters(
       : undefined;
     const requiredMark = param.required ? "*" : "";
     const location = param.in && param.in !== "query" ? ` (${param.in})` : "";
-    const type = parameterSchema ? getTypeDescription(parameterSchema) : "";
+    const type = parameterSchema
+      ? getTypeDescription(apiSchema, parameterSchema)
+      : "";
     const rawDescription =
       parameterSchema?.description || param.description || "";
     const description = rawDescription ? cleanDescription(rawDescription) : "";

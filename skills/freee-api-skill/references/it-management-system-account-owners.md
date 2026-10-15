@@ -35,7 +35,7 @@ system_account_owners
 
 - company_id*: integer(int64) - 事業所ID 例: `1`
 - name*: string - システムアカウント名 例: `prod-monitoring-bot`
-- emails*: array[object] - メールアドレス (1 個以上) 例: `["prod-monitoring-bot@example.com"]`
+- emails*: array[string] - メールアドレス (1 個以上) 例: `["prod-monitoring-bot@example.com"]`
 
 ### レスポンス
 
@@ -81,7 +81,7 @@ system_account_owners
 
 - company_id: integer(int64) - 事業所ID 例: `1`
 - name: string - システムアカウント名 例: `prod-monitoring-bot`
-- emails: array[object] - メールアドレス (1 個以上) 例: `["prod-monitoring-bot@example.com"]`
+- emails: array[string] - メールアドレス (1 個以上) 例: `["prod-monitoring-bot@example.com"]`
 
 ### レスポンス
 
