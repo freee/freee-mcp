@@ -1,5 +1,17 @@
 # freee-mcp
 
+## 0.37.0
+
+### Minor Changes
+
+- [`9afcc3f`](https://github.com/freee/freee-mcp/commit/9afcc3f72ec63dedae02b3784e8f0aa3308b4dca): freeeIT 管理 API に会社・役職・システムアカウントの 3 リソース（それぞれ CRUD）のサポートを追加
+
+  - BREAKING: IT 管理 API の部署・アプリの所属会社のフィールド名が `company` から `product_company` に、アプリの部分更新で会社を指定するフィールドが `it_management_company_id` から `product_company_id` に変わりました
+
+### Patch Changes
+
+- [`3ab71d9`](https://github.com/freee/freee-mcp/commit/3ab71d9715aa2ce2a24895531925ea5d3a660590): freeeIT 管理のレシピのエラーの説明を、現在の API に合わせて修正し、再認証では解決しない IT 管理固有の 401 / 403 を追記
+
 ## 0.36.6
 
 ### Patch Changes
