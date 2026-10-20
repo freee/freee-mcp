@@ -117,6 +117,10 @@
       "description": "<p>経費精算の外貨</p>"
     },
     {
+      "name": "Expense application amount calculations",
+      "description": "<p>経費申請の金額の自動計算</p>"
+    },
+    {
       "name": "Payment requests",
       "description": "<p>支払依頼</p>"
     },
@@ -16246,6 +16250,88 @@
         }
       }
     },
+    "/api/1/expense_applications/amount_calculations": {
+      "post": {
+        "tags": [
+          "Expense application amount calculations"
+        ],
+        "summary": "経費申請の金額の自動計算",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した経費科目の金額計算設定にカスタム申請項目の入力値を適用し、経費申請の明細行の金額を計算します。計算するだけで、経費申請も計算結果も保存されません。</p>",
+        "operationId": "create_expense_application_amount_calculation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/expenseApplicationAmountCalculationCreateParams"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/expenseApplicationAmountCalculationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/1/expense_application_line_templates": {
       "get": {
         "tags": [
@@ -17055,7 +17141,7 @@
           "Payment requests"
         ],
         "summary": "支払依頼の作成",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼を作成する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n  <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼を作成する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n  <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>\n  <li>parent_id と parent_type で、各種申請または購買申請を親申請として関連付けられます。</li>\n</ul>",
         "operationId": "create_payment_request",
         "requestBody": {
           "content": {
@@ -17226,7 +17312,7 @@
           "Payment requests"
         ],
         "summary": "支払依頼の更新",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼を更新する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、支払依頼を更新することができます。</li>\n  <li>本APIでは、status(申請ステータス): draft:下書き, in_progress:申請中, feedback:差戻しのみ更新可能です。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n  <li>申請ステータスが申請中の場合には、申請タイトル(title)、申請日(application_date)、申請経路ID(approval_flow_route_id)、承認者のユーザーID(approver_id)は更新ができません。</li>\n  <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼を更新する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、支払依頼を更新することができます。</li>\n  <li>本APIでは、status(申請ステータス): draft:下書き, in_progress:申請中, feedback:差戻しのみ更新可能です。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n  <li>申請ステータスが申請中の場合には、申請タイトル(title)、申請日(application_date)、申請経路ID(approval_flow_route_id)、承認者のユーザーID(approver_id)は更新ができません。</li>\n  <li>本APIでは支払依頼の項目行一覧(payment_request_lines)は、最大100行までになります。</li>\n  <li>parent_id と parent_type で、各種申請または購買申請を親申請として関連付けられます。parent_id に null を指定すると関連付けを解除し、キーを指定しない場合は親申請を更新しません。</li>\n</ul>",
         "operationId": "update_payment_request",
         "parameters": [
           {
@@ -23645,6 +23731,34 @@
                     "example": 606
                   }
                 },
+                "use_currency": {
+                  "type": "boolean",
+                  "description": "外貨を利用するか<br>\ntrueを指定する場合は、expense_application_purchase_line_currencyも指定してください。事業所の外貨利用設定が無効な場合は400エラーになります。<br>",
+                  "example": true
+                },
+                "expense_application_purchase_line_currency": {
+                  "type": "object",
+                  "description": "申請行の通貨情報<br>\nuse_currencyにtrueを指定した場合に有効です。",
+                  "properties": {
+                    "currency_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "description": "通貨ID。事業所で利用可能な通貨を指定します。存在しない通貨IDを指定すると400エラーになります。",
+                      "example": 1
+                    },
+                    "currency_code": {
+                      "type": "string",
+                      "description": "通貨コード（ISO 4217）。currency_idの通貨コードと一致しない場合は400エラーになります。",
+                      "example": "USD"
+                    },
+                    "exchange_rate": {
+                      "type": "number",
+                      "description": "為替レート（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。",
+                      "example": 150.25
+                    }
+                  }
+                },
                 "expense_application_lines": {
                   "type": "array",
                   "description": "明細行一覧（配列）",
@@ -23671,6 +23785,17 @@
                         "minimum": 1,
                         "description": "経費科目ID<br>\n申請時（draftにfalseを指定した時）は、経費科目の利用可能範囲（部門・申請者）により、section_idの部門と申請者で利用できない経費科目を指定すると400エラーになります。下書きでは利用可否を検証しません。<br>\n利用可能な経費科目は、経費科目一覧APIのsection_ids[]に部門IDを指定して取得してください。",
                         "example": 505
+                      },
+                      "expense_application_line_currency_amount": {
+                        "type": "object",
+                        "description": "明細行の外貨額<br>\n申請行でuse_currencyにtrueを指定した場合に有効です。外貨額と為替レートから円換算した金額がamountに設定されます。",
+                        "properties": {
+                          "currency_amount": {
+                            "type": "number",
+                            "description": "外貨額（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。",
+                            "example": 100.5
+                          }
+                        }
                       },
                       "custom_values": {
                         "type": "array",
@@ -23875,6 +24000,34 @@
                     "example": 606
                   }
                 },
+                "use_currency": {
+                  "type": "boolean",
+                  "description": "外貨を利用するか<br>\ntrueを指定する場合は、expense_application_purchase_line_currencyも指定してください。事業所の外貨利用設定が無効な場合は400エラーになります。<br>\n更新時、use_currencyを省略した場合は既存の外貨情報が保持されます。falseを指定した場合のみ外貨情報が削除されます。<br>",
+                  "example": true
+                },
+                "expense_application_purchase_line_currency": {
+                  "type": "object",
+                  "description": "申請行の通貨情報<br>\nuse_currencyにtrueを指定した場合に有効です。",
+                  "properties": {
+                    "currency_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "description": "通貨ID。事業所で利用可能な通貨を指定します。存在しない通貨IDを指定すると400エラーになります。",
+                      "example": 1
+                    },
+                    "currency_code": {
+                      "type": "string",
+                      "description": "通貨コード（ISO 4217）。currency_idの通貨コードと一致しない場合は400エラーになります。",
+                      "example": "USD"
+                    },
+                    "exchange_rate": {
+                      "type": "number",
+                      "description": "為替レート（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。",
+                      "example": 150.25
+                    }
+                  }
+                },
                 "expense_application_lines": {
                   "type": "array",
                   "description": "明細行一覧（配列）",
@@ -23908,6 +24061,17 @@
                         "minimum": 1,
                         "description": "経費科目ID<br>\n申請時（draftにfalseを指定した時）は、経費科目の利用可能範囲（部門・申請者）により、section_idの部門と申請者で利用できない経費科目を指定すると400エラーになります。下書きでは利用可否を検証しません。<br>\n利用可能な経費科目は、経費科目一覧APIのsection_ids[]に部門IDを指定して取得してください。",
                         "example": 505
+                      },
+                      "expense_application_line_currency_amount": {
+                        "type": "object",
+                        "description": "明細行の外貨額<br>\n申請行でuse_currencyにtrueを指定した場合に有効です。外貨額と為替レートから円換算した金額がamountに設定されます。",
+                        "properties": {
+                          "currency_amount": {
+                            "type": "number",
+                            "description": "外貨額（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。",
+                            "example": 100.5
+                          }
+                        }
                       },
                       "custom_values": {
                         "type": "array",
@@ -24280,8 +24444,18 @@
             "type": "integer",
             "format": "int64",
             "minimum": 1,
-            "description": "親申請ID\n法人エンタープライズプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）で利用できます。\n承認済みの既存各種申請IDのみ指定可能です（各種申請一覧API `/api/1/approval_requests` で取得できます）。",
+            "description": "親申請ID\n法人エンタープライズプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）で利用できます。\n承認済みの既存各種申請IDまたは購買申請IDのみ指定可能です（各種申請一覧API `/api/1/approval_requests`、購買申請一覧API `/api/1/purchase_requests` で取得できます）。\n親申請の種別を購買申請にする場合は parent_type に `PurchaseRequest` を指定してください。",
             "example": 2,
+            "nullable": true
+          },
+          "parent_type": {
+            "type": "string",
+            "description": "親申請の種別（parent_id を指定した場合のみ有効）\n* `ApprovalRequest` - 各種申請（parent_type 未指定時のデフォルト）\n* `PurchaseRequest` - 購買申請\n\n上記以外の値を指定するとバリデーションエラーになります。",
+            "example": "ApprovalRequest",
+            "enum": [
+              "ApprovalRequest",
+              "PurchaseRequest"
+            ],
             "nullable": true
           },
           "draft": {
@@ -24583,6 +24757,24 @@
             "example": 1,
             "nullable": true
           },
+          "parent_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "親申請ID\n法人エンタープライズプラン、法人アドバンスプラン（および旧法人プロフェッショナルプラン）で利用できます。\n承認済みの既存各種申請IDまたは購買申請IDのみ指定可能です（各種申請一覧API `/api/1/approval_requests`、購買申請一覧API `/api/1/purchase_requests` で取得できます）。\n* 親申請の種別を購買申請にする場合は parent_type に `PurchaseRequest` を指定してください。\n* `null` を指定すると、現在設定されている親申請との関連付けを解除します。\n* キーを指定しない場合、親申請は更新されません。\n* 親申請の更新には、申請フォームの設定で申請者（申請中の場合は承認者）による親申請の変更が許可されている必要があります。",
+            "example": 2,
+            "nullable": true
+          },
+          "parent_type": {
+            "type": "string",
+            "description": "親申請の種別（parent_id を指定した場合のみ有効）\n* `ApprovalRequest` - 各種申請（parent_type 未指定時のデフォルト）\n* `PurchaseRequest` - 購買申請\n\n上記以外の値を指定するとバリデーションエラーになります。",
+            "example": "ApprovalRequest",
+            "enum": [
+              "ApprovalRequest",
+              "PurchaseRequest"
+            ],
+            "nullable": true
+          },
           "draft": {
             "type": "boolean",
             "description": "支払依頼のステータス\n* `true` - 下書き (draft) で支払依頼を更新します\n* `false` - 申請中 (in_progress) で支払依頼を更新します",
@@ -24644,54 +24836,54 @@
           "bank_code": {
             "type": "string",
             "maxLength": 4,
-            "description": "銀行コード（半角数字1桁〜4桁）\npartner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。",
+            "description": "銀行コード（半角数字1桁〜4桁）\npartner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。",
             "example": "0001"
           },
           "bank_name": {
             "type": "string",
             "maxLength": 255,
-            "description": "銀行名（255文字以内）\npartner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。",
+            "description": "銀行名（255文字以内）\npartner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。",
             "example": "freee銀行"
           },
           "bank_name_kana": {
             "type": "string",
             "maxLength": 15,
-            "description": "銀行名（カナ）（15文字以内）\npartner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。",
+            "description": "銀行名（カナ）（15文字以内）\npartner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。",
             "example": "フリーギンコウ"
           },
           "branch_code": {
             "type": "string",
             "maxLength": 3,
-            "description": "支店番号（半角数字1桁〜3桁）\npartner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。",
+            "description": "支店番号（半角数字1桁〜3桁）\npartner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。",
             "example": "101"
           },
           "branch_name": {
             "type": "string",
             "maxLength": 255,
-            "description": "支店名（255文字以内）\npartner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。",
+            "description": "支店名（255文字以内）\npartner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。",
             "example": "銀座支店"
           },
           "branch_kana": {
             "type": "string",
             "maxLength": 15,
-            "description": "支店名（カナ）（15文字以内）\n指定可能な文字は、英数・カナ・丸括弧・ハイフン・スペースのみです。\npartner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。",
+            "description": "支店名（カナ）（15文字以内）\n指定可能な文字は、英数・カナ・丸括弧・ハイフン・スペースのみです。\npartner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。",
             "example": "ギンザシテン"
           },
           "account_name": {
             "type": "string",
             "maxLength": 48,
-            "description": "受取人名（カナ）（48文字以内）\npartner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。",
+            "description": "受取人名（カナ）（48文字以内）\npartner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。",
             "example": "フリータロウ"
           },
           "account_number": {
             "type": "string",
             "maxLength": 7,
-            "description": "口座番号（半角数字1桁〜7桁）\npartner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。",
+            "description": "口座番号（半角数字1桁〜7桁）\npartner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。",
             "example": "1010101"
           },
           "account_type": {
             "type": "string",
-            "description": "口座種別（デフォルトは `ordinary`）\n* `ordinary` - 普通\n* `checking` - 当座\n* `earmarked` - 納税準備預金\n* `savings` - 貯蓄\n* `other` - その他\n\npartner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。",
+            "description": "口座種別（デフォルトは `ordinary`）\n* `ordinary` - 普通\n* `checking` - 当座\n* `earmarked` - 納税準備預金\n* `savings` - 貯蓄\n* `other` - その他\n\npartner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。",
             "example": "ordinary",
             "enum": [
               "ordinary",
@@ -25781,7 +25973,7 @@
               },
               "name": {
                 "type": "string",
-                "maxLength": 30,
+                "maxLength": 255,
                 "description": "勘定科目名 (30文字以内)",
                 "example": "ソフトウェア"
               },
@@ -34597,7 +34789,8 @@
                     "description": {
                       "type": "string",
                       "description": "メモ",
-                      "example": "タクシー利用"
+                      "example": "タクシー利用",
+                      "nullable": true
                     },
                     "mime_type": {
                       "type": "string",
@@ -34677,6 +34870,7 @@
                         "id"
                       ],
                       "type": "object",
+                      "nullable": true,
                       "description": "ファイルをアップロードしたユーザー",
                       "properties": {
                         "id": {
@@ -35467,7 +35661,8 @@
                 "description": {
                   "type": "string",
                   "description": "メモ",
-                  "example": "タクシー利用"
+                  "example": "タクシー利用",
+                  "nullable": true
                 },
                 "mime_type": {
                   "type": "string",
@@ -35547,6 +35742,7 @@
                     "id"
                   ],
                   "type": "object",
+                  "nullable": true,
                   "description": "ファイルをアップロードしたユーザー",
                   "properties": {
                     "id": {
@@ -40649,6 +40845,36 @@
                         "example": 606
                       }
                     },
+                    "use_currency": {
+                      "type": "boolean",
+                      "description": "外貨を利用しているか",
+                      "example": true
+                    },
+                    "expense_application_purchase_line_currency": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "申請行の通貨情報。外貨を利用していない場合はnullになります。",
+                      "properties": {
+                        "currency_id": {
+                          "type": "integer",
+                          "format": "int64",
+                          "minimum": 1,
+                          "description": "通貨ID",
+                          "example": 1
+                        },
+                        "currency_code": {
+                          "type": "string",
+                          "description": "通貨コード（ISO 4217）",
+                          "example": "USD"
+                        },
+                        "exchange_rate": {
+                          "type": "string",
+                          "nullable": true,
+                          "description": "為替レート（小数文字列）。未設定の場合はnullになります。",
+                          "example": "150.25"
+                        }
+                      }
+                    },
                     "expense_application_lines": {
                       "type": "array",
                       "description": "明細行一覧（配列）",
@@ -40686,6 +40912,25 @@
                             "description": "経費科目ID",
                             "example": 505,
                             "nullable": true
+                          },
+                          "expense_application_line_currency_amount": {
+                            "type": "object",
+                            "nullable": true,
+                            "description": "明細行の外貨額。外貨を利用していない場合はnullになります。",
+                            "properties": {
+                              "currency_amount": {
+                                "type": "string",
+                                "nullable": true,
+                                "description": "外貨額（小数文字列）。未設定の場合はnullになります。",
+                                "example": "100.5"
+                              },
+                              "system_calc_amount": {
+                                "type": "integer",
+                                "format": "int64",
+                                "description": "外貨額と為替レートからシステムが計算した円換算額",
+                                "example": 15075
+                              }
+                            }
                           },
                           "custom_values": {
                             "type": "array",
@@ -42256,6 +42501,24 @@
                 "description": "現在の round（承認操作 API `POST /api/1/payment_requests/{id}/actions` の target_round に指定します）\n差戻し等により申請が step の最初からやり直しになると round の値が増えます。",
                 "example": 1
               },
+              "parent_id": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "description": "親申請ID。\n各種申請または購買申請が使用可能なプランの事業所でのみレスポンスに含まれる（キー自体が存在しない場合がある）。\n関連付けが解除されている場合や親申請が未設定の場合は null。",
+                "example": 2,
+                "nullable": true
+              },
+              "parent_type": {
+                "type": "string",
+                "description": "親申請の種別。parent_id とペアで返却される。\n* `ApprovalRequest` - 各種申請\n* `PurchaseRequest` - 購買申請\n\n各種申請または購買申請が使用可能なプランの事業所でのみレスポンスに含まれる（キー自体が存在しない場合がある）。\n関連付けが解除されている場合や親申請が未設定の場合は null。",
+                "example": "ApprovalRequest",
+                "enum": [
+                  "ApprovalRequest",
+                  "PurchaseRequest"
+                ],
+                "nullable": true
+              },
               "document_code": {
                 "type": "string",
                 "description": "請求書番号。未設定の場合は空文字列になります。",
@@ -42320,36 +42583,37 @@
               },
               "bank_name": {
                 "type": "string",
-                "description": "銀行名。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。",
+                "description": "銀行名。支払先の取引先が設定された時点で、その取引先の振込先口座から引用されます。以降は支払先を変更しない限り、引用された値が維持されます。未設定の場合は空文字列になります。",
                 "example": "freee銀行"
               },
               "bank_name_kana": {
                 "type": "string",
-                "description": "銀行名（カナ）。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。",
+                "description": "銀行名（カナ）。支払先の取引先が設定された時点で、その取引先の振込先口座から引用されます。以降は支払先を変更しない限り、引用された値が維持されます。未設定の場合は空文字列になります。",
                 "example": "フリーギンコウ"
               },
               "bank_code": {
                 "type": "string",
-                "description": "銀行コード。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。",
+                "description": "銀行コード。支払先の取引先が設定された時点で、その取引先の振込先口座から引用されます。以降は支払先を変更しない限り、引用された値が維持されます。未設定の場合は空文字列になります。",
                 "example": "0001"
               },
               "branch_name": {
                 "type": "string",
-                "description": "支店名。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。",
+                "description": "支店名。支払先の取引先が設定された時点で、その取引先の振込先口座から引用されます。以降は支払先を変更しない限り、引用された値が維持されます。未設定の場合は空文字列になります。",
                 "example": "銀座支店"
               },
               "branch_kana": {
                 "type": "string",
-                "description": "支店名（カナ）。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。",
+                "description": "支店名（カナ）。支払先の取引先が設定された時点で、その取引先の振込先口座から引用されます。以降は支払先を変更しない限り、引用された値が維持されます。未設定の場合は空文字列になります。",
                 "example": "ギンザシテン"
               },
               "branch_code": {
                 "type": "string",
-                "description": "支店番号。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。",
+                "description": "支店番号。支払先の取引先が設定された時点で、その取引先の振込先口座から引用されます。以降は支払先を変更しない限り、引用された値が維持されます。未設定の場合は空文字列になります。",
                 "example": "101"
               },
               "account_type": {
                 "type": "string",
+                "nullable": true,
                 "description": "口座種別\n* `ordinary` - 普通\n* `checking` - 当座\n* `earmarked` - 納税準備預金\n* `savings` - 貯蓄\n* `other` - その他",
                 "example": "ordinary",
                 "enum": [
@@ -42362,12 +42626,12 @@
               },
               "account_number": {
                 "type": "string",
-                "description": "口座番号。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。",
+                "description": "口座番号。支払先の取引先が設定された時点で、その取引先の振込先口座から引用されます。以降は支払先を変更しない限り、引用された値が維持されます。未設定の場合は空文字列になります。",
                 "example": "1010101"
               },
               "account_name": {
                 "type": "string",
-                "description": "受取人名（カナ）。支払先の取引先が指定されている場合は取引先の振込先口座から引用されます。未設定の場合は空文字列になります。",
+                "description": "受取人名（カナ）。支払先の取引先が設定された時点で、その取引先の振込先口座から引用されます。以降は支払先を変更しない限り、引用された値が維持されます。未設定の場合は空文字列になります。",
                 "example": "フリータロウ"
               },
               "qualified_invoice_status": {
@@ -43821,6 +44085,1189 @@
         },
         "additionalProperties": false
       },
+      "expenseApplicationAmountCalculationCreateParams": {
+        "type": "object",
+        "description": "金額の自動計算リクエスト",
+        "required": [
+          "company_id",
+          "expense_application_line_template_id",
+          "custom_values",
+          "applicant"
+        ],
+        "properties": {
+          "company_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "事業所ID",
+            "example": 1
+          },
+          "expense_application_line_template_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "金額計算設定を持つ経費科目のID",
+            "example": 101
+          },
+          "custom_values": {
+            "type": "array",
+            "description": "カスタム申請項目の入力値。計算式が参照する項目を含めてください",
+            "items": {
+              "type": "object",
+              "description": "カスタム申請項目の入力値",
+              "oneOf": [
+                {
+                  "type": "object",
+                  "description": "カスタム申請項目の入力値 (1行テキスト)",
+                  "required": [
+                    "key",
+                    "type",
+                    "value"
+                  ],
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "pattern": "^[a-z][a-z0-9_]*$",
+                      "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                      "example": "travel_days"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "single_line_string"
+                      ],
+                      "description": "入力値の種別",
+                      "example": "single_line_string"
+                    },
+                    "value": {
+                      "type": "string",
+                      "maxLength": 255,
+                      "description": "入力値 (255文字以内)",
+                      "example": "東京出張",
+                      "nullable": true
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "description": "カスタム申請項目の入力値 (複数行テキスト)",
+                  "required": [
+                    "key",
+                    "type",
+                    "value"
+                  ],
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "pattern": "^[a-z][a-z0-9_]*$",
+                      "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                      "example": "travel_days"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "multi_line_string"
+                      ],
+                      "description": "入力値の種別",
+                      "example": "multi_line_string"
+                    },
+                    "value": {
+                      "type": "string",
+                      "maxLength": 10000,
+                      "description": "入力値 (10000文字以内)",
+                      "example": "東京出張\n宿泊あり",
+                      "nullable": true
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "description": "カスタム申請項目の入力値 (日付)",
+                  "required": [
+                    "key",
+                    "type",
+                    "value"
+                  ],
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "pattern": "^[a-z][a-z0-9_]*$",
+                      "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                      "example": "travel_days"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "date"
+                      ],
+                      "description": "入力値の種別",
+                      "example": "date"
+                    },
+                    "value": {
+                      "type": "string",
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                      "description": "入力値 (YYYY-MM-DD)",
+                      "example": "2026-04-01",
+                      "nullable": true
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "description": "カスタム申請項目の入力値 (期間)",
+                  "required": [
+                    "key",
+                    "type",
+                    "value"
+                  ],
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "pattern": "^[a-z][a-z0-9_]*$",
+                      "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                      "example": "travel_days"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "date_range"
+                      ],
+                      "description": "入力値の種別",
+                      "example": "date_range"
+                    },
+                    "value": {
+                      "type": "object",
+                      "allOf": [
+                        {
+                          "type": "object",
+                          "description": "期間",
+                          "required": [
+                            "start_date",
+                            "end_date"
+                          ],
+                          "properties": {
+                            "start_date": {
+                              "type": "string",
+                              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                              "description": "開始日 (YYYY-MM-DD)",
+                              "example": "2026-04-01",
+                              "nullable": true
+                            },
+                            "end_date": {
+                              "type": "string",
+                              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                              "description": "終了日 (YYYY-MM-DD)",
+                              "example": "2026-04-03",
+                              "nullable": true
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      ],
+                      "nullable": true
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "description": "カスタム申請項目の入力値 (日時)",
+                  "required": [
+                    "key",
+                    "type",
+                    "value"
+                  ],
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "pattern": "^[a-z][a-z0-9_]*$",
+                      "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                      "example": "travel_days"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "datetime"
+                      ],
+                      "description": "入力値の種別",
+                      "example": "datetime"
+                    },
+                    "value": {
+                      "type": "string",
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}$",
+                      "description": "入力値 (YYYY-MM-DD hh:mm)",
+                      "example": "2026-04-01 09:30",
+                      "nullable": true
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "description": "カスタム申請項目の入力値 (数値)",
+                  "required": [
+                    "key",
+                    "type",
+                    "value"
+                  ],
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "pattern": "^[a-z][a-z0-9_]*$",
+                      "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                      "example": "travel_days"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "number"
+                      ],
+                      "description": "入力値の種別",
+                      "example": "number"
+                    },
+                    "value": {
+                      "type": "number",
+                      "format": "double",
+                      "minimum": -9999999999.999,
+                      "maximum": 9999999999.999,
+                      "description": "入力値 (整数部 10 桁以内、小数 3 桁まで)",
+                      "example": 3,
+                      "nullable": true
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "description": "カスタム申請項目の入力値 (プルダウン)",
+                  "required": [
+                    "key",
+                    "type",
+                    "value"
+                  ],
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "pattern": "^[a-z][a-z0-9_]*$",
+                      "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                      "example": "travel_days"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "pulldown"
+                      ],
+                      "description": "入力値の種別",
+                      "example": "pulldown"
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "入力値 (選択肢のいずれか)",
+                      "example": "新幹線",
+                      "nullable": true
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "description": "カスタム申請項目の入力値 (ラジオボタン)",
+                  "required": [
+                    "key",
+                    "type",
+                    "value"
+                  ],
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "pattern": "^[a-z][a-z0-9_]*$",
+                      "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                      "example": "travel_days"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "radio_button"
+                      ],
+                      "description": "入力値の種別",
+                      "example": "radio_button"
+                    },
+                    "value": {
+                      "type": "string",
+                      "description": "入力値 (選択肢のいずれか)",
+                      "example": "往復",
+                      "nullable": true
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "description": "カスタム申請項目の入力値 (チェックボックス)",
+                  "required": [
+                    "key",
+                    "type",
+                    "value"
+                  ],
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "pattern": "^[a-z][a-z0-9_]*$",
+                      "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                      "example": "travel_days"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "checkbox"
+                      ],
+                      "description": "入力値の種別",
+                      "example": "checkbox"
+                    },
+                    "value": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "入力値 (選択肢のうち選択したもの)",
+                      "example": [
+                        "朝食",
+                        "夕食"
+                      ],
+                      "nullable": true
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ],
+              "discriminator": {
+                "propertyName": "type",
+                "mapping": {
+                  "single_line_string": "#/components/schemas/expenseApplicationAmountCalculationSingleLineStringCustomValue",
+                  "multi_line_string": "#/components/schemas/expenseApplicationAmountCalculationMultiLineStringCustomValue",
+                  "date": "#/components/schemas/expenseApplicationAmountCalculationDateCustomValue",
+                  "date_range": "#/components/schemas/expenseApplicationAmountCalculationDateRangeCustomValue",
+                  "datetime": "#/components/schemas/expenseApplicationAmountCalculationDatetimeCustomValue",
+                  "number": "#/components/schemas/expenseApplicationAmountCalculationNumberCustomValue",
+                  "pulldown": "#/components/schemas/expenseApplicationAmountCalculationPulldownCustomValue",
+                  "radio_button": "#/components/schemas/expenseApplicationAmountCalculationRadioButtonCustomValue",
+                  "checkbox": "#/components/schemas/expenseApplicationAmountCalculationCheckboxCustomValue"
+                }
+              }
+            }
+          },
+          "applicant": {
+            "type": "object",
+            "description": "計算対象の申請者。申請者はアクセストークンのユーザーに固定され、指定できるのは所属部門だけです。所属部門と役職が金額計算ルールの条件判定に使われます",
+            "required": [
+              "group_id"
+            ],
+            "properties": {
+              "group_id": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "description": "申請者 (アクセストークンのユーザー) の所属部門ID (部門に所属しない場合は null)。申請者が所属していない部門を指定した場合は 400 になります",
+                "example": 2,
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationAmountCalculationCustomValue": {
+        "type": "object",
+        "description": "カスタム申請項目の入力値",
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "カスタム申請項目の入力値 (1行テキスト)",
+            "required": [
+              "key",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                "example": "travel_days"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "single_line_string"
+                ],
+                "description": "入力値の種別",
+                "example": "single_line_string"
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 255,
+                "description": "入力値 (255文字以内)",
+                "example": "東京出張",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "カスタム申請項目の入力値 (複数行テキスト)",
+            "required": [
+              "key",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                "example": "travel_days"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "multi_line_string"
+                ],
+                "description": "入力値の種別",
+                "example": "multi_line_string"
+              },
+              "value": {
+                "type": "string",
+                "maxLength": 10000,
+                "description": "入力値 (10000文字以内)",
+                "example": "東京出張\n宿泊あり",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "カスタム申請項目の入力値 (日付)",
+            "required": [
+              "key",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                "example": "travel_days"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "date"
+                ],
+                "description": "入力値の種別",
+                "example": "date"
+              },
+              "value": {
+                "type": "string",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                "description": "入力値 (YYYY-MM-DD)",
+                "example": "2026-04-01",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "カスタム申請項目の入力値 (期間)",
+            "required": [
+              "key",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                "example": "travel_days"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "date_range"
+                ],
+                "description": "入力値の種別",
+                "example": "date_range"
+              },
+              "value": {
+                "type": "object",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "description": "期間",
+                    "required": [
+                      "start_date",
+                      "end_date"
+                    ],
+                    "properties": {
+                      "start_date": {
+                        "type": "string",
+                        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                        "description": "開始日 (YYYY-MM-DD)",
+                        "example": "2026-04-01",
+                        "nullable": true
+                      },
+                      "end_date": {
+                        "type": "string",
+                        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                        "description": "終了日 (YYYY-MM-DD)",
+                        "example": "2026-04-03",
+                        "nullable": true
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                ],
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "カスタム申請項目の入力値 (日時)",
+            "required": [
+              "key",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                "example": "travel_days"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "datetime"
+                ],
+                "description": "入力値の種別",
+                "example": "datetime"
+              },
+              "value": {
+                "type": "string",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}$",
+                "description": "入力値 (YYYY-MM-DD hh:mm)",
+                "example": "2026-04-01 09:30",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "カスタム申請項目の入力値 (数値)",
+            "required": [
+              "key",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                "example": "travel_days"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "number"
+                ],
+                "description": "入力値の種別",
+                "example": "number"
+              },
+              "value": {
+                "type": "number",
+                "format": "double",
+                "minimum": -9999999999.999,
+                "maximum": 9999999999.999,
+                "description": "入力値 (整数部 10 桁以内、小数 3 桁まで)",
+                "example": 3,
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "カスタム申請項目の入力値 (プルダウン)",
+            "required": [
+              "key",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                "example": "travel_days"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "pulldown"
+                ],
+                "description": "入力値の種別",
+                "example": "pulldown"
+              },
+              "value": {
+                "type": "string",
+                "description": "入力値 (選択肢のいずれか)",
+                "example": "新幹線",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "カスタム申請項目の入力値 (ラジオボタン)",
+            "required": [
+              "key",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                "example": "travel_days"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "radio_button"
+                ],
+                "description": "入力値の種別",
+                "example": "radio_button"
+              },
+              "value": {
+                "type": "string",
+                "description": "入力値 (選択肢のいずれか)",
+                "example": "往復",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "description": "カスタム申請項目の入力値 (チェックボックス)",
+            "required": [
+              "key",
+              "type",
+              "value"
+            ],
+            "properties": {
+              "key": {
+                "type": "string",
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+                "example": "travel_days"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "checkbox"
+                ],
+                "description": "入力値の種別",
+                "example": "checkbox"
+              },
+              "value": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "入力値 (選択肢のうち選択したもの)",
+                "example": [
+                  "朝食",
+                  "夕食"
+                ],
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "single_line_string": "#/components/schemas/expenseApplicationAmountCalculationSingleLineStringCustomValue",
+            "multi_line_string": "#/components/schemas/expenseApplicationAmountCalculationMultiLineStringCustomValue",
+            "date": "#/components/schemas/expenseApplicationAmountCalculationDateCustomValue",
+            "date_range": "#/components/schemas/expenseApplicationAmountCalculationDateRangeCustomValue",
+            "datetime": "#/components/schemas/expenseApplicationAmountCalculationDatetimeCustomValue",
+            "number": "#/components/schemas/expenseApplicationAmountCalculationNumberCustomValue",
+            "pulldown": "#/components/schemas/expenseApplicationAmountCalculationPulldownCustomValue",
+            "radio_button": "#/components/schemas/expenseApplicationAmountCalculationRadioButtonCustomValue",
+            "checkbox": "#/components/schemas/expenseApplicationAmountCalculationCheckboxCustomValue"
+          }
+        }
+      },
+      "expenseApplicationAmountCalculationSingleLineStringCustomValue": {
+        "type": "object",
+        "description": "カスタム申請項目の入力値 (1行テキスト)",
+        "required": [
+          "key",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+            "example": "travel_days"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "single_line_string"
+            ],
+            "description": "入力値の種別",
+            "example": "single_line_string"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "入力値 (255文字以内)",
+            "example": "東京出張",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationAmountCalculationMultiLineStringCustomValue": {
+        "type": "object",
+        "description": "カスタム申請項目の入力値 (複数行テキスト)",
+        "required": [
+          "key",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+            "example": "travel_days"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "multi_line_string"
+            ],
+            "description": "入力値の種別",
+            "example": "multi_line_string"
+          },
+          "value": {
+            "type": "string",
+            "maxLength": 10000,
+            "description": "入力値 (10000文字以内)",
+            "example": "東京出張\n宿泊あり",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationAmountCalculationDateCustomValue": {
+        "type": "object",
+        "description": "カスタム申請項目の入力値 (日付)",
+        "required": [
+          "key",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+            "example": "travel_days"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "date"
+            ],
+            "description": "入力値の種別",
+            "example": "date"
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "description": "入力値 (YYYY-MM-DD)",
+            "example": "2026-04-01",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationAmountCalculationDateRangeCustomValue": {
+        "type": "object",
+        "description": "カスタム申請項目の入力値 (期間)",
+        "required": [
+          "key",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+            "example": "travel_days"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "date_range"
+            ],
+            "description": "入力値の種別",
+            "example": "date_range"
+          },
+          "value": {
+            "type": "object",
+            "allOf": [
+              {
+                "type": "object",
+                "description": "期間",
+                "required": [
+                  "start_date",
+                  "end_date"
+                ],
+                "properties": {
+                  "start_date": {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "description": "開始日 (YYYY-MM-DD)",
+                    "example": "2026-04-01",
+                    "nullable": true
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                    "description": "終了日 (YYYY-MM-DD)",
+                    "example": "2026-04-03",
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationAmountCalculationDatetimeCustomValue": {
+        "type": "object",
+        "description": "カスタム申請項目の入力値 (日時)",
+        "required": [
+          "key",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+            "example": "travel_days"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "datetime"
+            ],
+            "description": "入力値の種別",
+            "example": "datetime"
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}$",
+            "description": "入力値 (YYYY-MM-DD hh:mm)",
+            "example": "2026-04-01 09:30",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationAmountCalculationNumberCustomValue": {
+        "type": "object",
+        "description": "カスタム申請項目の入力値 (数値)",
+        "required": [
+          "key",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+            "example": "travel_days"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "number"
+            ],
+            "description": "入力値の種別",
+            "example": "number"
+          },
+          "value": {
+            "type": "number",
+            "format": "double",
+            "minimum": -9999999999.999,
+            "maximum": 9999999999.999,
+            "description": "入力値 (整数部 10 桁以内、小数 3 桁まで)",
+            "example": 3,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationAmountCalculationPulldownCustomValue": {
+        "type": "object",
+        "description": "カスタム申請項目の入力値 (プルダウン)",
+        "required": [
+          "key",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+            "example": "travel_days"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "pulldown"
+            ],
+            "description": "入力値の種別",
+            "example": "pulldown"
+          },
+          "value": {
+            "type": "string",
+            "description": "入力値 (選択肢のいずれか)",
+            "example": "新幹線",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationAmountCalculationRadioButtonCustomValue": {
+        "type": "object",
+        "description": "カスタム申請項目の入力値 (ラジオボタン)",
+        "required": [
+          "key",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+            "example": "travel_days"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "radio_button"
+            ],
+            "description": "入力値の種別",
+            "example": "radio_button"
+          },
+          "value": {
+            "type": "string",
+            "description": "入力値 (選択肢のいずれか)",
+            "example": "往復",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationAmountCalculationCheckboxCustomValue": {
+        "type": "object",
+        "description": "カスタム申請項目の入力値 (チェックボックス)",
+        "required": [
+          "key",
+          "type",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "カスタム申請項目を識別する永続キー。英小文字で始まる 1〜64 文字の半角英小文字・数字・アンダースコアで、\n経費科目内で一意です。経費科目 API (GET /api/1/expense_application_line_templates/{id}) が\ncustom_form_parts[].key として返す値をそのまま指定します。キーが未設定の項目には、システムが\ncustom_field_ の後ろにカスタム申請項目 ID を付けたキー (例: custom_field_12) を補って返すため、\nその値を指定します。指定した経費科目に存在しないキーを指定した場合は 400 になります。",
+            "example": "travel_days"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "checkbox"
+            ],
+            "description": "入力値の種別",
+            "example": "checkbox"
+          },
+          "value": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "入力値 (選択肢のうち選択したもの)",
+            "example": [
+              "朝食",
+              "夕食"
+            ],
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationAmountCalculationDateRange": {
+        "type": "object",
+        "description": "期間",
+        "required": [
+          "start_date",
+          "end_date"
+        ],
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "description": "開始日 (YYYY-MM-DD)",
+            "example": "2026-04-01",
+            "nullable": true
+          },
+          "end_date": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "description": "終了日 (YYYY-MM-DD)",
+            "example": "2026-04-03",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "expenseApplicationAmountCalculationResponse": {
+        "type": "object",
+        "description": "金額の自動計算結果",
+        "required": [
+          "calculated_amount",
+          "applied_rule",
+          "evaluated_as"
+        ],
+        "properties": {
+          "calculated_amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "計算式によって算出された金額",
+            "example": 15000
+          },
+          "applied_rule": {
+            "type": "object",
+            "description": "適用された金額計算ルール。経費科目APIの amount_calculation_setting と同じ語彙です",
+            "required": [
+              "condition",
+              "formula"
+            ],
+            "properties": {
+              "condition": {
+                "$ref": "#/components/schemas/expenseApplicationLineTemplateAmountCalculationCondition"
+              },
+              "formula": {
+                "type": "string",
+                "description": "適用された金額計算式。カスタム申請項目の参照は {key} で表します。経費科目APIの amount_calculation_setting.rules[].formula と同じ公開文法です",
+                "example": "{travel_days}*5000"
+              }
+            },
+            "additionalProperties": false
+          },
+          "evaluated_as": {
+            "type": "object",
+            "description": "金額計算の条件判定に用いた申請者の所属情報",
+            "required": [
+              "group_id",
+              "position_id"
+            ],
+            "properties": {
+              "group_id": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "description": "申請者の所属部門ID (リクエストで部門を指定しなかった場合は null)",
+                "example": 10,
+                "nullable": true
+              },
+              "position_id": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "description": "申請者の役職ID (役職が設定されていない場合は null)",
+                "example": 3,
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
       "approvalRequestsIndexResponse": {
         "type": "object",
         "required": [
@@ -44769,7 +46216,6 @@
                   "type": "integer",
                   "format": "int64",
                   "minimum": 0,
-                  "maximum": 2147483647,
                   "description": "金額（非推奨。budget_amount を使用してください）",
                   "example": 1000,
                   "deprecated": true
@@ -44778,12 +46224,12 @@
                   "type": "integer",
                   "format": "int64",
                   "minimum": 0,
-                  "maximum": 2147483647,
                   "description": "金額",
                   "example": 1000
                 },
                 "applicant": {
                   "type": "object",
+                  "nullable": true,
                   "required": [
                     "id"
                   ],

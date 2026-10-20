@@ -16,6 +16,7 @@
 - accounting-banks.md — 連携サービス
 - accounting-companies.md — 事業所
 - accounting-deals.md — 取引（収入・支出）
+- accounting-expense-application-amount-calculations.md — 経費申請の金額の自動計算
 - accounting-expense-application-currencies.md — 経費精算の外貨
 - accounting-expense-application-forms.md — Expense application forms
 - accounting-expense-application-line-templates.md — 経費科目
