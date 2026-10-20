@@ -787,6 +787,22 @@
         "hasJsonBody": true
       }
     },
+    "/hub/partner_management/orderer/tasks/{id}": {
+      "patch": {
+        "summary": "タスク更新（β版）",
+        "description": "タスク（発注書）を部分的に更新する。送らなかったフィールドは更新されない。ステータスが completed（検収済み）/ canceled（キャンセル）の場合は更新できない\n\n## 注意点\n\n- 同じタスクへの別の更新が実行中で、一定時間待機しても完了しなかった場合は 409 を返す",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "更新対象のタスクID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/hub/partner_management/orderer/tasks/{task_id}/delivery_data/custom_fields": {
       "get": {
         "summary": "タスク納品データのカスタム項目一覧取得（β版）",
@@ -863,6 +879,36 @@
             "explode": false
           }
         ]
+      },
+      "post": {
+        "summary": "タスク品目作成（β版）",
+        "description": "指定したタスクにタスク品目を 1 件追加する。タスクが請求書に紐づいておらず、かつタスクが提出済み・差し戻し・検収済み・キャンセル以外のステータスの場合であれば品目の追加が可能。\n\n## 注意点\n\n- 同じタスクへの別の更新が実行中で、一定時間待機しても完了しなかった場合は 409 を返す",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "追加先のタスクID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/partner_management/orderer/task_line_items/{id}": {
+      "patch": {
+        "summary": "タスク品目更新（β版）",
+        "description": "タスク品目を部分的に更新する。リクエストに含まれないフィールドは更新対象外。タスクが請求書に紐づいておらず、かつタスクが提出済み・差し戻し・検収済み・キャンセル以外のステータスの場合であれば、品目名・数量・単価・単位・消費税の値を更新可能。タスクが検収済み・キャンセル以外のステータスの場合、かつタスク品目が紐づく請求書が仮締めまたは本締めされていない場合であれば、勘定科目・補助科目・部門・freee会計項目・カスタム項目の値を更新可能。\n\n## 注意点\n\n- 同じタスクへの別の更新が実行中で、一定時間待機しても完了しなかった場合は 409 を返す",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "更新対象のタスク品目ID"
+          }
+        ],
+        "hasJsonBody": true
       }
     },
     "/hub/partner_management/orderer/task_line_items/{task_line_item_id}/custom_fields": {

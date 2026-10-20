@@ -34,7 +34,8 @@
     "User matchers": "user-matchers",
     "Purchase requests": "purchase-requests",
     "Expense application currencies": "expense-application-currencies",
-    "Expense application forms": "expense-application-forms"
+    "Expense application forms": "expense-application-forms",
+    "Expense application amount calculations": "expense-application-amount-calculations"
   },
   "hr-api": {
     "ログインユーザー": "login-user",

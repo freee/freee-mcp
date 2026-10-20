@@ -211,3 +211,105 @@ partner_management_orderer_tasks
 - submitted_at*: string(date-time) - 直近の提出時刻
 - last_submitted_at*: string(date-time) - 最終提出時刻
 - task_line_item*: object - 作成した品目 1 件。task_line_item_ids と同じ品目を指す
+
+## PATCH /hub/partner_management/orderer/tasks/{id} — タスク更新（β版）
+
+タスク（発注書）を部分的に更新する。送らなかったフィールドは更新されない。ステータスが completed（検収済み）/ canceled（キャンセル）の場合は更新できない ##
+
+注意点
+- 同じタスクへの別の更新が実行中で、一定時間待機しても完了しなかった場合は 409 を返す
+
+### パラメータ
+
+- freee-using-beta* (header): string - オープンベータのエンドポイントのため `true` を指定（必須） (選択肢: true)
+- id* (path): integer(int32) - 更新対象のタスクID
+
+### リクエストボディ*
+
+- company_id*: integer(int64) - freee事業所ID 例: `1`
+- title: string - タスクタイトル 例: `LP デザイン一式`
+- submit_date_type: string - 納期または期間 (deadline: 納期, period: 期間) (選択肢: deadline, period)
+- deadline: string(date-time) - 納期。submit_date_type が deadline のときに値を設定する。
+- submit_period_start_date: string(date) - 開始日。submit_date_type が period のときに値を設定する
+- submit_period_end_date: string(date) - 終了日。submit_date_type が period のときに値を設定する
+- inspection_date: string(date) - 検収日
+- payment_date_type: string - 支払期日の指定方式 (note: 自由テキスト, fixed_date: 日付) (選択肢: note, fixed_date)
+- payment_date_note: string - 支払い期日。payment_date_type が note のときに値を設定する
+- payment_date: string(date) - 支払期日。payment_date_type が fixed_date のときに値を設定する
+- delivery_types: array[object] - 納品形式。指定した値で全置換する。submitted(提出済み)以降のステータスの場合は更新不可。請求書が紐づいているタスクの場合は更新不可
+- task_work_report_configuration: object - 稼働時間の丸め設定。delivery_types に work_report を選んだときに値を設定する。指定したキーのみ更新し、未指定（省略）のキーは現状維持。submitted(提出済み)以降のステータスの場合は更新不可。請求書が紐づいているタスクの場合は更新不可
+  - unit_group_type: string - 稼働時間の丸め設定の集計単位 (date: 日毎, month: 月毎, all: 合算) (選択肢: date, month, all)
+  - unit_minutes: number - 稼働時間の丸め設定の単位 (one_minute: 1分, quarter_hour: 15分, half_hour: 30分, one_hour: 1時間) (選択肢: 1, 15, 30, 60)
+  - unit_fraction_type: string - 稼働時間の丸め設定の端数処理 (ceil: 切り上げ, round: 四捨五入, floor: 切り捨て) (選択肢: floor, ceil, round)
+- deliverables_detail: string - 納品内容。submitted(提出済み)以降のステータスの場合は更新不可。請求書が紐づいているタスクの場合は更新不可
+- delivery_place: string - 納入場所。submitted(提出済み)以降のステータスの場合は更新不可。請求書が紐づいているタスクの場合は更新不可
+- subcontracted: boolean - 再委託かどうか。submitted(提出済み)以降のステータスの場合は更新不可。請求書が紐づいているタスクの場合は更新不可
+- client_name: string - 元委託者の氏名又は名称。subcontracted が true のときに値を設定する。submitted(提出済み)以降のステータスの場合は更新不可。請求書が紐づいているタスクの場合は更新不可
+- client_contract_due_date: string - 元委託業務の対価の支払期日。subcontracted が true のときに値を設定する。submitted(提出済み)以降のステータスの場合は更新不可。請求書が紐づいているタスクの場合は更新不可
+- body: string - タスク内容
+- order_note: string - 備考。submitted(提出済み)以降のステータスの場合は更新不可。請求書が紐づいているタスクの場合は更新不可
+- special_note: string - 特記事項。企業設定で「特記事項の有効化およびデフォルト設定」が有効の場合のみ設定可能。submitted(提出済み)以降のステータスの場合は更新不可。請求書が紐づいているタスクの場合は更新不可
+- orderer_company_user_id: integer(int32) - 担当者
+- watcher_company_user_ids: array[integer] - 担当者 (参加)。指定した値で全置換する
+- assignee: object - パートナー。assigned(依頼中)以降のステータスの場合は更新不可
+  - type*: string - パートナー種別 (Partner: パートナー, BusinessPartner: ログインなしパートナー) (選択肢: Partner, BusinessPartner)
+  - id*: integer(int64) - ID 例: `789`
+- watcher_partner_ids: array[integer] - パートナー (参加)。指定した値で全置換する
+- worker_partner_id: integer(int32) - パートナー (タスク実行)。assigned(依頼中)以降のステータスの場合は更新不可
+- enable_change_quantity_on_submit: boolean - 提出時の数量変更可否。submitted(提出済み)以降のステータスの場合は更新不可。請求書が紐づいているタスクの場合は更新不可
+- enable_undecided_amount_order: boolean - 発注額の未定。企業設定の「発注額未定機能の利用設定」が有効の場合のみtrueを指定可能。trueへの変更はdraft(下書き)のステータスの場合のみ可能。submitted(提出済み)以降のステータスの場合は更新不可
+- undecided_amount_reason: string - 発注額未定の理由。submitted(提出済み)以降のステータスの場合は更新不可
+- amount_decided_date: string(date) - 発注額の確定予定日。submitted(提出済み)以降のステータスの場合は更新不可
+- tax_expression: string - 消費税表示 (external: 外税, internal: 内税)。企業のデフォルト設定・パートナーの登録番号の有無による判定は優先されず、指定された値で保存する。submitted(提出済み)以降のステータスの場合は更新不可。全ての品目が請求書に含まれているタスクの場合は更新不可 (選択肢: external, internal)
+- change_reason: string - 発注書の修正理由。紐づくtaskのステータスが「下書き」ではない場合、指定すると変更通知のコメントに修正理由として記載される
+
+### レスポンス
+
+タスク更新レスポンス
+- id*: integer(int32) - タスクID
+- project_id*: integer(int32) - プロジェクトID
+- status*: string - ステータス
+- title*: string - タスクタイトル
+- submit_date_type*: string - 納期または期間 (deadline: 納期, period: 期間)
+- deadline*: string(date-time) - 納期。submit_date_type が deadline のときに入る
+- submit_period_start_date*: string(date) - 提出期間の開始日。submit_date_type が period のときに入る
+- submit_period_end_date*: string(date) - 提出期間の終了日。submit_date_type が period のときに入る
+- inspection_date*: string(date) - 検収日
+- payment_date_type*: string - 支払期日の指定方式 (note: テキスト, next_month_end: 納期/終了日の翌月末日を反映, days_from_deadline: 納期/終了日から日数反映, fixed_date: 指定日)
+- payment_date_note*: string - 支払期日（テキスト）。payment_date_type が note のときに入り、それ以外のときは null
+- payment_date*: string(date) - 支払期日 (日付)。payment_date_type が next_month_end / days_from_deadline / fixed_date のときに指定方式に即して計算された日付が入る
+- delivery_types*: array[object] - 納品形式
+- task_work_report_configuration*: object - 稼働時間の丸め設定。delivery_types に work_report / work_report_quantity が含まれるときに入る
+- deliverables_detail*: string - 納品内容
+- delivery_place*: string - 納品場所
+- subcontracted*: boolean - 再委託ありかどうか
+- client_name*: string - 元委託者の氏名又は名称。subcontracted が true のときに入る
+- client_contract_due_date*: string - 元委託業務の対価の支払期日。subcontracted が true のときに入る
+- body*: string - タスク内容
+- enable_change_quantity_on_submit*: boolean - 提出時の数量変更を可能にするか
+- enable_undecided_amount_order*: boolean - 発注額を未定で発注するか
+- undecided_amount_reason*: string - 発注額未定の理由。enable_undecided_amount_order が true のときに入る
+- amount_decided_date*: string(date) - 発注額確定予定日。enable_undecided_amount_order が true のときに入る
+- orderer_company_user_id*: integer(int32) - 担当者の企業ユーザーID
+- watcher_company_user_ids*: array[integer] - 担当者（参加）の企業ユーザーIDの配列
+- assignee*: object - パートナー
+- watcher_partner_ids*: array[integer] - パートナー（参加）
+- worker_partner_id*: integer(int32) - パートナー（タスク実行）
+- order_note*: string - 備考
+- estimate_total*: integer(int32) - 見積小計 (税抜)。金額の閲覧権限が無い場合は null
+- estimate_grand_total*: integer(int32) - 見積総額 (税込)。金額の閲覧権限が無い場合は null
+- total*: integer(int32) - 実績小計 (税抜)。金額の閲覧権限が無い場合は null
+- grand_total*: integer(int32) - 実績総額 (税込)。金額の閲覧権限が無い場合は null
+- tax_expression*: string - 消費税表示 (external: 外税, internal: 内税)
+- delivery_data*: object - 納品データ
+- special_note*: string - 特記事項
+- tax_calculation_type*: string - 消費税の計算単位 (gross: 総額まとめ, each_item: 明細行ごと)
+- sales_tax_fraction_type*: string - 消費税端数処理 (floor: 切り捨て, ceil: 切り上げ, round: 四捨五入)
+- task_line_item_ids*: array[integer] - タスク明細のIDの配列。明細の表示順 (row_order) の昇順で返す
+- task_order_approval_flow_id*: integer(int64) - 発注承認フローID
+- task_submit_approval_flow_id*: integer(int64) - 検収承認フローID
+- created_at*: string(date-time) - 作成日時
+- assigned_at*: string(date-time) - 発注時刻
+- submitted_at*: string(date-time) - 直近の提出時刻
+- last_submitted_at*: string(date-time) - 最終提出時刻
+- change_reason: string - 発注書の修正理由。リクエストで送られた値をそのまま返却

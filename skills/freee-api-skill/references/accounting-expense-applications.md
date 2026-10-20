@@ -55,6 +55,12 @@
     - sub_receipt_ids: array[integer] - 補足資料（配列）
       receipt_id（証憑ファイル）を指定してください。
       receipt_id（証憑ファイル）は5個まで指定できます
+    - use_currency: boolean - 外貨を利用するか
+
+      trueを指定する場合は、expense_application_purchase_line_currencyも指定してください。事業所の外貨利用設定が無効な場合は400エラーになります。 例: `true`
+    - expense_application_purchase_line_currency: object - 申請行の通貨情報
+
+      use_currencyにtrueを指定した場合に有効です。
     - expense_application_lines: array[object] - 明細行一覧（配列）
 - approval_flow_route_id: integer(int64) - 申請経路ID
 
@@ -172,6 +178,14 @@ POST /api/1/expense_applications と同じ
     - sub_receipt_ids: array[integer] - 補足資料（配列）
       receipt_id（証憑ファイル）を指定してください。
       receipt_id（証憑ファイル）は5個まで指定できます
+    - use_currency: boolean - 外貨を利用するか
+
+      trueを指定する場合は、expense_application_purchase_line_currencyも指定してください。事業所の外貨利用設定が無効な場合は400エラーになります。
+
+      更新時、use_currencyを省略した場合は既存の外貨情報が保持されます。falseを指定した場合のみ外貨情報が削除されます。 例: `true`
+    - expense_application_purchase_line_currency: object - 申請行の通貨情報
+
+      use_currencyにtrueを指定した場合に有効です。
     - expense_application_lines: array[object] - 明細行一覧（配列）
 - approval_flow_route_id: integer(int64) - 申請経路ID
 
