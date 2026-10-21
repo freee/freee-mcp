@@ -1146,14 +1146,14 @@
                       "type": "string",
                       "nullable": true,
                       "format": "date-time",
-                      "description": "直近の提出時刻",
+                      "description": "初回提出日",
                       "example": "2026-09-25T17:00:00+09:00"
                     },
                     "last_submitted_at": {
                       "type": "string",
                       "nullable": true,
                       "format": "date-time",
-                      "description": "最終提出時刻",
+                      "description": "最終提出日",
                       "example": "2026-09-28T11:00:00+09:00"
                     },
                     "task_line_item": {
@@ -1754,14 +1754,14 @@
                       "type": "string",
                       "nullable": true,
                       "format": "date-time",
-                      "description": "直近の提出時刻",
+                      "description": "初回提出日",
                       "example": "2026-09-25T17:00:00+09:00"
                     },
                     "last_submitted_at": {
                       "type": "string",
                       "nullable": true,
                       "format": "date-time",
-                      "description": "最終提出時刻",
+                      "description": "最終提出日",
                       "example": "2026-09-28T11:00:00+09:00"
                     },
                     "change_reason": {
@@ -5173,14 +5173,14 @@
             "type": "string",
             "nullable": true,
             "format": "date-time",
-            "description": "直近の提出時刻",
+            "description": "初回提出日",
             "example": "2026-09-25T17:00:00+09:00"
           },
           "last_submitted_at": {
             "type": "string",
             "nullable": true,
             "format": "date-time",
-            "description": "最終提出時刻",
+            "description": "最終提出日",
             "example": "2026-09-28T11:00:00+09:00"
           }
         },

@@ -15108,7 +15108,7 @@
           "Expense applications"
         ],
         "summary": "経費申請の作成",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費申請を作成する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>\n  <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は作成できません。</li>\n  <li>本APIは外貨には非対応です。外貨を利用する経費申請は作成できません。</li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費申請を作成する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>\n  <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は作成できません。</li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n</ul>",
         "operationId": "create_expense_application",
         "requestBody": {
           "content": {
@@ -15185,7 +15185,7 @@
           "Expense applications"
         ],
         "summary": "経費申請詳細の取得",
-        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の経費申請を取得する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIは外貨には非対応です。外貨を利用する経費申請は取得できません。</li>\n</ul>",
+        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の経費申請を取得する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>",
         "operationId": "get_expense_application",
         "parameters": [
           {
@@ -15279,7 +15279,7 @@
           "Expense applications"
         ],
         "summary": "経費申請の更新",
-        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の経費申請を更新する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、経費申請を更新することができます。</li>\n  <li>本APIでは、status(申請ステータス): draft:下書き, feedback:差戻しのみ更新可能です。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>\n  <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は更新できません。</li>\n  <li>本APIは外貨には非対応です。外貨を利用する経費申請は更新できません。</li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n</ul>",
+        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の経費申請を更新する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、経費申請を更新することができます。</li>\n  <li>本APIでは、status(申請ステータス): draft:下書き, feedback:差戻しのみ更新可能です。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>\n  <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は更新できません。</li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n</ul>",
         "operationId": "update_expense_application",
         "parameters": [
           {
@@ -23776,8 +23776,8 @@
                         "format": "int64",
                         "minimum": 0,
                         "maximum": 2147483647,
-                        "description": "金額",
-                        "example": 30000
+                        "description": "金額（円）<br>\nuse_currency・exchange_rate・currency_amountをすべて指定した場合は省略できます。省略した場合は、外貨額と為替レートからサーバーが円換算した金額を設定します。指定した場合は、換算額と異なっていても指定した金額がそのまま保存されます（カード手数料などで換算額と実際の申請金額が異なる場合は、実際の金額を指定してください）。<br>\n上記を指定しない場合は、金額を指定してください。",
+                        "example": 15200
                       },
                       "expense_application_line_template_id": {
                         "type": "integer",
@@ -23788,12 +23788,12 @@
                       },
                       "expense_application_line_currency_amount": {
                         "type": "object",
-                        "description": "明細行の外貨額<br>\n申請行でuse_currencyにtrueを指定した場合に有効です。外貨額と為替レートから円換算した金額がamountに設定されます。",
+                        "description": "明細行の外貨額<br>\n申請行でuse_currencyにtrueを指定した場合に有効です。<br>\n外貨額と為替レートから円換算した金額は、amountを省略した場合にamountへ設定されます。amountを指定した場合も、円換算した金額はレスポンスのsystem_calc_amountとして返ります。円換算時の端数は、事業所の経費精算設定の端数処理に従います。",
                         "properties": {
                           "currency_amount": {
                             "type": "number",
                             "description": "外貨額（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。",
-                            "example": 100.5
+                            "example": 100
                           }
                         }
                       },
@@ -24052,8 +24052,8 @@
                         "format": "int64",
                         "minimum": 0,
                         "maximum": 2147483647,
-                        "description": "金額",
-                        "example": 30000
+                        "description": "金額（円）<br>\nuse_currency・exchange_rate・currency_amountをすべて指定した場合は省略できます。省略した場合は、外貨額と為替レートからサーバーが円換算した金額を設定します。指定した場合は、換算額と異なっていても指定した金額がそのまま保存されます（カード手数料などで換算額と実際の申請金額が異なる場合は、実際の金額を指定してください）。<br>\n上記を指定しない場合は、金額を指定してください。",
+                        "example": 15200
                       },
                       "expense_application_line_template_id": {
                         "type": "integer",
@@ -24064,12 +24064,12 @@
                       },
                       "expense_application_line_currency_amount": {
                         "type": "object",
-                        "description": "明細行の外貨額<br>\n申請行でuse_currencyにtrueを指定した場合に有効です。外貨額と為替レートから円換算した金額がamountに設定されます。",
+                        "description": "明細行の外貨額<br>\n申請行でuse_currencyにtrueを指定した場合に有効です。<br>\n外貨額と為替レートから円換算した金額は、amountを省略した場合にamountへ設定されます。amountを指定した場合も、円換算した金額はレスポンスのsystem_calc_amountとして返ります。円換算時の端数は、事業所の経費精算設定の端数処理に従います。",
                         "properties": {
                           "currency_amount": {
                             "type": "number",
                             "description": "外貨額（小数点以下4桁まで）。5桁以上を指定すると400エラーになります。",
-                            "example": 100.5
+                            "example": 100
                           }
                         }
                       },
@@ -40514,7 +40514,7 @@
                   "type": "integer",
                   "format": "int64",
                   "description": "合計金額",
-                  "example": 30000
+                  "example": 15200
                 },
                 "status": {
                   "type": "string",
@@ -40586,6 +40586,36 @@
                           "example": 606
                         }
                       },
+                      "use_currency": {
+                        "type": "boolean",
+                        "description": "外貨を利用しているか",
+                        "example": true
+                      },
+                      "expense_application_purchase_line_currency": {
+                        "type": "object",
+                        "nullable": true,
+                        "description": "申請行の通貨情報。外貨を利用していない場合はnullになります。",
+                        "properties": {
+                          "currency_id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1,
+                            "description": "通貨ID",
+                            "example": 1
+                          },
+                          "currency_code": {
+                            "type": "string",
+                            "description": "通貨コード（ISO 4217）",
+                            "example": "USD"
+                          },
+                          "exchange_rate": {
+                            "type": "string",
+                            "nullable": true,
+                            "description": "為替レート（小数文字列）。未設定の場合はnullになります。",
+                            "example": "150.25"
+                          }
+                        }
+                      },
                       "expense_application_lines": {
                         "type": "array",
                         "description": "明細行一覧（配列）",
@@ -40614,7 +40644,7 @@
                               "minimum": 0,
                               "maximum": 2147483647,
                               "description": "金額",
-                              "example": 30000
+                              "example": 15200
                             },
                             "expense_application_line_template_id": {
                               "type": "integer",
@@ -40623,6 +40653,25 @@
                               "description": "経費科目ID",
                               "example": 505,
                               "nullable": true
+                            },
+                            "expense_application_line_currency_amount": {
+                              "type": "object",
+                              "nullable": true,
+                              "description": "明細行の外貨額。外貨を利用していない場合はnullになります。",
+                              "properties": {
+                                "currency_amount": {
+                                  "type": "string",
+                                  "nullable": true,
+                                  "description": "外貨額（小数文字列）。未設定の場合はnullになります。",
+                                  "example": "100.0"
+                                },
+                                "system_calc_amount": {
+                                  "type": "integer",
+                                  "format": "int64",
+                                  "description": "外貨額と為替レートからシステムが計算した円換算額（参考値）。amountとは別に保存され、amountを指定した場合でもamountとは連動しません。",
+                                  "example": 15025
+                                }
+                              }
                             }
                           }
                         }
@@ -40773,7 +40822,7 @@
                 "type": "integer",
                 "format": "int64",
                 "description": "合計金額",
-                "example": 30000
+                "example": 15200
               },
               "status": {
                 "type": "string",
@@ -40903,7 +40952,7 @@
                             "minimum": 0,
                             "maximum": 2147483647,
                             "description": "金額",
-                            "example": 30000
+                            "example": 15200
                           },
                           "expense_application_line_template_id": {
                             "type": "integer",
@@ -40922,13 +40971,13 @@
                                 "type": "string",
                                 "nullable": true,
                                 "description": "外貨額（小数文字列）。未設定の場合はnullになります。",
-                                "example": "100.5"
+                                "example": "100.0"
                               },
                               "system_calc_amount": {
                                 "type": "integer",
                                 "format": "int64",
-                                "description": "外貨額と為替レートからシステムが計算した円換算額",
-                                "example": 15075
+                                "description": "外貨額と為替レートからシステムが計算した円換算額（参考値）。amountとは別に保存され、amountを指定した場合でもamountとは連動しません。",
+                                "example": 15025
                               }
                             }
                           },
