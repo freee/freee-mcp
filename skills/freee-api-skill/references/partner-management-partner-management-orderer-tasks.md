@@ -99,8 +99,8 @@ partner_management_orderer_tasks
 - task_submit_approval_flow_id*: integer(int64) - 検収承認フローID
 - created_at*: string(date-time) - 作成日時
 - assigned_at*: string(date-time) - 発注時刻
-- submitted_at*: string(date-time) - 直近の提出時刻
-- last_submitted_at*: string(date-time) - 最終提出時刻
+- submitted_at*: string(date-time) - 初回提出日
+- last_submitted_at*: string(date-time) - 最終提出日
 
 ## POST /hub/partner_management/orderer/projects/{project_id}/tasks — タスク作成（β版）
 
@@ -208,8 +208,8 @@ partner_management_orderer_tasks
 - task_submit_approval_flow_id*: integer(int64) - 検収承認フローID
 - created_at*: string(date-time) - 作成日時
 - assigned_at*: string(date-time) - 発注時刻
-- submitted_at*: string(date-time) - 直近の提出時刻
-- last_submitted_at*: string(date-time) - 最終提出時刻
+- submitted_at*: string(date-time) - 初回提出日
+- last_submitted_at*: string(date-time) - 最終提出日
 - task_line_item*: object - 作成した品目 1 件。task_line_item_ids と同じ品目を指す
 
 ## PATCH /hub/partner_management/orderer/tasks/{id} — タスク更新（β版）
@@ -310,6 +310,6 @@ partner_management_orderer_tasks
 - task_submit_approval_flow_id*: integer(int64) - 検収承認フローID
 - created_at*: string(date-time) - 作成日時
 - assigned_at*: string(date-time) - 発注時刻
-- submitted_at*: string(date-time) - 直近の提出時刻
-- last_submitted_at*: string(date-time) - 最終提出時刻
+- submitted_at*: string(date-time) - 初回提出日
+- last_submitted_at*: string(date-time) - 最終提出日
 - change_reason: string - 発注書の修正理由。リクエストで送られた値をそのまま返却
