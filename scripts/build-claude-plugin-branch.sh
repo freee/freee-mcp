@@ -38,8 +38,8 @@ git read-tree --empty
 git read-tree --prefix=skills/ "$source_sha:skills"
 # A renamed file would otherwise slip back in under its new name.
 for path in "${EXCLUDE_FROM_PLUGIN[@]}"; do
-  if ! git cat-file -e "$source_sha:$path" 2>/dev/null; then
-    echo "::error::$path is in EXCLUDE_FROM_PLUGIN but missing from $source_sha" >&2
+  if [ "$(git cat-file -t "$source_sha:$path" 2>/dev/null)" != blob ]; then
+    echo "::error::$path is in EXCLUDE_FROM_PLUGIN but is not a file in $source_sha" >&2
     exit 1
   fi
 done
