@@ -70,40 +70,8 @@ Claude 及び Claude Desktop では「カスタマイズ」より「カスタム
 
 ### 方法 2: ローカルで MCP サーバーを起動する
 
-freee アプリケーションを自分で登録し、ローカルで MCP サーバーを起動する方法です。
+freee アプリケーションを自分で登録し、ローカルで MCP サーバーを起動する方法です。手順は「[ローカル MCP を使う場合](#ローカル-mcp-を使う場合)」をご覧ください。
 
-#### 2-1. freee アプリケーションの登録
-
-[freee アプリストア](https://app.secure.freee.co.jp/developers) で新しいアプリを作成:
-
-- コールバックURL: `http://127.0.0.1:54321/callback`
-- Client ID と Client Secret を取得
-- 必要な権限にチェック
-
-#### 2-2. セットアップ
-
-```bash
-npx freee-mcp configure
-```
-
-対話式ウィザードが認証情報の設定、OAuth認証、事業所選択を行います。
-
-#### 2-3. Claude Desktop に追加
-
-`configure` が出力する設定を Claude Desktop の設定ファイルに追加:
-
-```json
-{
-  "mcpServers": {
-    "freee": {
-      "command": "npx",
-      "args": ["freee-mcp"]
-    }
-  }
-}
-```
-
-Windows Store (Microsoft Store) 版の Claude Desktop をご利用の場合、設定ファイルのパスが異なります。`freee-mcp configure` は自動的に適切なパスを検出します。
 ## Agent Skills をインストールする
 
 Claude 及び Claude Desktop では「カスタマイズ」より「スキル」を開き、最新の `freee-api-skill.zip` をダウンロードしてアップロードしてください。
@@ -137,7 +105,7 @@ apm install freee/freee-mcp/skills/freee-api-skill
 
 ## Claude Code Plugin として使う
 
-Claude Code でプラグインとしてインストールすると、MCP サーバーと Agent Skills（API リファレンス・操作レシピ）がまとめて利用できます。
+Claude Code でプラグインとしてインストールすると、Remote MCP サーバー `freee`（`https://mcp.freee.co.jp/mcp`）と Agent Skills（API リファレンス・操作レシピ）がまとめて利用できます。ローカルでのセットアップは不要です。
 
 以下の2つのコマンドを順に実行してください:
 
@@ -152,6 +120,10 @@ Claude Code のプロンプト内からも実行できます:
 /plugin marketplace add freee/freee-mcp
 /plugin install freee-mcp@freee-mcp-marketplace
 ```
+
+インストール後、`/mcp` で `freee` サーバーを選び、ブラウザで freee にログインして認証してください。
+
+プラグインにはローカルの MCP サーバー（`freee-mcp`、`freee-sign-mcp`）は含まれません。freee サイン（電子契約）を使う場合や、自分で登録した freee アプリケーションで接続する場合は「[ローカル MCP を使う場合](#ローカル-mcp-を使う場合)」をご覧ください。
 
 ## Codex Plugin として使う
 
@@ -236,26 +208,7 @@ freee サインの API は専用コマンド `freee-sign-mcp` で利用できま
 
 > Remote MCP での提供は現在準備中です。ローカルでの MCP サーバー起動のみサポートしています。
 
-### セットアップ
-
-```bash
-npx --package=freee-mcp -- freee-sign-mcp configure
-```
-
-対話式ウィザードが認証情報の設定と OAuth 認証を行います。
-
-### MCP 設定
-
-```json
-{
-  "mcpServers": {
-    "freee-sign-mcp": {
-      "command": "npx",
-      "args": ["--package=freee-mcp", "--", "freee-sign-mcp"]
-    }
-  }
-}
-```
+セットアップと MCP 設定は「[freee サイン（freee-sign-mcp）](#freee-サインfreee-sign-mcp)」をご覧ください。
 
 ### サイン用ツール
 
@@ -277,6 +230,72 @@ npx --package=freee-mcp -- freee-sign-mcp configure
 - 事業所の確認: `freee_get_current_company`
 - 事業所の切り替え: `freee_set_current_company`
 - company_id を含まない API（例: `/api/1/companies`）はそのまま実行可能
+
+## ローカル MCP を使う場合
+
+自分で登録した freee アプリケーションの認証情報を使い、MCP サーバーを手元で起動する方法です（stdio）。freee サイン（電子契約）は Remote MCP で提供していないため、サインを使う場合もこちらの手順で `freee-sign-mcp` を設定します。
+
+ローカルモードでは、一部のエンドポイント（freee-mcp リモート版限定）は利用できません。
+
+### freee-mcp
+
+#### 1. freee アプリケーションの登録
+
+[freee アプリストア](https://app.secure.freee.co.jp/developers) で新しいアプリを作成:
+
+- コールバックURL: `http://127.0.0.1:54321/callback`
+- Client ID と Client Secret を取得
+- 必要な権限にチェック
+
+#### 2. セットアップ
+
+```bash
+npx freee-mcp configure
+```
+
+対話式ウィザードが認証情報の設定、OAuth認証、事業所選択を行います。
+
+#### 3. Claude Desktop に追加
+
+`configure` が出力する設定を Claude Desktop の設定ファイルに追加:
+
+```json
+{
+  "mcpServers": {
+    "freee": {
+      "command": "npx",
+      "args": ["freee-mcp"]
+    }
+  }
+}
+```
+
+Windows Store (Microsoft Store) 版の Claude Desktop をご利用の場合、設定ファイルのパスが異なります。`freee-mcp configure` は自動的に適切なパスを検出します。
+
+その他の MCP クライアントでは、同じ `command` と `args` をそれぞれの MCP 設定に追加してください。
+
+### freee サイン（freee-sign-mcp）
+
+#### セットアップ
+
+```bash
+npx --package=freee-mcp -- freee-sign-mcp configure
+```
+
+対話式ウィザードが認証情報の設定と OAuth 認証を行います。
+
+#### MCP 設定
+
+```json
+{
+  "mcpServers": {
+    "freee-sign-mcp": {
+      "command": "npx",
+      "args": ["--package=freee-mcp", "--", "freee-sign-mcp"]
+    }
+  }
+}
+```
 
 ## コントリビューション
 
