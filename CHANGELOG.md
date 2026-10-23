@@ -1,5 +1,11 @@
 # freee-mcp
 
+## 0.37.6
+
+### Patch Changes
+
+- [`2846e03`](https://github.com/freee/freee-mcp/commit/2846e03dd0f5b3108a122f903df104451cda64e4): Claude プラグインディレクトリの警告を解消するため、プラグインに freee のロゴのアイコンを追加し、ディレクトリが認識しない `plugin.json` のフィールドを `homepage` に置き換える
+
 ## 0.37.5
 
 ### Patch Changes
