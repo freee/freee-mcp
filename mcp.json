@@ -1,4 +1,0 @@
-{
-  "command": "bun",
-  "args": ["run", "src/index.ts"]
-}

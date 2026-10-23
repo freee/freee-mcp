@@ -1,384 +1,63 @@
-# freee-mcp
+# freee-mcp プラグイン
 
-freee会計、人事労務、請求書、工数管理、販売、IT管理、固定資産、業務委託管理、サーベイ、開業、人事評価、申告、サイン（電子契約）を AI Agent から操作できるようにする freee 公式の MCP サーバーと Agent Skills です。
+freee会計、人事労務、請求書、工数管理、販売、IT管理、固定資産、業務委託管理、サーベイ、開業、人事評価、申告を Claude から操作するための freee 公式プラグインです。
 
-- MCP サーバー: freee API の呼び出し・認証・リクエスト検証を担当
-- Agent Skills: API リファレンスと操作レシピを AI Agent のコンテキストに注入し、正確な API 利用をガイド
+このプラグインには次の 2 つが含まれます。
 
-[![npm version](https://badge.fury.io/js/freee-mcp.svg)](https://www.npmjs.com/package/freee-mcp)
+- Remote MCP サーバー `freee`（`https://mcp.freee.co.jp/mcp`）: freee が運用するサーバーで、freee API の呼び出し・認証・リクエスト検証を担当します。ローカルでのインストールやセットアップは不要です
+- Agent Skill `freee-api-skill`: freee API のリファレンスと操作レシピです。Claude が必要な部分だけを読み込み、正しいエンドポイントとパラメータで API を呼び出せるようにします
 
-## 特徴
+## 使い方
 
-- 複数 API 対応: 会計・人事労務・請求書・工数管理・販売・IT管理・固定資産・業務委託管理・サーベイ・開業・人事評価・申告の12個の freee API をサポート
-- 対応操作数: <!-- API-STATS-TOTAL-START -->576<!-- API-STATS-TOTAL-END --> 操作（サイン（電子契約）含む、`scripts/generate-references.ts` が自動更新）
-- 利用条件: サーベイ・開業・人事評価・申告は、対応する接続環境、OAuth クライアント、契約プラン、利用者権限が必要
-- サイン（電子契約）対応: freee サインの文書管理 API を専用コマンド（`freee-sign-mcp`）でサポート
-- OAuth 2.0 + PKCE: セキュアな認証フロー、トークン自動更新
-- 複数事業所対応: 事業所の動的切り替えが可能
+1. プラグインをインストールします
+2. Claude Code で `/mcp` を開き、`freee` サーバーを選んで認証します。ブラウザで freee アカウントにログインし、連携を許可してください
+3. 「先月の取引一覧を見せて」「この請求書を参考に今月分を作成して」のように、freee の操作を依頼します
 
-## Agent Skills と MCP の通信の流れ
+対象の事業所は会話の中で切り替えられます（`freee_list_companies`、`freee_set_current_company`）。
 
-Agent Skills（API リファレンス・操作レシピ）と MCP サーバー（API 呼び出し）を組み合わせて利用します。
+## Agent Skill の内容
 
-```mermaid
-sequenceDiagram
-    participant User as ユーザー
-    participant Agent as AI Agent
-    participant Skill as Agent Skills<br/>(API リファレンス・操作レシピ)
-    participant MCP as MCP サーバー
-    participant API as freee API
+| API          | 内容                                                   |
+| ------------ | ------------------------------------------------------ |
+| 会計         | 取引、勘定科目、取引先、請求書、経費申請など           |
+| 人事労務     | 従業員、勤怠、給与明細、年末調整など                   |
+| 請求書       | 請求書、見積書、納品書、領収書、発注書、支払通知書     |
+| 工数管理     | プロジェクト、チーム、パートナー、工数、ユーザーなど   |
+| 販売         | 案件、受注、マスタ                                     |
+| IT管理       | メンバー、SaaSアカウント、アプリ、備品、部署、会社など |
+| 固定資産     | 固定資産の一覧、詳細、登録、更新、削除                 |
+| 業務委託管理 | 業務委託先の企業ユーザー、部門、取引先                 |
+| サーベイ     | サーベイ企画、実施回                                   |
+| 開業         | 開業申請用データ                                       |
+| 人事評価     | 人事評価結果                                           |
+| 申告         | 法人税申告データ、帳票（別表・決算書など）             |
 
-    User->>Agent: リクエスト<br/>「取引一覧を取得して」
+サーベイ・開業・人事評価・申告は、対応する接続環境、契約プラン、利用者権限が必要です。
 
-    Note over Agent,Skill: 1. Agent Skills からリファレンスを取得
-    Agent->>Skill: freee-api-skill 呼び出し
-    Skill-->>Agent: API リファレンス注入<br/>(エンドポイント、パラメータ仕様)
+freee サイン（電子契約）のリファレンスも含まれますが、サインの API は Remote MCP では提供していません。サインを使う場合はローカルの MCP サーバーが必要です（下記「ローカル MCP を使う場合」を参照）。
 
-    Note over Agent,MCP: 2. MCP Tool で API を実行
-    Agent->>MCP: freee_api_get 呼び出し<br/>path: /api/1/deals
-    MCP->>MCP: OpenAPI スキーマで検証
-    MCP->>MCP: 認証トークン付与
+## データの取り扱い
 
-    Note over MCP,API: 3. freee API への通信
-    MCP->>API: GET /api/1/deals<br/>Authorization: Bearer xxx
-    API-->>MCP: JSON レスポンス
+- freee のデータへのアクセスは、すべて Remote MCP サーバー `https://mcp.freee.co.jp/mcp` を経由します。サーバーは、利用者が OAuth で許可したアカウントの権限の範囲で freee API を呼び出します
+- Agent Skill は Markdown のリファレンスとレシピだけで構成されており、スクリプトの実行や外部への通信は行いません
+- 作成・更新・削除の操作は freee 上の実データに反映されます。Claude が書き込み系のツールを呼び出す前に、内容を確認してください
+- 個人情報の取り扱いは [freee のプライバシーポリシー](https://www.freee.co.jp/privacy_policy/) をご覧ください
 
-    MCP-->>Agent: 取引データ
-    Agent-->>User: 結果を整形して表示
-```
+## ローカル MCP を使う場合
 
-この仕組みにより：
-- Agent Skills: 必要な API リファレンスや操作レシピを段階的にコンテキストに注入（コンテキスト効率化）
-- MCP: 認証・リクエスト検証・API 呼び出しを担当
+自分で登録した freee アプリケーションの認証情報を使って、ローカルで MCP サーバーを起動することもできます。freee サイン（電子契約）を使う場合もこちらです。手順は [freee-mcp の README](https://github.com/freee/freee-mcp#readme) をご覧ください。
 
-## クイックスタート
+## サポート
 
-### 方法 1: Remote MCP で接続する（推奨）
-
-freee が提供する Remote MCP サーバーに接続する方法です。ローカルでのセットアップが不要で、すぐに利用を開始できます。
-
-Claude 及び Claude Desktop では「カスタマイズ」より「カスタムコネクタを追加」を開き、以下を設定してください。
-
-- 名前: `freee`
-- URL: `https://mcp.freee.co.jp/mcp`
-
-> ⚠️ freee 公式以外の URL を入力しないようにご注意ください。
-
-<img src="docs/images/claude-desktop-custom-connector.png" width="600" alt="Claude Desktop でカスタムコネクタを追加">
-
-その他の AI ツールでは、それぞれの案内に従って Remote MCP サーバーを追加してください。
-
-### 方法 2: ローカルで MCP サーバーを起動する
-
-freee アプリケーションを自分で登録し、ローカルで MCP サーバーを起動する方法です。
-
-#### 2-1. freee アプリケーションの登録
-
-[freee アプリストア](https://app.secure.freee.co.jp/developers) で新しいアプリを作成:
-
-- コールバックURL: `http://127.0.0.1:54321/callback`
-- Client ID と Client Secret を取得
-- 必要な権限にチェック
-
-#### 2-2. セットアップ
-
-```bash
-npx freee-mcp configure
-```
-
-対話式ウィザードが認証情報の設定、OAuth認証、事業所選択を行います。
-
-#### 2-3. Claude Desktop に追加
-
-`configure` が出力する設定を Claude Desktop の設定ファイルに追加:
-
-```json
-{
-  "mcpServers": {
-    "freee": {
-      "command": "npx",
-      "args": ["freee-mcp"]
-    }
-  }
-}
-```
-
-Windows Store (Microsoft Store) 版の Claude Desktop をご利用の場合、設定ファイルのパスが異なります。`freee-mcp configure` は自動的に適切なパスを検出します。
-## Agent Skills をインストールする
-
-Claude 及び Claude Desktop では「カスタマイズ」より「スキル」を開き、最新の `freee-api-skill.zip` をダウンロードしてアップロードしてください。
-
-- [最新版をダウンロード (freee-api-skill.zip)](https://github.com/freee/freee-mcp/releases/latest/download/freee-api-skill.zip)
-- バージョン履歴から選ぶ: [Releases ページ](https://github.com/freee/freee-mcp/releases)
-
-<img src="docs/images/claude-desktop-skill-upload.png" width="600" alt="Claude Desktop でスキルをアップロード">
-
-Claude Code 等のコーディングエージェント（Cursor, OpenCode など）では、[skills](https://www.npmjs.com/package/skills) でインストールできます。
-
-```bash
-npx skills add freee/freee-mcp
-```
-
-グローバルインストール(`-g`)や特定スキルのみのインストール(`-s`)も可能です。
-
-GitHub CLI（v2.90.0 以降）の [`gh skill`](https://cli.github.com/manual/gh_skill) コマンドからもインストールできます。
-
-```bash
-gh skill install freee/freee-mcp freee-api-skill
-```
-
-`--agent`（例: `claude-code`, `copilot`, `cursor`, `codex`, `gemini-cli`）や `--scope user`／`--scope project` の指定、`--pin` による特定タグ/コミットへの固定にも対応しています。
-
-[Agent Package Manager (APM)](https://github.com/microsoft/apm) を利用している場合は、以下のコマンドでもインストールできます。GitHub Copilot / Claude Code / Cursor / OpenCode / Codex など、プロジェクトに存在する対象ディレクトリに自動でデプロイされます。
-
-```bash
-apm install freee/freee-mcp/skills/freee-api-skill
-```
-
-## Claude Code Plugin として使う
-
-Claude Code でプラグインとしてインストールすると、MCP サーバーと Agent Skills（API リファレンス・操作レシピ）がまとめて利用できます。
-
-以下の2つのコマンドを順に実行してください:
-
-```bash
-claude plugin marketplace add freee/freee-mcp
-claude plugin install freee-mcp@freee-mcp-marketplace
-```
-
-Claude Code のプロンプト内からも実行できます:
-
-```
-/plugin marketplace add freee/freee-mcp
-/plugin install freee-mcp@freee-mcp-marketplace
-```
-
-## Codex Plugin として使う
-
-OpenAI Codex のプラグインマーケットプレース（[公式ドキュメント](https://developers.openai.com/codex/plugins)）にも対応しており、MCP サーバーと Agent Skills（API リファレンス・操作レシピ）をまとめて利用できます。
-
-Codex CLI からマーケットプレースを追加します:
-
-```bash
-codex plugin marketplace add freee/freee-mcp
-```
-
-その後 Codex を起動し、`/plugins` スラッシュコマンドでプラグイン一覧を開き、`freee-mcp` を選択して `Install plugin` を実行してください。
-
-プラグイン定義は `.codex-plugin/plugin.json`、マーケットプレースカタログは `.agents/plugins/marketplace.json` にあります。
-
-## Agent Skills の内容
-
-| API          | 内容                                                     | ファイル数 |
-| ------------ | -------------------------------------------------------- | ---------- |
-| 会計         | 取引、勘定科目、取引先、請求書、経費申請など             | 33         |
-| 人事労務     | 従業員、勤怠、給与明細、年末調整など                     | 28         |
-| 請求書       | 請求書、見積書、納品書、領収書、発注書、支払通知書       | 6          |
-| 工数管理     | プロジェクト、チーム、パートナー、工数、ユーザーなど     | 9          |
-| 販売         | 案件、受注、マスタ                                       | 13         |
-| IT管理       | メンバー、SaaSアカウント、アプリ、備品、部署、会社など   | 17         |
-| 固定資産     | 固定資産の一覧、詳細、登録、更新、削除                   | 1          |
-| 業務委託管理 | 業務委託先の企業ユーザー、部門、取引先                    | 3          |
-| サーベイ     | サーベイ企画、実施回（freee-mcp リモート版限定）         | 1          |
-| 開業         | 開業申請用データ（freee-mcp リモート版限定）             | 1          |
-| 人事評価     | 人事評価結果（freee-mcp リモート版限定）                 | 1          |
-| 申告         | 法人税申告データ、帳票（別表・決算書など）               | 58         |
-| サイン       | 文書、フォルダ、テンプレート、マイ印鑑など               | 8          |
-
-AI Agent との会話中に freee API の操作を依頼すると、これらのリファレンスやレシピを参照して正確に実行します。
-
-## データ作成のベストプラクティス
-
-請求書や経費精算など、同じ形式のデータを繰り返し作成する場合は、以前に作成したデータを参照することで効率的に作業できます：
-
-- 請求書作成: 過去の請求書を取得して、取引先・品目・税区分などを参考にする
-- 経費精算: 過去の申請を参照して、勘定科目や部門の指定を正確に行う
-- 取引登録: 類似の取引を参考にして、入力ミスを防ぐ
-
-```
-例: 「先月の○○社への請求書を参考に、今月分を作成して」
-```
-
-## 利用可能なツール
-
-### 管理ツール
-
-| ツール                     | 説明               | 備考             |
-| -------------------------- | ------------------ | ---------------- |
-| `freee_authenticate`       | OAuth 認証を実行   | stdio のみ       |
-| `freee_auth_status`        | 認証状態を確認     |                  |
-| `freee_clear_auth`         | 認証情報をクリア   |                  |
-| `freee_set_current_company`| 事業所を切り替え   |                  |
-| `freee_get_current_company`| 現在の事業所を表示 |                  |
-| `freee_list_companies`     | 事業所一覧を取得   |                  |
-| `freee_current_user`       | 現在のユーザー情報 |                  |
-| `freee_server_info`        | サーバー情報取得   |                  |
-| `freee_file_upload`        | ファイルアップロード | stdio のみ     |
-
-### API ツール
-
-HTTPメソッドごとのシンプルなツール構成:
-
-| ツール                 | 説明               | 例                 |
-| ---------------------- | ------------------ | ------------------ |
-| `freee_api_get`        | データ取得         | `/api/1/deals`     |
-| `freee_api_post`       | 新規作成           | `/api/1/deals`     |
-| `freee_api_put`        | 更新               | `/api/1/deals/123` |
-| `freee_api_delete`     | 削除               | `/api/1/deals/123` |
-| `freee_api_patch`      | 部分更新           | `/api/1/deals/123` |
-| `freee_api_list_paths` | エンドポイント一覧 | -                  |
-
-パスは OpenAPI スキーマに対して自動検証されます。
-
-## freee サイン（電子契約）
-
-freee サインの API は専用コマンド `freee-sign-mcp` で利用できます。
-
-> Remote MCP での提供は現在準備中です。ローカルでの MCP サーバー起動のみサポートしています。
-
-### セットアップ
-
-```bash
-npx --package=freee-mcp -- freee-sign-mcp configure
-```
-
-対話式ウィザードが認証情報の設定と OAuth 認証を行います。
-
-### MCP 設定
-
-```json
-{
-  "mcpServers": {
-    "freee-sign-mcp": {
-      "command": "npx",
-      "args": ["--package=freee-mcp", "--", "freee-sign-mcp"]
-    }
-  }
-}
-```
-
-### サイン用ツール
-
-| ツール | 説明 |
-| --- | --- |
-| `sign_authenticate` | OAuth 認証を実行 |
-| `sign_auth_status` | 認証状態を確認 |
-| `sign_clear_auth` | 認証情報をクリア |
-| `sign_api_get` | データ取得 |
-| `sign_api_post` | 新規作成 |
-| `sign_api_put` | 更新 |
-| `sign_api_patch` | 部分更新 |
-| `sign_api_delete` | 削除 |
-
-### company_id の取り扱い
-
-リクエスト（パラメータまたはボディ）に `company_id` を含める場合、現在の事業所と一致している必要があります。不一致の場合はエラーになります。
-
-- 事業所の確認: `freee_get_current_company`
-- 事業所の切り替え: `freee_set_current_company`
-- company_id を含まない API（例: `/api/1/companies`）はそのまま実行可能
-
-## コントリビューション
-
-詳しくは [CONTRIBUTING.md](./CONTRIBUTING.md) をご覧ください。
-
-### Contributors
-
-<!-- CONTRIBUTORS-START -->
-<a href="https://github.com/him0"><img src="https://github.com/him0.png" width="40" height="40" alt="@him0"></a>
-<a href="https://github.com/dais0n"><img src="https://github.com/dais0n.png" width="40" height="40" alt="@dais0n"></a>
-<a href="https://github.com/HikaruEgashira"><img src="https://github.com/HikaruEgashira.png" width="40" height="40" alt="@HikaruEgashira"></a>
-<a href="https://github.com/nakanoasaservice"><img src="https://github.com/nakanoasaservice.png" width="40" height="40" alt="@nakanoasaservice"></a>
-<a href="https://github.com/tackeyy"><img src="https://github.com/tackeyy.png" width="40" height="40" alt="@tackeyy"></a>
-<a href="https://github.com/worldscandy"><img src="https://github.com/worldscandy.png" width="40" height="40" alt="@worldscandy"></a>
-<a href="https://github.com/akhr77"><img src="https://github.com/akhr77.png" width="40" height="40" alt="@akhr77"></a>
-<a href="https://github.com/trpfrog"><img src="https://github.com/trpfrog.png" width="40" height="40" alt="@trpfrog"></a>
-<a href="https://github.com/hoshinotsuyoshi"><img src="https://github.com/hoshinotsuyoshi.png" width="40" height="40" alt="@hoshinotsuyoshi"></a>
-<a href="https://github.com/JeongJaeSoon"><img src="https://github.com/JeongJaeSoon.png" width="40" height="40" alt="@JeongJaeSoon"></a>
-<a href="https://github.com/norimura114"><img src="https://github.com/norimura114.png" width="40" height="40" alt="@norimura114"></a>
-<a href="https://github.com/akiras-ssrd"><img src="https://github.com/akiras-ssrd.png" width="40" height="40" alt="@akiras-ssrd"></a>
-<a href="https://github.com/inoue2002"><img src="https://github.com/inoue2002.png" width="40" height="40" alt="@inoue2002"></a>
-<a href="https://github.com/jacknocode"><img src="https://github.com/jacknocode.png" width="40" height="40" alt="@jacknocode"></a>
-<a href="https://github.com/tnj"><img src="https://github.com/tnj.png" width="40" height="40" alt="@tnj"></a>
-<a href="https://github.com/jaxx2104"><img src="https://github.com/jaxx2104.png" width="40" height="40" alt="@jaxx2104"></a>
-<a href="https://github.com/kbyk004"><img src="https://github.com/kbyk004.png" width="40" height="40" alt="@kbyk004"></a>
-<a href="https://github.com/k4200"><img src="https://github.com/k4200.png" width="40" height="40" alt="@k4200"></a>
-<a href="https://github.com/fukumayuta"><img src="https://github.com/fukumayuta.png" width="40" height="40" alt="@fukumayuta"></a>
-<a href="https://github.com/kenchan"><img src="https://github.com/kenchan.png" width="40" height="40" alt="@kenchan"></a>
-<a href="https://github.com/EijiSugiura"><img src="https://github.com/EijiSugiura.png" width="40" height="40" alt="@EijiSugiura"></a>
-<a href="https://github.com/ryuuuuma"><img src="https://github.com/ryuuuuma.png" width="40" height="40" alt="@ryuuuuma"></a>
-<a href="https://github.com/toyamagu-2021"><img src="https://github.com/toyamagu-2021.png" width="40" height="40" alt="@toyamagu-2021"></a>
-<a href="https://github.com/YasuakiOmokawa"><img src="https://github.com/YasuakiOmokawa.png" width="40" height="40" alt="@YasuakiOmokawa"></a>
-<a href="https://github.com/Ryosuke-Watanabe9"><img src="https://github.com/Ryosuke-Watanabe9.png" width="40" height="40" alt="@Ryosuke-Watanabe9"></a>
-<a href="https://github.com/Kitamura777"><img src="https://github.com/Kitamura777.png" width="40" height="40" alt="@Kitamura777"></a>
-<a href="https://github.com/yuyohi"><img src="https://github.com/yuyohi.png" width="40" height="40" alt="@yuyohi"></a>
-<a href="https://github.com/sakura20260508"><img src="https://github.com/sakura20260508.png" width="40" height="40" alt="@sakura20260508"></a>
-<a href="https://github.com/bxg06523-cell"><img src="https://github.com/bxg06523-cell.png" width="40" height="40" alt="@bxg06523-cell"></a>
-<a href="https://github.com/ryoya1122"><img src="https://github.com/ryoya1122.png" width="40" height="40" alt="@ryoya1122"></a>
-<a href="https://github.com/Kanahiro"><img src="https://github.com/Kanahiro.png" width="40" height="40" alt="@Kanahiro"></a>
-<a href="https://github.com/kagemeka"><img src="https://github.com/kagemeka.png" width="40" height="40" alt="@kagemeka"></a>
-<a href="https://github.com/carrotRakko"><img src="https://github.com/carrotRakko.png" width="40" height="40" alt="@carrotRakko"></a>
-<a href="https://github.com/kouiso"><img src="https://github.com/kouiso.png" width="40" height="40" alt="@kouiso"></a>
-<a href="https://github.com/jimokada"><img src="https://github.com/jimokada.png" width="40" height="40" alt="@jimokada"></a>
-<a href="https://github.com/yuta-takase-ui"><img src="https://github.com/yuta-takase-ui.png" width="40" height="40" alt="@yuta-takase-ui"></a>
-<a href="https://github.com/at-k"><img src="https://github.com/at-k.png" width="40" height="40" alt="@at-k"></a>
-<a href="https://github.com/paveg"><img src="https://github.com/paveg.png" width="40" height="40" alt="@paveg"></a>
-<a href="https://github.com/yoneda1013"><img src="https://github.com/yoneda1013.png" width="40" height="40" alt="@yoneda1013"></a>
-<a href="https://github.com/kojamam"><img src="https://github.com/kojamam.png" width="40" height="40" alt="@kojamam"></a>
-<a href="https://github.com/nabechindesu"><img src="https://github.com/nabechindesu.png" width="40" height="40" alt="@nabechindesu"></a>
-<a href="https://github.com/Hamada-Hiroshi"><img src="https://github.com/Hamada-Hiroshi.png" width="40" height="40" alt="@Hamada-Hiroshi"></a>
-<a href="https://github.com/kitasan04"><img src="https://github.com/kitasan04.png" width="40" height="40" alt="@kitasan04"></a>
-<a href="https://github.com/Junpei-Nakasone"><img src="https://github.com/Junpei-Nakasone.png" width="40" height="40" alt="@Junpei-Nakasone"></a>
-<a href="https://github.com/sakakibara-setu"><img src="https://github.com/sakakibara-setu.png" width="40" height="40" alt="@sakakibara-setu"></a>
-<a href="https://github.com/takutin-f"><img src="https://github.com/takutin-f.png" width="40" height="40" alt="@takutin-f"></a>
-<a href="https://github.com/byplayer"><img src="https://github.com/byplayer.png" width="40" height="40" alt="@byplayer"></a>
-<a href="https://github.com/inomata137"><img src="https://github.com/inomata137.png" width="40" height="40" alt="@inomata137"></a>
-<a href="https://github.com/10965401"><img src="https://github.com/10965401.png" width="40" height="40" alt="@10965401"></a>
-<a href="https://github.com/nfphys"><img src="https://github.com/nfphys.png" width="40" height="40" alt="@nfphys"></a>
-<a href="https://github.com/analyn-cajocson"><img src="https://github.com/analyn-cajocson.png" width="40" height="40" alt="@analyn-cajocson"></a>
-<a href="https://github.com/RaphaelP07"><img src="https://github.com/RaphaelP07.png" width="40" height="40" alt="@RaphaelP07"></a>
-<!-- CONTRIBUTORS-END -->
-
-## 開発者向け
-
-```bash
-git clone https://github.com/freee/freee-mcp.git
-cd freee-mcp
-bun install
-
-bun run dev           # 開発サーバー（ウォッチモード）
-bun run build         # ビルド
-bun run typecheck    # 型チェック
-bun run lint          # リント
-bun run test:run      # テスト
-
-# API リファレンスの再生成
-bun run generate:references
-
-# OpenAPI スキーマの操作数・パス数を集計（プロダクト別の内訳も表示）
-bun run count:apis
-```
-
-### 技術スタック
-
-TypeScript / Model Context Protocol SDK / OAuth 2.0 + PKCE / Zod / Bun
-
-### アーキテクチャ詳細
-
-プロジェクトのアーキテクチャ、内部構造、開発ガイドラインについては [CLAUDE.md](./CLAUDE.md) を参照してください。
-
-## License / ライセンス
-
-[Apache-2.0](./LICENSE)
-
-## コミュニティ
-
-質問や情報交換は Discord サーバーで行っています。お気軽にご参加ください。
-
-- [Discord サーバー](https://discord.gg/9ddTPGyxPw)
+- 不具合の報告・機能の要望・質問: [GitHub Issues](https://github.com/freee/freee-mcp/issues)
+- 脆弱性の報告: 公開の Issue には書かず、[セキュリティポリシー](https://github.com/freee/freee-mcp/blob/main/SECURITY.md) の手順に従ってください
+- freee の各サービスの使い方: [freee ヘルプセンター](https://support.freee.co.jp/hc/ja)
 
 ## 関連リンク
 
-- [紹介記事: Public API を MCP化するとき Agent Skill 併用が良さそう with freee-mcp](https://zenn.dev/him0/articles/766798ca1315e0)
+- [freee-mcp リポジトリ](https://github.com/freee/freee-mcp)
 - [freee API ドキュメント](https://developer.freee.co.jp/docs)
-- [Model Context Protocol](https://modelcontextprotocol.io)
+
+## ライセンス
+
+[Apache-2.0](https://github.com/freee/freee-mcp/blob/main/LICENSE)

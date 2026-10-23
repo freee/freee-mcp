@@ -1,8 +1,0 @@
-blank_issues_enabled: false
-contact_links:
-  - name: 脆弱性の報告 / Report a security vulnerability
-    url: https://github.com/freee/freee-mcp/security/advisories/new
-    about: 脆弱性は公開の Issue ではなく、非公開の Security Advisory で報告してください。詳細は SECURITY.md を参照してください。
-  - name: freee API へのご要望 / freee API feature request
-    url: https://docs.google.com/forms/d/e/1FAIpQLSdG19OrIdc0nbI-F5L1hkYRAfh4l-qD0ugvuFqxvaOUdXVqXg/viewform
-    about: freee API 自体の機能追加・改善のご要望はこちらのフォームからお送りください。
