@@ -1,11 +1,11 @@
-FROM oven/bun:1.3-alpine AS builder
+FROM oven/bun:1.4-alpine AS builder
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --ignore-scripts
 COPY . .
 RUN bun run build
 
-FROM oven/bun:1.3-alpine
+FROM oven/bun:1.4-alpine
 RUN addgroup -g 65532 -S nonroot && adduser -u 65532 -S nonroot -G nonroot
 WORKDIR /app
 COPY --from=builder /app/bin ./bin
