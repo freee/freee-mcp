@@ -43,6 +43,14 @@ freee サイン（電子契約）のリファレンスも含まれますが、�
 - 作成・更新・削除の操作は freee 上の実データに反映されます。Claude が書き込み系のツールを呼び出す前に、内容を確認してください
 - 個人情報の取り扱いは [freee のプライバシーポリシー](https://www.freee.co.jp/privacy_policy/) をご覧ください
 
+## プラグインに含めていないファイル
+
+次のファイルは freee-mcp リポジトリと Agent Skill の配布物には含まれますが、このプラグインには含めていません。
+
+| ファイル | 理由 |
+| -------- | ---- |
+| [skills/freee-api-skill/recipes/sign-document-operations-curl.md](https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/recipes/sign-document-operations-curl.md) | 環境変数のアクセストークンを API に送る curl の例を含むため |
+
 ## ローカル MCP を使う場合
 
 自分で登録した freee アプリケーションの認証情報を使って、ローカルで MCP サーバーを起動することもできます。freee サイン（電子契約）を使う場合もこちらです。手順は [freee-mcp の README](https://github.com/freee/freee-mcp#readme) をご覧ください。

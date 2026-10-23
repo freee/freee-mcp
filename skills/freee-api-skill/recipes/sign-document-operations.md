@@ -46,6 +46,10 @@ sign_file_upload {
 
 Base64 文字列が小さい場合（目安: 数十 KB まで）は sign_api_post でも作成できる。body の形式は `../sign-references/sign-documents.md` の POST /v1/documents/uploads を参照。
 
+### MCP 外から送る（curl でのデバッグ・直接呼び出し）
+
+MCP を経由せず curl 等で API を直接呼び出す手順は [sign-document-operations-curl.md](https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/recipes/sign-document-operations-curl.md) を参照。
+
 保管用の POST /v1/pdf_documents に送る場合は、body のキーが file ではなく pdf_file になる（title パラメータはない）。
 
 ## アップロード後の流れ（署名依頼まで）

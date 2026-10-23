@@ -18,6 +18,14 @@ source_sha=$(git rev-parse --verify "$1^{commit}")
 parent=$(git rev-parse --verify "$2^{commit}")
 out_dir=$3
 
+# Files under skills/ that stay on main and in the npm skill zip but are kept
+# off the plugin branch. Keep .claude-plugin/README.md in sync.
+EXCLUDE_FROM_PLUGIN=(
+  # Sends an access token read from an environment variable; the directory
+  # validator flags this as MCP_FORWARDS_CREDENTIAL_ENV.
+  skills/freee-api-skill/recipes/sign-document-operations-curl.md
+)
+
 work_dir=$(mktemp -d)
 trap 'rm -rf "$work_dir"' EXIT
 export GIT_INDEX_FILE="$work_dir/index"
@@ -28,6 +36,14 @@ add_blob() {
 
 git read-tree --empty
 git read-tree --prefix=skills/ "$source_sha:skills"
+# A renamed file would otherwise slip back in under its new name.
+for path in "${EXCLUDE_FROM_PLUGIN[@]}"; do
+  if ! git cat-file -e "$source_sha:$path" 2>/dev/null; then
+    echo "::error::$path is in EXCLUDE_FROM_PLUGIN but missing from $source_sha" >&2
+    exit 1
+  fi
+done
+git update-index --force-remove -- "${EXCLUDE_FROM_PLUGIN[@]}"
 add_blob .claude-plugin/plugin.json .claude-plugin/plugin.json
 add_blob README.md .claude-plugin/README.md
 add_blob LICENSE LICENSE
