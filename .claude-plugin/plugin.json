@@ -5,10 +5,8 @@
   "author": {
     "name": "freee"
   },
+  "homepage": "https://github.com/freee/freee-mcp#readme",
   "repository": "https://github.com/freee/freee-mcp",
-  "documentationUrl": "https://github.com/freee/freee-mcp#readme",
-  "supportUrl": "https://github.com/freee/freee-mcp/issues",
-  "privacyPolicyUrl": "https://www.freee.co.jp/privacy_policy/",
   "mcpServers": {
     "freee": {
       "type": "http",
