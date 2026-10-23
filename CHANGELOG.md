@@ -1,5 +1,11 @@
 # freee-mcp
 
+## 0.37.3
+
+### Patch Changes
+
+- [`1f4dd02`](https://github.com/freee/freee-mcp/commit/1f4dd028928e885c3a8b864c2361e80647b08fba): リモート版の CIMD (Client ID Metadata Document) 取得で、client_id の URL が名前解決した先のアドレスも検査し、検査したアドレスにだけ接続することで private / link-local / metadata などへの SSRF (DNS rebinding を含む) を防ぐ
+
 ## 0.37.2
 
 ### Patch Changes
