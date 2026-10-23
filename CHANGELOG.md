@@ -1,5 +1,13 @@
 # freee-mcp
 
+## 0.37.4
+
+### Patch Changes
+
+- [`44c3ad0`](https://github.com/freee/freee-mcp/commit/44c3ad0f321a993cfe0518b889b99feba63fce79): Claude プラグインディレクトリ向けに、プラグインに必要なファイルだけを持つ `claude-plugin` ブランチをリリースごとに生成する
+
+  - プラグイン用 README と、プライバシーポリシー・ドキュメント・サポートの URL を追加
+
 ## 0.37.3
 
 ### Patch Changes
