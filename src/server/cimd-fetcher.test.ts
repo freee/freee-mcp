@@ -140,18 +140,62 @@ describe('HttpCIMDFetcher safety gate', () => {
       );
     });
 
+    // Stands in for the pinned HTTPS GET and records where it was told to connect
+    const requestReturning = (status: number, body: string) =>
+      vi.fn(async (_url: URL, _address: string) => ({
+        status,
+        statusText: '',
+        body: (async function* () {
+          yield new TextEncoder().encode(body);
+        })(),
+      }));
+
     it('accepts a hostname that resolves only to public addresses', async () => {
-      stubFetchReturning(validMetadata);
-      const fetcher = new HttpCIMDFetcher({ lookup: publicLookup });
+      const request = requestReturning(200, JSON.stringify(validMetadata));
+      const fetcher = new HttpCIMDFetcher({ lookup: publicLookup, request });
       const result = await fetcher.fetch('https://client.example.com/metadata');
       expect(result.client_name).toBe('test');
+      expect(globalThis.fetch).not.toHaveBeenCalled();
+    });
+
+    it('connects to the validated address and does not resolve the hostname again', async () => {
+      // A rebinding resolver: public on the first answer, metadata on the next
+      const answers = [['93.184.215.14'], ['169.254.169.254']];
+      const lookup = vi.fn(async () => answers.shift() ?? []);
+      const request = requestReturning(200, JSON.stringify(validMetadata));
+      const fetcher = new HttpCIMDFetcher({ lookup, request });
+
+      await fetcher.fetch('https://client.example.com/metadata');
+
+      expect(lookup).toHaveBeenCalledTimes(1);
+      expect(request).toHaveBeenCalledTimes(1);
+      const [url, address] = request.mock.calls[0];
+      expect(url.hostname).toBe('client.example.com');
+      expect(address).toBe('93.184.215.14');
+    });
+
+    it('connects to an IP literal without a DNS lookup', async () => {
+      const lookup = vi.fn(publicLookup);
+      const request = requestReturning(200, JSON.stringify(validMetadata));
+      const fetcher = new HttpCIMDFetcher({ lookup, request });
+
+      await fetcher.fetch('https://93.184.215.14/metadata');
+
+      expect(lookup).not.toHaveBeenCalled();
+      expect(request.mock.calls[0][1]).toBe('93.184.215.14');
+    });
+
+    it('rejects a redirect instead of following it', async () => {
+      const request = requestReturning(302, '');
+      const fetcher = new HttpCIMDFetcher({ lookup: publicLookup, request });
+      await expect(fetcher.fetch('https://client.example.com/metadata')).rejects.toThrow(
+        'CIMD fetch failed: 302',
+      );
     });
 
     it('rejects a response larger than 1MB', async () => {
-      globalThis.fetch = vi.fn(async () => {
-        return new Response('x'.repeat(1_048_577), { status: 200 });
-      }) as unknown as typeof fetch;
-      const fetcher = new HttpCIMDFetcher({ lookup: publicLookup });
+      const request = requestReturning(200, 'x'.repeat(1_048_577));
+      const fetcher = new HttpCIMDFetcher({ lookup: publicLookup, request });
       await expect(fetcher.fetch('https://client.example.com/metadata')).rejects.toThrow(
         'too large',
       );

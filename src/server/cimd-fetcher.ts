@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { lookup } from 'node:dns/promises';
-import { BlockList, isIP } from 'node:net';
+import { request } from 'node:https';
+import { BlockList, isIP, type LookupFunction } from 'node:net';
 import type { OAuthClientMetadata } from '@modelcontextprotocol/sdk/shared/auth.js';
 import { OAuthClientMetadataSchema } from '@modelcontextprotocol/sdk/shared/auth.js';
 import { getUserAgent } from './user-agent.js';
@@ -19,6 +20,8 @@ interface HttpCIMDFetcherOptions {
   allowInsecureLocalhost?: boolean;
   // Resolves a hostname to every address it maps to. Injectable for tests.
   lookup?: AddressLookup;
+  // Sends the GET to an already-validated address. Injectable for tests.
+  request?: PinnedRequest;
 }
 
 export function hashCimdUrl(url: string): string {
@@ -130,20 +133,80 @@ function isSafeUrl(url: string, allowInsecureLocalhost: boolean): boolean {
   }
 }
 
-async function readBodyWithLimit(response: Response, maxBytes: number): Promise<string> {
-  if (!response.body) return '';
-  const reader = response.body.getReader();
+// Performs a GET whose TCP connection goes to `address` while TLS SNI and
+// certificate verification still use the URL's hostname.
+type PinnedRequest = (
+  url: URL,
+  address: string,
+  headers: Record<string, string>,
+  signal: AbortSignal,
+) => Promise<PinnedResponse>;
+
+interface PinnedResponse {
+  status: number;
+  statusText: string;
+  body: AsyncIterable<Uint8Array>;
+}
+
+function pinnedHttpsGet(
+  url: URL,
+  address: string,
+  headers: Record<string, string>,
+  signal: AbortSignal,
+): Promise<PinnedResponse> {
+  const hostname = url.hostname.replace(/^\[|\]$/g, '');
+  const family = isIP(address);
+  // Answer the socket's lookup with the address that was already validated,
+  // so a second DNS answer (rebinding) cannot redirect the connection.
+  const pinnedLookup: LookupFunction = (_host, options, callback) => {
+    if (options.all) {
+      callback(null, [{ address, family }]);
+    } else {
+      callback(null, address, family);
+    }
+  };
+  return new Promise((resolve, reject) => {
+    const req = request(
+      {
+        host: hostname,
+        port: url.port || 443,
+        path: `${url.pathname}${url.search}`,
+        method: 'GET',
+        // SNI must be a hostname; for IP literals leave it unset
+        servername: isIP(hostname) === 0 ? hostname : undefined,
+        // Bun derives SNI and certificate checks from Host, not servername,
+        // and would otherwise send the pinned IP
+        headers: { ...headers, Host: url.host },
+        signal,
+        lookup: pinnedLookup,
+        // A pooled keep-alive socket would skip the lookup above
+        agent: false,
+      },
+      (res) => {
+        // https.request never follows redirects, so a 3xx surfaces as non-2xx
+        resolve({ status: res.statusCode ?? 0, statusText: res.statusMessage ?? '', body: res });
+      },
+    );
+    // `on`, not `once`: Bun can emit a second error for the same failure, and
+    // an unhandled one would crash the process
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+async function readBodyWithLimit(
+  body: AsyncIterable<Uint8Array>,
+  maxBytes: number,
+): Promise<string> {
   const chunks: Uint8Array[] = [];
   let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
+  // Leaving the loop early (throw) closes the underlying stream
+  for await (const chunk of body) {
+    total += chunk.byteLength;
     if (total > maxBytes) {
-      await reader.cancel();
       throw new Error('CIMD response too large (> 1MB)');
     }
-    chunks.push(value);
+    chunks.push(chunk);
   }
   return Buffer.concat(chunks).toString('utf8');
 }
@@ -151,52 +214,71 @@ async function readBodyWithLimit(response: Response, maxBytes: number): Promise<
 export class HttpCIMDFetcher implements CIMDFetcher {
   private readonly allowInsecureLocalhost: boolean;
   private readonly lookup: AddressLookup;
+  private readonly request: PinnedRequest;
 
   constructor(options: HttpCIMDFetcherOptions = {}) {
     this.allowInsecureLocalhost = options.allowInsecureLocalhost ?? false;
     this.lookup = options.lookup ?? defaultLookup;
+    this.request = options.request ?? pinnedHttpsGet;
   }
 
   // A public-looking hostname can still resolve to a private or metadata
   // address, so check every resolved address, not just the URL's host string.
-  private async assertResolvesToPublic(url: string): Promise<void> {
-    if (this.allowInsecureLocalhost && isLocalhostUrl(url)) return;
-    const hostname = new URL(url).hostname.replace(/^\[|\]$/g, '');
-    if (isIP(hostname) !== 0) return; // already checked by isSafeUrl
+  // Returns the address to connect to; the caller must use it instead of
+  // resolving the hostname again.
+  private async resolvePublicAddress(url: URL): Promise<string> {
+    const hostname = url.hostname.replace(/^\[|\]$/g, '');
+    if (isIP(hostname) !== 0) return hostname; // already checked by isSafeUrl
     let addresses: string[];
     try {
       addresses = await this.lookup(hostname);
     } catch {
-      throw new Error(`Unsafe CIMD URL: ${url} (DNS resolution failed)`);
+      throw new Error(`Unsafe CIMD URL: ${url.href} (DNS resolution failed)`);
     }
     if (addresses.length === 0 || addresses.some(isBlockedAddress)) {
-      throw new Error(`Unsafe CIMD URL: ${url} (resolves to a non-public address)`);
+      throw new Error(`Unsafe CIMD URL: ${url.href} (resolves to a non-public address)`);
     }
+    return addresses[0];
   }
 
   async fetch(url: string): Promise<OAuthClientMetadata> {
     if (!isSafeUrl(url, this.allowInsecureLocalhost)) {
       throw new Error(`Unsafe CIMD URL: ${url}`);
     }
-    await this.assertResolvesToPublic(url);
 
-    const response = await globalThis.fetch(url, {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'User-Agent': getUserAgent(),
-      },
-      redirect: 'error', // Do not follow redirects (prevents SSRF via redirect)
-      signal: AbortSignal.timeout(CIMD_FETCH_TIMEOUT_MS),
-    });
+    const headers = {
+      Accept: 'application/json',
+      'User-Agent': getUserAgent(),
+    };
+    const signal = AbortSignal.timeout(CIMD_FETCH_TIMEOUT_MS);
 
-    if (!response.ok) {
-      throw new Error(`CIMD fetch failed: ${response.status} ${response.statusText}`);
+    let status: number;
+    let statusText: string;
+    let body: AsyncIterable<Uint8Array>;
+    if (this.allowInsecureLocalhost && isLocalhostUrl(url)) {
+      // Dev-only: loopback over http:// needs neither the SSRF filter nor pinning
+      const response = await globalThis.fetch(url, {
+        method: 'GET',
+        headers,
+        redirect: 'error',
+        signal,
+      });
+      status = response.status;
+      statusText = response.statusText;
+      body = (response.body ?? []) as AsyncIterable<Uint8Array>;
+    } else {
+      const parsed = new URL(url);
+      const address = await this.resolvePublicAddress(parsed);
+      ({ status, statusText, body } = await this.request(parsed, address, headers, signal));
+    }
+
+    if (status < 200 || status >= 300) {
+      throw new Error(`CIMD fetch failed: ${status} ${statusText}`);
     }
 
     // Stop reading once the limit is exceeded instead of buffering the whole
     // body (Content-Length can be omitted with chunked encoding)
-    const text = await readBodyWithLimit(response, MAX_RESPONSE_BYTES);
+    const text = await readBodyWithLimit(body, MAX_RESPONSE_BYTES);
 
     const json: unknown = JSON.parse(text);
     const result = OAuthClientMetadataSchema.safeParse(json);
