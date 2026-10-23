@@ -18,6 +18,17 @@ source_sha=$(git rev-parse --verify "$1^{commit}")
 parent=$(git rev-parse --verify "$2^{commit}")
 out_dir=$3
 
+# Files under skills/ that stay on main and in the npm skill zip but are kept
+# off the plugin branch. References to them from the plugin tree must point at
+# main on GitHub (see link_to_main).
+EXCLUDE_FROM_PLUGIN=(
+  # Reads the sign access token from a local file and sends it in a curl
+  # header, which the plugin directory flags as credential forwarding
+  # (MCP_FORWARDS_CREDENTIAL_ENV) and holds the plugin for.
+  skills/freee-api-skill/recipes/sign-document-operations.md
+)
+main_blob_url=https://github.com/freee/freee-mcp/blob/main
+
 work_dir=$(mktemp -d)
 trap 'rm -rf "$work_dir"' EXIT
 export GIT_INDEX_FILE="$work_dir/index"
@@ -26,8 +37,33 @@ add_blob() {
   git update-index --add --cacheinfo "100644,$(git rev-parse --verify "$source_sha:$2"),$1"
 }
 
+# Replaces the code span `<ref>` in <file> with the main URL of <target>.
+link_to_main() {
+  local file=$1 ref=$2 target=$3
+  local needle="\`$ref\`" text blob
+  # The trailing x keeps $(...) from stripping the file's final newlines.
+  text=$(git cat-file blob "$source_sha:$file"; echo x)
+  text=${text%x}
+  if [[ "$text" != *"$needle"* ]]; then
+    echo "::error::$file no longer contains $needle; update link_to_main" >&2
+    exit 1
+  fi
+  blob=$(printf '%s' "${text//"$needle"/"$main_blob_url/$target"}" | git hash-object -w --stdin)
+  git update-index --add --cacheinfo "100644,$blob,$file"
+}
+
 git read-tree --empty
 git read-tree --prefix=skills/ "$source_sha:skills"
+# A renamed file would otherwise slip back in under its new name.
+for path in "${EXCLUDE_FROM_PLUGIN[@]}"; do
+  if [ "$(git cat-file -t "$source_sha:$path" 2>/dev/null)" != blob ]; then
+    echo "::error::$path is in EXCLUDE_FROM_PLUGIN but is not a file in $source_sha" >&2
+    exit 1
+  fi
+done
+git update-index --force-remove -- "${EXCLUDE_FROM_PLUGIN[@]}"
+link_to_main skills/freee-api-skill/SIGN-GUIDE.md recipes/sign-document-operations.md \
+  skills/freee-api-skill/recipes/sign-document-operations.md
 add_blob .claude-plugin/plugin.json .claude-plugin/plugin.json
 add_blob README.md .claude-plugin/README.md
 add_blob LICENSE LICENSE
@@ -62,6 +98,21 @@ fi
 plugin_version=$(git cat-file blob "$tree:.claude-plugin/plugin.json" | jq -r .version)
 if [ "$plugin_version" != "$package_version" ]; then
   echo "::error::plugin.json version $plugin_version does not match package.json version $package_version" >&2
+  failed=1
+fi
+for path in "${EXCLUDE_FROM_PLUGIN[@]}"; do
+  name=${path##*/}
+  dangling=$(git grep -I -n -F -e "$name" "$tree" | sed "s#$main_blob_url/$path##g" | grep -F "$name" || true)
+  if [ -n "$dangling" ]; then
+    echo "::error::claude-plugin tree still references excluded $path:" >&2
+    echo "$dangling" >&2
+    failed=1
+  fi
+done
+credential_refs=$(git grep -I -n -E 'sign-tokens\.json|Authorization: Bearer' "$tree" || true)
+if [ -n "$credential_refs" ]; then
+  echo "::error::claude-plugin tree reads or forwards credentials:" >&2
+  echo "$credential_refs" >&2
   failed=1
 fi
 if [ "$failed" -ne 0 ]; then
