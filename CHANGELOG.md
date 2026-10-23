@@ -1,5 +1,15 @@
 # freee-mcp
 
+## 0.37.5
+
+### Patch Changes
+
+- [`c85c193`](https://github.com/freee/freee-mcp/commit/c85c1930b7c017b3137c39e9b7de9e36ebf1770c): リモート版のコンテナの Bun を 1.4 系に上げ、鍵が漏洩した eMudhra の中間 CA を含む証明書チェーンを拒否するようにする
+- [`95ff80c`](https://github.com/freee/freee-mcp/commit/95ff80ca1c1a9994b821ef777105cdd2bf1ad8a3): `claude-plugin` ブランチから freee サインの文書操作レシピを除外する（main と npm のスキルには引き続き含まれ、SIGN-GUIDE.md からは GitHub 上のレシピへリンクする）
+- [`e5fc493`](https://github.com/freee/freee-mcp/commit/e5fc493c41a23b25e3957e0fdc5f4d009fc72b87): Claude Code のマーケットプレース経由でインストールするプラグインを `claude-plugin` ブランチから取得するように変更し、ローカル MCP サーバーが含まれないようにする
+
+  - README のローカル MCP（`freee-mcp`、`freee-sign-mcp`）の手順を「ローカル MCP を使う場合」にまとめる
+
 ## 0.37.4
 
 ### Patch Changes
