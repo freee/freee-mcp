@@ -186,3 +186,64 @@ jobs:
         run: bun run release
         env:
           NPM_CONFIG_PROVENANCE: true
+
+  # The Claude plugin directory tracks the claude-plugin branch, which holds only
+  # the plugin files. Built on every release, independent of the npm job.
+  claude-plugin-branch:
+    name: Update claude-plugin branch
+    runs-on: ubuntu-latest
+    if: github.repository == 'freee/freee-mcp' && github.ref == 'refs/heads/main'
+    concurrency:
+      group: claude-plugin-branch
+      cancel-in-progress: false
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Configure git for push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push claude-plugin branch
+        run: |
+          # Exit code 2 means the branch does not exist yet (first run), so it
+          # starts from main. Any other failure stops the job.
+          RC=0
+          git ls-remote --exit-code --heads origin claude-plugin >/dev/null || RC=$?
+          if [ "$RC" -eq 0 ]; then
+            git fetch origin claude-plugin
+            PARENT=$(git rev-parse FETCH_HEAD)
+          elif [ "$RC" -eq 2 ]; then
+            PARENT=$(git rev-parse HEAD)
+          else
+            exit "$RC"
+          fi
+          COMMIT=$(bash scripts/build-claude-plugin-branch.sh HEAD "$PARENT" "$RUNNER_TEMP/claude-plugin")
+          if [ -n "$COMMIT" ]; then
+            git push origin "$COMMIT:refs/heads/claude-plugin"
+            echo "✅ Pushed claude-plugin branch at $COMMIT"
+          fi
+
+      # The release is dispatched without anyone watching this run, so a branch
+      # that lags behind main has to fail the job instead of passing silently.
+      - name: Verify claude-plugin branch version
+        run: |
+          git fetch origin claude-plugin
+          BRANCH_VERSION=$(git show FETCH_HEAD:.claude-plugin/plugin.json | jq -r .version)
+          MAIN_VERSION=$(jq -r .version package.json)
+          if [ "$BRANCH_VERSION" != "$MAIN_VERSION" ]; then
+            echo "::error::claude-plugin branch version $BRANCH_VERSION does not match main version $MAIN_VERSION"
+            exit 1
+          fi
+          echo "✅ claude-plugin branch is at v$BRANCH_VERSION"
