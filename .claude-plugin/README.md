@@ -45,7 +45,7 @@ freee サイン（電子契約）のリファレンスも含まれますが、�
 
 ## ローカル MCP を使う場合
 
-自分で登録した freee アプリケーションの認証情報を使って、ローカルで MCP サーバーを起動することもできます。freee サイン（電子契約）を使う場合もこちらです。手順は [freee-mcp の README](https://github.com/freee/freee-mcp#readme) をご覧ください。
+自分で登録した freee アプリケーションの認証情報を使って、ローカルで MCP サーバーを起動することもできます。freee サイン（電子契約）を使う場合もこちらです。手順は [freee-mcp の README](https://github.com/freee/freee-mcp#ローカル-mcp-を使う場合) をご覧ください。
 
 ## サポート
 
