@@ -217,12 +217,17 @@ jobs:
 
       - name: Build and push claude-plugin branch
         run: |
-          # First run: the branch does not exist yet, so it starts from main.
-          if git ls-remote --exit-code --heads origin claude-plugin >/dev/null; then
+          # Exit code 2 means the branch does not exist yet (first run), so it
+          # starts from main. Any other failure stops the job.
+          RC=0
+          git ls-remote --exit-code --heads origin claude-plugin >/dev/null || RC=$?
+          if [ "$RC" -eq 0 ]; then
             git fetch origin claude-plugin
             PARENT=$(git rev-parse FETCH_HEAD)
-          else
+          elif [ "$RC" -eq 2 ]; then
             PARENT=$(git rev-parse HEAD)
+          else
+            exit "$RC"
           fi
           COMMIT=$(bash scripts/build-claude-plugin-branch.sh HEAD "$PARENT" "$RUNNER_TEMP/claude-plugin")
           if [ -n "$COMMIT" ]; then

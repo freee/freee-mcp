@@ -34,6 +34,11 @@ add_blob LICENSE LICENSE
 if git cat-file -e "$source_sha:.claude-plugin/icon.png" 2>/dev/null; then
   add_blob .claude-plugin/icon.png .claude-plugin/icon.png
 fi
+# SKILL.md treats a missing VERSION.md as a development build; the npm job
+# writes the same line into the released skill zip.
+package_version=$(git cat-file blob "$source_sha:package.json" | jq -r .version)
+version_blob=$(echo "freee-mcp version: $package_version" | git hash-object -w --stdin)
+git update-index --add --cacheinfo "100644,$version_blob,skills/freee-api-skill/VERSION.md"
 tree=$(git write-tree)
 
 mkdir -p "$out_dir"
@@ -55,7 +60,6 @@ if [ -n "$large_files" ]; then
   failed=1
 fi
 plugin_version=$(git cat-file blob "$tree:.claude-plugin/plugin.json" | jq -r .version)
-package_version=$(git cat-file blob "$source_sha:package.json" | jq -r .version)
 if [ "$plugin_version" != "$package_version" ]; then
   echo "::error::plugin.json version $plugin_version does not match package.json version $package_version" >&2
   failed=1
