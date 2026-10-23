@@ -38,7 +38,7 @@ API 呼び出し:
 ## 基本ワークフロー
 
 1. 認証状態を確認: `sign_auth_status`（未認証なら `sign_authenticate` を実行）
-2. レシピを確認: 文書の作成・ファイルアップロードは `recipes/sign-document-operations.md` を参照
+2. レシピを確認: 文書の作成・ファイルアップロードは https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/recipes/sign-document-operations.md を参照
 3. リファレンスを検索: `sign-references/` 内の該当リファレンスを参照
 4. API を呼び出す: `sign_api_*` ツールを使用
 
@@ -54,11 +54,11 @@ curl 等で MCP を経由せず直接 API を呼び出す場合は `https://ninj
 
 ## 大容量ファイルの送信制限
 
-ファイルから文書を作成する場合は `sign_file_upload` を使ってください（`sign_api_post` に数百 KB を超える Base64 body を渡すと失敗するため）。理由と使い分け・手順は `recipes/sign-document-operations.md` を参照。
+ファイルから文書を作成する場合は `sign_file_upload` を使ってください（`sign_api_post` に数百 KB を超える Base64 body を渡すと失敗するため）。理由と使い分け・手順は https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/recipes/sign-document-operations.md を参照。
 
 ## レシピ
 
-- `recipes/sign-document-operations.md` - 文書の作成・ファイルアップロード（エンドポイントの使い分け・uploader_id の取得・署名依頼までの流れ）
+- https://github.com/freee/freee-mcp/blob/main/skills/freee-api-skill/recipes/sign-document-operations.md - 文書の作成・ファイルアップロード（エンドポイントの使い分け・uploader_id の取得・署名依頼までの流れ）
 
 ## リファレンス
 
