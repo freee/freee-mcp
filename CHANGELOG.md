@@ -1,5 +1,11 @@
 # freee-mcp
 
+## 0.37.7
+
+### Patch Changes
+
+- [`ab23b36`](https://github.com/freee/freee-mcp/commit/ab23b361f5d81959d6305c2300cd34ed7bc02e55): Claude プラグインディレクトリが「プライバシーポリシーの URL がない」と警告するため、`plugin.json` に `privacyPolicyUrl` を戻す
+
 ## 0.37.6
 
 ### Patch Changes
