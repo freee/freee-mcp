@@ -7,7 +7,7 @@
 概要 見積の一覧を取得します。 登録されている見積情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する見積のみを取得することが可能です。
 
 定義
-start_registered_date : 見積登録日(絞り込み開始) end_registered_date : 見積登録日(絞り込み終了) start_last_updated_date : 見積更新日(絞り込み開始) end_last_updated_date : 見積更新日(絞り込み終了) start_quotation_date : 見積日(絞り込み開始) end_quotation_date : 見積日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) business_ids : 案件ID(複数指定可) quotation_no : 見積No. quotation_status : 見積ステータス billing_status : 請求書送付ステータス canceled : 取消状態(...
+start_registered_date : 見積登録日(絞り込み開始) end_registered_date : 見積登録日(絞り込み終了) start_last_updated_date : 見積更新日(絞り込み開始) end_last_updated_date : 見積更新日(絞り込み終了) start_quotation_date : 見積日(絞り込み開始) end_quotation_date : 見積日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) charge_member_ids : 社内担当者のメンバーID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) business_ids : 案件ID(複数指定可) quotation_no : 見積No. quotation_status : 見積ステータス bill...
 
 ### パラメータ
 
@@ -19,6 +19,11 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
 - start_quotation_date: string(date) - 見積日で絞込：開始日(yyyy-mm-dd)
 - end_quotation_date: string(date) - 見積日で絞込：終了日(yyyy-mm-dd)
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
+
+  charge_member_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
+- charge_member_ids[]: array[string] - 社内担当者のメンバーID
+
+  charge_employee_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
 - customer_ids[]: array[integer] - 顧客の取引先ID
 - business_ids[]: array[string] - 案件ID
 - quotation_no: string - 見積No.で絞込
@@ -37,7 +42,7 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
 概要 新しい見積を登録します。 顧客への見積情報を登録し、見積書の発行や受注への引き継ぎに利用できます。
 
 定義
-必須項目 quotation_date : 見積日 customer_id : 顧客の取引先ID lines : 明細リスト 任意項目 business_id : 案件ID internal_subject : 見積タイトル expires_on : 有効期限日 delivery_deadline : 納品期限日 delivery_location : 納品場所 quotation_template_id : 見積書テンプレートID ※指定しない場合はデフォルトのテンプレートが適用されます。 quotation_subject : 見積書件名 quotation_note : 見積書の備考欄に記載する内容 recipient_address : 宛先情報 ※Web画面とは異なり、顧客マスタからの自動補完は行われません。指定しない場合は全ての項目がnullとして登録されます。 charge_employee_id : 社内担当者の従業員ID reporting_section_...
+必須項目 quotation_date : 見積日 customer_id : 顧客の取引先ID lines : 明細リスト 任意項目 business_id : 案件ID internal_subject : 見積タイトル expires_on : 有効期限日 delivery_deadline : 納品期限日 delivery_location : 納品場所 quotation_template_id : 見積書テンプレートID ※指定しない場合はデフォルトのテンプレートが適用されます。 quotation_subject : 見積書件名 quotation_note : 見積書の備考欄に記載する内容 recipient_address : 宛先情報 ※Web画面とは異なり、顧客マスタからの自動補完は行われません。指定しない場合は全ての項目がnullとして登録されます。 charge_employee_id : 社内担当者の従業員ID charge_member_id :...
 
 ### リクエストボディ
 
@@ -61,7 +66,12 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
   - street_name2: string - 住所2 例: `サンプルビル3F`
   - contact_department: string - 連絡先部署 例: `営業部`
   - contact_name: string - 連絡先名 例: `山田太郎`
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
@@ -83,6 +93,7 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
 - id*: string - 見積ID
 - canceled*: boolean - 取消状態
 - registered_by*: object - 登録者
+- registered_by_member: object - 登録者
 - quotation_no*: string - 見積No.
 - branch_no: integer(int32) - 枝番
 - quotation_date*: string(date) - 見積日
@@ -106,11 +117,13 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
   ※partially_billed（一部送付済）は納品でのみ発生します。none（対象外）は売上でのみ発生します。
 - customer*: object - 顧客
 - charge_employee: object - 社内担当者
+- charge_member: object - 社内担当者
 - reporting_section: object - 担当部門
 - business: object - 案件
 - internal_memo: string - 社内メモ
 - quotation_note: string - 見積書の備考欄に記載する内容
 - last_updated_by*: object - 変更者
+- last_updated_by_member: object - 変更者
 - amount_set_rates*: array[object]
 - quotation_template_name*: string - 見積書テンプレート名称
 - recipient_address*: object - 宛先
@@ -124,7 +137,7 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
 概要 指定されたIDの見積を更新します。 見積の基本情報を部分的に更新できます。 送信したフィールドのみが更新され、送信しなかったフィールドは変更されません。
 
 定義
-更新可能項目 business_id : 案件ID internal_subject : 見積タイトル quotation_date : 見積日 customer_id : 顧客の取引先ID expires_on : 有効期限日 delivery_deadline : 納品期限日 delivery_location : 納品場所 quotation_template_id : 見積書テンプレートID quotation_subject : 見積書件名 quotation_note : 見積書の備考欄に記載する内容 recipient_address : 宛先情報（指定した場合、既存の宛先情報は全て削除され、新しい宛先情報に置き換えられます） charge_employee_id : 社内担当者の従業員ID reporting_section_id : 担当部門ID internal_memo : 社内メモ branch_n...
+更新可能項目 business_id : 案件ID internal_subject : 見積タイトル quotation_date : 見積日 customer_id : 顧客の取引先ID expires_on : 有効期限日 delivery_deadline : 納品期限日 delivery_location : 納品場所 quotation_template_id : 見積書テンプレートID quotation_subject : 見積書件名 quotation_note : 見積書の備考欄に記載する内容 recipient_address : 宛先情報（指定した場合、既存の宛先情報は全て削除され、新しい宛先情報に置き換えられます） charge_employee_id : 社内担当者の従業員ID charge_member_id : 社内担当者のメンバーID reporting_section_id : 担当部門...
 
 ### パラメータ
 
@@ -152,7 +165,12 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
   - street_name2: string - 住所2 例: `サンプルビル3F`
   - contact_department: string - 連絡先部署 例: `営業部`
   - contact_name: string - 連絡先名 例: `山田太郎`
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)

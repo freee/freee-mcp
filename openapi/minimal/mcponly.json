@@ -1,5 +1,114 @@
 {
   "paths": {
+    "/hub/survey/surveys/{survey_id}/questions": {
+      "get": {
+        "summary": "設問の取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の設問の一覧を取得します。",
+        "parameters": [
+          {
+            "name": "survey_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "実施回ID"
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/survey/base_surveys": {
+      "get": {
+        "summary": "サーベイ企画一覧取得（リモート版freee-mcp限定）",
+        "description": "サーベイ企画の一覧を取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/survey/base_surveys/{base_survey_id}/surveys": {
+      "get": {
+        "summary": "実施回一覧取得（リモート版freee-mcp限定）",
+        "description": "指定したサーベイ企画に紐づく実施回の一覧を取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "base_survey_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "サーベイ企画ID"
+          },
+          {
+            "name": "include_hidden",
+            "in": "query",
+            "type": "boolean",
+            "required": false,
+            "description": "非表示の実施回も含めるか",
+            "explode": false
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "実施回の開始日時の範囲指定 (開始)。この日時以降に開始する実施回に絞り込みます。end_date と同時に指定する必要があります",
+            "explode": false
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "実施回の開始日時の範囲指定 (終了)。この日時以前に開始する実施回に絞り込みます。start_date と同時に指定する必要があります",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/survey/surveys/{id}": {
+      "get": {
+        "summary": "実施回詳細取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の詳細と回答対象者を取得します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "実施回ID"
+          }
+        ]
+      }
+    },
     "/hub/survey/base_surveys/{base_survey_id}/company_survey_results": {
       "get": {
         "summary": "全社平均一覧取得（リモート版freee-mcp限定）",
@@ -127,107 +236,6 @@
             "required": false,
             "description": "従業員IDでのフィルタ。指定しない場合は全従業員が対象",
             "explode": false
-          }
-        ]
-      }
-    },
-    "/hub/survey/surveys/{survey_id}/questions": {
-      "get": {
-        "summary": "設問の取得（リモート版freee-mcp限定）",
-        "description": "指定した実施回の設問の一覧を取得します。",
-        "parameters": [
-          {
-            "name": "survey_id",
-            "in": "path",
-            "type": "integer",
-            "required": true,
-            "description": "実施回ID"
-          },
-          {
-            "name": "company_id",
-            "in": "query",
-            "type": "integer",
-            "required": true,
-            "description": "事業所ID",
-            "explode": false
-          }
-        ]
-      }
-    },
-    "/hub/survey/base_surveys": {
-      "get": {
-        "summary": "サーベイ企画一覧取得（リモート版freee-mcp限定）",
-        "description": "サーベイ企画の一覧を取得します。",
-        "parameters": [
-          {
-            "name": "company_id",
-            "in": "query",
-            "type": "integer",
-            "required": true,
-            "description": "事業所ID",
-            "explode": false
-          }
-        ]
-      }
-    },
-    "/hub/survey/base_surveys/{base_survey_id}/surveys": {
-      "get": {
-        "summary": "実施回一覧取得（リモート版freee-mcp限定）",
-        "description": "指定したサーベイ企画に紐づく実施回の一覧を取得します。",
-        "parameters": [
-          {
-            "name": "company_id",
-            "in": "query",
-            "type": "integer",
-            "required": true,
-            "description": "事業所ID",
-            "explode": false
-          },
-          {
-            "name": "base_survey_id",
-            "in": "path",
-            "type": "integer",
-            "required": true,
-            "description": "サーベイ企画ID"
-          },
-          {
-            "name": "include_hidden",
-            "in": "query",
-            "type": "boolean",
-            "required": false,
-            "description": "非表示の実施回も含めるか",
-            "explode": false
-          },
-          {
-            "name": "year",
-            "in": "query",
-            "type": "integer",
-            "required": false,
-            "description": "対象年でのフィルタ",
-            "explode": false
-          }
-        ]
-      }
-    },
-    "/hub/survey/surveys/{id}": {
-      "get": {
-        "summary": "実施回詳細取得（リモート版freee-mcp限定）",
-        "description": "指定した実施回の詳細と回答対象者を取得します。",
-        "parameters": [
-          {
-            "name": "company_id",
-            "in": "query",
-            "type": "integer",
-            "required": true,
-            "description": "事業所ID",
-            "explode": false
-          },
-          {
-            "name": "id",
-            "in": "path",
-            "type": "integer",
-            "required": true,
-            "description": "実施回ID"
           }
         ]
       }

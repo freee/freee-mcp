@@ -27,6 +27,195 @@
     }
   ],
   "paths": {
+    "/hub/survey/surveys/{survey_id}/questions": {
+      "get": {
+        "operationId": "get_survey_questions",
+        "summary": "設問の取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の設問の一覧を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.GetSurveyQuestionsRequest.survey_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.GetSurveyQuestionsRequest.company_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "設問一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.SurveyQuestion"
+                      },
+                      "description": "設問のリスト"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
+    "/hub/survey/base_surveys": {
+      "get": {
+        "operationId": "list_survey_base_surveys",
+        "summary": "サーベイ企画一覧取得（リモート版freee-mcp限定）",
+        "description": "サーベイ企画の一覧を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.ListBaseSurveysRequest"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "サーベイ企画一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.BaseSurvey"
+                      },
+                      "description": "サーベイ企画のリスト"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
+    "/hub/survey/base_surveys/{base_survey_id}/surveys": {
+      "get": {
+        "operationId": "list_survey_surveys",
+        "summary": "実施回一覧取得（リモート版freee-mcp限定）",
+        "description": "指定したサーベイ企画に紐づく実施回の一覧を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveysRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveysRequest.base_survey_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveysRequest.include_hidden"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveysRequest.start_date"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListSurveysRequest.end_date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "実施回一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.SurveyItem"
+                      },
+                      "description": "実施回のリスト"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
+    "/hub/survey/surveys/{id}": {
+      "get": {
+        "operationId": "get_survey",
+        "summary": "実施回詳細取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の詳細と回答対象者を取得します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.GetSurveyRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.GetSurveyRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "実施回詳細取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "survey": {
+                      "$ref": "#/components/schemas/Survey.SurveyDetails"
+                    },
+                    "survey_targets": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.SurveyTargetWithUnansweredCount"
+                      },
+                      "description": "回答対象者のリスト"
+                    },
+                    "estimated_time": {
+                      "type": "integer",
+                      "format": "int32",
+                      "description": "回答所要時間の目安(分)",
+                      "example": 5
+                    }
+                  },
+                  "required": [
+                    "survey",
+                    "survey_targets",
+                    "estimated_time"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
     "/hub/survey/base_surveys/{base_survey_id}/company_survey_results": {
       "get": {
         "operationId": "list_survey_company_survey_results",
@@ -180,192 +369,6 @@
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "survey"
-        ]
-      }
-    },
-    "/hub/survey/surveys/{survey_id}/questions": {
-      "get": {
-        "operationId": "get_survey_questions",
-        "summary": "設問の取得（リモート版freee-mcp限定）",
-        "description": "指定した実施回の設問の一覧を取得します。",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Survey.GetSurveyQuestionsRequest.survey_id"
-          },
-          {
-            "$ref": "#/components/parameters/Survey.GetSurveyQuestionsRequest.company_id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "設問一覧取得レスポンス",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Survey.SurveyQuestion"
-                      },
-                      "description": "設問のリスト"
-                    }
-                  },
-                  "required": [
-                    "data"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "survey"
-        ]
-      }
-    },
-    "/hub/survey/base_surveys": {
-      "get": {
-        "operationId": "list_survey_base_surveys",
-        "summary": "サーベイ企画一覧取得（リモート版freee-mcp限定）",
-        "description": "サーベイ企画の一覧を取得します。",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Survey.ListBaseSurveysRequest"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "サーベイ企画一覧取得レスポンス",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Survey.BaseSurvey"
-                      },
-                      "description": "サーベイ企画のリスト"
-                    }
-                  },
-                  "required": [
-                    "data"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "survey"
-        ]
-      }
-    },
-    "/hub/survey/base_surveys/{base_survey_id}/surveys": {
-      "get": {
-        "operationId": "list_survey_surveys",
-        "summary": "実施回一覧取得（リモート版freee-mcp限定）",
-        "description": "指定したサーベイ企画に紐づく実施回の一覧を取得します。",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Survey.ListSurveysRequest.company_id"
-          },
-          {
-            "$ref": "#/components/parameters/Survey.ListSurveysRequest.base_survey_id"
-          },
-          {
-            "$ref": "#/components/parameters/Survey.ListSurveysRequest.include_hidden"
-          },
-          {
-            "$ref": "#/components/parameters/Survey.ListSurveysRequest.year"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "実施回一覧取得レスポンス",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Survey.SurveyItem"
-                      },
-                      "description": "実施回のリスト"
-                    }
-                  },
-                  "required": [
-                    "data"
-                  ],
-                  "additionalProperties": false
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "survey"
-        ]
-      }
-    },
-    "/hub/survey/surveys/{id}": {
-      "get": {
-        "operationId": "get_survey",
-        "summary": "実施回詳細取得（リモート版freee-mcp限定）",
-        "description": "指定した実施回の詳細と回答対象者を取得します。",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/Survey.GetSurveyRequest.company_id"
-          },
-          {
-            "$ref": "#/components/parameters/Survey.GetSurveyRequest.id"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "実施回詳細取得レスポンス",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "survey": {
-                      "$ref": "#/components/schemas/Survey.SurveyDetails"
-                    },
-                    "survey_targets": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Survey.SurveyTargetWithUnansweredCount"
-                      },
-                      "description": "回答対象者のリスト"
-                    },
-                    "estimated_time": {
-                      "type": "integer",
-                      "format": "int32",
-                      "description": "回答所要時間の目安(分)",
-                      "example": 5
-                    }
-                  },
-                  "required": [
-                    "survey",
-                    "survey_targets",
-                    "estimated_time"
                   ],
                   "additionalProperties": false
                 }
@@ -1120,6 +1123,112 @@
   ],
   "components": {
     "parameters": {
+      "Survey.GetSurveyQuestionsRequest.survey_id": {
+        "name": "survey_id",
+        "in": "path",
+        "required": true,
+        "description": "実施回ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "Survey.GetSurveyQuestionsRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListBaseSurveysRequest": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListSurveysRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListSurveysRequest.base_survey_id": {
+        "name": "base_survey_id",
+        "in": "path",
+        "required": true,
+        "description": "サーベイ企画ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "Survey.ListSurveysRequest.include_hidden": {
+        "name": "include_hidden",
+        "in": "query",
+        "required": false,
+        "description": "非表示の実施回も含めるか",
+        "schema": {
+          "type": "boolean"
+        },
+        "explode": false
+      },
+      "Survey.ListSurveysRequest.start_date": {
+        "name": "start_date",
+        "in": "query",
+        "required": false,
+        "description": "実施回の開始日時の範囲指定 (開始)。この日時以降に開始する実施回に絞り込みます。end_date と同時に指定する必要があります",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "explode": false
+      },
+      "Survey.ListSurveysRequest.end_date": {
+        "name": "end_date",
+        "in": "query",
+        "required": false,
+        "description": "実施回の開始日時の範囲指定 (終了)。この日時以前に開始する実施回に絞り込みます。start_date と同時に指定する必要があります",
+        "schema": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "explode": false
+      },
+      "Survey.GetSurveyRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.GetSurveyRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "実施回ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
       "Survey.ListCompanySurveyResultsRequest.company_id": {
         "name": "company_id",
         "in": "query",
@@ -1272,101 +1381,6 @@
           "format": "int64"
         },
         "explode": false
-      },
-      "Survey.GetSurveyQuestionsRequest.survey_id": {
-        "name": "survey_id",
-        "in": "path",
-        "required": true,
-        "description": "実施回ID",
-        "schema": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "Survey.GetSurveyQuestionsRequest.company_id": {
-        "name": "company_id",
-        "in": "query",
-        "required": true,
-        "description": "事業所ID",
-        "schema": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "explode": false
-      },
-      "Survey.ListBaseSurveysRequest": {
-        "name": "company_id",
-        "in": "query",
-        "required": true,
-        "description": "事業所ID",
-        "schema": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "explode": false
-      },
-      "Survey.ListSurveysRequest.company_id": {
-        "name": "company_id",
-        "in": "query",
-        "required": true,
-        "description": "事業所ID",
-        "schema": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "explode": false
-      },
-      "Survey.ListSurveysRequest.base_survey_id": {
-        "name": "base_survey_id",
-        "in": "path",
-        "required": true,
-        "description": "サーベイ企画ID",
-        "schema": {
-          "type": "integer",
-          "format": "int64"
-        }
-      },
-      "Survey.ListSurveysRequest.include_hidden": {
-        "name": "include_hidden",
-        "in": "query",
-        "required": false,
-        "description": "非表示の実施回も含めるか",
-        "schema": {
-          "type": "boolean"
-        },
-        "explode": false
-      },
-      "Survey.ListSurveysRequest.year": {
-        "name": "year",
-        "in": "query",
-        "required": false,
-        "description": "対象年でのフィルタ",
-        "schema": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "explode": false
-      },
-      "Survey.GetSurveyRequest.company_id": {
-        "name": "company_id",
-        "in": "query",
-        "required": true,
-        "description": "事業所ID",
-        "schema": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "explode": false
-      },
-      "Survey.GetSurveyRequest.id": {
-        "name": "id",
-        "in": "path",
-        "required": true,
-        "description": "実施回ID",
-        "schema": {
-          "type": "integer",
-          "format": "int64"
-        }
       },
       "Launch.GetKaigyoApplicationRequest": {
         "name": "company_id",
@@ -1630,193 +1644,6 @@
           "code": "AHB-0001-9001",
           "message": "システムエラーが発生しました。時間をおいて再度お試しください。"
         },
-        "additionalProperties": false
-      },
-      "Survey.ScoreWithChange": {
-        "type": "object",
-        "required": [
-          "value",
-          "change",
-          "deviation_level"
-        ],
-        "properties": {
-          "value": {
-            "type": "string",
-            "description": "スコア値",
-            "example": "4.2"
-          },
-          "change": {
-            "type": "string",
-            "description": "前回実施回からの変化",
-            "example": "+0.3"
-          },
-          "deviation_level": {
-            "type": "string",
-            "description": "偏差レベル",
-            "example": "high"
-          }
-        },
-        "description": "スコアと前回実施回からの変化",
-        "additionalProperties": false
-      },
-      "Survey.TemplateQuestionCategoryTotalScore": {
-        "type": "object",
-        "required": [
-          "question_category",
-          "score"
-        ],
-        "properties": {
-          "question_category": {
-            "type": "string",
-            "description": "質問カテゴリ(働きやすさ/やりがい/カスタム)",
-            "example": "働きやすさ"
-          },
-          "score": {
-            "$ref": "#/components/schemas/Survey.ScoreWithChange"
-          }
-        },
-        "description": "質問カテゴリ別の合計スコア",
-        "additionalProperties": false
-      },
-      "Survey.QuestionScore": {
-        "type": "object",
-        "required": [
-          "survey_question_id",
-          "score"
-        ],
-        "properties": {
-          "survey_question_id": {
-            "type": "string",
-            "description": "設問ID",
-            "example": "1"
-          },
-          "score": {
-            "$ref": "#/components/schemas/Survey.ScoreWithChange"
-          }
-        },
-        "description": "設問別のスコア",
-        "additionalProperties": false
-      },
-      "Survey.CompanySurveyResult": {
-        "type": "object",
-        "required": [
-          "survey_id",
-          "question_category_total_scores",
-          "question_scores"
-        ],
-        "properties": {
-          "survey_id": {
-            "type": "string",
-            "description": "実施回ID",
-            "example": "1"
-          },
-          "question_category_total_scores": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Survey.TemplateQuestionCategoryTotalScore"
-            },
-            "description": "カテゴリ別の全社平均スコア"
-          },
-          "question_scores": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Survey.QuestionScore"
-            },
-            "description": "設問別の全社平均スコア"
-          }
-        },
-        "description": "全社平均",
-        "additionalProperties": false
-      },
-      "Survey.TurnoverRisk": {
-        "type": "string",
-        "enum": [
-          "TURNOVER_RISK_UNSPECIFIED",
-          "TURNOVER_RISK_STABLE",
-          "TURNOVER_RISK_POTENTIALLY_HIGH",
-          "TURNOVER_RISK_HIGH",
-          "TURNOVER_RISK_VERY_HIGH"
-        ],
-        "description": "離職リスク判定"
-      },
-      "Survey.EmployeeSurveyResult": {
-        "type": "object",
-        "required": [
-          "employee_id",
-          "survey_id",
-          "question_category_total_scores",
-          "question_scores",
-          "turnover_risk"
-        ],
-        "properties": {
-          "employee_id": {
-            "type": "string",
-            "description": "従業員ID",
-            "example": "100"
-          },
-          "survey_id": {
-            "type": "string",
-            "description": "実施回ID",
-            "example": "1"
-          },
-          "question_category_total_scores": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Survey.TemplateQuestionCategoryTotalScore"
-            },
-            "description": "カテゴリ別のスコア"
-          },
-          "question_scores": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Survey.QuestionScore"
-            },
-            "description": "設問別のスコア"
-          },
-          "turnover_risk": {
-            "$ref": "#/components/schemas/Survey.TurnoverRisk"
-          }
-        },
-        "description": "サーベイ結果",
-        "additionalProperties": false
-      },
-      "Survey.ResultSummaryStatus": {
-        "type": "string",
-        "enum": [
-          "RESULT_SUMMARY_STATUS_UNSPECIFIED",
-          "RESULT_SUMMARY_STATUS_PROCESSING",
-          "RESULT_SUMMARY_STATUS_COMPLETED",
-          "RESULT_SUMMARY_STATUS_FAILED"
-        ],
-        "description": "AI個人分析の生成ステータス"
-      },
-      "Survey.SurveyTargetResultSummary": {
-        "type": "object",
-        "required": [
-          "employee_id",
-          "summary_text",
-          "agenda_text",
-          "status"
-        ],
-        "properties": {
-          "employee_id": {
-            "type": "string",
-            "description": "従業員ID",
-            "example": "100"
-          },
-          "summary_text": {
-            "type": "string",
-            "description": "AI個人分析"
-          },
-          "agenda_text": {
-            "type": "string",
-            "description": "AI面談サポート"
-          },
-          "status": {
-            "$ref": "#/components/schemas/Survey.ResultSummaryStatus"
-          }
-        },
-        "description": "AI個人分析",
         "additionalProperties": false
       },
       "Survey.QuestionType": {
@@ -2332,6 +2159,193 @@
           }
         },
         "description": "回答対象者(未回答回数付き)",
+        "additionalProperties": false
+      },
+      "Survey.ScoreWithChange": {
+        "type": "object",
+        "required": [
+          "value",
+          "change",
+          "deviation_level"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "スコア値",
+            "example": "4.2"
+          },
+          "change": {
+            "type": "string",
+            "description": "前回実施回からの変化",
+            "example": "+0.3"
+          },
+          "deviation_level": {
+            "type": "string",
+            "description": "偏差レベル",
+            "example": "high"
+          }
+        },
+        "description": "スコアと前回実施回からの変化",
+        "additionalProperties": false
+      },
+      "Survey.TemplateQuestionCategoryTotalScore": {
+        "type": "object",
+        "required": [
+          "question_category",
+          "score"
+        ],
+        "properties": {
+          "question_category": {
+            "type": "string",
+            "description": "質問カテゴリ(働きやすさ/やりがい/カスタム)",
+            "example": "働きやすさ"
+          },
+          "score": {
+            "$ref": "#/components/schemas/Survey.ScoreWithChange"
+          }
+        },
+        "description": "質問カテゴリ別の合計スコア",
+        "additionalProperties": false
+      },
+      "Survey.QuestionScore": {
+        "type": "object",
+        "required": [
+          "survey_question_id",
+          "score"
+        ],
+        "properties": {
+          "survey_question_id": {
+            "type": "string",
+            "description": "設問ID",
+            "example": "1"
+          },
+          "score": {
+            "$ref": "#/components/schemas/Survey.ScoreWithChange"
+          }
+        },
+        "description": "設問別のスコア",
+        "additionalProperties": false
+      },
+      "Survey.CompanySurveyResult": {
+        "type": "object",
+        "required": [
+          "survey_id",
+          "question_category_total_scores",
+          "question_scores"
+        ],
+        "properties": {
+          "survey_id": {
+            "type": "string",
+            "description": "実施回ID",
+            "example": "1"
+          },
+          "question_category_total_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.TemplateQuestionCategoryTotalScore"
+            },
+            "description": "カテゴリ別の全社平均スコア"
+          },
+          "question_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.QuestionScore"
+            },
+            "description": "設問別の全社平均スコア"
+          }
+        },
+        "description": "全社平均",
+        "additionalProperties": false
+      },
+      "Survey.TurnoverRisk": {
+        "type": "string",
+        "enum": [
+          "TURNOVER_RISK_UNSPECIFIED",
+          "TURNOVER_RISK_STABLE",
+          "TURNOVER_RISK_POTENTIALLY_HIGH",
+          "TURNOVER_RISK_HIGH",
+          "TURNOVER_RISK_VERY_HIGH"
+        ],
+        "description": "離職リスク判定"
+      },
+      "Survey.EmployeeSurveyResult": {
+        "type": "object",
+        "required": [
+          "employee_id",
+          "survey_id",
+          "question_category_total_scores",
+          "question_scores",
+          "turnover_risk"
+        ],
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "description": "従業員ID",
+            "example": "100"
+          },
+          "survey_id": {
+            "type": "string",
+            "description": "実施回ID",
+            "example": "1"
+          },
+          "question_category_total_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.TemplateQuestionCategoryTotalScore"
+            },
+            "description": "カテゴリ別のスコア"
+          },
+          "question_scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Survey.QuestionScore"
+            },
+            "description": "設問別のスコア"
+          },
+          "turnover_risk": {
+            "$ref": "#/components/schemas/Survey.TurnoverRisk"
+          }
+        },
+        "description": "サーベイ結果",
+        "additionalProperties": false
+      },
+      "Survey.ResultSummaryStatus": {
+        "type": "string",
+        "enum": [
+          "RESULT_SUMMARY_STATUS_UNSPECIFIED",
+          "RESULT_SUMMARY_STATUS_PROCESSING",
+          "RESULT_SUMMARY_STATUS_COMPLETED",
+          "RESULT_SUMMARY_STATUS_FAILED"
+        ],
+        "description": "AI個人分析の生成ステータス"
+      },
+      "Survey.SurveyTargetResultSummary": {
+        "type": "object",
+        "required": [
+          "employee_id",
+          "summary_text",
+          "agenda_text",
+          "status"
+        ],
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "description": "従業員ID",
+            "example": "100"
+          },
+          "summary_text": {
+            "type": "string",
+            "description": "AI個人分析"
+          },
+          "agenda_text": {
+            "type": "string",
+            "description": "AI面談サポート"
+          },
+          "status": {
+            "$ref": "#/components/schemas/Survey.ResultSummaryStatus"
+          }
+        },
+        "description": "AI個人分析",
         "additionalProperties": false
       },
       "Launch.Prefecture": {

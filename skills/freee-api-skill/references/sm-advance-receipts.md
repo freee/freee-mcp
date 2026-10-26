@@ -7,7 +7,7 @@
 概要 前受金の一覧を取得します。 登録されている前受金情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する前受金のみを取得することが可能です。
 
 定義
-advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生日(絞り込み開始) end_advance_receipt_date : 前受金発生日(絞り込み終了) start_registered_date : 前受金登録日(絞り込み開始) end_registered_date : 前受金登録日(絞り込み終了) start_last_updated_date : 前受金更新日(絞り込み開始) end_last_updated_date : 前受金更新日(絞り込み終了) customer_ids : 顧客の取引先ID(複数指定可) charge_employee_ids : 社内担当者の従業員ID(複数指定可) business_ids : 案件ID(複数指定可) billing_status : 請求書送付ステータス collection_...
+advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生日(絞り込み開始) end_advance_receipt_date : 前受金発生日(絞り込み終了) start_registered_date : 前受金登録日(絞り込み開始) end_registered_date : 前受金登録日(絞り込み終了) start_last_updated_date : 前受金更新日(絞り込み開始) end_last_updated_date : 前受金更新日(絞り込み終了) customer_ids : 顧客の取引先ID(複数指定可) charge_employee_ids : 社内担当者の従業員ID(複数指定可) charge_member_ids : 社内担当者のメンバーID(複数指定可) business_ids : 案件ID(複数指定可)...
 
 ### パラメータ
 
@@ -21,6 +21,11 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 - end_last_updated_date: string(date) - 前受金更新日で絞込：終了日(yyyy-mm-dd)
 - customer_ids[]: array[integer] - 顧客の取引先ID
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
+
+  charge_member_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
+- charge_member_ids[]: array[string] - 社内担当者のメンバーID
+
+  charge_employee_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
 - business_ids[]: array[string] - 案件ID
 - billing_status: string - 請求書送付ステータス (未請求: not_billed, 一部請求済: partially_billed, 請求済: billed, なし: none) (選択肢: not_billed, partially_billed, billed, none)
 - collection_status: string - 決済ステータス (未決済: not_settled, 一部決済済: partially_settled, 決済済: settled, 無効: invalidated, 対象外: none) (選択肢: not_settled, partially_settled, settled, invalidated, none)
@@ -33,7 +38,7 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 概要 新しい前受金を登録します。 顧客から受け取った前受金情報を登録し、請求・入金管理に利用できます。
 
 定義
-必須項目 account_item_id : 勘定科目ID advance_receipt_date : 前受金発生日 billing_partner_id : 請求先の取引先ID bills_on : 請求日 business_id : 案件ID collecting_partner_id : 入金元の取引先ID collection_method_type : 入金方法 collects_on : 入金期日 customer_id : 顧客の取引先ID lines : 明細リスト 任意項目 sales_order_id : 受注ID（受注に紐づける場合） accounting_reporting_section_id : 会計計上部門ID charge_employee_id : 社内担当者の従業員ID customer_order_no : 顧客注文No. internal_memo : 社内メモ internal_subject : 前受金タイトル invoice_no...
+必須項目 account_item_id : 勘定科目ID advance_receipt_date : 前受金発生日 billing_partner_id : 請求先の取引先ID bills_on : 請求日 business_id : 案件ID collecting_partner_id : 入金元の取引先ID collection_method_type : 入金方法 collects_on : 入金期日 customer_id : 顧客の取引先ID lines : 明細リスト 任意項目 sales_order_id : 受注ID（受注に紐づける場合） accounting_reporting_section_id : 会計計上部門ID charge_employee_id : 社内担当者の従業員ID charge_member_id : 社内担当者のメンバーID customer_order_no : 顧客注文No. internal_memo : 社内メモ inter...
 
 ### リクエストボディ
 
@@ -46,7 +51,12 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 - billing_partner_id*: integer(int64) - 請求先の取引先ID 例: `1002` (最小: 1, 最大: 9223372036854776000)
 - bills_on*: string(date) - 請求日 例: `2024-02-01`
 - business_id*: string - 案件ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - collecting_partner_id*: integer(int64) - 入金元の取引先ID 例: `1003` (最小: 1, 最大: 9223372036854776000)
 - collection_method_type*: string - 入金方法 (振込: transfer, 現金: cash, 手形: bill_payable, 振替: direct_debit) (選択肢: transfer, cash, bill_payable, direct_debit) 例: `transfer`
 - collects_on*: string(date) - 入金期日 例: `2024-02-28`
@@ -97,8 +107,10 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 - canceled*: boolean - 取消状態
 - registered_at*: string(date-time) - 登録日時
 - registered_by*: object - 登録者
+- registered_by_member: object - 登録者
 - last_updated_at*: string(date-time) - 変更日時
 - last_updated_by*: object - 変更者
+- last_updated_by_member: object - 変更者
 - amount_set*: object - 金額セット
 - total_amount*: integer(int64) - 源泉徴収税額を除いた合計金額
 - business*: object - 案件
@@ -119,6 +131,7 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 - collects_on: string(date) - 入金予定日
 - collection_status*: string - 決済ステータス
 - charge_employee: object - 社内担当者
+- charge_member: object - 社内担当者
 - reporting_section: object - 担当部門
 - internal_memo: string - 社内メモ
 - sales_order_id: string - 受注ID
@@ -139,7 +152,7 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 概要 指定されたIDの前受金を更新します。 前受金の基本情報を部分的に更新できます。 送信したフィールドのみが更新され、送信しなかったフィールドは変更されません。
 
 定義
-更新可能項目 account_item_id : 勘定科目ID advance_receipt_date : 前受金発生日 business_id : 案件ID customer_id : 顧客の取引先ID lines : 明細リスト（指定した場合、既存の明細は全て削除され、新しい明細に置き換えられます） accounting_reporting_section_id : 会計計上部門ID charge_employee_id : 社内担当者の従業員ID customer_order_no : 顧客注文No. internal_memo : 社内メモ internal_subject : 前受金タイトル item_tag_id : 会計品目タグID memo_tags : メモタグID reporting_section_id : 担当部門ID segment_tag_1_id : セグメント1のID segment_...
+更新可能項目 account_item_id : 勘定科目ID advance_receipt_date : 前受金発生日 business_id : 案件ID customer_id : 顧客の取引先ID lines : 明細リスト（指定した場合、既存の明細は全て削除され、新しい明細に置き換えられます） accounting_reporting_section_id : 会計計上部門ID charge_employee_id : 社内担当者の従業員ID charge_member_id : 社内担当者のメンバーID customer_order_no : 顧客注文No. internal_memo : 社内メモ internal_subject : 前受金タイトル item_tag_id : 会計品目タグID memo_tags : メモタグID reporting_section_id : 担当部門ID segme...
 
 ### パラメータ
 
@@ -154,7 +167,12 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - advance_receipt_date: string(date) - 前受金発生日 例: `2024-01-31`
 - business_id: string - 案件ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - customer_id: integer(int64) - 顧客の取引先ID 例: `1001` (最小: 1, 最大: 9223372036854776000)
 - customer_order_no: string - 顧客注文No. 例: `C-PO-20211212-001`
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
@@ -209,7 +227,12 @@ PATCH /advance_receipts/{id} と同じ
 - business_id: string - 案件ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - subject: string - 売上タイトル 例: `売上サンプル案件`
 - customer_order_no: string - 顧客注文No. 例: `C-PO-20211212-001`
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
@@ -258,7 +281,12 @@ PATCH /advance_receipts/{id} と同じ
 - business_id: string - 案件ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - subject: string - 定期売上タイトル 例: `サンプル案件定期売上の件`
 - customer_order_no: string - 顧客注文No. 例: `C-PO-20211212-001`
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)

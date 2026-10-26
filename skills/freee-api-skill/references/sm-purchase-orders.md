@@ -7,7 +7,7 @@
 概要 発注の一覧を取得します。 登録されている発注情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する発注のみを取得することが可能です。
 
 定義
-start_registered_date : 発注登録日(絞り込み開始) end_registered_date : 発注登録日(絞り込み終了) start_last_updated_date : 発注更新日(絞り込み開始) end_last_updated_date : 発注更新日(絞り込み終了) start_purchase_order_date : 発注日(絞り込み開始) end_purchase_order_date : 発注日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) supplier_ids : 仕入先の取引先ID(複数指定可) business_ids : 案件ID(複数指定可) purchase_order_no : 発注No. payment_status : 支払ステータス issued : 送付ステータス procurement_s...
+start_registered_date : 発注登録日(絞り込み開始) end_registered_date : 発注登録日(絞り込み終了) start_last_updated_date : 発注更新日(絞り込み開始) end_last_updated_date : 発注更新日(絞り込み終了) start_purchase_order_date : 発注日(絞り込み開始) end_purchase_order_date : 発注日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) charge_member_ids : 社内担当者のメンバーID(複数指定可) supplier_ids : 仕入先の取引先ID(複数指定可) business_ids : 案件ID(複数指定可) purchase_order_no : 発注No. payment_status ...
 
 ### パラメータ
 
@@ -19,6 +19,11 @@ start_registered_date : 発注登録日(絞り込み開始) end_registered_date 
 - start_purchase_order_date: string(date) - 発注日で絞込：開始日(yyyy-mm-dd)
 - end_purchase_order_date: string(date) - 発注日で絞込：終了日(yyyy-mm-dd)
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
+
+  charge_member_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
+- charge_member_ids[]: array[string] - 社内担当者のメンバーID
+
+  charge_employee_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
 - supplier_ids[]: array[integer] - 仕入先の取引先ID
 - business_ids[]: array[string] - 案件ID
 - purchase_order_no: string - 発注No.で絞込
@@ -66,7 +71,12 @@ start_registered_date : 発注登録日(絞り込み開始) end_registered_date 
 - payments_on: string(date) - 支払予定日 例: `2025-06-30`
 - payment_method_type*: string - 支払方法 (選択肢: transfer, cash, bill_payable) 例: `transfer`
 - payment_partner_id*: integer(int64) - 支払先の取引先ID 例: `1002` (最小: 1, 最大: 9223372036854776000)
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
@@ -88,8 +98,10 @@ start_registered_date : 発注登録日(絞り込み開始) end_registered_date 
 - id*: string - 発注ID
 - canceled*: boolean - 取消状態
 - registered_by*: object - 登録者
+- registered_by_member: object - 登録者
 - registered_at*: string(date-time) - 登録日時
 - last_updated_by*: object - 変更者
+- last_updated_by_member: object - 変更者
 - last_updated_at*: string(date-time) - 変更日時
 - business: object - 案件
 - purchase_order_no*: string - 発注No.
@@ -118,6 +130,7 @@ start_registered_date : 発注登録日(絞り込み開始) end_registered_date 
 - payment_method_type*: string - 支払方法
 - payment_partner*: object - 支払先
 - charge_employee: object - 社内担当者
+- charge_member: object - 社内担当者
 - reporting_section: object - 担当部門
 - internal_memo: string - 社内メモ
 - amount_set*: object - 金額セット
@@ -168,7 +181,12 @@ start_registered_date : 発注登録日(絞り込み開始) end_registered_date 
 - payments_on: string(date) - 支払予定日 例: `2025-06-30`
 - payment_method_type: string - 支払方法 (選択肢: transfer, cash, bill_payable) 例: `transfer`
 - payment_partner_id: integer(int64) - 支払先の取引先ID 例: `1002` (最小: 1, 最大: 9223372036854776000)
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
