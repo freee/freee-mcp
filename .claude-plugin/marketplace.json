@@ -3,6 +3,7 @@
   "owner": {
     "name": "freee"
   },
+  "description": "freee 公式の Claude Code プラグインのマーケットプレイス",
   "plugins": [
     {
       "name": "freee-mcp",
