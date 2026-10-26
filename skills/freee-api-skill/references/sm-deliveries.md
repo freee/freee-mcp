@@ -7,7 +7,7 @@
 概要 納品の一覧を取得します。 登録されている納品情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する納品のみを取得することが可能です。
 
 定義
-start_registered_date : 登録日(絞り込み開始) end_registered_date : 登録日(絞り込み終了) start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 更新日(絞り込み終了) start_delivery_date : 納品日(絞り込み開始) end_delivery_date : 納品日(絞り込み終了) start_acceptance_date : 検収日(絞り込み開始) end_acceptance_date : 検収日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) delivery_no : 納品No. delivery_status : 納品ステータス canceled : 取消...
+start_registered_date : 登録日(絞り込み開始) end_registered_date : 登録日(絞り込み終了) start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 更新日(絞り込み終了) start_delivery_date : 納品日(絞り込み開始) end_delivery_date : 納品日(絞り込み終了) start_acceptance_date : 検収日(絞り込み開始) end_acceptance_date : 検収日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) charge_member_ids : 社内担当者のメンバーID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) delivery_no : 納品No....
 
 ### パラメータ
 
@@ -21,6 +21,11 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 - start_acceptance_date: string(date) - 検収日で絞込：開始日(yyyy-mm-dd)
 - end_acceptance_date: string(date) - 検収日で絞込：終了日(yyyy-mm-dd)
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
+
+  charge_member_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
+- charge_member_ids[]: array[string] - 社内担当者のメンバーID
+
+  charge_employee_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
 - customer_ids[]: array[integer] - 顧客の取引先ID
 - delivery_no: string - 納品No.で絞込
 - delivery_status: string - 納品ステータス (未納品: not_delivered, 納品済: delivered) (選択肢: not_delivered, delivered)
@@ -66,7 +71,12 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 - collects_on: string(date) - 入金予定日 例: `2025-04-01`
 - collection_method_type*: string - 入金方法 (振込: transfer, 現金: cash, 手形: bill_payable, 振替: direct_debit) (選択肢: transfer, cash, bill_payable, direct_debit) 例: `transfer`
 - collecting_partner_id*: integer(int64) - 入金元の取引先ID 例: `1003` (最小: 1, 最大: 9223372036854776000)
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
@@ -92,8 +102,10 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 - canceled*: boolean - 取消状態
 - registered_at*: string(date-time) - 登録日時
 - registered_by*: object - 登録者
+- registered_by_member: object - 登録者
 - last_updated_at*: string(date-time) - 変更日時
 - last_updated_by*: object - 変更者
+- last_updated_by_member: object - 変更者
 - amount_set*: object - 金額セット
 - amount_of_withholding_tax: integer(int64) - 源泉徴収税額
 - total_amount*: integer(int64) - 源泉徴収税額を除いた合計金額
@@ -129,6 +141,7 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 - collection_method_type*: string - 入金方法 (振込: transfer, 現金: cash, 手形: bill_payable, 振替: direct_debit)
 - collecting_partner: object - 入金元
 - charge_employee: object - 社内担当者
+- charge_member: object - 社内担当者
 - reporting_section: object - 担当部門
 - internal_memo: string - 社内メモ
 - lines*: array[object] - 明細リスト
@@ -174,7 +187,12 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 - collects_on: string(date) - 入金予定日 例: `2025-04-01`
 - collection_method_type: string - 入金方法 (振込: transfer, 現金: cash, 手形: bill_payable, 振替: direct_debit) (選択肢: transfer, cash, bill_payable, direct_debit) 例: `transfer`
 - collecting_partner_id: integer(int64) - 入金元の取引先ID 例: `1003` (最小: 1, 最大: 9223372036854776000)
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)

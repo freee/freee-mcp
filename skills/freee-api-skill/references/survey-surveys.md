@@ -4,6 +4,66 @@
 
 survey
 
+## GET /hub/survey/surveys/{survey_id}/questions — 設問の取得（リモート版freee-mcp限定）
+
+指定した実施回の設問の一覧を取得します。
+
+### パラメータ
+
+- survey_id* (path): integer(int64) - 実施回ID
+- company_id*: integer(int64) - 事業所ID
+
+### レスポンス
+
+設問一覧取得レスポンス
+- data*: array[object] - 設問のリスト
+
+## GET /hub/survey/base_surveys — サーベイ企画一覧取得（リモート版freee-mcp限定）
+
+サーベイ企画の一覧を取得します。
+
+### パラメータ
+
+- company_id*: integer(int64) - 事業所ID
+
+### レスポンス
+
+サーベイ企画一覧取得レスポンス
+- data*: array[object] - サーベイ企画のリスト
+
+## GET /hub/survey/base_surveys/{base_survey_id}/surveys — 実施回一覧取得（リモート版freee-mcp限定）
+
+指定したサーベイ企画に紐づく実施回の一覧を取得します。
+
+### パラメータ
+
+- company_id*: integer(int64) - 事業所ID
+- base_survey_id* (path): integer(int64) - サーベイ企画ID
+- include_hidden: boolean - 非表示の実施回も含めるか
+- start_date: string(date-time) - 実施回の開始日時の範囲指定 (開始)。この日時以降に開始する実施回に絞り込みます。end_date と同時に指定する必要があります
+- end_date: string(date-time) - 実施回の開始日時の範囲指定 (終了)。この日時以前に開始する実施回に絞り込みます。start_date と同時に指定する必要があります
+
+### レスポンス
+
+実施回一覧取得レスポンス
+- data*: array[object] - 実施回のリスト
+
+## GET /hub/survey/surveys/{id} — 実施回詳細取得（リモート版freee-mcp限定）
+
+指定した実施回の詳細と回答対象者を取得します。
+
+### パラメータ
+
+- company_id*: integer(int64) - 事業所ID
+- id* (path): integer(int64) - 実施回ID
+
+### レスポンス
+
+実施回詳細取得レスポンス
+- survey*: object - 実施回の詳細
+- survey_targets*: array[object] - 回答対象者のリスト
+- estimated_time*: integer(int32) - 回答所要時間の目安(分)
+
 ## GET /hub/survey/base_surveys/{base_survey_id}/company_survey_results — 全社平均一覧取得（リモート版freee-mcp限定）
 
 指定した実施回の全社平均を取得します。
@@ -55,62 +115,3 @@ survey
 
 AI個人分析一覧取得レスポンス
 - data*: array[object] - AI個人分析のリスト
-
-## GET /hub/survey/surveys/{survey_id}/questions — 設問の取得（リモート版freee-mcp限定）
-
-指定した実施回の設問の一覧を取得します。
-
-### パラメータ
-
-- survey_id* (path): integer(int64) - 実施回ID
-- company_id*: integer(int64) - 事業所ID
-
-### レスポンス
-
-設問一覧取得レスポンス
-- data*: array[object] - 設問のリスト
-
-## GET /hub/survey/base_surveys — サーベイ企画一覧取得（リモート版freee-mcp限定）
-
-サーベイ企画の一覧を取得します。
-
-### パラメータ
-
-- company_id*: integer(int64) - 事業所ID
-
-### レスポンス
-
-サーベイ企画一覧取得レスポンス
-- data*: array[object] - サーベイ企画のリスト
-
-## GET /hub/survey/base_surveys/{base_survey_id}/surveys — 実施回一覧取得（リモート版freee-mcp限定）
-
-指定したサーベイ企画に紐づく実施回の一覧を取得します。
-
-### パラメータ
-
-- company_id*: integer(int64) - 事業所ID
-- base_survey_id* (path): integer(int64) - サーベイ企画ID
-- include_hidden: boolean - 非表示の実施回も含めるか
-- year: integer(int32) - 対象年でのフィルタ
-
-### レスポンス
-
-実施回一覧取得レスポンス
-- data*: array[object] - 実施回のリスト
-
-## GET /hub/survey/surveys/{id} — 実施回詳細取得（リモート版freee-mcp限定）
-
-指定した実施回の詳細と回答対象者を取得します。
-
-### パラメータ
-
-- company_id*: integer(int64) - 事業所ID
-- id* (path): integer(int64) - 実施回ID
-
-### レスポンス
-
-実施回詳細取得レスポンス
-- survey*: object - 実施回の詳細
-- survey_targets*: array[object] - 回答対象者のリスト
-- estimated_time*: integer(int32) - 回答所要時間の目安(分)

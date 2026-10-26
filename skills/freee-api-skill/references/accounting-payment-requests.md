@@ -295,22 +295,22 @@ POST /api/1/payment_requests と同じ
   partner_id と同時指定した場合は partner_id が優先され、partner_code は無視されます。
   取引先コードを利用するには事業所側で「取引先コードを利用する」設定が有効になっている必要があります。 例: `code001`
 - bank_code: string - 銀行コード（半角数字1桁〜4桁）
-  partner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。 例: `0001`
+  partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。 例: `0001`
 - bank_name: string - 銀行名（255文字以内）
-  partner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。 例: `freee銀行`
+  partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。 例: `freee銀行`
 - bank_name_kana: string - 銀行名（カナ）（15文字以内）
-  partner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。 例: `フリーギンコウ`
+  partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。 例: `フリーギンコウ`
 - branch_code: string - 支店番号（半角数字1桁〜3桁）
-  partner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。 例: `101`
+  partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。 例: `101`
 - branch_name: string - 支店名（255文字以内）
-  partner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。 例: `銀座支店`
+  partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。 例: `銀座支店`
 - branch_kana: string - 支店名（カナ）（15文字以内）
   指定可能な文字は、英数・カナ・丸括弧・ハイフン・スペースのみです。
-  partner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。 例: `ギンザシテン`
+  partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。 例: `ギンザシテン`
 - account_name: string - 受取人名（カナ）（48文字以内）
-  partner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。 例: `フリータロウ`
+  partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。 例: `フリータロウ`
 - account_number: string - 口座番号（半角数字1桁〜7桁）
-  partner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。 例: `1010101`
+  partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。 例: `1010101`
 - account_type: string - 口座種別（デフォルトは `ordinary`）
   * `ordinary` - 普通
   * `checking` - 当座
@@ -318,7 +318,7 @@ POST /api/1/payment_requests と同じ
   * `savings` - 貯蓄
   * `other` - その他
 
-  partner_id / partner_code で支払先を指定した場合、本項目の値は無視されます。支払先を変更した場合は変更後の取引先の振込先口座の値が採用され、支払先が変わらない場合は支払依頼に保存されている値が維持されます。 (選択肢: ordinary, checking, earmarked, savings, other) 例: `ordinary`
+  partner_id / partner_code で支払先を指定した場合は無視され、取引先の振込先口座の値が採用されます。 (選択肢: ordinary, checking, earmarked, savings, other) 例: `ordinary`
 - qualified_invoice_status: string - 適格請求書発行事業者の区分（キーを省略した場合は `unspecified` が適用されます）
   * `qualified` - 該当する
   * `not_qualified` - 該当しない

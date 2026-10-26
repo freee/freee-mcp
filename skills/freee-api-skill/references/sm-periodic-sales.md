@@ -25,6 +25,11 @@ canceled : 取消状態(デフォルト:false) start_recurrence_period : 繰り�
 - end_last_revenue_recognition_date: string(date) - 最終計上日で絞込：終了日(yyyy-mm-dd)
 - customer_ids[]: array[integer] - 顧客の取引先ID
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
+
+  charge_member_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
+- charge_member_ids[]: array[string] - 社内担当者のメンバーID
+
+  charge_employee_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
 - reporting_section_ids[]: array[integer] - 担当部門ID
 - business_ids[]: array[string] - 案件ID
 - periodic_sales_no: string - 定期売上No.で絞込
@@ -65,7 +70,12 @@ canceled : 取消状態(デフォルト:false) start_recurrence_period : 繰り�
   - cutoff_day*: integer(int32) - 締め日。1〜28 の日付、または末日を指定します。末日は 32 を指定してください（29〜31 は月によって存在しない日があるため指定できません）。 例: `32`
   - additional_months*: integer(int32) - 締め日を基準に加算する月数。0 は当月、1 は翌月、2 は翌々月 例: `1` (最小: 0, 最大: 6)
   - fixed_day*: integer(int32) - 締め日を基準に additional_months か月後の予定日の日。1〜28 の日付、または末日を指定します。末日は 32 を指定してください（29〜31 は月によって存在しない日があるため指定できません）。 例: `32`
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
@@ -119,7 +129,12 @@ canceled : 取消状態(デフォルト:false) start_recurrence_period : 繰り�
   - cutoff_day*: integer(int32) - 締め日。1〜28 の日付、または末日を指定します。末日は 32 を指定してください（29〜31 は月によって存在しない日があるため指定できません）。 例: `32`
   - additional_months*: integer(int32) - 締め日を基準に加算する月数。0 は当月、1 は翌月、2 は翌々月 例: `1` (最小: 0, 最大: 6)
   - fixed_day*: integer(int32) - 締め日を基準に additional_months か月後の予定日の日。1〜28 の日付、または末日を指定します。末日は 32 を指定してください（29〜31 は月によって存在しない日があるため指定できません）。 例: `32`
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)

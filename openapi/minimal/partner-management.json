@@ -787,6 +787,22 @@
         "hasJsonBody": true
       }
     },
+    "/hub/partner_management/orderer/tasks/{task_id}/assignment": {
+      "post": {
+        "summary": "タスクを依頼中にする（β版）",
+        "description": "指定したタスク（発注書）を、下書き（draft）から依頼中（assigned）へステータス遷移させ、発注時刻を記録する。ログインありパートナーのタスクは、開始前以降のステータスから下書きや依頼中へ戻すことはできない。一方、ログインなしパートナーのタスクについては、条件を満たす場合に依頼中へ戻すことが可能。なお、発注承認が必要なタスクは、発注承認が完了するまで依頼中にできずエラーとなる",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "対象のタスクID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/hub/partner_management/orderer/tasks/{id}": {
       "patch": {
         "summary": "タスク更新（β版）",
@@ -798,6 +814,38 @@
             "type": "integer",
             "required": true,
             "description": "更新対象のタスクID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/completion": {
+      "post": {
+        "summary": "タスクを検収済みにする（β版）",
+        "description": "指定したタスクのステータスを提出済み (submitted) から検収済み (completed) に変更する。提出済み以外のタスクは検収済みにできずエラーとなる。検収承認が必要なタスクは、検収承認が完了するまで検収済みにできずエラーとなる",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "検収済みにするタスクのID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/cancellation": {
+      "post": {
+        "summary": "タスクキャンセル（β版）",
+        "description": "指定したタスクを、キャンセル（canceled）へステータス遷移させる。下書き（draft）・キャンセル（canceled）のタスクは対象外。ログインありパートナーのタスクは検収済み（completed）からはキャンセルできない。一方、ログインなしパートナーのタスクは検収済みからもキャンセルできる。なお、請求書に含まれているタスクはキャンセルできない（請求書がキャンセル・削除済みの場合を除く）",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "キャンセルにするタスクのID"
           }
         ],
         "hasJsonBody": true

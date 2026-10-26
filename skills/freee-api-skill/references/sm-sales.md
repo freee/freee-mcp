@@ -7,17 +7,26 @@
 概要 売上の一覧を取得します。 登録されている売上情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する売上のみを取得することが可能です。
 
 定義
-start_registered_date : 売上登録日(絞り込み開始) end_registered_date : 売上登録日(絞り込み終了) start_last_updated_date : 売上更新日(絞り込み開始) end_last_updated_date : 売上更新日(絞り込み終了) start_revenue_recognition_date : 売上日(絞り込み開始) end_revenue_recognition_date : 売上日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) business_ids : 案件ID(複数指定可) sales_no : 売上No. billing_status : 請求書送付ステータス collection_status : 決済ステータス...
+start_registered_date : 売上登録日(絞り込み開始) end_registered_date : 売上登録日(絞り込み終了) start_last_updated_date : 売上更新日(絞り込み開始) end_last_updated_date : 売上更新日(絞り込み終了) start_revenue_recognition_date : 売上日(絞り込み開始) end_revenue_recognition_date : 売上日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) charge_member_ids : 社内担当者のメンバーID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) business_ids : 案件ID(複数指定可) sales_no : 売上No. billing_status ...
 
 ### パラメータ
 
 - company_id*: integer(int64) - 事業所ID
 - start_registered_date: string(date) - 売上登録日で絞込：開始日(yyyy-mm-dd)
 - end_registered_date: string(date) - 売上登録日で絞込：終了日(yyyy-mm-dd)
+- start_last_updated_date: string(date) - 売上更新日で絞込：開始日(yyyy-mm-dd)
+- end_last_updated_date: string(date) - 売上更新日で絞込：終了日(yyyy-mm-dd)
 - start_revenue_recognition_date: string(date) - 売上日で絞込：開始日(yyyy-mm-dd)
 - end_revenue_recognition_date: string(date) - 売上日で絞込：終了日(yyyy-mm-dd)
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
+
+  charge_member_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
+- charge_member_ids[]: array[string] - 社内担当者のメンバーID
+
+  charge_employee_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
 - customer_ids[]: array[integer] - 顧客の取引先ID
+- business_ids[]: array[string] - 案件ID
+- sales_no: string - 売上No.で絞込
 - billing_status: string - 請求書送付ステータス (未送付: not_billed, 送付済: billed, 対象外: none) (選択肢: not_billed, billed, none)
 - collection_status: string - 決済ステータス (未決済: not_settled, 一部決済済: partially_settled, 決済済: settled, 対象外: none) (選択肢: not_settled, partially_settled, settled, none)
 - canceled: boolean - 取消状態
@@ -50,7 +59,12 @@ start_registered_date : 売上登録日(絞り込み開始) end_registered_date 
 - collects_on: string(date) - 入金期日 例: `2021-12-12`
 - collection_method_type*: string - 入金方法 (振込: transfer, 現金: cash, 手形: bill_payable, 振替: direct_debit) (選択肢: transfer, cash, bill_payable, direct_debit) 例: `transfer`
 - collecting_partner_id*: integer(int64) - 入金元の取引先ID 例: `1003` (最小: 1, 最大: 9223372036854776000)
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
@@ -74,8 +88,10 @@ start_registered_date : 売上登録日(絞り込み開始) end_registered_date 
 - canceled*: boolean - 取消状態
 - registered_at*: string(date-time) - 登録日時
 - registered_by*: object - 登録者
+- registered_by_member: object - 登録者
 - last_updated_at*: string(date-time) - 変更日時
 - last_updated_by*: object - 変更者
+- last_updated_by_member: object - 変更者
 - amount_set*: object - 金額セット
 - amount_of_withholding_tax: integer(int64) - 源泉徴収税額
 - total_amount*: integer(int64) - 源泉徴収税額を除いた合計金額
@@ -112,6 +128,7 @@ start_registered_date : 売上登録日(絞り込み開始) end_registered_date 
   * `none` - なし
 - collecting_partner: object - 入金元
 - charge_employee: object - 社内担当者
+- charge_member: object - 社内担当者
 - reporting_section: object - 担当部門
 - internal_memo: string - 社内メモ
 - amount_set_rates*: array[object]
@@ -122,7 +139,7 @@ start_registered_date : 売上登録日(絞り込み開始) end_registered_date 
 概要 指定されたIDの売上を更新します。 売上の基本情報、請求・入金情報などを部分的に更新できます。 送信したフィールドのみが更新され、送信しなかったフィールドは変更されません。
 
 定義
-更新可能項目 subject : 売上タイトル revenue_recognition_date : 売上日 customer_order_no : 顧客注文No. customer_id : 顧客の取引先ID billing_partner_id : 請求先の取引先ID bills_on : 請求日 invoice_template_id : 請求書テンプレートID invoice_subject : 請求書件名 invoice_note : 請求書の備考欄に掲載する内容 collecting_partner_id : 入金元の取引先ID collection_method_type : 入金方法 collects_on : 入金期日 charge_employee_id : 社内担当者の従業員ID reporting_section_id : 担当部門ID internal_memo : 社内メモ ...
+更新可能項目 subject : 売上タイトル revenue_recognition_date : 売上日 customer_order_no : 顧客注文No. customer_id : 顧客の取引先ID billing_partner_id : 請求先の取引先ID bills_on : 請求日 invoice_template_id : 請求書テンプレートID invoice_subject : 請求書件名 invoice_note : 請求書の備考欄に掲載する内容 collecting_partner_id : 入金元の取引先ID collection_method_type : 入金方法 collects_on : 入金期日 charge_employee_id : 社内担当者の従業員ID charge_member_id : 社内担当者のメンバーID reporting_section_i...
 
 ### パラメータ
 
@@ -144,7 +161,12 @@ start_registered_date : 売上登録日(絞り込み開始) end_registered_date 
 - collects_on: string(date) - 入金期日 例: `2021-12-12`
 - collection_method_type: string - 入金方法 (振込: transfer, 現金: cash, 手形: bill_payable, 振替: direct_debit) (選択肢: transfer, cash, bill_payable, direct_debit) 例: `transfer`
 - collecting_partner_id: integer(int64) - 入金元の取引先ID 例: `1003` (最小: 1, 最大: 9223372036854776000)
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)

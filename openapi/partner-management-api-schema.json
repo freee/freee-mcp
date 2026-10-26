@@ -1417,6 +1417,59 @@
         }
       }
     },
+    "/hub/partner_management/orderer/tasks/{task_id}/assignment": {
+      "post": {
+        "operationId": "create_partner_management_orderer_task_assignment",
+        "summary": "タスクを依頼中にする（β版）",
+        "description": "指定したタスク（発注書）を、下書き（draft）から依頼中（assigned）へステータス遷移させ、発注時刻を記録する。ログインありパートナーのタスクは、開始前以降のステータスから下書きや依頼中へ戻すことはできない。一方、ログインなしパートナーのタスクについては、条件を満たす場合に依頼中へ戻すことが可能。なお、発注承認が必要なタスクは、発注承認が完了するまで依頼中にできずエラーとなる",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Tasks.CreateAssignmentRequest.task_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "依頼中にするレスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.Task"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_tasks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "freee事業所ID",
+                    "example": 1
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
     "/hub/partner_management/orderer/tasks/{id}": {
       "patch": {
         "operationId": "partial_update_partner_management_orderer_task",
@@ -2018,6 +2071,112 @@
                     "type": "string",
                     "maxLength": 255,
                     "description": "発注書の修正理由。紐づくtaskのステータスが「下書き」ではない場合、指定すると変更通知のコメントに修正理由として記載される"
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/completion": {
+      "post": {
+        "operationId": "create_partner_management_orderer_task_completion",
+        "summary": "タスクを検収済みにする（β版）",
+        "description": "指定したタスクのステータスを提出済み (submitted) から検収済み (completed) に変更する。提出済み以外のタスクは検収済みにできずエラーとなる。検収承認が必要なタスクは、検収承認が完了するまで検収済みにできずエラーとなる",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Tasks.CreateCompletionRequest.task_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "検収済みにするレスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.Task"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_tasks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "freee事業所ID",
+                    "example": 1
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/cancellation": {
+      "post": {
+        "operationId": "create_partner_management_orderer_task_cancellation",
+        "summary": "タスクキャンセル（β版）",
+        "description": "指定したタスクを、キャンセル（canceled）へステータス遷移させる。下書き（draft）・キャンセル（canceled）のタスクは対象外。ログインありパートナーのタスクは検収済み（completed）からはキャンセルできない。一方、ログインなしパートナーのタスクは検収済みからもキャンセルできる。なお、請求書に含まれているタスクはキャンセルできない（請求書がキャンセル・削除済みの場合を除く）",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Tasks.CreateCancellationRequest.task_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "キャンセルにするレスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.Task"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_tasks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "freee事業所ID",
+                    "example": 1
                   }
                 },
                 "required": [
@@ -3788,11 +3947,41 @@
           "format": "int32"
         }
       },
+      "PartnerManagement.Orderer.Tasks.CreateAssignmentRequest.task_id": {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "description": "対象のタスクID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
       "PartnerManagement.Orderer.Tasks.PartialUpdateRequest.id": {
         "name": "id",
         "in": "path",
         "required": true,
         "description": "更新対象のタスクID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "PartnerManagement.Orderer.Tasks.CreateCompletionRequest.task_id": {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "description": "検収済みにするタスクのID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "PartnerManagement.Orderer.Tasks.CreateCancellationRequest.task_id": {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "description": "キャンセルにするタスクのID",
         "schema": {
           "type": "integer",
           "format": "int32"
