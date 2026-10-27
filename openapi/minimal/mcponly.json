@@ -1,28 +1,5 @@
 {
   "paths": {
-    "/hub/survey/surveys/{survey_id}/questions": {
-      "get": {
-        "summary": "設問の取得（リモート版freee-mcp限定）",
-        "description": "指定した実施回の設問の一覧を取得します。",
-        "parameters": [
-          {
-            "name": "survey_id",
-            "in": "path",
-            "type": "integer",
-            "required": true,
-            "description": "実施回ID"
-          },
-          {
-            "name": "company_id",
-            "in": "query",
-            "type": "integer",
-            "required": true,
-            "description": "事業所ID",
-            "explode": false
-          }
-        ]
-      }
-    },
     "/hub/survey/base_surveys": {
       "get": {
         "summary": "サーベイ企画一覧取得（リモート版freee-mcp限定）",
@@ -235,6 +212,29 @@
             "type": "integer",
             "required": false,
             "description": "従業員IDでのフィルタ。指定しない場合は全従業員が対象",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/survey/surveys/{survey_id}/questions": {
+      "get": {
+        "summary": "設問の取得（リモート版freee-mcp限定）",
+        "description": "指定した実施回の設問の一覧を取得します。",
+        "parameters": [
+          {
+            "name": "survey_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "実施回ID"
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
             "explode": false
           }
         ]

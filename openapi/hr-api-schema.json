@@ -15308,6 +15308,344 @@
           }
         }
       },
+      "ApiV1EmployeesWorkRecordHolidayRequest": {
+        "description": "休暇の内訳。\nfull、morning_off、afternoon_off では mins と time_ranges を指定しません。\nannual_paid_holiday と有給の special_holiday の half では mins を指定します。無給の special_holiday の half では mins を指定できません。\nhalf を2つ組み合わせて全休にする場合は、どちらの half でも mins を指定できません。\ncompensatory_holiday では mins と time_ranges を指定しません。\nannual_paid_holiday と special_holiday の hourly では、対象日に適用される勤務賃金設定の時間休の入力方式に従い、時間数方式の場合は mins、時間帯方式の場合は time_ranges を指定します。\nhourly の mins は60分単位です。",
+        "discriminator": {
+          "propertyName": "holiday_category",
+          "mapping": {
+            "annual_paid_holiday": "#/components/schemas/ApiV1EmployeesWorkRecordAnnualPaidHolidayRequest",
+            "special_holiday": "#/components/schemas/ApiV1EmployeesWorkRecordSpecialHolidayRequest",
+            "compensatory_holiday": "#/components/schemas/ApiV1EmployeesWorkRecordCompensatoryHolidayRequest"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordAnnualPaidHolidayRequest"
+          },
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordSpecialHolidayRequest"
+          },
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordCompensatoryHolidayRequest"
+          }
+        ]
+      },
+      "ApiV1EmployeesWorkRecordHolidayResponse": {
+        "description": "休暇の内訳。\nfull では mins と time_ranges を返しません。\nhalf では mins を返します。\nmorning_off、afternoon_off では mins を返さず、時間帯を持つ実績の場合は time_ranges を返します。\nhourly では mins を返し、時間帯を持つ実績の場合は time_ranges も返します。",
+        "discriminator": {
+          "propertyName": "holiday_category",
+          "mapping": {
+            "annual_paid_holiday": "#/components/schemas/ApiV1EmployeesWorkRecordAnnualPaidHolidayResponse",
+            "special_holiday": "#/components/schemas/ApiV1EmployeesWorkRecordSpecialHolidayResponse",
+            "compensatory_holiday": "#/components/schemas/ApiV1EmployeesWorkRecordCompensatoryHolidayResponse"
+          }
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordAnnualPaidHolidayResponse"
+          },
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordSpecialHolidayResponse"
+          },
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordCompensatoryHolidayResponse"
+          }
+        ]
+      },
+      "ApiV1EmployeesWorkRecordAnnualPaidHolidayRequest": {
+        "title": "年次有給休暇",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTypeFields"
+          },
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTimeRequestFields"
+          },
+          {
+            "type": "object",
+            "required": [
+              "holiday_category"
+            ],
+            "properties": {
+              "holiday_category": {
+                "type": "string",
+                "description": "休暇カテゴリ",
+                "enum": [
+                  "annual_paid_holiday"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "ApiV1EmployeesWorkRecordSpecialHolidayRequest": {
+        "title": "特別休暇",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTypeFields"
+          },
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTimeRequestFields"
+          },
+          {
+            "type": "object",
+            "required": [
+              "holiday_category",
+              "special_holiday_setting_id"
+            ],
+            "properties": {
+              "holiday_category": {
+                "type": "string",
+                "description": "休暇カテゴリ",
+                "enum": [
+                  "special_holiday"
+                ]
+              },
+              "special_holiday_setting_id": {
+                "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordSpecialHolidaySettingId"
+              }
+            }
+          }
+        ]
+      },
+      "ApiV1EmployeesWorkRecordCompensatoryHolidayRequest": {
+        "title": "代休",
+        "type": "object",
+        "required": [
+          "holiday_category",
+          "holiday_type",
+          "source_date"
+        ],
+        "properties": {
+          "holiday_category": {
+            "type": "string",
+            "description": "休暇カテゴリ",
+            "enum": [
+              "compensatory_holiday"
+            ]
+          },
+          "holiday_type": {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordCompensatoryHolidayType"
+          },
+          "source_date": {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordCompensatoryHolidaySourceDate"
+          }
+        }
+      },
+      "ApiV1EmployeesWorkRecordHolidayTypeFields": {
+        "type": "object",
+        "required": [
+          "holiday_type"
+        ],
+        "properties": {
+          "holiday_type": {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayType"
+          }
+        }
+      },
+      "ApiV1EmployeesWorkRecordHolidayTimeRequestFields": {
+        "type": "object",
+        "properties": {
+          "mins": {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayMins"
+          },
+          "time_ranges": {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTimeRangesRequest"
+          }
+        }
+      },
+      "ApiV1EmployeesWorkRecordAnnualPaidHolidayResponse": {
+        "title": "年次有給休暇",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTypeFields"
+          },
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTimeResponseFields"
+          },
+          {
+            "type": "object",
+            "required": [
+              "holiday_category"
+            ],
+            "properties": {
+              "holiday_category": {
+                "type": "string",
+                "description": "休暇カテゴリ",
+                "enum": [
+                  "annual_paid_holiday"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "ApiV1EmployeesWorkRecordSpecialHolidayResponse": {
+        "title": "特別休暇",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTypeFields"
+          },
+          {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTimeResponseFields"
+          },
+          {
+            "type": "object",
+            "required": [
+              "holiday_category",
+              "special_holiday_setting_id"
+            ],
+            "properties": {
+              "holiday_category": {
+                "type": "string",
+                "description": "休暇カテゴリ",
+                "enum": [
+                  "special_holiday"
+                ]
+              },
+              "special_holiday_setting_id": {
+                "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordSpecialHolidaySettingId"
+              }
+            }
+          }
+        ]
+      },
+      "ApiV1EmployeesWorkRecordCompensatoryHolidayResponse": {
+        "title": "代休",
+        "type": "object",
+        "required": [
+          "holiday_category",
+          "holiday_type",
+          "source_date"
+        ],
+        "properties": {
+          "holiday_category": {
+            "type": "string",
+            "description": "休暇カテゴリ",
+            "enum": [
+              "compensatory_holiday"
+            ]
+          },
+          "holiday_type": {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordCompensatoryHolidayType"
+          },
+          "source_date": {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordCompensatoryHolidaySourceDate"
+          }
+        }
+      },
+      "ApiV1EmployeesWorkRecordHolidayTimeResponseFields": {
+        "type": "object",
+        "properties": {
+          "mins": {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayMins"
+          },
+          "time_ranges": {
+            "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTimeRangesResponse"
+          }
+        }
+      },
+      "ApiV1EmployeesWorkRecordHolidayType": {
+        "type": "string",
+        "description": "取得単位（全休: full、半休: half、午前休: morning_off、午後休: afternoon_off、時間休: hourly）",
+        "enum": [
+          "full",
+          "half",
+          "morning_off",
+          "afternoon_off",
+          "hourly"
+        ]
+      },
+      "ApiV1EmployeesWorkRecordCompensatoryHolidayType": {
+        "type": "string",
+        "description": "取得単位（全休: full、半休: half、午前休: morning_off、午後休: afternoon_off）",
+        "enum": [
+          "full",
+          "half",
+          "morning_off",
+          "afternoon_off"
+        ]
+      },
+      "ApiV1EmployeesWorkRecordHolidayMins": {
+        "type": "integer",
+        "description": "休暇により計上する時間（分単位）",
+        "format": "int32",
+        "minimum": 1,
+        "maximum": 1440
+      },
+      "ApiV1EmployeesWorkRecordHolidayTimeRangesRequest": {
+        "type": "array",
+        "description": "時間休の取得時間帯",
+        "minItems": 1,
+        "items": {
+          "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTimeRangeRequest"
+        }
+      },
+      "ApiV1EmployeesWorkRecordHolidayTimeRangesResponse": {
+        "type": "array",
+        "description": "時間休の取得時間帯",
+        "items": {
+          "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayTimeRangeResponse"
+        }
+      },
+      "ApiV1EmployeesWorkRecordSpecialHolidaySettingId": {
+        "type": "integer",
+        "description": "特別休暇設定ID",
+        "format": "int32",
+        "minimum": 1,
+        "maximum": 2147483647
+      },
+      "ApiV1EmployeesWorkRecordCompensatoryHolidaySourceDate": {
+        "type": "string",
+        "description": "代休の元となる休日出勤日",
+        "format": "date",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+        "example": "2018-07-31"
+      },
+      "ApiV1EmployeesWorkRecordHolidayTimeRangeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "start_at",
+          "end_at"
+        ],
+        "properties": {
+          "start_at": {
+            "type": "string",
+            "description": "取得開始時刻",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}(:[0-9]{2})?$",
+            "example": "2018-07-31 08:00:00"
+          },
+          "end_at": {
+            "type": "string",
+            "description": "取得終了時刻",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}(:[0-9]{2})?$",
+            "example": "2018-07-31 09:00:00"
+          }
+        }
+      },
+      "ApiV1EmployeesWorkRecordHolidayTimeRangeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "start_at",
+          "end_at"
+        ],
+        "properties": {
+          "start_at": {
+            "type": "string",
+            "description": "取得開始時刻",
+            "format": "date-time"
+          },
+          "end_at": {
+            "type": "string",
+            "description": "取得終了時刻",
+            "format": "date-time"
+          }
+        }
+      },
       "ApiV1EmployeesWelfarePensionInsuranceRuleSerializer": {
         "type": "object",
         "properties": {
@@ -16258,6 +16596,12 @@
           },
           "total_excess_statutory_work_mins": {
             "type": "integer",
+            "description": "[deprecated] 給与計算に用いられる法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を参照してください",
+            "format": "int32",
+            "deprecated": true
+          },
+          "total_overtime_within_statutory_work_mins": {
+            "type": "integer",
             "description": "給与計算に用いられる法定内残業時間（分）",
             "format": "int32"
           },
@@ -16359,6 +16703,13 @@
           },
           "total_deemed_paid_excess_statutory_work_mins": {
             "type": "integer",
+            "description": "[deprecated] みなし外の法定内残業時間（分） ※ 削除予定のため total_deemed_paid_overtime_within_statutory_work_mins を参照してください",
+            "format": "int32",
+            "nullable": true,
+            "deprecated": true
+          },
+          "total_deemed_paid_overtime_within_statutory_work_mins": {
+            "type": "integer",
             "description": "みなし外の法定内残業時間（分）",
             "format": "int32",
             "nullable": true
@@ -16433,12 +16784,14 @@
           },
           "half_special_holiday_mins": {
             "type": "integer",
-            "description": "特別休暇の半休を利用した時間（分単位）",
+            "description": "[deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "format": "int32"
           },
           "hourly_special_holiday_mins": {
             "type": "integer",
-            "description": "特別休暇の時間休を利用した時間（分単位）",
+            "description": "[deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "format": "int32"
           },
           "is_absence": {
@@ -16479,7 +16832,8 @@
           },
           "paid_holidays": {
             "type": "array",
-            "description": "年次有給休暇の実績",
+            "description": "[deprecated] 年次有給休暇の実績 ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "items": {
               "type": "object",
               "required": [
@@ -16516,14 +16870,23 @@
               }
             }
           },
+          "holidays": {
+            "type": "array",
+            "description": "休暇の内訳（年次有給休暇、特別休暇、代休）。\nfull では mins と time_ranges を返しません。half では mins を返します。\nmorning_off、afternoon_off では mins を返さず、時間帯を持つ実績の場合は time_ranges を返します。\nhourly は年休・特休のみで、mins を返し、時間帯を持つ実績の場合は time_ranges も返します。",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayResponse"
+            }
+          },
           "special_holiday": {
             "type": "number",
-            "description": "この日に対する特別休暇取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_special_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_special_holiday_minsを参照してください。",
+            "description": "[deprecated] この日に対する特別休暇取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_special_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_special_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "format": "float"
           },
           "special_holiday_setting_id": {
             "type": "integer",
-            "description": "特別休暇設定ID",
+            "description": "[deprecated] 特別休暇設定ID ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "format": "int32",
             "nullable": true
           },
@@ -16537,7 +16900,8 @@
           },
           "use_half_compensatory_holiday": {
             "type": "boolean",
-            "description": "代休の半休を利用したかどうか",
+            "description": "[deprecated] 代休の半休を利用したかどうか ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "example": false
           },
           "total_overtime_work_mins": {
@@ -16567,10 +16931,22 @@
           },
           "total_excess_statutory_work_mins": {
             "type": "integer",
+            "description": "[deprecated] 法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を参照してください",
+            "format": "int32",
+            "deprecated": true
+          },
+          "total_latenight_excess_statutory_work_mins": {
+            "type": "integer",
+            "description": "[deprecated] 深夜の法定内残業時間（分） ※ 削除予定のため total_latenight_overtime_within_statutory_work_mins を参照してください",
+            "format": "int32",
+            "deprecated": true
+          },
+          "total_overtime_within_statutory_work_mins": {
+            "type": "integer",
             "description": "法定内残業時間（分）",
             "format": "int32"
           },
-          "total_latenight_excess_statutory_work_mins": {
+          "total_latenight_overtime_within_statutory_work_mins": {
             "type": "integer",
             "description": "深夜の法定内残業時間（分）",
             "format": "int32"
@@ -16580,7 +16956,7 @@
             "description": "所定外法定外労働時間（分）",
             "format": "int32"
           },
-          "total_latenight_overtime_except_normal_work_min": {
+          "total_latenight_overtime_except_normal_work_mins": {
             "type": "integer",
             "description": "深夜の所定外法定外労働時間（分）",
             "format": "int32"
@@ -16649,22 +17025,26 @@
           },
           "half_paid_holiday_mins": {
             "type": "integer",
-            "description": "[deprecated] 有給休暇の半休を利用した時間（分単位）※ 削除予定のため paid_holidays を参照してください",
+            "description": "[deprecated] 有給休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "format": "int32"
           },
           "half_special_holiday_mins": {
             "type": "integer",
-            "description": "特別休暇の半休を利用した時間（分単位）",
+            "description": "[deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "format": "int32"
           },
           "hourly_paid_holiday_mins": {
             "type": "integer",
-            "description": "[deprecated] 有給休暇の時間休を利用した時間（分単位）※ 削除予定のため paid_holidays を参照してください",
+            "description": "[deprecated] 有給休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "format": "int32"
           },
           "hourly_special_holiday_mins": {
             "type": "integer",
-            "description": "特別休暇の時間休を利用した時間（分単位）",
+            "description": "[deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "format": "int32"
           },
           "is_absence": {
@@ -16705,17 +17085,20 @@
           },
           "paid_holiday": {
             "type": "number",
-            "description": "[deprecated] この日に対する有給取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_paid_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_paid_holiday_minsを参照してください。※ 削除予定のため paid_holidays を参照してください",
+            "description": "[deprecated] この日に対する有給取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_paid_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_paid_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "format": "float"
           },
           "special_holiday": {
             "type": "number",
-            "description": "この日に対する特別休暇取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_special_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_special_holiday_minsを参照してください。",
+            "description": "[deprecated] この日に対する特別休暇取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_special_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_special_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "format": "float"
           },
           "special_holiday_setting_id": {
             "type": "integer",
-            "description": "特別休暇設定ID",
+            "description": "[deprecated] 特別休暇設定ID ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "format": "int32",
             "nullable": true
           },
@@ -16729,7 +17112,8 @@
           },
           "use_half_compensatory_holiday": {
             "type": "boolean",
-            "description": "代休の半休を利用したかどうか",
+            "description": "[deprecated] 代休の半休を利用したかどうか ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
             "example": false
           },
           "total_overtime_work_mins": {
@@ -16759,10 +17143,22 @@
           },
           "total_excess_statutory_work_mins": {
             "type": "integer",
+            "description": "[deprecated] 法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を参照してください",
+            "format": "int32",
+            "deprecated": true
+          },
+          "total_latenight_excess_statutory_work_mins": {
+            "type": "integer",
+            "description": "[deprecated] 深夜の法定内残業時間（分） ※ 削除予定のため total_latenight_overtime_within_statutory_work_mins を参照してください",
+            "format": "int32",
+            "deprecated": true
+          },
+          "total_overtime_within_statutory_work_mins": {
+            "type": "integer",
             "description": "法定内残業時間（分）",
             "format": "int32"
           },
-          "total_latenight_excess_statutory_work_mins": {
+          "total_latenight_overtime_within_statutory_work_mins": {
             "type": "integer",
             "description": "深夜の法定内残業時間（分）",
             "format": "int32"
@@ -16772,7 +17168,7 @@
             "description": "所定外法定外労働時間（分）",
             "format": "int32"
           },
-          "total_latenight_overtime_except_normal_work_min": {
+          "total_latenight_overtime_except_normal_work_mins": {
             "type": "integer",
             "description": "深夜の所定外法定外労働時間（分）",
             "format": "int32"
@@ -18125,7 +18521,7 @@
           },
           "is_absence": {
             "type": "boolean",
-            "description": "欠勤かどうか\n\nis_absenceにtrueを指定すると、以下のパラーメータについて、指定した値が反映されず無視されます。\n- break_records\n  - clock_in_at\n  - clock_out_at\n- clock_in_at\n- clock_out_at\n- early_leaving_mins\n- lateness_mins\n- normal_work_clock_in_at\n- normal_work_clock_out_at\n- normal_work_mins\n- paid_holidays\n- special_holiday\n- special_holiday_setting_id\n- half_special_holiday_mins\n- hourly_special_holiday_mins"
+            "description": "欠勤かどうか\n\nis_absenceにtrueを指定すると、以下のパラメータについて、指定した値が反映されず無視されます。\n- break_records\n  - clock_in_at\n  - clock_out_at\n- clock_in_at\n- clock_out_at\n- early_leaving_mins\n- lateness_mins\n- normal_work_clock_in_at\n- normal_work_clock_out_at\n- normal_work_mins\n\nただし、休暇（holidays、paid_holidays、special_holiday、half_special_holiday_mins、hourly_special_holiday_mins）を指定した場合は休暇の登録が優先され、is_absence の指定は無視されます。"
           },
           "lateness_mins": {
             "type": "integer",
@@ -18162,6 +18558,8 @@
           },
           "paid_holidays": {
             "type": "array",
+            "description": "[deprecated] 年次有給休暇の内訳 ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "items": {
               "type": "object",
               "required": [
@@ -18190,9 +18588,17 @@
               }
             }
           },
+          "holidays": {
+            "type": "array",
+            "description": "休暇の内訳。年次有給休暇、特別休暇、代休を指定できます。\nfull、morning_off、afternoon_off では mins と time_ranges を指定しません。年休と有給の特休の half では mins を指定します。無給の特休の half では mins を指定できません。\nhalf を2つ組み合わせて全休にする場合は、どちらの half でも mins を指定できません。\n年休・特休の hourly は、対象日に適用される勤務賃金設定の時間休の入力方式に従い、時間数方式の場合は mins、時間帯方式の場合は time_ranges を指定します。mins は60分単位です。代休では holiday_type にかかわらず mins と time_ranges を指定しません。\n特別休暇では special_holiday_setting_id、代休では source_date が必須です。",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1EmployeesWorkRecordHolidayRequest"
+            }
+          },
           "special_holiday": {
             "type": "number",
-            "description": "この日の特別休暇取得日数。1日単位で指定します。",
+            "description": "[deprecated] この日の特別休暇取得日数。1日単位で指定します。 ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "format": "float",
             "enum": [
               0,
@@ -18202,7 +18608,8 @@
           },
           "special_holiday_setting_id": {
             "type": "integer",
-            "description": "特別休暇設定ID",
+            "description": "[deprecated] 特別休暇設定ID ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "format": "int32",
             "minimum": 1,
             "maximum": 2147483647,
@@ -18210,14 +18617,16 @@
           },
           "half_special_holiday_mins": {
             "type": "integer",
-            "description": "特別休暇の半休を利用した時間（分単位）",
+            "description": "[deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "format": "int32",
             "minimum": 0,
             "maximum": 1440
           },
           "hourly_special_holiday_mins": {
             "type": "integer",
-            "description": "特別休暇の時間休を利用した時間（分単位）",
+            "description": "[deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "format": "int32",
             "minimum": 0,
             "maximum": 1440
@@ -18288,7 +18697,7 @@
           },
           "is_absence": {
             "type": "boolean",
-            "description": "欠勤かどうか\n\nis_absenceにtrueを指定すると、以下のパラーメータについて、指定した値が反映されず無視されます。\n- break_records\n  - clock_in_at\n  - clock_out_at\n- clock_in_at\n- clock_out_at\n- early_leaving_mins\n- lateness_mins\n- normal_work_clock_in_at\n- normal_work_clock_out_at\n- normal_work_mins\n- paid_holiday\n- half_paid_holiday_mins\n- hourly_paid_holiday_mins\n- special_holiday\n- special_holiday_setting_id\n- half_special_holiday_mins\n- hourly_special_holiday_mins"
+            "description": "欠勤かどうか\n\nis_absenceにtrueを指定すると、以下のパラメータについて、指定した値が反映されず無視されます。\n- break_records\n  - clock_in_at\n  - clock_out_at\n- clock_in_at\n- clock_out_at\n- early_leaving_mins\n- lateness_mins\n- normal_work_clock_in_at\n- normal_work_clock_out_at\n- normal_work_mins\n\nただし、休暇（paid_holiday、half_paid_holiday_mins、hourly_paid_holiday_mins、special_holiday、half_special_holiday_mins、hourly_special_holiday_mins）を指定した場合は休暇の登録が優先され、is_absence の指定は無視されます。"
           },
           "lateness_mins": {
             "type": "integer",
@@ -18325,7 +18734,8 @@
           },
           "paid_holiday": {
             "type": "number",
-            "description": "[deprecated] この日の有休取得日数。1日単位で指定します。 ※ paid_holidays を指定する場合にはこちらの値は参照されません ※ 削除予定のため paid_holidays->type を指定してください",
+            "description": "[deprecated] この日の有休取得日数。1日単位で指定します。 ※ paid_holidays を指定する場合にはこちらの値は参照されません ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "format": "float",
             "enum": [
               0,
@@ -18335,21 +18745,24 @@
           },
           "half_paid_holiday_mins": {
             "type": "integer",
-            "description": "[deprecated] 有給休暇の半休を利用した時間（分単位） ※ paid_holidaysを指定する場合にはこちらの値は参照されません ※ 削除予定のためpaid_holidays->mins を指定してください",
+            "description": "[deprecated] 有給休暇の半休を利用した時間（分単位） ※ paid_holidaysを指定する場合にはこちらの値は参照されません ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "format": "int32",
             "minimum": 0,
             "maximum": 1440
           },
           "hourly_paid_holiday_mins": {
             "type": "integer",
-            "description": "[deprecated] morning_off または afternoon_off を指定します ※ paid_holidaysを指定する場合にはこちらの値は参照使用されません ※ 削除予定のため paid_holidays->type を指定してください",
+            "description": "[deprecated] 有給休暇の時間休を利用した時間（分単位） ※ paid_holidaysを指定する場合にはこちらの値は参照されません ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "format": "int32",
             "minimum": 0,
             "maximum": 1440
           },
           "special_holiday": {
             "type": "number",
-            "description": "この日の特別休暇取得日数。1日単位で指定します。",
+            "description": "[deprecated] この日の特別休暇取得日数。1日単位で指定します。 ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "format": "float",
             "enum": [
               0,
@@ -18359,7 +18772,8 @@
           },
           "special_holiday_setting_id": {
             "type": "integer",
-            "description": "特別休暇設定ID",
+            "description": "[deprecated] 特別休暇設定ID ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "format": "int32",
             "minimum": 1,
             "maximum": 2147483647,
@@ -18367,14 +18781,16 @@
           },
           "half_special_holiday_mins": {
             "type": "integer",
-            "description": "特別休暇の半休を利用した時間（分単位）",
+            "description": "[deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "format": "int32",
             "minimum": 0,
             "maximum": 1440
           },
           "hourly_special_holiday_mins": {
             "type": "integer",
-            "description": "特別休暇の時間休を利用した時間（分単位）",
+            "description": "[deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays をご利用ください",
+            "deprecated": true,
             "format": "int32",
             "minimum": 0,
             "maximum": 1440
@@ -18445,6 +18861,13 @@
           },
           "total_excess_statutory_work_mins": {
             "type": "integer",
+            "description": "[deprecated] 給与計算に用いられる法定内残業時間（分） ※ 削除予定のため total_overtime_within_statutory_work_mins を指定してください。両方指定した場合はエラーになります",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "deprecated": true
+          },
+          "total_overtime_within_statutory_work_mins": {
+            "type": "integer",
             "description": "給与計算に用いられる法定内残業時間（分）",
             "minimum": 0,
             "maximum": 2147483647
@@ -18463,11 +18886,25 @@
           },
           "total_actual_excess_statutory_work_mins": {
             "type": "integer",
+            "description": "[deprecated] 実労働時間ベースの法定内残業時間（分） ※ 削除予定のため total_actual_overtime_within_statutory_work_mins を指定してください。両方指定した場合はエラーになります",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "deprecated": true
+          },
+          "total_actual_overtime_within_statutory_work_mins": {
+            "type": "integer",
             "description": "実労働時間ベースの法定内残業時間（分）",
             "minimum": 0,
             "maximum": 2147483647
           },
           "total_overtime_work_mins": {
+            "type": "integer",
+            "description": "[deprecated] 時間外労働時間（分） ※ 削除予定のため total_overtime_excess_statutory_work_mins を指定してください。両方指定した場合はエラーになります",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "deprecated": true
+          },
+          "total_overtime_excess_statutory_work_mins": {
             "type": "integer",
             "description": "時間外労働時間（分）",
             "minimum": 0,
@@ -18531,6 +18968,13 @@
             "maximum": 2147483647
           },
           "total_deemed_paid_excess_statutory_work_mins": {
+            "type": "integer",
+            "description": "[deprecated] みなし外の法定内残業時間（分）（裁量労働制でのみ使用） ※ 削除予定のため total_deemed_paid_overtime_within_statutory_work_mins を指定してください。両方指定した場合はエラーになります",
+            "minimum": 0,
+            "maximum": 2147483647,
+            "deprecated": true
+          },
+          "total_deemed_paid_overtime_within_statutory_work_mins": {
             "type": "integer",
             "description": "みなし外の法定内残業時間（分）（裁量労働制でのみ使用）",
             "minimum": 0,
@@ -21245,7 +21689,7 @@
           },
           "income": {
             "type": "integer",
-            "description": "所得 配偶者は「扶養状況」がsocial_insurance_only又はnot_dependentの場合のみ更新可能。配偶者以外は更新可能。 配偶者で「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合、「給与収入」、「給与以外の所得」から自動で「所得」が計算されます。",
+            "description": "所得 配偶者は「扶養状況」がsocial_insurance_only又はnot_dependentの場合のみ更新可能。配偶者以外は更新可能。\n配偶者で「扶養状況」がsocial_insurance_and_tax又はtax_onlyの場合、「給与収入」、「給与以外の所得」から自動で「所得」が計算されます。<br>\n<br>\n2026年以降の年末調整で、freee人事労務の年末調整画面から「公的年金収入」を入力している場合、公的年金等の所得は「給与以外の所得」に合算して返却されます。\nこの場合、「所得」は「給与所得と年金所得の双方を有する者に対する所得金額調整控除」を適用した後の金額となるため、「給与収入」と「給与以外の所得」から算出した金額とは一致しないことがあります。",
             "format": "int32",
             "minimum": 0,
             "maximum": 999999999
@@ -22709,7 +23153,7 @@
           },
           "formula_element": {
             "type": "string",
-            "description": "計算の基となる勤怠項目・カスタム項目の識別子（calc_typeがfixedの場合はnull）",
+            "description": "[deprecated] 計算の基となる勤怠項目・カスタム項目の識別子（calc_typeがfixedの場合はnull） ※ 削除予定のため formula_element_code を参照してください",
             "enum": [
               "num_absences",
               "num_paid_holidays",
@@ -22733,6 +23177,37 @@
               "attendance_tag_total_latenight_work_mins",
               "attendance_tag_total_normal_work_mins",
               "attendance_tag_total_overtime_work_mins",
+              "attendance_tag_total_work_mins"
+            ],
+            "nullable": true,
+            "deprecated": true
+          },
+          "formula_element_code": {
+            "type": "string",
+            "description": "計算の基となる勤怠項目・カスタム項目の識別子（calc_typeがfixedの場合はnull）",
+            "enum": [
+              "num_absences",
+              "num_paid_holidays",
+              "num_total_workdays",
+              "num_work_days_with_early_leaving",
+              "num_work_days_with_lateness",
+              "total_overtime_within_statutory_work_mins",
+              "total_holiday_work_mins",
+              "total_lateness_and_early_leaving_mins",
+              "total_latenight_work_mins",
+              "total_normal_work_mins",
+              "total_overtime_excess_statutory_work_mins",
+              "total_prescribed_holiday_work_mins",
+              "total_work_mins",
+              "company_profile_custom_field",
+              "attendance_tag_total_count",
+              "attendance_tag_assigned_days",
+              "attendance_tag_total_overtime_within_statutory_work_mins",
+              "attendance_tag_total_prescribed_holiday_work_mins",
+              "attendance_tag_total_holiday_work_mins",
+              "attendance_tag_total_latenight_work_mins",
+              "attendance_tag_total_normal_work_mins",
+              "attendance_tag_total_overtime_excess_statutory_work_mins",
               "attendance_tag_total_work_mins"
             ],
             "nullable": true

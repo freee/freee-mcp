@@ -87,6 +87,7 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
     - from_walletable_type*: string - 口座区分 (銀行口座: bank_account, クレジットカード: credit_card, 現金: wallet, プライベート資金: private_account_item)：payments指定時は必須 (選択肢: bank_account, credit_card, wallet, private_account_item) 例: `bank_account`
     - date*: string - 支払日 (yyyy-mm-dd)：payments指定時は必須 例: `2019-12-17`
 - receipt_ids: array[integer] - ファイルボックス（証憑ファイル）ID（配列）
+- parent_id: integer(int64) - 作成した取引を紐付ける各種申請のID。承認済みの各種申請を元に取引を作成する場合に指定します。作成した取引は指定した各種申請に紐付き、各種申請APIのレスポンスのdeal_idで確認できます。存在しない・閲覧権限のない各種申請、承認されていない各種申請、すでに取引・振替伝票と紐付いている各種申請を指定した場合はエラーになり、取引は作成されません。指定するには、各種申請を利用できるプランであること、各種申請を閲覧する権限、アプリに read または accounting:approval_requests:read のスコープが必要です (満たさない場合は 403 になります)。 例: `1` (最小: 1)
 
 ### レスポンス
 
