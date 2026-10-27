@@ -7,6 +7,10 @@
   },
   "homepage": "https://github.com/freee/freee-mcp#readme",
   "repository": "https://github.com/freee/freee-mcp",
+  "license": "Apache-2.0",
+  "icon": "./.claude-plugin/icon.png",
+  "documentationUrl": "https://github.com/freee/freee-mcp#readme",
+  "supportUrl": "https://github.com/freee/freee-mcp/issues",
   "privacyPolicyUrl": "https://www.freee.co.jp/privacy_policy/",
   "mcpServers": {
     "freee": {
