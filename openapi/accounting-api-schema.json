@@ -9290,6 +9290,797 @@
         }
       }
     },
+    "/api/1/wallet_txns/{id}/reconcile": {
+      "post": {
+        "tags": [
+          "Wallet txns"
+        ],
+        "summary": "口座明細で未決済取引の消込",
+        "description": "指定した口座明細と既存の未決済取引を紐づけて消込する\n\n### 注意点\n- deals に指定した取引の決済金額の合計と adjustment_deal の金額の合計を合わせた額は、明細金額と一致させてください。決済金額の合計が明細金額に満たない・超える場合は、差額を新規取引として登録するために adjustment_deal を指定してください。\n- adjustment_deal を指定した場合、作成された取引のIDがレスポンスの new_deal_id に入ります。指定しない場合は null になります。\n- 同一のパラメータで再リクエストした場合も冪等に同じレスポンスを返します。\n- 明細が既に別の取引で消込済みの場合、または取引が既に別の明細で決済済みの場合は409エラーが返ります。",
+        "operationId": "reconcile_wallet_txn",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "明細ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "deals": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/walletTxnReconcileDeal"
+                    },
+                    "minItems": 1,
+                    "description": "紐づけ対象の取引のリスト"
+                  },
+                  "adjustment_deal": {
+                    "$ref": "#/components/schemas/walletTxnReconcileAdjustmentDeal"
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "deals"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "口座明細の消込レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "wallet_txn_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "description": "明細ID",
+                      "example": 1
+                    },
+                    "deal_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "description": "リクエストで指定した既存取引のIDのリスト"
+                    },
+                    "new_deal_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "nullable": true,
+                      "description": "adjustment_deal から新規作成された取引のID。adjustment_deal を指定しなかった場合は null になります。",
+                      "example": 101
+                    }
+                  },
+                  "required": [
+                    "wallet_txn_id",
+                    "deal_ids",
+                    "new_deal_id"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "リソース競合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/conflictError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/1/wallet_txns/{id}/create_deal": {
+      "post": {
+        "tags": [
+          "Wallet txns"
+        ],
+        "summary": "口座明細からの取引登録",
+        "description": "指定した口座明細から取引を作成し、作成した取引で明細を消込する\n\n### 注意点\n- deal_lines の amount は符号付きの整数で指定します。明細の入出金区分（entry_side）と amount の符号から、借方・貸方が自動で決まります。\n- deal_lines の金額の合計は明細金額と一致させてください。",
+        "operationId": "create_wallet_txn_deal",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "明細ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "issue_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "取引発生日 (yyyy-mm-dd)。明細の取引日以前の日付を指定します。省略時は明細の取引日と同日になります。",
+                    "example": "2026-08-24"
+                  },
+                  "ref": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "description": "管理番号",
+                    "example": "REF-001"
+                  },
+                  "partner_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "取引先ID",
+                    "example": 101
+                  },
+                  "deal_lines": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/walletTxnDealLine"
+                    },
+                    "minItems": 1,
+                    "description": "取引の内訳行"
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "deal_lines"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "口座明細からの取引登録レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deal_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "description": "作成された取引のIDのリスト"
+                    }
+                  },
+                  "required": [
+                    "deal_ids"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/1/wallet_txns/{id}/create_transfer": {
+      "post": {
+        "tags": [
+          "Wallet txns"
+        ],
+        "summary": "口座明細からの口座振替登録",
+        "description": "指定した口座明細を口座振替として登録する\n\n### 注意点\n- 振替元は transfer_from_line で1口座、振替先は transfer_to_lines で複数口座を指定できます。\n- 入金明細の場合は transfer_to_lines、出金明細の場合は transfer_from_line に、必ず対象の明細の口座を含めてください。\n- transfer_from_line の振替元口座から出金される金額は、transfer_to_lines の金額の合計と charge_lines の金額の合計（line_type が paid は加算、received は減算）を合わせた額と必ず一致させてください。\n- 明細の口座に対応する金額（出金明細の場合は上記の振替元の金額、入金明細の場合は transfer_to_lines のうち明細の口座の行の金額）は、明細金額と一致させてください。\n- transfer_to_lines に同一口座（walletable_type と walletable_id の組み合わせ）を重複して指定できません。\n- 税込経理の事業所では charge_lines の vat を指定できません。",
+        "operationId": "create_wallet_txn_transfer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "明細ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "transfer_from_line": {
+                    "$ref": "#/components/schemas/walletTxnTransferFromLine"
+                  },
+                  "transfer_to_lines": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/walletTxnTransferToLine"
+                    },
+                    "minItems": 1,
+                    "description": "振替先。同一口座の重複は指定できません。"
+                  },
+                  "charge_lines": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/walletTxnTransferChargeLine"
+                    },
+                    "description": "手数料等の行。省略時は手数料等なしとして扱われます。"
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "transfer_from_line",
+                  "transfer_to_lines"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "口座明細からの口座振替登録レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "wallet_txn_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "minimum": 1,
+                      "description": "口座振替として登録した明細のID",
+                      "example": 1
+                    },
+                    "transfer_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "description": "作成された口座振替のIDのリスト"
+                    }
+                  },
+                  "required": [
+                    "wallet_txn_id",
+                    "transfer_ids"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "リソース競合",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/conflictError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/1/wallet_txns/{id}/create_private_deal": {
+      "post": {
+        "tags": [
+          "Wallet txns"
+        ],
+        "summary": "口座明細のプライベート取引としての登録",
+        "description": "指定した口座明細に対応するプライベート取引を作成し、明細を消込する\n\n### 注意点\n- プライベート取引は、個人事業所では事業主貸・事業主借、法人事業所では役員貸付金・役員借入金として登録されます。勘定科目や金額の指定は不要です。",
+        "operationId": "create_wallet_txn_private_deal",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "明細ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "description": "事業所ID",
+                    "example": 1
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "口座明細のプライベート取引としての登録レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deal_id": {
+                      "type": "integer",
+                      "format": "int64",
+                      "description": "作成された取引のID",
+                      "example": 101
+                    }
+                  },
+                  "required": [
+                    "deal_id"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/1/wallet_txns/{id}/ignore": {
+      "post": {
+        "tags": [
+          "Wallet txns"
+        ],
+        "summary": "口座明細の無視",
+        "description": "指定した口座明細を「無視」の状態に変更する\n\n### 注意点\n- 既に「無視」の明細を指定した場合も、冪等に成功として200を返します。\n- 「消込済み」の明細は無視できません。先に口座明細の未消込への変更API（POST /api/1/wallet_txns/{id}/reset）で「未消込」に戻してください。",
+        "operationId": "ignore_wallet_txn",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "明細ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "description": "事業所ID",
+                    "example": 1
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "口座明細の無視レスポンス"
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/1/wallet_txns/{id}/reset": {
+      "post": {
+        "tags": [
+          "Wallet txns"
+        ],
+        "summary": "口座明細の未消込への変更",
+        "description": "「無視」または「消込済み」の口座明細を「未消込」の状態に戻す\n\n### 注意点\n- 「無視」の明細は無視を解除し、「消込済み」の明細は消込を解除します。\n- 既に「未消込」の明細を指定した場合も、冪等に成功として200を返します。\n- 明細に紐づく仕訳が承認済みの場合、または非同期処理中の場合は400エラーが返ります。",
+        "operationId": "reset_wallet_txn",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "明細ID",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "description": "事業所ID",
+                    "example": 1
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "口座明細の未消込への変更レスポンス"
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/1/journals": {
       "get": {
         "tags": [
@@ -22317,6 +23108,100 @@
           }
         }
       }
+    },
+    "/api/1/user_matchers/apply": {
+      "post": {
+        "tags": [
+          "User matchers"
+        ],
+        "summary": "自動登録ルールの一括適用",
+        "description": "概要\n\n指定した未消込明細に、未適用の自動登録ルールを一括で適用する\n\n注意点\n- 適用処理は非同期で実行されます。レスポンスを受け取った時点では適用は完了していません。\n- wallet_txn_ids に、事業所内に存在しない明細IDが含まれる場合は400エラーが返ります。\n- 指定された明細のうち、適用対象外の明細（未消込以外の明細など）は処理対象外としてスキップされます。",
+        "operationId": "apply_user_matchers",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "wallet_txn_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1000,
+                    "description": "自動登録ルールを適用する明細IDのリスト",
+                    "example": [
+                      123456789,
+                      123456790
+                    ]
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "wallet_txn_ids"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "自動登録ルール一括適用レスポンス"
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -23651,6 +24536,675 @@
             "example": 10000
           }
         }
+      },
+      "walletTxnReconcileDeal": {
+        "type": "object",
+        "required": [
+          "deal_id",
+          "amount"
+        ],
+        "properties": {
+          "deal_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "取引ID",
+            "example": 101
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "決済金額（単位: 円）。正の整数で指定します。",
+            "example": 5000
+          }
+        },
+        "description": "消込対象の取引",
+        "additionalProperties": false
+      },
+      "walletTxnReconcileAdjustmentDeal": {
+        "type": "object",
+        "required": [
+          "deal_lines"
+        ],
+        "properties": {
+          "issue_date": {
+            "type": "string",
+            "format": "date",
+            "description": "取引発生日 (yyyy-mm-dd)。明細の取引日以前の日付を指定します。省略時は明細の取引日と同日になります。",
+            "example": "2026-08-24"
+          },
+          "ref": {
+            "type": "string",
+            "maxLength": 20,
+            "description": "管理番号",
+            "example": "REF-001"
+          },
+          "partner_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "取引先ID",
+            "example": 101
+          },
+          "deal_lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "amount",
+                "account_item_id"
+              ],
+              "properties": {
+                "amount": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "金額（税込。単位: 円）。0以外の符号付きの整数で指定します。明細の入出金区分（entry_side）と符号から借方・貸方が決まります。",
+                  "example": 1100,
+                  "not": {
+                    "enum": [
+                      0
+                    ]
+                  }
+                },
+                "vat": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "税額（単位: 円）。省略時は amount と tax_code から自動計算されます。",
+                  "example": 100
+                },
+                "tag_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "description": "メモタグIDのリスト",
+                  "example": [
+                    201
+                  ]
+                },
+                "segment_1_tag_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "セグメント1タグID",
+                  "example": 601
+                },
+                "segment_2_tag_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "セグメント2タグID",
+                  "example": 602
+                },
+                "segment_3_tag_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "セグメント3タグID",
+                  "example": 603
+                },
+                "item_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "品目ID",
+                  "example": 301
+                },
+                "description": {
+                  "type": "string",
+                  "maxLength": 1024,
+                  "description": "摘要",
+                  "example": "利用料"
+                },
+                "tax_code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "税区分コード。省略時は勘定科目に紐づくデフォルトの税区分が適用されます。",
+                  "example": 21
+                },
+                "tax_entry_method": {
+                  "allOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "in",
+                        "out"
+                      ],
+                      "description": "税入力方法\n- `in` - 内税\n- `out` - 外税"
+                    }
+                  ],
+                  "description": "税入力方法。省略時は内税（in）として扱われます。画面上での金額の表示方法を決める指定であり、`out` を指定した場合も amount は税込金額で指定します。\n- `in` - 内税\n- `out` - 外税",
+                  "example": "in"
+                },
+                "section_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "部門ID",
+                  "example": 401
+                },
+                "account_item_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "勘定科目ID",
+                  "example": 501
+                },
+                "partner_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "取引先ID。「内訳行ごとの取引先個別指定」の設定が有効な事業所でのみ指定できます。設定が有効な場合、省略するとその内訳行には取引先を設定しません。",
+                  "example": 102
+                }
+              },
+              "description": "明細から登録する取引の内訳行",
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "description": "取引の内訳行"
+          }
+        },
+        "description": "消込時に差額を新規取引として登録するための取引",
+        "additionalProperties": false
+      },
+      "walletTxnDealLine": {
+        "type": "object",
+        "required": [
+          "amount",
+          "account_item_id"
+        ],
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "金額（税込。単位: 円）。0以外の符号付きの整数で指定します。明細の入出金区分（entry_side）と符号から借方・貸方が決まります。",
+            "example": 1100,
+            "not": {
+              "enum": [
+                0
+              ]
+            }
+          },
+          "vat": {
+            "type": "integer",
+            "format": "int64",
+            "description": "税額（単位: 円）。省略時は amount と tax_code から自動計算されます。",
+            "example": 100
+          },
+          "tag_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "メモタグIDのリスト",
+            "example": [
+              201
+            ]
+          },
+          "segment_1_tag_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "セグメント1タグID",
+            "example": 601
+          },
+          "segment_2_tag_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "セグメント2タグID",
+            "example": 602
+          },
+          "segment_3_tag_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "セグメント3タグID",
+            "example": 603
+          },
+          "item_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "品目ID",
+            "example": 301
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1024,
+            "description": "摘要",
+            "example": "利用料"
+          },
+          "tax_code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "税区分コード。省略時は勘定科目に紐づくデフォルトの税区分が適用されます。",
+            "example": 21
+          },
+          "tax_entry_method": {
+            "allOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "in",
+                  "out"
+                ],
+                "description": "税入力方法\n- `in` - 内税\n- `out` - 外税"
+              }
+            ],
+            "description": "税入力方法。省略時は内税（in）として扱われます。画面上での金額の表示方法を決める指定であり、`out` を指定した場合も amount は税込金額で指定します。\n- `in` - 内税\n- `out` - 外税",
+            "example": "in"
+          },
+          "section_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "部門ID",
+            "example": 401
+          },
+          "account_item_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "勘定科目ID",
+            "example": 501
+          },
+          "partner_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "取引先ID。「内訳行ごとの取引先個別指定」の設定が有効な事業所でのみ指定できます。設定が有効な場合、省略するとその内訳行には取引先を設定しません。",
+            "example": 102
+          }
+        },
+        "description": "明細から登録する取引の内訳行",
+        "additionalProperties": false
+      },
+      "walletTxnTaxEntryMethod": {
+        "type": "string",
+        "enum": [
+          "in",
+          "out"
+        ],
+        "description": "税入力方法\n- `in` - 内税\n- `out` - 外税"
+      },
+      "walletTxnWalletableTags": {
+        "type": "object",
+        "properties": {
+          "item_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "振替の仕訳行に付与する品目のID",
+            "example": 301
+          },
+          "section_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "振替の仕訳行に付与する部門のID",
+            "example": 401
+          },
+          "partner_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "振替の仕訳行に付与する取引先のID",
+            "example": 102
+          },
+          "tag_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "振替の仕訳行に付与するメモタグのIDのリスト",
+            "example": [
+              201
+            ]
+          },
+          "segment_1_tag_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "振替の仕訳行に付与するセグメント1のタグID",
+            "example": 601
+          },
+          "segment_2_tag_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "振替の仕訳行に付与するセグメント2のタグID",
+            "example": 602
+          },
+          "segment_3_tag_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "振替の仕訳行に付与するセグメント3のタグID",
+            "example": 603
+          }
+        },
+        "description": "口座振替の仕訳行に付与する品目・部門・取引先・メモタグ・セグメント",
+        "additionalProperties": false
+      },
+      "walletTxnTransferFromLine": {
+        "type": "object",
+        "required": [
+          "walletable_type",
+          "walletable_id"
+        ],
+        "properties": {
+          "walletable_type": {
+            "allOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "bank_account",
+                  "credit_card",
+                  "wallet"
+                ],
+                "description": "口座区分\n- `bank_account` - 銀行口座\n- `credit_card` - クレジットカード\n- `wallet` - 現金・その他の決済口座"
+              }
+            ],
+            "description": "振替元の口座区分\n- `bank_account` - 銀行口座\n- `credit_card` - クレジットカード\n- `wallet` - 現金・その他の決済口座",
+            "example": "bank_account"
+          },
+          "walletable_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "walletable_type で指定した振替元口座のID",
+            "example": 10
+          },
+          "walletable_tags": {
+            "type": "object",
+            "properties": {
+              "item_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与する品目のID",
+                "example": 301
+              },
+              "section_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与する部門のID",
+                "example": 401
+              },
+              "partner_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与する取引先のID",
+                "example": 102
+              },
+              "tag_ids": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "description": "振替の仕訳行に付与するメモタグのIDのリスト",
+                "example": [
+                  201
+                ]
+              },
+              "segment_1_tag_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与するセグメント1のタグID",
+                "example": 601
+              },
+              "segment_2_tag_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与するセグメント2のタグID",
+                "example": 602
+              },
+              "segment_3_tag_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与するセグメント3のタグID",
+                "example": 603
+              }
+            },
+            "description": "口座振替の仕訳行に付与する品目・部門・取引先・メモタグ・セグメント",
+            "additionalProperties": false
+          }
+        },
+        "description": "口座振替の振替元の口座",
+        "additionalProperties": false
+      },
+      "walletTxnTransferToLine": {
+        "type": "object",
+        "required": [
+          "walletable_type",
+          "walletable_id",
+          "amount"
+        ],
+        "properties": {
+          "walletable_type": {
+            "allOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "bank_account",
+                  "credit_card",
+                  "wallet"
+                ],
+                "description": "口座区分\n- `bank_account` - 銀行口座\n- `credit_card` - クレジットカード\n- `wallet` - 現金・その他の決済口座"
+              }
+            ],
+            "description": "振替先の口座区分\n- `bank_account` - 銀行口座\n- `credit_card` - クレジットカード\n- `wallet` - 現金・その他の決済口座",
+            "example": "wallet"
+          },
+          "walletable_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "walletable_type で指定した振替先口座のID",
+            "example": 20
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "振替先口座へ振り替える金額（単位: 円）。正の整数で指定します。",
+            "example": 6000
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 1024,
+            "description": "振替先の仕訳行に記録する摘要",
+            "example": "現金口座への振替"
+          },
+          "walletable_tags": {
+            "type": "object",
+            "properties": {
+              "item_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与する品目のID",
+                "example": 301
+              },
+              "section_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与する部門のID",
+                "example": 401
+              },
+              "partner_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与する取引先のID",
+                "example": 102
+              },
+              "tag_ids": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "description": "振替の仕訳行に付与するメモタグのIDのリスト",
+                "example": [
+                  201
+                ]
+              },
+              "segment_1_tag_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与するセグメント1のタグID",
+                "example": 601
+              },
+              "segment_2_tag_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与するセグメント2のタグID",
+                "example": 602
+              },
+              "segment_3_tag_id": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true,
+                "description": "振替の仕訳行に付与するセグメント3のタグID",
+                "example": 603
+              }
+            },
+            "description": "口座振替の仕訳行に付与する品目・部門・取引先・メモタグ・セグメント",
+            "additionalProperties": false
+          }
+        },
+        "description": "口座振替の振替先の口座と振替金額",
+        "additionalProperties": false
+      },
+      "walletTxnTransferChargeLine": {
+        "type": "object",
+        "required": [
+          "account_item_id",
+          "amount",
+          "line_type"
+        ],
+        "properties": {
+          "account_item_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "手数料等の仕訳行に使用する勘定科目のID",
+            "example": 40
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "手数料等の金額（単位: 円）。正の整数で指定します。",
+            "example": 100
+          },
+          "line_type": {
+            "allOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "paid",
+                  "received"
+                ],
+                "description": "手数料等の収支区分\n- `paid` - 支払手数料等として計上する\n- `received` - 受取利息等として計上する"
+              }
+            ],
+            "description": "手数料等の収支区分\n- `paid` - 支払手数料等として計上する\n- `received` - 受取利息等として計上する",
+            "example": "paid"
+          },
+          "tax_code": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "手数料等の仕訳行に適用する税区分コード",
+            "example": 21
+          },
+          "vat": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "minimum": 0,
+            "description": "手数料等の消費税額（単位: 円）。0以上の整数で指定します。省略時は amount と tax_code から自動計算されます。税込経理の事業所では指定できません。",
+            "example": 0
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 1024,
+            "description": "手数料等の仕訳行に記録する摘要",
+            "example": "振込手数料"
+          },
+          "item_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "手数料等の仕訳行に付与する品目のID",
+            "example": 301
+          },
+          "section_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "手数料等の仕訳行に付与する部門のID",
+            "example": 401
+          },
+          "partner_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "手数料等の仕訳行に付与する取引先のID",
+            "example": 102
+          },
+          "tag_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "手数料等の仕訳行に付与するメモタグのIDのリスト",
+            "example": [
+              201
+            ]
+          },
+          "segment_1_tag_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "手数料等の仕訳行に付与するセグメント1のタグID",
+            "example": 601
+          },
+          "segment_2_tag_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "手数料等の仕訳行に付与するセグメント2のタグID",
+            "example": 602
+          },
+          "segment_3_tag_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "手数料等の仕訳行に付与するセグメント3のタグID",
+            "example": 603
+          }
+        },
+        "description": "口座振替と同時に支払または受取として計上する手数料等の仕訳行",
+        "additionalProperties": false
+      },
+      "walletTxnTransferChargeLineType": {
+        "type": "string",
+        "enum": [
+          "paid",
+          "received"
+        ],
+        "description": "手数料等の収支区分\n- `paid` - 支払手数料等として計上する\n- `received` - 受取利息等として計上する"
+      },
+      "walletTxnWalletableType": {
+        "type": "string",
+        "enum": [
+          "bank_account",
+          "credit_card",
+          "wallet"
+        ],
+        "description": "口座区分\n- `bank_account` - 銀行口座\n- `credit_card` - クレジットカード\n- `wallet` - 現金・その他の決済口座"
       },
       "expenseApplicationCreateParams": {
         "type": "object",
@@ -37250,7 +38804,7 @@
                 },
                 "role": {
                   "type": "string",
-                  "description": "アクセストークンのユーザーがこの事業所で持つ権限\n\n* admin - 管理者\n* simple_accounting - 一般（経理）\n* read_only - 取引登録のみ\n* self_only - 閲覧のみ\n* workflow - 申請・承認",
+                  "description": "アクセストークンのユーザーがこの事業所で持つ権限\n\n* admin - 管理者\n* simple_accounting - 一般（経理）\n* self_only - 取引登録のみ\n* read_only - 閲覧のみ\n* workflow - 申請・承認",
                   "example": "admin",
                   "enum": [
                     "admin",
@@ -37417,7 +38971,7 @@
               },
               "role": {
                 "type": "string",
-                "description": "アクセストークンのユーザーがこの事業所で持つ権限\n\n* admin - 管理者\n* simple_accounting - 一般（経理）\n* read_only - 取引登録のみ\n* self_only - 閲覧のみ\n* workflow - 申請・承認",
+                "description": "アクセストークンのユーザーがこの事業所で持つ権限\n\n* admin - 管理者\n* simple_accounting - 一般（経理）\n* self_only - 取引登録のみ\n* read_only - 閲覧のみ\n* workflow - 申請・承認",
                 "example": "admin",
                 "enum": [
                   "admin",

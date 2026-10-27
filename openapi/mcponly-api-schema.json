@@ -2777,35 +2777,30 @@
         ],
         "properties": {
           "id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "description": "人事評価結果ID",
-            "example": 1
+            "example": "1"
           },
           "employee_id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "description": "従業員ID",
-            "example": 101
+            "example": "101"
           },
           "evaluation_cycle_id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "description": "評価期間ID",
-            "example": 10
+            "example": "10"
           },
           "evaluation_category_id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "description": "評価項目ID",
-            "example": 20
+            "example": "20"
           },
           "evaluation_category_selectbox_option_id": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "nullable": true,
             "description": "評価項目の選択肢ID",
-            "example": 30
+            "example": "30"
           },
           "value": {
             "type": "string",
