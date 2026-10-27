@@ -1833,6 +1833,102 @@
         ]
       }
     },
+    "/api/1/wallet_txns/{id}/reconcile": {
+      "post": {
+        "summary": "口座明細で未決済取引の消込",
+        "description": "指定した口座明細と既存の未決済取引を紐づけて消込する\n\n### 注意点\n- deals に指定した取引の決済金額の合計と adjustment_deal の金額の合計を合わせた額は、明細金額と一致させてください。決済金額の合計が明細金額に満たない・超える場合は、差額を新規取引として登録するために adjustment_deal を指定してください。\n- adjustment_deal を指定した場合、作成された取引のIDがレスポンスの new_deal_id に入ります。指定しない場合は null になります。\n- 同一のパラメータで再リクエストした場合も冪等に同じレスポンスを返します。\n- 明細が既に別の取引で消込済みの場合、または取引が既に別の明細で決済済みの場合は409エラーが返ります。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "明細ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/api/1/wallet_txns/{id}/create_deal": {
+      "post": {
+        "summary": "口座明細からの取引登録",
+        "description": "指定した口座明細から取引を作成し、作成した取引で明細を消込する\n\n### 注意点\n- deal_lines の amount は符号付きの整数で指定します。明細の入出金区分（entry_side）と amount の符号から、借方・貸方が自動で決まります。\n- deal_lines の金額の合計は明細金額と一致させてください。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "明細ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/api/1/wallet_txns/{id}/create_transfer": {
+      "post": {
+        "summary": "口座明細からの口座振替登録",
+        "description": "指定した口座明細を口座振替として登録する\n\n### 注意点\n- 振替元は transfer_from_line で1口座、振替先は transfer_to_lines で複数口座を指定できます。\n- 入金明細の場合は transfer_to_lines、出金明細の場合は transfer_from_line に、必ず対象の明細の口座を含めてください。\n- transfer_from_line の振替元口座から出金される金額は、transfer_to_lines の金額の合計と charge_lines の金額の合計（line_type が paid は加算、received は減算）を合わせた額と必ず一致させてください。\n- 明細の口座に対応する金額（出金明細の場合は上記の振替元の金額、入金明細の場合は transfer_to_lines のうち明細の口座の行の金額）は、明細金額と一致させてください。\n- transfer_to_lines に同一口座（walletable_type と walletable_id の組み合わせ）を重複して指定できません。\n- 税込経理の事業所では charge_lines の vat を指定できません。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "明細ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/api/1/wallet_txns/{id}/create_private_deal": {
+      "post": {
+        "summary": "口座明細のプライベート取引としての登録",
+        "description": "指定した口座明細に対応するプライベート取引を作成し、明細を消込する\n\n### 注意点\n- プライベート取引は、個人事業所では事業主貸・事業主借、法人事業所では役員貸付金・役員借入金として登録されます。勘定科目や金額の指定は不要です。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "明細ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/api/1/wallet_txns/{id}/ignore": {
+      "post": {
+        "summary": "口座明細の無視",
+        "description": "指定した口座明細を「無視」の状態に変更する\n\n### 注意点\n- 既に「無視」の明細を指定した場合も、冪等に成功として200を返します。\n- 「消込済み」の明細は無視できません。先に口座明細の未消込への変更API（POST /api/1/wallet_txns/{id}/reset）で「未消込」に戻してください。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "明細ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/api/1/wallet_txns/{id}/reset": {
+      "post": {
+        "summary": "口座明細の未消込への変更",
+        "description": "「無視」または「消込済み」の口座明細を「未消込」の状態に戻す\n\n### 注意点\n- 「無視」の明細は無視を解除し、「消込済み」の明細は消込を解除します。\n- 既に「未消込」の明細を指定した場合も、冪等に成功として200を返します。\n- 明細に紐づく仕訳が承認済みの場合、または非同期処理中の場合は400エラーが返ります。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "明細ID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/api/1/journals": {
       "get": {
         "summary": "仕訳帳のダウンロード要求",
@@ -5306,6 +5402,13 @@
             "description": "事業所ID"
           }
         ]
+      }
+    },
+    "/api/1/user_matchers/apply": {
+      "post": {
+        "summary": "自動登録ルールの一括適用",
+        "description": "概要\n\n指定した未消込明細に、未適用の自動登録ルールを一括で適用する\n\n注意点\n- 適用処理は非同期で実行されます。レスポンスを受け取った時点では適用は完了していません。\n- wallet_txn_ids に、事業所内に存在しない明細IDが含まれる場合は400エラーが返ります。\n- 指定された明細のうち、適用対象外の明細（未消込以外の明細など）は処理対象外としてスキップされます。",
+        "hasJsonBody": true
       }
     }
   }
