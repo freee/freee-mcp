@@ -81,8 +81,10 @@ freee会計の取引明細インポートから登録されたその他原価は
 - memo: string - メモ
 - registered_at*: string(date-time) - 登録日時
 - registered_by*: object - 登録者
+- registered_by_member: object - 登録者
 - last_updated_at*: string(date-time) - 変更日時
 - last_updated_by*: object - 変更者
+- last_updated_by_member: object - 変更者
 - business: object - 案件
 - deal_line: object - 会計連携情報
 

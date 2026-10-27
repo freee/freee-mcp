@@ -7,7 +7,7 @@
 概要 原価予算の一覧を取得します。 登録されている原価予算情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する原価予算のみを取得することが可能です。
 
 定義
-type : 原価種別 (procurement, external_procurement, other_cost) start_amount_excluding_tax : 金額(税抜):下限 end_amount_excluding_tax : 金額(税抜):上限 start_date_period : 発生予定期間:開始日(yyyy-mm-dd) end_date_period : 発生予定期間:終了日(yyyy-mm-dd) master_item_ids : 商品ID(複数指定可) start_quantity : 数量:下限 end_quantity : 数量:上限 start_unit_price : 単価:下限 end_unit_price : 単価:上限 charge_employee_ids : 社内担当者の従業員ID(複数指定可) reporting_section_ids ...
+type : 原価種別 (procurement, external_procurement, other_cost) start_amount_excluding_tax : 金額(税抜):下限 end_amount_excluding_tax : 金額(税抜):上限 start_date_period : 発生予定期間:開始日(yyyy-mm-dd) end_date_period : 発生予定期間:終了日(yyyy-mm-dd) master_item_ids : 商品ID(複数指定可) start_quantity : 数量:下限 end_quantity : 数量:上限 start_unit_price : 単価:下限 end_unit_price : 単価:上限 charge_employee_ids : 社内担当者の従業員ID(複数指定可) charge_member_ids : 社内...
 
 ### パラメータ
 
@@ -23,6 +23,11 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 - start_unit_price: integer(int64) - 単価:下限
 - end_unit_price: integer(int64) - 単価:上限
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
+
+  charge_member_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
+- charge_member_ids[]: array[string] - 社内担当者のメンバーID
+
+  charge_employee_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
 - reporting_section_ids[]: array[integer] - 担当部門ID
 - supplier_ids[]: array[integer] - 仕入先の取引先ID
 - payment_partner_ids[]: array[integer] - 支払先の取引先ID
@@ -44,7 +49,7 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 概要 原価予算を新規登録します。 type で原価種別を指定してください。 procurement （仕入）はリクエストスキーマが異なります。 external_procurement （外部仕入）と other_cost （その他原価）は同じリクエストスキーマを使用します。
 
 定義
-全type共通フィールド type (必須) : 原価種別 (procurement: 仕入, external_procurement: 外部仕入, other_cost: その他原価) period_from_date (必須) : 期間開始日 period_to_date (必須) : 期間終了日。period_from_date と両方必須。 business_id : 案件ID memo : 備考 charge_employee_id : 社内担当者ID reporting_section_id : 担当部門ID type=procurement 固有フィールド quantity (必須) : 数量 unit_price (必須) : 単価 deal_line_type_id (必須) : 明細取...
+全type共通フィールド type (必須) : 原価種別 (procurement: 仕入, external_procurement: 外部仕入, other_cost: その他原価) period_from_date (必須) : 期間開始日 period_to_date (必須) : 期間終了日。period_from_date と両方必須。 business_id : 案件ID memo : 備考 charge_employee_id : 社内担当者ID charge_member_id : 社内担当者のメンバーID reporting_section_id : 担当部門ID type=procurement 固有フィールド quantity (必須) : 数量 unit_price (必須) :...
 
 ### リクエストボディ
 
@@ -64,7 +69,7 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 概要 指定されたIDの原価予算を更新します。 原価種別に応じて使用可能なフィールドが異なります。 送信したフィールドのみ更新されます。 なお原価種別を変更することはできません。
 
 定義
-全type共通フィールド period_from_date : 期間開始日。period_to_date と両方同時に送信する必要がある。 period_to_date : 期間終了日。period_from_date と両方同時に送信する必要がある。 business_id : 案件ID memo : 備考 charge_employee_id : 社内担当者ID reporting_section_id : 担当部門ID type=procurement 固有フィールド（外部仕入・その他原価では送信不可） quantity : 数量 unit_price : 単価 deal_line_type_id : 明細取引タイプID supplier_id : 仕入先ID payment_partner_id : 支払先ID uom_name : 単位 master_item_id : 商品ID account...
+全type共通フィールド period_from_date : 期間開始日。period_to_date と両方同時に送信する必要がある。 period_to_date : 期間終了日。period_from_date と両方同時に送信する必要がある。 business_id : 案件ID memo : 備考 charge_employee_id : 社内担当者ID charge_member_id : 社内担当者のメンバーID reporting_section_id : 担当部門ID type=procurement 固有フィールド（外部仕入・その他原価では送信不可） quantity : 数量 unit_price : 単価 deal_line_type_id : 明細取引タイプID supplier_id : 仕入先ID payment_partner_id : 支払先ID uom_name : ...
 
 ### パラメータ
 
@@ -77,7 +82,12 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 - period_from_date: string(date) - 期間開始日 例: `2025-04-01`
 - period_to_date: string(date) - 期間終了日 例: `2025-06-30`
 - memo: string - 備考 例: `備考テキスト`
-- charge_employee_id: integer(int64) - 社内担当者ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID 例: `1` (最小: 1, 最大: 9223372036854776000)
 - amount_excluding_tax: integer(int64) - 税抜金額 例: `10000` (最小: -999999999999, 最大: 999999999999)
 - supplier_id: integer(int64) - 仕入先の取引先ID 例: `1001` (最小: 1, 最大: 9223372036854776000)

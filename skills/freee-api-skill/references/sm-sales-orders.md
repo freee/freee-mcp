@@ -7,7 +7,7 @@
 概要 受注の一覧を取得します。 登録されている受注情報を一覧形式で取得できます。 各種フィルタ条件を指定することで、特定の条件に合致する受注のみを取得することが可能です。
 
 定義
-start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 更新日(絞り込み終了) start_sales_order_date : 受注日(絞り込み開始) end_sales_order_date : 受注日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) sales_order_no : 受注No. canceled : 取消状態(デフォルト:false) `limit`と`offset`パラメータを使用してページネーションが可能です。 デフォルトでは20件ずつ取得され、最大100件まで一度に取得できます。
+start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 更新日(絞り込み終了) start_sales_order_date : 受注日(絞り込み開始) end_sales_order_date : 受注日(絞り込み終了) charge_employee_ids : 社内担当者の従業員ID(複数指定可) charge_member_ids : 社内担当者のメンバーID(複数指定可) customer_ids : 顧客の取引先ID(複数指定可) sales_order_no : 受注No. canceled : 取消状態(デフォルト:false) `limit`と`offset`パラメータを使用してページネーションが可能です。 デフォルトでは20件ずつ取得され、最大100件まで一度に取得できます。
 
 ### パラメータ
 
@@ -17,6 +17,11 @@ start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 
 - start_sales_order_date: string(date) - 受注日で絞込：開始日(yyyy-mm-dd)
 - end_sales_order_date: string(date) - 受注日で絞込：終了日(yyyy-mm-dd)
 - charge_employee_ids[]: array[integer] - 社内担当者の従業員ID
+
+  charge_member_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
+- charge_member_ids[]: array[string] - 社内担当者のメンバーID
+
+  charge_employee_ids[] と同時に指定した場合は AND 条件となり、意図した検索結果になりません。
 - customer_ids[]: array[integer] - 顧客の取引先ID
 - sales_order_no: string - 受注No.で絞込
 - canceled: boolean - 取消状態
@@ -52,7 +57,12 @@ start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 
 - collects_on: string(date) - 入金予定日 例: `2021-12-12`
 - collecting_partner_id*: integer(int64) - 入金元の取引先ID 例: `1003` (最小: 1, 最大: 9223372036854776000)
 - collection_method_type*: string - 入金方法 (振込: transfer, 現金: cash, 手形: bill_payable, 振替: direct_debit) (選択肢: transfer, cash, bill_payable, direct_debit) 例: `transfer`
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
@@ -82,8 +92,10 @@ start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 
 - amount_of_withholding_tax: integer(int64) - 源泉徴収税額
 - registered_at*: string(date-time) - 登録日時
 - registered_by*: object - 登録者
+- registered_by_member: object - 登録者
 - last_updated_at*: string(date-time) - 変更日時
 - last_updated_by*: object - 変更者
+- last_updated_by_member: object - 変更者
 - customer*: object - 顧客
 - sales_on: string(date) - 売上予定日
 - delivery_progress*: string - 納品進捗 (未納品: not_delivered, 一部納品済: partially_delivered, 納品済: delivered)
@@ -116,6 +128,7 @@ start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 
 - collecting_partner*: object - 入金元
 - collection_method_type*: string - 入金方法 (振込: transfer, 現金: cash, 手形: bill_payable, 振替: direct_debit)
 - charge_employee: object - 社内担当者
+- charge_member: object - 社内担当者
 - reporting_section: object - 担当部門
 - internal_memo: string - 社内メモ
 - lines*: array[object] - 明細リスト
@@ -153,7 +166,12 @@ start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 
 - collects_on: string(date) - 入金予定日 例: `2021-12-12`
 - collecting_partner_id: integer(int64) - 入金元の取引先ID 例: `1003` (最小: 1, 最大: 9223372036854776000)
 - collection_method_type: string - 入金方法 (振込: transfer, 現金: cash, 手形: bill_payable, 振替: direct_debit) (選択肢: transfer, cash, bill_payable, direct_debit) 例: `transfer`
-- charge_employee_id: integer(int64) - 社内担当者の従業員ID 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - reporting_section_id: integer(int64) - 担当部門ID
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
