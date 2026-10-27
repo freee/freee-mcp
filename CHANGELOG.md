@@ -1,5 +1,12 @@
 # freee-mcp
 
+## 0.37.9
+
+### Patch Changes
+
+- [`59649e7`](https://github.com/freee/freee-mcp/commit/59649e77e470d197c77786d38feebe5d691c8370): Claude プラグインディレクトリの掲載情報として、`plugin.json` にアイコン・ドキュメント・サポートの URL とライセンスを設定する
+- [`c5dea91`](https://github.com/freee/freee-mcp/commit/c5dea916b50c51b887b3feb33d2a484730a468c2): OpenAPI スキーマを最新版に同期 ( 5 files changed, 687 insertions(+), 198 deletions(-))
+
 ## 0.37.8
 
 ### Patch Changes
