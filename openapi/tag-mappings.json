@@ -87,7 +87,8 @@
     "WorkloadTagGroups": "workload-tag-groups",
     "SalesOrderStatuses": "sales-order-statuses",
     "ProjectTagGroups": "project-tag-groups",
-    "DailyAttendances": "daily-attendances"
+    "DailyAttendances": "daily-attendances",
+    "WorkloadAvailableProjects": "workload-available-projects"
   },
   "sm-api": {
     "businesses": "businesses",
@@ -155,6 +156,7 @@
     "partner_management_orderer_tasks": "partner-management-orderer-tasks",
     "partner_management_orderer_task_delivery_data_custom_fields": "partner-management-orderer-task-delivery-data-custom-fields",
     "partner_management_orderer_task_line_items": "partner-management-orderer-task-line-items",
-    "partner_management_orderer_task_line_items_custom_fields": "partner-management-orderer-task-line-items-custom-fields"
+    "partner_management_orderer_task_line_items_custom_fields": "partner-management-orderer-task-line-items-custom-fields",
+    "partner_management_orderer_task_order_approval_flows": "partner-management-orderer-task-order-approval-flows"
   }
 }

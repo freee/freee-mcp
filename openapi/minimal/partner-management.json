@@ -803,6 +803,38 @@
         "hasJsonBody": true
       }
     },
+    "/hub/partner_management/orderer/tasks/{task_id}/acceptance": {
+      "post": {
+        "summary": "タスクを開始前にする（β版）",
+        "description": "指定したタスクのステータスを開始前 (accepted) に変更する。依頼中 (assigned)・作業中 (in_progress)・提出済み (submitted)・差し戻し (remanded)・検収済み (completed) のタスクを開始前にできる。それ以外のタスク、請求書が完了した検収済みのタスク、ログインなしパートナーのタスクは開始前にできずエラーとなる",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "開始前にするタスクのID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/submission": {
+      "post": {
+        "summary": "タスクを提出済みにする（β版）",
+        "description": "指定したタスクのステータスを提出済み (submitted) に変更する。作業中 (in_progress)・差し戻し (remanded)・検収済み (completed) のタスクを提出済みにできる。それ以外のタスク、請求書が完了した検収済みのタスクは提出済みにできずエラーとなる。提出済みのタスクは提出日を更新して再提出できるが、検収承認の申請中は再提出できずエラーとなる。発注額未定のタスク、精算幅・時間単価の品目を含むタスクは提出済みにできずエラーとなる",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "提出済みにするタスクのID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/hub/partner_management/orderer/tasks/{id}": {
       "patch": {
         "summary": "タスク更新（β版）",
@@ -846,6 +878,22 @@
             "type": "integer",
             "required": true,
             "description": "キャンセルにするタスクのID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/progression": {
+      "post": {
+        "summary": "タスクを作業中にする（β版）",
+        "description": "指定したタスクのステータスを作業中 (in_progress) に変更する。開始前 (accepted)・提出済み (submitted)・差し戻し (remanded)・検収済み (completed) のタスクを作業中に変更できる。また、ログインなしパートナーの場合に限り、依頼中 (assigned) のタスクを作業中に変更できる。それ以外のタスク、請求書が完了した検収済みのタスクは作業中にできずエラーとなる",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "作業中にするタスクのID"
           }
         ],
         "hasJsonBody": true
@@ -996,6 +1044,45 @@
             "explode": false
           }
         ]
+      }
+    },
+    "/hub/partner_management/orderer/task_order/approval_flows/{id}": {
+      "get": {
+        "summary": "承認フロー詳細取得（β版）",
+        "description": "タスクの発注承認フローを 1 件取得する。取得できるのはタスクを閲覧できる企業ユーザー。検収承認と請求書の承認フローは対象外",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "freee事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "取得対象の承認フロー ID。タスク詳細取得 API の task_order_approval_flow_id"
+          }
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/task_order/approval_flows/{approval_flow_id}/request": {
+      "post": {
+        "summary": "発注承認の申請（β版）",
+        "description": "タスクの発注承認を申請する。承認フローを申請中にし、最初のステップの承認者に通知する。申請できるのはタスクの担当者で、タスクが下書きかつ発注承認が未申請または差し戻しのとき。検収承認と請求書の承認フローは対象外",
+        "parameters": [
+          {
+            "name": "approval_flow_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "申請する承認フローの ID。タスク詳細取得 API の task_order_approval_flow_id"
+          }
+        ],
+        "hasJsonBody": true
       }
     }
   }

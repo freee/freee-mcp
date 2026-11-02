@@ -86,7 +86,7 @@ departments
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - name: string - 部署名 例: `開発部`
 - code: string - 部署コード 例: `DEV`
 - parent_id: string(uuid) - 親部署ID 例: `550e8400-e29b-41d4-a716-446655440001`

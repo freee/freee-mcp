@@ -241,6 +241,9 @@
                     "example": "本社 Slack"
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -520,6 +523,9 @@
                     "description": "アプリケーション固有のアカウント属性。キーは attribute の UUID または title（同一アプリ内で一意）のどちらでも指定可能。"
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -942,6 +948,9 @@
                     "description": "備品属性の値のリスト。指定した備品属性の値だけを更新し、指定しなかった備品属性の値は維持します。省略した場合は値を変更しません。asset_attribute_id には、備品の種別に紐づく備品属性を指定します。値が保存されていない必須の備品属性は含める必要があります"
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -1226,6 +1235,9 @@
                         ]
                       }
                     },
+                    "required": [
+                      "options"
+                    ],
                     "nullable": true,
                     "description": "`select` 種別の選択肢",
                     "additionalProperties": false
@@ -1236,6 +1248,9 @@
                     "example": true
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -1458,6 +1473,9 @@
                     "example": "ノートPC"
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -1720,6 +1738,9 @@
                     "example": "品川区西品川1丁目2-1"
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -1981,6 +2002,9 @@
                     "example": "2026-12-31"
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -2222,6 +2246,9 @@
                     "example": "#4CAF50"
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -2392,6 +2419,9 @@
                     "example": "社内システム"
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -2652,6 +2682,9 @@
                     ]
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -2888,6 +2921,9 @@
                     "example": "FT-001"
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -3145,6 +3181,9 @@
                     ]
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -3556,6 +3595,9 @@
                     ]
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -3778,6 +3820,9 @@
                     "example": "部長"
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -4000,6 +4045,9 @@
                     "example": "株式会社サンプル"
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
@@ -4248,6 +4296,9 @@
                     ]
                   }
                 },
+                "required": [
+                  "company_id"
+                ],
                 "additionalProperties": false
               }
             }
