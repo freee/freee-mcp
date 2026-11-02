@@ -52,7 +52,7 @@ custom_application_masters
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - name: string - カスタムアプリマスタ名 例: `社内システム`
 
 ### レスポンス

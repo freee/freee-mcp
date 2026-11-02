@@ -122,7 +122,7 @@ members
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - family_name: string - 姓 例: `山田`
 - given_name: string - 名 例: `太郎`
 - family_name_yomi: string - 姓（ヨミ） 例: `ヤマダ`

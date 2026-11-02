@@ -106,7 +106,7 @@ assets
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - name: string - 備品名 例: `MacBook Pro 14inch`
 - asset_number: string - 資産管理番号（チーム内一意） 例: `A-001`
 - serial_number: string - シリアル番号（チーム内一意） 例: `C02X1234ABCD`

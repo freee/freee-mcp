@@ -336,6 +336,49 @@
         "hasJsonBody": true
       }
     },
+    "/workloads/available_projects": {
+      "get": {
+        "summary": "工数入力可能なプロジェクトの取得",
+        "description": "指定した日付時点で、対象従業員が工数を入力できるプロジェクトの一覧を取得します。\n「アサインされている」「運用ステータスが運用中」「指定日がプロジェクト期間内」の3条件を全て満たすプロジェクトを、プロジェクトIDの昇順で返します。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          },
+          {
+            "name": "target_date",
+            "in": "query",
+            "type": "string",
+            "required": true,
+            "description": "対象日（この日付時点で工数入力可能なプロジェクトを返します）"
+          },
+          {
+            "name": "person_id",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "従業員ID\n本人以外を指定できるのは、本人が「工数カレンダー　閲覧（全従業員）」権限を持つか、対象従業員が所属するチームのリーダーである場合のみ\n本人は権限がなくても指定可能\n省略時はAPI利用者本人が対象"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得レコードの件数（デフォルト：50, 最小：1, 最大：100）"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "取得レコードのオフセット（デフォルト：0）"
+          }
+        ]
+      }
+    },
     "/workload_summaries": {
       "get": {
         "summary": "工数実績の取得",

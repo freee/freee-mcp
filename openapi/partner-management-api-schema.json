@@ -64,6 +64,11 @@
       "name": "partner_management_orderer_task_line_items_custom_fields",
       "description": "partner_management_orderer_task_line_items_custom_fields",
       "x-displayName": "タスク品目カスタム項目"
+    },
+    {
+      "name": "partner_management_orderer_task_order_approval_flows",
+      "description": "partner_management_orderer_task_order_approval_flows",
+      "x-displayName": "承認フロー"
     }
   ],
   "paths": {
@@ -1470,6 +1475,118 @@
         }
       }
     },
+    "/hub/partner_management/orderer/tasks/{task_id}/acceptance": {
+      "post": {
+        "operationId": "create_partner_management_orderer_task_acceptance",
+        "summary": "タスクを開始前にする（β版）",
+        "description": "指定したタスクのステータスを開始前 (accepted) に変更する。依頼中 (assigned)・作業中 (in_progress)・提出済み (submitted)・差し戻し (remanded)・検収済み (completed) のタスクを開始前にできる。それ以外のタスク、請求書が完了した検収済みのタスク、ログインなしパートナーのタスクは開始前にできずエラーとなる",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Tasks.CreateAcceptanceRequest.task_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "開始前にするレスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.Task"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_tasks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "freee事業所ID",
+                    "example": 1
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/submission": {
+      "post": {
+        "operationId": "create_partner_management_orderer_task_submission",
+        "summary": "タスクを提出済みにする（β版）",
+        "description": "指定したタスクのステータスを提出済み (submitted) に変更する。作業中 (in_progress)・差し戻し (remanded)・検収済み (completed) のタスクを提出済みにできる。それ以外のタスク、請求書が完了した検収済みのタスクは提出済みにできずエラーとなる。提出済みのタスクは提出日を更新して再提出できるが、検収承認の申請中は再提出できずエラーとなる。発注額未定のタスク、精算幅・時間単価の品目を含むタスクは提出済みにできずエラーとなる",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Tasks.CreateSubmissionRequest.task_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "提出済みにするレスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.Task"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_tasks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "freee事業所ID",
+                    "example": 1
+                  },
+                  "submitted_at": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "提出日。企業設定「提出日の必須化」が有効なとき必須。未来日は指定できない。\n初回提出時は初回提出日と最終提出日の両方に入り、2 回目以降は最終提出日だけが更新される",
+                    "example": "2026-09-28"
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
     "/hub/partner_management/orderer/tasks/{id}": {
       "patch": {
         "operationId": "partial_update_partner_management_orderer_task",
@@ -2153,6 +2270,59 @@
         "responses": {
           "200": {
             "description": "キャンセルにするレスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.Task"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_tasks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "freee事業所ID",
+                    "example": 1
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/partner_management/orderer/tasks/{task_id}/progression": {
+      "post": {
+        "operationId": "create_partner_management_orderer_task_progression",
+        "summary": "タスクを作業中にする（β版）",
+        "description": "指定したタスクのステータスを作業中 (in_progress) に変更する。開始前 (accepted)・提出済み (submitted)・差し戻し (remanded)・検収済み (completed) のタスクを作業中に変更できる。また、ログインなしパートナーの場合に限り、依頼中 (assigned) のタスクを作業中に変更できる。それ以外のタスク、請求書が完了した検収済みのタスクは作業中にできずエラーとなる",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Tasks.CreateProgressionRequest.task_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "作業中にするレスポンス",
             "content": {
               "application/json": {
                 "schema": {
@@ -2962,6 +3132,98 @@
         "tags": [
           "partner_management_orderer_task_line_items_custom_fields"
         ]
+      }
+    },
+    "/hub/partner_management/orderer/task_order/approval_flows/{id}": {
+      "get": {
+        "operationId": "get_partner_management_orderer_task_order_approval_flow",
+        "summary": "承認フロー詳細取得（β版）",
+        "description": "タスクの発注承認フローを 1 件取得する。取得できるのはタスクを閲覧できる企業ユーザー。検収承認と請求書の承認フローは対象外",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskOrderApprovalFlows.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskOrderApprovalFlows.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "承認フロー詳細レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskOrderApprovalFlows.ApprovalFlow"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_task_order_approval_flows"
+        ]
+      }
+    },
+    "/hub/partner_management/orderer/task_order/approval_flows/{approval_flow_id}/request": {
+      "post": {
+        "operationId": "create_partner_management_orderer_task_order_approval_flow_request",
+        "summary": "発注承認の申請（β版）",
+        "description": "タスクの発注承認を申請する。承認フローを申請中にし、最初のステップの承認者に通知する。申請できるのはタスクの担当者で、タスクが下書きかつ発注承認が未申請または差し戻しのとき。検収承認と請求書の承認フローは対象外",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.TaskOrderApprovalFlows.CreateRequestRequest.approval_flow_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "発注承認の申請レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskOrderApprovalFlows.ApprovalFlow"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_task_order_approval_flows"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "freee事業所ID",
+                    "example": 1
+                  },
+                  "comment": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "description": "コメント。最初のステップの承認者に社内コメントとして通知される。社内コメントの投稿制限が有効な企業では、空でない値を送ると 422 になる",
+                    "example": "ご確認をお願いします"
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
       }
     }
   },
@@ -3957,6 +4219,26 @@
           "format": "int32"
         }
       },
+      "PartnerManagement.Orderer.Tasks.CreateAcceptanceRequest.task_id": {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "description": "開始前にするタスクのID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "PartnerManagement.Orderer.Tasks.CreateSubmissionRequest.task_id": {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "description": "提出済みにするタスクのID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
       "PartnerManagement.Orderer.Tasks.PartialUpdateRequest.id": {
         "name": "id",
         "in": "path",
@@ -3982,6 +4264,16 @@
         "in": "path",
         "required": true,
         "description": "キャンセルにするタスクのID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "PartnerManagement.Orderer.Tasks.CreateProgressionRequest.task_id": {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "description": "作業中にするタスクのID",
         "schema": {
           "type": "integer",
           "format": "int32"
@@ -4141,6 +4433,37 @@
           "type": "string"
         },
         "explode": false
+      },
+      "PartnerManagement.Orderer.TaskOrderApprovalFlows.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "freee事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "PartnerManagement.Orderer.TaskOrderApprovalFlows.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "取得対象の承認フロー ID。タスク詳細取得 API の task_order_approval_flow_id",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "PartnerManagement.Orderer.TaskOrderApprovalFlows.CreateRequestRequest.approval_flow_id": {
+        "name": "approval_flow_id",
+        "in": "path",
+        "required": true,
+        "description": "申請する承認フローの ID。タスク詳細取得 API の task_order_approval_flow_id",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        }
       }
     },
     "schemas": {
@@ -6232,6 +6555,161 @@
           }
         },
         "description": "カスタム項目更新リクエスト",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.TaskOrderApprovalFlows.ApprovalFlowStatus": {
+        "type": "string",
+        "enum": [
+          "unrequested",
+          "requested",
+          "accepted",
+          "rejected"
+        ]
+      },
+      "PartnerManagement.Orderer.TaskOrderApprovalFlows.ApprovalFlowStepStatus": {
+        "type": "string",
+        "enum": [
+          "unrequested",
+          "requested",
+          "accepted",
+          "rejected"
+        ]
+      },
+      "PartnerManagement.Orderer.TaskOrderApprovalFlows.ApprovalFlowApprover": {
+        "type": "object",
+        "required": [
+          "company_user_id",
+          "company_user_name"
+        ],
+        "properties": {
+          "company_user_id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "承認者の企業ユーザー ID",
+            "example": 301
+          },
+          "company_user_name": {
+            "type": "string",
+            "description": "承認者の名前。名前が未設定のときはメールアドレス",
+            "example": "小林 太郎"
+          }
+        },
+        "description": "承認者",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.TaskOrderApprovalFlows.ApprovalFlowStep": {
+        "type": "object",
+        "required": [
+          "id",
+          "step",
+          "name",
+          "status",
+          "approvers",
+          "actual_approver_company_user_id",
+          "actual_approver_company_user_name",
+          "approved_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "ステップ ID",
+            "example": 5001
+          },
+          "step": {
+            "type": "integer",
+            "format": "int32",
+            "description": "ステップの順番。1 から始まる",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "ステップ名",
+            "example": "課長承認"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskOrderApprovalFlows.ApprovalFlowStepStatus"
+              }
+            ],
+            "description": "ステップのステータス (unrequested: 未申請, requested: 申請中, accepted: 承認, rejected: 差し戻し)"
+          },
+          "approvers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskOrderApprovalFlows.ApprovalFlowApprover"
+            },
+            "description": "承認者"
+          },
+          "actual_approver_company_user_id": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "実際に承認または差し戻しをした企業ユーザーの ID。代理承認のときは代理承認者。未申請・申請中のときは null",
+            "example": 301
+          },
+          "actual_approver_company_user_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "実際に承認または差し戻しをした企業ユーザーの名前。名前が未設定のときはメールアドレス。未申請・申請中のときは null",
+            "example": "小林 太郎"
+          },
+          "approved_at": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "description": "承認日時。承認されていないときは null",
+            "example": "2026-10-09T10:00:00+09:00"
+          }
+        },
+        "description": "承認フローのステップ",
+        "additionalProperties": false
+      },
+      "PartnerManagement.Orderer.TaskOrderApprovalFlows.ApprovalFlow": {
+        "type": "object",
+        "required": [
+          "id",
+          "task_id",
+          "name",
+          "status",
+          "steps"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "承認フロー ID",
+            "example": 98765
+          },
+          "task_id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "タスク ID",
+            "example": 12345
+          },
+          "name": {
+            "type": "string",
+            "description": "フロー名。申請前は `未定`。初回の申請時にプロジェクトに設定された承認フローの名前が入る",
+            "example": "部長承認フロー"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskOrderApprovalFlows.ApprovalFlowStatus"
+              }
+            ],
+            "description": "発注承認のステータス (unrequested: 未申請, requested: 申請中, accepted: 承認, rejected: 差し戻し)"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PartnerManagement.Orderer.TaskOrderApprovalFlows.ApprovalFlowStep"
+            },
+            "description": "承認フローのステップ。申請前は空配列"
+          }
+        },
+        "description": "承認フロー",
         "additionalProperties": false
       }
     },

@@ -69,7 +69,7 @@ asset_statuses
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - name: string - 備品ステータス名 例: `使用中`
 - color: string - 表示色 (HEXカラーコード) 例: `#4CAF50` (パターン: ^#[0-9A-Fa-f]{6}$)
 

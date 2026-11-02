@@ -77,7 +77,7 @@ asset_locations
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - name: string - 備品保管場所名 例: `本社`
 - zipcode: string - 郵便番号(ハイフンなし、7桁) 例: `1410033`
 - prefecture: string - 都道府県名 (北海道、東京都 等) または都道府県コード ("01"〜"47") 例: `東京都`

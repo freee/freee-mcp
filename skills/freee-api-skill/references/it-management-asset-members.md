@@ -89,7 +89,7 @@ asset_members
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - start_at: string(date) - 割当開始日 (YYYY-MM-DD) 例: `2026-01-01`
 - end_at: string(date) - 割当終了日 (YYYY-MM-DD) 例: `2026-12-31`
 

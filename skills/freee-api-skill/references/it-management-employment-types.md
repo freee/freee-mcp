@@ -90,7 +90,7 @@ employment_types
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - name: string - 雇用形態名 例: `正社員`
 - code: string - 外部コード 例: `FT-001`
 

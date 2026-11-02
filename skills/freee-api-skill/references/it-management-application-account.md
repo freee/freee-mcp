@@ -102,7 +102,7 @@ application_accounts
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - account: string - アカウント名 例: `yamada.taro@example.com`
 - account_kind: string - アカウント種別 (選択肢: email, id_string)
 - external_id: string - 外部システムID 例: `user-12345`
