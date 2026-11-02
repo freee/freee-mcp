@@ -20028,6 +20028,112 @@
         }
       }
     },
+    "/api/1/purchase_requests/{purchase_request_id}/purchase_budget": {
+      "get": {
+        "tags": [
+          "Purchase requests"
+        ],
+        "summary": "購買申請の購買予算と予算消化の取得",
+        "description": "<h2 id=\"_1\">概要</h2>\n\n<p>指定した購買申請に対する購買予算額と予算消化を取得します。</p>\n\n<h2 id=\"_2\">金額</h2>\n\n<ul>\n  <li>金額の単位は円です。</li>\n  <li>consumed_amount は購買予算全体の税込消化額です。</li>\n  <li>budget_consumptions は予算を消化した全明細です。</li>\n</ul>\n\n<h2 id=\"_3\">予算追跡状態</h2>\n\n<ul>\n  <li>in_progress と approved は購買予算の状態です。</li>\n  <li>下書き・差戻し・却下などの予算追跡対象外の場合は not_tracked です。</li>\n</ul>\n\n<h2 id=\"_4\">権限</h2>\n\n<ul>\n  <li>対象購買申請の閲覧権限が必要です。</li>\n  <li>閲覧できない購買申請は存在しないものとして 404 を返します。</li>\n</ul>",
+        "operationId": "get_purchase_request_purchase_budget",
+        "parameters": [
+          {
+            "name": "purchase_request_id",
+            "in": "path",
+            "description": "購買申請ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "description": "事業所ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/purchaseRequestPurchaseBudgetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/serviceUnavailableError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/1/approval_flow_routes": {
       "get": {
         "tags": [
@@ -49518,6 +49624,146 @@
             }
           }
         }
+      },
+      "purchaseRequestPurchaseBudgetResponse": {
+        "type": "object",
+        "description": "購買申請に対する購買予算、および予算消化",
+        "required": [
+          "tracking_status",
+          "purchase_request_id",
+          "purchase_budget_id",
+          "budget_amount",
+          "consumed_amount",
+          "consumed_tax_excluded_amount",
+          "consumed_tax_amount",
+          "budget_consumptions"
+        ],
+        "properties": {
+          "tracking_status": {
+            "type": "string",
+            "enum": [
+              "in_progress",
+              "approved",
+              "not_tracked"
+            ],
+            "description": "予算追跡状態 (in_progress: 申請中, approved: 承認済み, not_tracked: 追跡対象外)",
+            "example": "approved"
+          },
+          "purchase_request_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "対象の購買申請ID",
+            "example": 2001
+          },
+          "purchase_budget_id": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "購買予算ID。tracking_status が not_tracked の場合は null です",
+            "example": 1001,
+            "nullable": true
+          },
+          "budget_amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "購買予算額（円）。tracking_status が not_tracked の場合は null です",
+            "example": 100000,
+            "nullable": true
+          },
+          "consumed_amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "購買予算全体の税込消化額（円）。tracking_status が not_tracked の場合は null です",
+            "example": 65000,
+            "nullable": true
+          },
+          "consumed_tax_excluded_amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "購買予算全体の税抜消化額（円）。tracking_status が not_tracked の場合は null です",
+            "example": 59091,
+            "nullable": true
+          },
+          "consumed_tax_amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "購買予算全体の消費税額（円）。tracking_status が not_tracked の場合は null です",
+            "example": 5909,
+            "nullable": true
+          },
+          "budget_consumptions": {
+            "type": "array",
+            "description": "予算消化。tracking_status が not_tracked の場合は空配列です",
+            "items": {
+              "type": "object",
+              "description": "購買予算を消化した一件の明細",
+              "required": [
+                "amount",
+                "source"
+              ],
+              "properties": {
+                "amount": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "税込消化額（円）。取消や調整により負数になり得ます",
+                  "example": 40000
+                },
+                "source": {
+                  "type": "object",
+                  "description": "予算を消化した業務リソースの参照情報。表示名と状態は予算消化時点のスナップショットです",
+                  "required": [
+                    "type",
+                    "id",
+                    "display_name",
+                    "workflow_status"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "expense_application",
+                        "payment_request",
+                        "freee_card_statement_line",
+                        "sweeep_document",
+                        "sweeep_invoice",
+                        "deal"
+                      ],
+                      "description": "消化元リソースの種別 (expense_application: 経費申請, payment_request: 支払依頼, freee_card_statement_line: freeeカード明細, sweeep_document: sweeep v2 の支払依頼, sweeep_invoice: sweeep v2 の請求書, deal: 取引)",
+                      "example": "expense_application"
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "消化元サービスにおけるリソースID。リソース間で型が異なるため文字列で返します。取得できない場合は null です",
+                      "example": "3001",
+                      "nullable": true
+                    },
+                    "display_name": {
+                      "type": "string",
+                      "description": "消化元を人が識別するための表示名。取得できない場合は null です",
+                      "example": "備品購入の立替精算",
+                      "nullable": true
+                    },
+                    "workflow_status": {
+                      "type": "string",
+                      "enum": [
+                        "in_progress",
+                        "approved",
+                        "feedback"
+                      ],
+                      "description": "ワークフローを持つ消化元の状態 (in_progress: 申請中, approved: 承認済み, feedback: 差戻し)。対象外または取得できない場合は null です",
+                      "example": "approved",
+                      "nullable": true
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
       },
       "approvalFlowRoutesIndexResponse": {
         "type": "object",

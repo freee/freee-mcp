@@ -883,6 +883,22 @@
         "hasJsonBody": true
       }
     },
+    "/hub/partner_management/orderer/tasks/{task_id}/remand": {
+      "post": {
+        "summary": "タスクを差し戻しにする（β版）",
+        "description": "指定したタスクのステータスを提出済み (submitted) から差し戻し (remanded) に変更する。提出済み以外のタスクと、ログインなしパートナーのタスクは差し戻しにできずエラーとなる。検収承認が必要なタスクは、検収承認の申請中・承認済みのとき差し戻しにできずエラーとなる",
+        "parameters": [
+          {
+            "name": "task_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "差し戻しにするタスクのID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
     "/hub/partner_management/orderer/tasks/{task_id}/progression": {
       "post": {
         "summary": "タスクを作業中にする（β版）",
