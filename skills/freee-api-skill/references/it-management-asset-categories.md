@@ -70,7 +70,7 @@ asset_categories
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - name: string - 備品種別名 例: `ノートPC`
 
 ### レスポンス

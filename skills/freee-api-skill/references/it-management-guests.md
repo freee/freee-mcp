@@ -81,7 +81,7 @@ guests
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - family_name: string - 姓 例: `山田`
 - given_name: string - 名 例: `太郎`
 - emails: array[string] - メールアドレス (1 個以上) 例: `["yamada@example.com"]`

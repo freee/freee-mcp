@@ -79,7 +79,7 @@ IT管理 内で管理している会社の一覧をカーソルページネー�
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - name: string - 会社名 例: `株式会社サンプル`
 
 ### レスポンス

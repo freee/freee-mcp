@@ -77,7 +77,7 @@ positions
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - name: string - 役職名 例: `部長`
 
 ### レスポンス

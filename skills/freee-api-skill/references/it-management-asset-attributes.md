@@ -89,11 +89,11 @@ asset_attributes
 
 ### リクエストボディ*
 
-- company_id: integer(int64) - 事業所ID 例: `1`
+- company_id*: integer(int64) - 事業所ID 例: `1`
 - name: string - 備品属性名 例: `シリアル番号`
 - icon: string - アイコン識別子 例: `hash`
 - options: object - `select` 種別の選択肢
-  - options: array[string] - 選択肢のリスト 例: `["新品","中古"]`
+  - options*: array[string] - 選択肢のリスト 例: `["新品","中古"]`
 - allow_duplicate: boolean - 重複を許可するか (`integer` 種別のみ意味を持つ) 例: `true`
 
 ### レスポンス

@@ -98,6 +98,7 @@
 - pm-teams.md — Teams
 - pm-unit-costs.md — UnitCosts
 - pm-users.md — ログインユーザー
+- pm-workload-available-projects.md — 工数入力可能なプロジェクト
 - pm-workload-tag-groups.md — WorkloadTagGroups
 - pm-workloads.md — Workloads
 
@@ -153,6 +154,7 @@
 - partner-management-partner-management-orderer-task-delivery-data-custom-fields.md — partner_management_orderer_task_delivery_data_custom_fields
 - partner-management-partner-management-orderer-task-line-items-custom-fields.md — partner_management_orderer_task_line_items_custom_fields
 - partner-management-partner-management-orderer-task-line-items.md — partner_management_orderer_task_line_items
+- partner-management-partner-management-orderer-task-order-approval-flows.md — partner_management_orderer_task_order_approval_flows
 - partner-management-partner-management-orderer-tasks.md — partner_management_orderer_tasks
 
 ## survey - freeeサーベイ
