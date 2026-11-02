@@ -4988,6 +4988,28 @@
         "hasJsonBody": true
       }
     },
+    "/api/1/purchase_requests/{purchase_request_id}/purchase_budget": {
+      "get": {
+        "summary": "購買申請の購買予算と予算消化の取得",
+        "description": "<h2 id=\"_1\">概要</h2>\n\n<p>指定した購買申請に対する購買予算額と予算消化を取得します。</p>\n\n<h2 id=\"_2\">金額</h2>\n\n<ul>\n  <li>金額の単位は円です。</li>\n  <li>consumed_amount は購買予算全体の税込消化額です。</li>\n  <li>budget_consumptions は予算を消化した全明細です。</li>\n</ul>\n\n<h2 id=\"_3\">予算追跡状態</h2>\n\n<ul>\n  <li>in_progress と approved は購買予算の状態です。</li>\n  <li>下書き・差戻し・却下などの予算追跡対象外の場合は not_tracked です。</li>\n</ul>\n\n<h2 id=\"_4\">権限</h2>\n\n<ul>\n  <li>対象購買申請の閲覧権限が必要です。</li>\n  <li>閲覧できない購買申請は存在しないものとして 404 を返します。</li>\n</ul>",
+        "parameters": [
+          {
+            "name": "purchase_request_id",
+            "in": "path",
+            "type": "integer",
+            "required": true,
+            "description": "購買申請ID"
+          },
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID"
+          }
+        ]
+      }
+    },
     "/api/1/approval_flow_routes": {
       "get": {
         "summary": "申請経路一覧の取得",

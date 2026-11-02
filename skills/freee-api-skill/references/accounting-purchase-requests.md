@@ -202,3 +202,23 @@ PUT /api/1/purchase_requests/{id} と同じ
 ### レスポンス
 
 POST /api/1/purchase_requests と同じ
+
+## GET /api/1/purchase_requests/{purchase_request_id}/purchase_budget — 購買申請の購買予算と予算消化の取得
+
+概要 指定した購買申請に対する購買予算額と予算消化を取得します。 金額 金額の単位は円です。 consumed_amount は購買予算全体の税込消化額です。 budget_consumptions は予算を消化した全明細です。 予算追跡状態 in_progress と approved は購買予算の状態です。 下書き・差戻し・却下などの予算追跡対象外の場合は not_tracked です。 権限 対象購買申請の閲覧権限が必要です。 閲覧できない購買申請は存在しないものとして 404 を返します。
+
+### パラメータ
+
+- purchase_request_id* (path): integer(int64) - 購買申請ID
+- company_id*: integer(int64) - 事業所ID
+
+### レスポンス
+
+- tracking_status*: string - 予算追跡状態 (in_progress: 申請中, approved: 承認済み, not_tracked: 追跡対象外)
+- purchase_request_id*: integer(int64) - 対象の購買申請ID
+- purchase_budget_id*: integer(int64) - 購買予算ID。tracking_status が not_tracked の場合は null です
+- budget_amount*: integer(int64) - 購買予算額（円）。tracking_status が not_tracked の場合は null です
+- consumed_amount*: integer(int64) - 購買予算全体の税込消化額（円）。tracking_status が not_tracked の場合は null です
+- consumed_tax_excluded_amount*: integer(int64) - 購買予算全体の税抜消化額（円）。tracking_status が not_tracked の場合は null です
+- consumed_tax_amount*: integer(int64) - 購買予算全体の消費税額（円）。tracking_status が not_tracked の場合は null です
+- budget_consumptions*: array[object] - 予算消化。tracking_status が not_tracked の場合は空配列です

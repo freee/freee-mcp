@@ -2307,6 +2307,65 @@
         }
       }
     },
+    "/hub/partner_management/orderer/tasks/{task_id}/remand": {
+      "post": {
+        "operationId": "create_partner_management_orderer_task_remand",
+        "summary": "タスクを差し戻しにする（β版）",
+        "description": "指定したタスクのステータスを提出済み (submitted) から差し戻し (remanded) に変更する。提出済み以外のタスクと、ログインなしパートナーのタスクは差し戻しにできずエラーとなる。検収承認が必要なタスクは、検収承認の申請中・承認済みのとき差し戻しにできずエラーとなる",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FreeeUsingBetaHeader"
+          },
+          {
+            "$ref": "#/components/parameters/PartnerManagement.Orderer.Tasks.CreateRemandRequest.task_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "差し戻しにするレスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerManagement.Orderer.Tasks.Task"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "partner_management_orderer_tasks"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "freee事業所ID",
+                    "example": 1
+                  },
+                  "comment": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "description": "差し戻しコメント。タスクへのコメントの本文として記録され、パートナーへ通知される。企業の設定でコメントの投稿を制限している場合は指定できず、指定するとエラーとなる",
+                    "example": "納品物の 2 ページ目を修正してください"
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
     "/hub/partner_management/orderer/tasks/{task_id}/progression": {
       "post": {
         "operationId": "create_partner_management_orderer_task_progression",
@@ -4264,6 +4323,16 @@
         "in": "path",
         "required": true,
         "description": "キャンセルにするタスクのID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "PartnerManagement.Orderer.Tasks.CreateRemandRequest.task_id": {
+        "name": "task_id",
+        "in": "path",
+        "required": true,
+        "description": "差し戻しにするタスクのID",
         "schema": {
           "type": "integer",
           "format": "int32"
