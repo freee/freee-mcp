@@ -35,7 +35,7 @@
 
 ### レスポンス
 
-- paid_holidays*: array[object]
+- paid_holidays*: array[object] （要素は次のいずれかの形: ApiV1PaidHolidayIndexResponseParams / LegacyApiV1PaidHolidayIndexResponseParams）
 - total_count*: integer(int32) - 合計件数
 
 ## POST /api/v1/approval_requests/paid_holidays — 有給休暇申請の作成
@@ -45,9 +45,26 @@
 注意点
 申請経路、承認者の指定として部門役職データ連携を活用し、以下のいずれかを利用している申請と申請経路はAPI経由で参照は可能ですが、作成と更新、承認ステータスの変更ができません。 役職指定（申請者の所属部門） 役職指定（申請時に部門指定） 部門および役職指定 申請者と承認者が同一ユーザーの場合、feedback(差戻し)をするとレスポンスは以下のようになります。 status: draft approval_flow_logs.action: cancel
 
+### リクエストボディ
+
+次のいずれかの形: ApiV1PaidHolidayRequest / LegacyApiV1PaidHolidayRequest
+- company_id*: integer(int32) - 事業所ID（必須） 例: `1` (最小: 1, 最大: 2147483647)
+- target_date*: string(date) - 対象日（必須） 例: `2018-07-31` (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
+- values*: array[object] （ApiV1PaidHolidayRequest のみ）
+  配列の要素:
+    - type*: string - 取得単位。（full:全休、half:半休、morning:午前休、 afternoon:午後休、hourly:時間休） (選択肢: full, half, morning, afternoon, hourly) 例: `half`
+    - start_at: string - 取得予定開始時間 ※ 全休の場合や午前休、午後休の場合にはこちらの値は参照されません 例: `12:00` (パターン: ^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$)
+    - end_at: string - 取得予定終了時間 ※ 全休の場合や午前休、午後休の場合にはこちらの値は参照されません 例: `23:59` (パターン: ^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$)
+- comment: string - 申請理由 例: `申請理由`
+- approval_flow_route_id*: integer(int32) - 申請経路ID（必須） 例: `1` (最小: 1, 最大: 2147483647)
+- approver_id: integer(int32) - 承認者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
+- holiday_type*: string - [deprecated] 取得単位。（full:全休、half:半休、morning:午前休、 afternoon:午後休、hour:時間休） ※ paid_holidays->values を指定している場合にはこちらの値は参照されません ※ 削除予定のためvalues->type を指定してください （LegacyApiV1PaidHolidayRequest のみ） (選択肢: full, half, morning, afternoon, hour) 例: `half`
+- start_at: string - [deprecated] 取得予定開始時間 ※ paid_holidays->values を指定している場合にはこちらの値は参照されません ※ 削除予定のため values->start_at を指定してください （LegacyApiV1PaidHolidayRequest のみ） 例: `12:00` (パターン: ^[0-9]{2}:[0-9]{2}?$)
+- end_at: string - [deprecated] 取得予定終了時間 ※ paid_holidays->values を指定している場合にはこちらの値は参照されません ※ 削除予定のため values->end_at を指定してください （LegacyApiV1PaidHolidayRequest のみ） 例: `23:59` (パターン: ^[0-9]{2}:[0-9]{2}?$)
+
 ### レスポンス
 
-- paid_holiday*: object
+- paid_holiday*: object （次のいずれかの形: ApiV1PaidHolidayResponseParams / LegacyApiV1PaidHolidayResponseParams）
 
 ## GET /api/v1/approval_requests/paid_holidays/{id} — 有給休暇申請の取得
 
@@ -75,6 +92,10 @@ POST /api/v1/approval_requests/paid_holidays と同じ
 ### パラメータ
 
 - id* (path): integer - 有給休暇申請ID
+
+### リクエストボディ
+
+POST /api/v1/approval_requests/paid_holidays と同じ
 
 ### レスポンス
 

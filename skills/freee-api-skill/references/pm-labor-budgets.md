@@ -17,7 +17,7 @@
 ### レスポンス
 
 - labor_budgets*: array[object]
-- meta*: object
+- meta*: object - ページネーションのメタ情報
 
 ## PUT /labor_budgets/projects/{project_id}/people/{person_id}/year_month/{year_month} — 人件費予算の更新
 
@@ -36,4 +36,4 @@
 
 ### レスポンス
 
-- labor_budget*: object
+- labor_budget*: object - 人件費予算

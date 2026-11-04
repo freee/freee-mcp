@@ -13,4 +13,4 @@
 ### レスポンス
 
 - teams*: array[object]
-- meta*: object
+- meta*: object - ページネーションのメタ情報

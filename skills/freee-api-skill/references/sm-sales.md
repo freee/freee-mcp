@@ -33,6 +33,12 @@ start_registered_date : 売上登録日(絞り込み開始) end_registered_date 
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+売上一覧のレスポンス
+- sales*: array[object]
+- meta*: object
+
 ## POST /sales — 売上登録
 
 概要 新しい売上を登録します。 受注や納品に紐づく売上、または独立した売上を登録できます。
@@ -69,7 +75,36 @@ start_registered_date : 売上登録日(絞り込み開始) end_registered_date 
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
-- lines*: array[object] - 明細リスト
+- lines*: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
+  配列の要素:
+    - line_type*: string - 明細種別 (選択肢: basic, text)
+    - master_item_id: string - 商品ID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - deal_line_type_id*: string - 明細取引タイプID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - description: string - 摘要 （basic のみ） 例: `パンフレットデザイン料`
+    - quantity*: number(double) - 数量 （basic のみ） 例: `100`
+    - uom_name: string - 単位 （basic のみ） 例: `個`
+    - unit_price*: number(double) - 単価 （basic のみ） 例: `1000` (最小: -999999999999, 最大: 999999999999)
+    - accounting_reporting_section_id: integer(int64) - 会計計上部門ID
+
+      ※ 親部門のIDは指定できません （basic のみ） 例: `67890` (最小: 1, 最大: 9223372036854776000)
+    - item_tag_id: integer(int64) - 会計品目タグID （basic のみ） 例: `2001` (最小: 1, 最大: 9223372036854776000)
+    - memo_tags: array[integer] - メモタグID （basic のみ）
+    - withholding_enabled*: boolean - 源泉徴収税対象明細かどうか （basic のみ） 例: `false`
+    - is_manual_tax_entry*: boolean - 税の手動入力を行うかどうか （basic のみ） 例: `false`
+    - tax: integer(int64) - 手動入力した税額
+
+      ※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。 （basic のみ） 例: `10000` (最小: -999999999999, 最大: 999999999999)
+    - segment_tag_1_id: integer(int64) - セグメントタグ1のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - segment_tag_2_id: integer(int64) - セグメントタグ2のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - segment_tag_3_id: integer(int64) - セグメントタグ3のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - text*: string - テキスト行 （text のみ） 例: `備考：特急料金が含まれます`
+
+### レスポンス
+
+売上登録のレスポンス
+- id*: string - 売上ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## GET /sales/{id} — 売上詳細取得
 
@@ -132,7 +167,7 @@ start_registered_date : 売上登録日(絞り込み開始) end_registered_date 
 - reporting_section: object - 担当部門
 - internal_memo: string - 社内メモ
 - amount_set_rates*: array[object]
-- lines*: array[object] - 明細リスト
+- lines*: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
 
 ## PATCH /sales/{id} — 売上更新
 
@@ -171,7 +206,36 @@ start_registered_date : 売上登録日(絞り込み開始) end_registered_date 
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
-- lines: array[object] - 明細リスト
+- lines: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
+  配列の要素:
+    - line_type*: string - 明細種別 (選択肢: basic, text)
+    - master_item_id: string - 商品ID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - deal_line_type_id*: string - 明細取引タイプID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - description: string - 摘要 （basic のみ） 例: `パンフレットデザイン料`
+    - quantity*: number(double) - 数量 （basic のみ） 例: `100`
+    - uom_name: string - 単位 （basic のみ） 例: `個`
+    - unit_price*: number(double) - 単価 （basic のみ） 例: `1000` (最小: -999999999999, 最大: 999999999999)
+    - accounting_reporting_section_id: integer(int64) - 会計計上部門ID
+
+      ※ 親部門のIDは指定できません （basic のみ） 例: `67890` (最小: 1, 最大: 9223372036854776000)
+    - item_tag_id: integer(int64) - 会計品目タグID （basic のみ） 例: `2001` (最小: 1, 最大: 9223372036854776000)
+    - memo_tags: array[integer] - メモタグID （basic のみ）
+    - withholding_enabled*: boolean - 源泉徴収税対象明細かどうか （basic のみ） 例: `false`
+    - is_manual_tax_entry*: boolean - 税の手動入力を行うかどうか （basic のみ） 例: `false`
+    - tax: integer(int64) - 手動入力した税額
+
+      ※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。 （basic のみ） 例: `10000` (最小: -999999999999, 最大: 999999999999)
+    - segment_tag_1_id: integer(int64) - セグメントタグ1のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - segment_tag_2_id: integer(int64) - セグメントタグ2のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - segment_tag_3_id: integer(int64) - セグメントタグ3のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - text*: string - テキスト行 （text のみ） 例: `備考：特急料金が含まれます`
+
+### レスポンス
+
+売上更新のレスポンス
+- id*: string - 売上ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## POST /sales/{id}/cancellation — 売上取消
 
@@ -184,6 +248,13 @@ PATCH /sales/{id} と同じ
 ### リクエストボディ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+売上取消のレスポンス
+- id*: string - 売上ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## PUT /sales/{id}/collection_status — 決済ステータス変更
 
@@ -203,3 +274,7 @@ PATCH /sales/{id} と同じ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
 - collection_status*: string - 手動設定する決済ステータス (未決済: not_settled, 一部決済済み: partially_settled, 決済済み: settled, 対象外: none) (選択肢: not_settled, partially_settled, settled, none) 例: `settled`
+
+### レスポンス
+
+PATCH /sales/{id} と同じ

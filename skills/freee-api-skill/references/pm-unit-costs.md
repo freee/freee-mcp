@@ -13,4 +13,4 @@
 ### レスポンス
 
 - unit_costs*: array[object]
-- meta*: object
+- meta*: object - ページネーションのメタ情報

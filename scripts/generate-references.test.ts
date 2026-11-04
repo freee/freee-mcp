@@ -212,6 +212,161 @@ describe("buildEndpointsMarkdown - $ref / allOf の解決", () => {
   });
 });
 
+/** GET path のレスポンスとして schema を出力したときの markdown を返す */
+function responseMarkdown(apiSchema: OpenAPISchema, responseSchema: object): string {
+  return buildEndpointsMarkdown(apiSchema, [
+    {
+      path: "/target",
+      operations: [
+        {
+          method: "GET",
+          responses: {
+            "200": { content: { "application/json": { schema: responseSchema } } },
+          },
+        },
+      ],
+    },
+  ]);
+}
+
+describe("buildEndpointsMarkdown - JSON Pointer 形式の $ref の解決", () => {
+  it("#/paths/... への $ref（~1 エスケープ含む）を解決する", () => {
+    // 工数管理 API は別エンドポイントのレスポンス schema を paths 経由で参照する
+    const apiSchema: OpenAPISchema = {
+      paths: {
+        "/projects": {
+          get: {
+            responses: {
+              "200": {
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        meta: {
+                          type: "object",
+                          description: "メタ情報",
+                          properties: { total_count: { type: "integer" } },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const md = responseMarkdown(apiSchema, {
+      type: "object",
+      properties: {
+        meta: {
+          $ref: "#/paths/~1projects/get/responses/200/content/application~1json/schema/properties/meta",
+        },
+      },
+    });
+
+    // 未解決だと `- meta: object` だけになり説明も落ちる
+    expect(md).toContain("- meta: object - メタ情報");
+  });
+
+  it("components.schemas 配下の深いポインタは参照先の要素に解決する", () => {
+    const apiSchema: OpenAPISchema = {
+      paths: {},
+      components: {
+        schemas: {
+          WorkTimes: {
+            type: "object",
+            properties: {
+              work_records: {
+                type: "array",
+                items: { type: "string", description: "勤務時間" },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const md = responseMarkdown(apiSchema, {
+      type: "object",
+      properties: {
+        record: {
+          $ref: "#/components/schemas/WorkTimes/properties/work_records/items",
+        },
+      },
+    });
+
+    // 以前は `WorkTimes` 自体に解決され object として出力されていた
+    expect(md).toContain("- record: string - 勤務時間");
+  });
+
+  it("components.responses への $ref を解決してレスポンスを出力する", () => {
+    const apiSchema: OpenAPISchema = {
+      paths: {},
+      components: {
+        schemas: {
+          Business: {
+            type: "object",
+            properties: { name: { type: "string", description: "案件名称" } },
+          },
+        },
+        responses: {
+          BusinessResponse: {
+            description: "案件",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Business" },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const md = buildEndpointsMarkdown(apiSchema, [
+      {
+        path: "/businesses/{id}",
+        operations: [
+          {
+            method: "GET",
+            responses: { "200": { $ref: "#/components/responses/BusinessResponse" } },
+          },
+        ],
+      },
+    ]);
+
+    // 販売管理 API の成功レスポンスの大半がこの形で、以前はセクションごと欠落していた
+    expect(md).toContain("### レスポンス");
+    expect(md).toContain("- name: string - 案件名称");
+  });
+
+  it("配列要素が $ref でも参照先の型で表示する", () => {
+    const apiSchema: OpenAPISchema = {
+      paths: {},
+      components: {
+        schemas: {
+          DeliveryType: { type: "string", enum: ["email", "post"] },
+        },
+      },
+    };
+
+    const md = responseMarkdown(apiSchema, {
+      type: "object",
+      properties: {
+        delivery_types: {
+          type: "array",
+          items: { $ref: "#/components/schemas/DeliveryType" },
+        },
+      },
+    });
+
+    expect(md).toContain("- delivery_types: array[string]");
+  });
+});
+
 describe("buildEndpointsMarkdown - anyOf の解決", () => {
   it("同じスカラー型の union をその型として出力する", () => {
     const md = buildEndpointsMarkdown(
@@ -263,7 +418,7 @@ describe("buildEndpointsMarkdown - anyOf の解決", () => {
     expect(md).not.toContain("- workplace_prefecture*: object");
   });
 
-  it("異なる型を持つ union はスカラー型として出力しない", () => {
+  it("異なるスカラー型を持つ union は型を併記する", () => {
     const md = buildEndpointsMarkdown(
       {
         paths: {},
@@ -301,7 +456,240 @@ describe("buildEndpointsMarkdown - anyOf の解決", () => {
       ]
     );
 
-    expect(md).toContain("- value: object");
+    expect(md).toContain("- value: string | integer");
+  });
+});
+
+describe("buildEndpointsMarkdown - object の union の展開", () => {
+  // 販売 API の明細行を模したもの: allOf で拡張した形と、テキスト行の形の oneOf
+  const lineSchema: OpenAPISchema = {
+    paths: {},
+    components: {
+      schemas: {
+        BasicLine: {
+          type: "object",
+          required: ["line_no", "line_type", "quantity"],
+          properties: {
+            line_no: { type: "integer", description: "明細行番号" },
+            line_type: { type: "string", enum: ["basic"], description: "明細行種別" },
+            quantity: { type: "number", description: "数量" },
+          },
+        },
+        SaleBasicLine: {
+          allOf: [
+            { $ref: "#/components/schemas/BasicLine" },
+            {
+              type: "object",
+              required: ["account_item"],
+              properties: { account_item: { type: "string", description: "勘定科目" } },
+            },
+          ],
+        },
+        TextLine: {
+          type: "object",
+          required: ["line_no", "line_type", "text"],
+          properties: {
+            line_no: { type: "integer", description: "明細行番号" },
+            line_type: { type: "string", enum: ["text"], description: "明細行種別" },
+            text: { type: "string", description: "テキスト" },
+          },
+        },
+        Line: {
+          description: "明細",
+          discriminator: {
+            propertyName: "line_type",
+            mapping: {
+              basic: "#/components/schemas/SaleBasicLine",
+              text: "#/components/schemas/TextLine",
+            },
+          },
+          oneOf: [
+            { $ref: "#/components/schemas/SaleBasicLine" },
+            { $ref: "#/components/schemas/TextLine" },
+          ],
+        },
+      },
+    },
+  };
+
+  function lineRequestBody(): string {
+    return buildEndpointsMarkdown(lineSchema, [
+      {
+        path: "/sales",
+        operations: [
+          {
+            method: "POST",
+            requestBody: {
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      lines: { type: "array", items: { $ref: "#/components/schemas/Line" } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+    ]);
+  }
+
+  it("全形のプロパティを合成し、一部の形にしか無い項目に注記を付ける", () => {
+    const md = lineRequestBody();
+
+    expect(md).toContain("- line_no*: integer - 明細行番号\n");
+    // allOf で拡張した形の項目も合成される
+    expect(md).toContain("- account_item*: string - 勘定科目 （basic のみ）");
+    expect(md).toContain("- text*: string - テキスト （text のみ）");
+  });
+
+  it("必須はその項目を持つすべての形で必須のときだけ付ける", () => {
+    const md = buildEndpointsMarkdown(
+      {
+        paths: {},
+        components: {
+          schemas: {
+            A: {
+              type: "object",
+              required: ["name"],
+              properties: { name: { type: "string" } },
+            },
+            B: { type: "object", properties: { name: { type: "string" } } },
+          },
+        },
+      },
+      [
+        {
+          path: "/target",
+          operations: [
+            {
+              method: "POST",
+              requestBody: {
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      properties: {
+                        value: {
+                          anyOf: [
+                            { $ref: "#/components/schemas/A" },
+                            { $ref: "#/components/schemas/B" },
+                          ],
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      ]
+    );
+
+    expect(md).toContain("- value: object （次のいずれかの形: A / B）");
+    expect(md).toContain("- name: string\n");
+  });
+
+  it("discriminator プロパティの選択肢は全形の値をまとめる", () => {
+    const md = lineRequestBody();
+
+    expect(md).toContain("- line_type*: string - 明細行種別 (選択肢: basic, text)");
+  });
+
+  it("配列要素の union は深さ1のレスポンスでもプロパティ行に注記する", () => {
+    const md = responseMarkdown(lineSchema, {
+      type: "object",
+      properties: {
+        lines: { type: "array", items: { $ref: "#/components/schemas/Line" } },
+      },
+    });
+
+    expect(md).toContain(
+      "- lines: array[object] （要素は line_type により形が異なる: basic / text）"
+    );
+  });
+
+  it("同じ schema を指す複数の mapping キーは1つの形のラベルにまとめる", () => {
+    const md = responseMarkdown(
+      {
+        paths: {},
+        components: {
+          schemas: {
+            Procurement: {
+              type: "object",
+              properties: {
+                type: { type: "string" },
+                supplier: { type: "string", description: "仕入先" },
+              },
+            },
+            Basic: { type: "object", properties: { type: { type: "string" } } },
+          },
+        },
+      },
+      {
+        type: "object",
+        properties: {
+          budget: {
+            discriminator: {
+              propertyName: "type",
+              mapping: {
+                procurement: "#/components/schemas/Procurement",
+                external_procurement: "#/components/schemas/Basic",
+                other_cost: "#/components/schemas/Basic",
+              },
+            },
+            oneOf: [
+              { $ref: "#/components/schemas/Procurement" },
+              { $ref: "#/components/schemas/Basic" },
+            ],
+          },
+        },
+      }
+    );
+
+    expect(md).toContain(
+      "- budget: object （type により形が異なる: procurement / external_procurement / other_cost）"
+    );
+  });
+
+  it("リクエストボディ自体が union なら先頭に形の注記を出す", () => {
+    const md = buildEndpointsMarkdown(lineSchema, [
+      {
+        path: "/lines",
+        operations: [
+          {
+            method: "POST",
+            requestBody: {
+              content: {
+                "application/json": { schema: { $ref: "#/components/schemas/Line" } },
+              },
+            },
+          },
+        ],
+      },
+    ]);
+
+    expect(md).toContain(
+      "### リクエストボディ\n\nline_type により形が異なる: basic / text\n- line_no*: integer"
+    );
+  });
+
+  it("配列を含む union は平坦化しない", () => {
+    const md = responseMarkdown(
+      { paths: {} },
+      {
+        type: "object",
+        properties: {
+          children: { oneOf: [{ type: "array", items: { type: "string" } }, { type: "object" }] },
+        },
+      }
+    );
+
+    expect(md).toContain("- children: object\n");
   });
 });
 

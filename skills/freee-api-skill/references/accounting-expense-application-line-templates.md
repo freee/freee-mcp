@@ -73,7 +73,7 @@
       金額計算式から参照できるのは number (入力された数値)、pulldown (選択された選択肢の calculation_value)、date_range (開始日から終了日までの日数) の項目です。 (選択肢: single_line_string, multi_line_string, date, date_range, datetime, number, pulldown, checkbox, radio_button) 例: `pulldown`
     - required*: boolean - 経費申請の作成時にこの項目の入力を必須にするかどうか (true: 必須, false: 任意) 例: `true`
     - annotation*: string - カスタム申請項目の補足説明。未設定の場合はnull 例: `利用した交通手段を選択してください`
-    - default_value*: object - カスタム申請項目の初期値。typeに応じた値で指定します (single_line_string: 255文字以内の文字列, multi_line_string: 10000文字以内の文字列, number: 整数部10桁・小数部3桁以内の数値)。
+    - default_value*: string | number - カスタム申請項目の初期値。typeに応じた値で指定します (single_line_string: 255文字以内の文字列, multi_line_string: 10000文字以内の文字列, number: 整数部10桁・小数部3桁以内の数値)。
       それ以外のtypeでは初期値を持てないためnullを指定します。未設定の場合はnull 例: `電車`
     - unit*: string - 数値の単位 (255文字以内)。typeがnumberの場合だけ指定できます。未設定の場合はnull 例: `km`
     - options*: array[object] - 選択肢。typeがpulldown、checkbox、radio_buttonの場合に1件以上指定し、それ以外のtypeでは空配列を指定します。
@@ -81,6 +81,12 @@
 - amount_calculation_setting: object - 金額計算設定。定義はレスポンスと共通で、取得した内容をそのまま送り返せます。
   計算式はカスタム申請項目のkeyを {key} の形式で参照します。同じリクエストのcustom_form_partsで指定したkeyを参照できます。
   更新時は指定した内容で金額計算設定を全置換します。更新時に省略した場合は変更しません。
+  - method*: string - 金額設定 (none: 金額設定なし) (選択肢: none, fixed, formula) 例: `none`
+  - fixed_amount*: integer(int64) - 固定金額 (1以上の整数) 例: `1200` (最小: 1)
+  - rounding*: string - 計算結果の端数処理 (omit: 切り捨て, round_up: 切り上げ, round: 四捨五入)。申請フォーム設定のauto_calculation_amount_fractionと同じ語彙です (選択肢: omit, round_up, round) 例: `round`
+  - rules*: array[object] - 条件付きの金額計算ルール (50件以内)。配列の並び順に評価し、最初に条件へ一致したルールの計算式を適用します
+  - default_formula*: string - どのルールにも一致しない場合に適用する金額計算式。ルールを持たない場合はこの式で金額を算出します。
+    式の文法は rules[].formula と同じです。既定の式を持たない場合はnull 例: `{transport}*{travel_days}`
 
 ### レスポンス
 

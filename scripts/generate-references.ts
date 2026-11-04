@@ -57,6 +57,7 @@ interface RequestBody {
 }
 
 interface Response {
+  $ref?: string;
   description?: string;
   content?: {
     [mediaType: string]: {
@@ -83,6 +84,15 @@ interface SchemaObject {
   allOf?: SchemaObject[];
   oneOf?: SchemaObject[];
   anyOf?: SchemaObject[];
+  discriminator?: {
+    propertyName: string;
+    mapping?: { [value: string]: string };
+  };
+  // 以下は OpenAPI の属性ではなく、union を合成したときに生成側が付ける内部情報。
+  /** union の形の説明（例: `line_type により形が異なる: basic / text`） */
+  unionNote?: string;
+  /** 一部の形にしか存在しないプロパティ → それが存在する形のラベル */
+  variantOnly?: { [propName: string]: string[] };
 }
 
 interface Operation {
@@ -135,6 +145,9 @@ export interface OpenAPISchema {
     requestBodies?: {
       [key: string]: RequestBody;
     };
+    responses?: {
+      [key: string]: Response;
+    };
   };
 }
 
@@ -158,20 +171,59 @@ function cleanDescription(text: string): string {
 }
 
 /**
+ * Resolve a same-document `$ref` (JSON Pointer, RFC 6901) against the schema.
+ *
+ * `#/components/schemas/Name` だけでなく、`#/paths/~1projects/...`（工数管理 API が多用）や
+ * `#/components/schemas/Name/properties/x/items` のような深いポインタも辿る。
+ * 外部ファイル参照など解決できないものは undefined を返す。
+ */
+function resolvePointer(apiSchema: OpenAPISchema, ref: string): unknown {
+  if (!ref.startsWith("#/")) return undefined;
+
+  let current: unknown = apiSchema;
+  for (const rawSegment of ref.slice(2).split("/")) {
+    let segment: string;
+    try {
+      segment = decodeURIComponent(rawSegment);
+    } catch {
+      segment = rawSegment;
+    }
+    segment = segment.replace(/~1/g, "/").replace(/~0/g, "~");
+
+    if (current === null || typeof current !== "object") return undefined;
+    current = (current as Record<string, unknown>)[segment];
+  }
+  return current;
+}
+
+/**
  * Resolve $ref in schema
  */
 function resolveRef(
   schema: OpenAPISchema,
   ref: string
 ): SchemaObject | undefined {
-  // $ref format: "#/components/schemas/SchemaName"
-  const parts = ref.split("/");
-  if (parts[0] !== "#" || parts[1] !== "components" || parts[2] !== "schemas") {
-    return undefined;
-  }
+  const resolved = resolvePointer(schema, ref);
+  return resolved !== null && typeof resolved === "object"
+    ? (resolved as SchemaObject)
+    : undefined;
+}
 
-  const schemaName = parts[3];
-  return schema.components?.schemas?.[schemaName];
+/**
+ * Resolve $ref to a response object (e.g. `#/components/responses/Name`)
+ *
+ * 販売管理 API は成功レスポンスの大半を components.responses に切り出しているため、
+ * 解決しないと `content` が読めずレスポンスが丸ごと出力されない。
+ */
+function resolveResponse(
+  apiSchema: OpenAPISchema,
+  response: Response,
+  depth: number = 0
+): Response {
+  if (!response.$ref || depth >= MAX_RESOLVE_DEPTH) return response;
+  const resolved = resolvePointer(apiSchema, response.$ref);
+  if (resolved === null || typeof resolved !== "object") return response;
+  return resolveResponse(apiSchema, resolved as Response, depth + 1);
 }
 
 /**
@@ -251,29 +303,135 @@ function mergeAllOf(
 }
 
 /**
- * Resolve a union whose members all have the same scalar type.
+ * union の各メンバー（形）を識別するラベルを返す。
  *
- * TypeSpec emits unions such as `Prefecture | ""` as `anyOf`, without a
- * top-level `type`. The reference generator can still describe these as a
- * scalar when every member resolves to the same scalar type. Structural and
- * mixed-type unions stay unresolved because flattening them would be lossy.
+ * 優先順位: discriminator.mapping のキー（同じ schema を指す複数キーはまとめる）→
+ * 各形の discriminator プロパティの enum → `$ref` の schema 名 → `パターンN`。
  */
-function mergeHomogeneousScalarUnion(
+function unionVariantLabels(
   apiSchema: OpenAPISchema,
   members: SchemaObject[],
+  resolvedMembers: SchemaObject[],
+  discriminator: SchemaObject["discriminator"]
+): string[][] {
+  return members.map((member, index) => {
+    if (discriminator?.mapping && member.$ref) {
+      const keys = Object.entries(discriminator.mapping)
+        .filter(([, ref]) => ref === member.$ref)
+        .map(([key]) => key);
+      if (keys.length > 0) return keys;
+    }
+    if (discriminator) {
+      const prop = resolvedMembers[index]?.properties?.[discriminator.propertyName];
+      const values = prop ? resolveSchema(apiSchema, prop).enum : undefined;
+      if (values && values.length > 0) return values.map(String);
+    }
+    if (member.$ref) {
+      const name = member.$ref.split("/").pop();
+      if (name) return [name];
+    }
+    return [`パターン${index + 1}`];
+  });
+}
+
+/**
+ * Merge a union of object schemas into a single object schema.
+ *
+ * 形ごとに分けて出すと共通項目（販売 API のカスタム項目は 12 形が同じ base を持つ）が
+ * 重複するため、全形のプロパティを1つにまとめ、一部の形にしか無いものは `variantOnly` に
+ * その形のラベルを記録する。必須は「そのプロパティを持つすべての形で必須」のときだけ付ける。
+ * プロパティ定義が形ごとに異なる場合は先勝ち。ただし discriminator プロパティの enum は
+ * 全形の値をまとめる（先勝ちだと最初の形の値しか出ない）。
+ */
+function mergeObjectUnion(
+  apiSchema: OpenAPISchema,
+  members: SchemaObject[],
+  resolvedMembers: SchemaObject[],
+  discriminator: SchemaObject["discriminator"]
+): SchemaObject {
+  const labels = unionVariantLabels(apiSchema, members, resolvedMembers, discriminator);
+  const allLabels = labels.flat();
+
+  const properties: { [key: string]: SchemaObject } = {};
+  const presentIn: { [key: string]: number[] } = {};
+  const requiredEverywhere: { [key: string]: boolean } = {};
+
+  resolvedMembers.forEach((member, index) => {
+    const required = member.required ?? [];
+    for (const [name, prop] of Object.entries(member.properties ?? {})) {
+      if (!(name in properties)) {
+        properties[name] = prop;
+        presentIn[name] = [];
+        requiredEverywhere[name] = true;
+      }
+      presentIn[name].push(index);
+      if (!required.includes(name)) requiredEverywhere[name] = false;
+    }
+  });
+
+  const variantOnly: { [propName: string]: string[] } = {};
+  for (const [name, indexes] of Object.entries(presentIn)) {
+    if (indexes.length < resolvedMembers.length) {
+      variantOnly[name] = indexes.flatMap((index) => labels[index]);
+    }
+  }
+
+  const discriminatorName = discriminator?.propertyName;
+  if (discriminatorName && properties[discriminatorName]) {
+    properties[discriminatorName] = {
+      ...resolveSchema(apiSchema, properties[discriminatorName]),
+      enum: allLabels,
+    };
+  }
+
+  const required = Object.keys(requiredEverywhere).filter(
+    (name) => requiredEverywhere[name]
+  );
+
+  return {
+    type: "object",
+    properties,
+    ...(required.length > 0 ? { required } : {}),
+    ...(Object.keys(variantOnly).length > 0 ? { variantOnly } : {}),
+    unionNote: discriminatorName
+      ? `${discriminatorName} により形が異なる: ${allLabels.join(" / ")}`
+      : `次のいずれかの形: ${allLabels.join(" / ")}`,
+  };
+}
+
+/**
+ * Resolve a `oneOf` / `anyOf` union.
+ *
+ * - 全メンバーが同じスカラー型: その型（TypeSpec の `Prefecture | ""` など）
+ * - 全メンバーが object: プロパティを合成した1つの object（mergeObjectUnion）
+ * - 配列を含まない異なる型の混在: `string | number` のような型表記
+ * - 配列を含む union: 平坦化すると情報が落ちるので解決しない（undefined）
+ */
+function resolveUnion(
+  apiSchema: OpenAPISchema,
+  members: SchemaObject[],
+  discriminator: SchemaObject["discriminator"],
   depth: number
 ): SchemaObject | undefined {
   const resolvedMembers = members.map((member) =>
     resolveSchema(apiSchema, member, depth + 1)
   );
-  const memberTypes = new Set(resolvedMembers.map((member) => member.type));
+  const memberType = (member: SchemaObject): string =>
+    member.type ?? (member.properties ? "object" : "");
+  const memberTypes = [...new Set(resolvedMembers.map(memberType))];
 
-  if (memberTypes.size !== 1) return undefined;
+  if (memberTypes.includes("") || memberTypes.includes("array")) return undefined;
 
-  const type = resolvedMembers[0]?.type;
-  if (!type || type === "array" || type === "object") return undefined;
+  if (memberTypes.length === 1) {
+    if (memberTypes[0] !== "object") return { type: memberTypes[0] };
+    // properties を持たない自由形式の object が混じる場合は合成できない
+    if (resolvedMembers.every((member) => member.properties)) {
+      return mergeObjectUnion(apiSchema, members, resolvedMembers, discriminator);
+    }
+    return undefined;
+  }
 
-  return { type };
+  return { type: memberTypes.join(" | ") };
 }
 
 /**
@@ -301,13 +459,14 @@ function resolveSchema(
       description: schema.description ?? merged.description,
     };
   }
-  if (schema.anyOf && schema.anyOf.length > 0) {
-    const merged = mergeHomogeneousScalarUnion(
-      apiSchema,
-      schema.anyOf,
-      depth
-    );
-    return merged ? { ...schema, ...merged } : schema;
+  const unionMembers = schema.oneOf ?? schema.anyOf;
+  if (unionMembers && unionMembers.length > 0) {
+    const merged = resolveUnion(apiSchema, unionMembers, schema.discriminator, depth);
+    if (!merged) return schema;
+    // ラッパーの description・example 等は残し、union 自体の定義は解決済みなので外す
+    const { oneOf: _oneOf, anyOf: _anyOf, discriminator: _discriminator, ...wrapper } =
+      schema;
+    return { ...wrapper, ...merged };
   }
   return schema;
 }
@@ -315,9 +474,13 @@ function resolveSchema(
 /**
  * Get type description from schema
  */
-function getTypeDescription(schema: SchemaObject): string {
+function getTypeDescription(
+  apiSchema: OpenAPISchema,
+  schema: SchemaObject
+): string {
   if (schema.type === "array" && schema.items) {
-    const itemType = schema.items.type || "object";
+    // 要素が `$ref` / `allOf` の場合も参照先の型で表示する（未解決だと常に object になる）
+    const itemType = resolveSchema(apiSchema, schema.items).type || "object";
     return `array[${itemType}]`;
   }
   if (schema.format) {
@@ -368,7 +531,8 @@ function formatSchemaProperties(
     return "";
   }
 
-  let result = "";
+  // リクエストボディ・レスポンス自体が union の場合は、注記を書くプロパティ行が無いので先頭に出す
+  let result = currentDepth === 0 && schema.unionNote ? `${schema.unionNote}\n` : "";
   const properties = schema.properties || {};
   const required = schema.required || [];
 
@@ -378,7 +542,7 @@ function formatSchemaProperties(
     // Resolve $ref or `allOf: [{ $ref }]` wrapper.
     const resolvedSchema = resolveSchema(apiSchema, propSchema);
 
-    const typeDesc = getTypeDescription(resolvedSchema);
+    const typeDesc = getTypeDescription(apiSchema, resolvedSchema);
     result += `${indent}- ${propName}${requiredMark}: ${typeDesc}`;
 
     const propDesc = resolvedSchema.description
@@ -391,6 +555,19 @@ function formatSchemaProperties(
           : hangingIndent(propDesc, indent);
       result += ` - ${formattedDescription}`;
     }
+
+    // union 由来の注記。配列要素の union は「配列の要素:」行に書くと、深さ1の
+    // レスポンスでは要素を出力しないため消えてしまう。プロパティ行に寄せる。
+    const notes: string[] = [];
+    const onlyIn = schema.variantOnly?.[propName];
+    if (onlyIn) notes.push(`（${onlyIn.join(" / ")} のみ）`);
+    if (resolvedSchema.unionNote) notes.push(`（${resolvedSchema.unionNote}）`);
+    if (resolvedSchema.type === "array" && resolvedSchema.items) {
+      const itemNote = resolveSchema(apiSchema, resolvedSchema.items).unionNote;
+      // 英字で始まる注記（`line_type により…`）のときだけ区切りの空白を入れる
+      if (itemNote) notes.push(`（要素は${/^[\x21-\x7e]/.test(itemNote) ? " " : ""}${itemNote}）`);
+    }
+    if (notes.length > 0) result += ` ${notes.join("")}`;
 
     if (!brief) {
       // Add enum values
@@ -484,7 +661,7 @@ function formatParameters(
       : undefined;
     const requiredMark = param.required ? "*" : "";
     const location = param.in && param.in !== "query" ? ` (${param.in})` : "";
-    const type = parameterSchema ? getTypeDescription(parameterSchema) : "";
+    const type = parameterSchema ? getTypeDescription(apiSchema, parameterSchema) : "";
     const rawDescription =
       parameterSchema?.description || param.description || "";
     const description = rawDescription ? cleanDescription(rawDescription) : "";
@@ -559,7 +736,7 @@ function formatSuccessResponse(
 
   for (const code of successCodes) {
     if (responses[code]) {
-      successResponse = responses[code];
+      successResponse = resolveResponse(apiSchema, responses[code]);
       break;
     }
   }

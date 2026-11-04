@@ -15,6 +15,6 @@
 
 ### レスポンス
 
-- meta*: object
+- meta*: object - ページネーションのメタ情報
 - people_counts*: object
 - people*: array[object]

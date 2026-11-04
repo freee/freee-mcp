@@ -20,4 +20,4 @@
 ### レスポンス
 
 - workload_available_projects*: array[object]
-- meta*: object
+- meta*: object - ページネーションのメタ情報

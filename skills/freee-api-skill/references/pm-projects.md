@@ -78,7 +78,7 @@ IDに該当するプロジェクトの詳細情報を返します。
 
 ### レスポンス
 
-- project*: object
+POST /projects と同じ
 
 ## PATCH /projects/{id} — プロジェクトの編集
 
@@ -131,7 +131,7 @@ IDに該当するプロジェクトを編集します。 プロジェクト変�
 
 ### レスポンス
 
-GET /projects/{id} と同じ
+POST /projects と同じ
 
 ## DELETE /projects/{id} — プロジェクトの削除
 
