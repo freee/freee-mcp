@@ -37,6 +37,12 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+見積一覧のレスポンス
+- quotations*: array[object]
+- meta*: object
+
 ## POST /quotations — 見積登録
 
 概要 新しい見積を登録します。 顧客への見積情報を登録し、見積書の発行や受注への引き継ぎに利用できます。
@@ -76,7 +82,38 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
-- lines*: array[object] - 明細リスト
+- lines*: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
+  配列の要素:
+    - line_type*: string - 明細種別 (選択肢: basic, text)
+    - master_item_id: string - 商品ID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - deal_line_type_id*: string - 明細取引タイプID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - description: string - 摘要 （basic のみ） 例: `パンフレットデザイン料`
+    - quantity*: number(double) - 数量 （basic のみ） 例: `100`
+    - uom_name: string - 単位 （basic のみ） 例: `個`
+    - unit_price*: number(double) - 単価 （basic のみ） 例: `1000` (最小: -999999999999, 最大: 999999999999)
+    - accounting_reporting_section_id: integer(int64) - 会計計上部門ID
+
+      ※ 親部門のIDは指定できません （basic のみ） 例: `67890` (最小: 1, 最大: 9223372036854776000)
+    - item_tag_id: integer(int64) - 会計品目タグID （basic のみ） 例: `2001` (最小: 1, 最大: 9223372036854776000)
+    - memo_tags: array[integer] - メモタグID （basic のみ）
+    - withholding_enabled*: boolean - 源泉徴収税対象明細かどうか （basic のみ） 例: `false`
+    - is_manual_tax_entry*: boolean - 税の手動入力を行うかどうか （basic のみ） 例: `false`
+    - tax: integer(int64) - 手動入力した税額
+
+      ※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。 （basic のみ） 例: `10000` (最小: -999999999999, 最大: 999999999999)
+    - gross_profit: object - 明細の粗利情報
+
+      ※ 集計軸は粗利率固定です。売価は明細の単価が使われ、粗利額・各率は原価と売価から自動計算されます
+
+      ※ 税方式が外税の顧客でのみ登録されます。内税の場合は指定しても無視されます （basic のみ）
+    - text*: string - テキスト行 （text のみ） 例: `備考：特急料金が含まれます`
+
+### レスポンス
+
+見積登録のレスポンス
+- id*: string - 見積ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## GET /quotations/{id} — 見積詳細取得
 
@@ -127,7 +164,7 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
 - amount_set_rates*: array[object]
 - quotation_template_name*: string - 見積書テンプレート名称
 - recipient_address*: object - 宛先
-- lines*: array[object] - 明細リスト
+- lines*: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
 - gross_profit_summary: object - 見積全体の粗利合計
 
   ※ 粗利情報を持つ明細が1件もない場合は null
@@ -175,8 +212,39 @@ start_registered_date : 見積登録日(絞り込み開始) end_registered_date 
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
-- lines: array[object] - 明細リスト
+- lines: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
+  配列の要素:
+    - line_type*: string - 明細種別 (選択肢: basic, text)
+    - master_item_id: string - 商品ID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - deal_line_type_id*: string - 明細取引タイプID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - description: string - 摘要 （basic のみ） 例: `パンフレットデザイン料`
+    - quantity*: number(double) - 数量 （basic のみ） 例: `100`
+    - uom_name: string - 単位 （basic のみ） 例: `個`
+    - unit_price*: number(double) - 単価 （basic のみ） 例: `1000` (最小: -999999999999, 最大: 999999999999)
+    - accounting_reporting_section_id: integer(int64) - 会計計上部門ID
+
+      ※ 親部門のIDは指定できません （basic のみ） 例: `67890` (最小: 1, 最大: 9223372036854776000)
+    - item_tag_id: integer(int64) - 会計品目タグID （basic のみ） 例: `2001` (最小: 1, 最大: 9223372036854776000)
+    - memo_tags: array[integer] - メモタグID （basic のみ）
+    - withholding_enabled*: boolean - 源泉徴収税対象明細かどうか （basic のみ） 例: `false`
+    - is_manual_tax_entry*: boolean - 税の手動入力を行うかどうか （basic のみ） 例: `false`
+    - tax: integer(int64) - 手動入力した税額
+
+      ※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。 （basic のみ） 例: `10000` (最小: -999999999999, 最大: 999999999999)
+    - gross_profit: object - 明細の粗利情報
+
+      ※ 集計軸は粗利率固定です。売価は明細の単価が使われ、粗利額・各率は原価と売価から自動計算されます
+
+      ※ 税方式が外税の顧客でのみ登録されます。内税の場合は指定しても無視されます （basic のみ）
+    - text*: string - テキスト行 （text のみ） 例: `備考：特急料金が含まれます`
 - branch_no: integer(int32) - 枝番 例: `1`
+
+### レスポンス
+
+見積更新のレスポンス
+- id*: string - 見積ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## PUT /quotations/{id}/quotation_status — 見積ステータス変更
 
@@ -212,3 +280,10 @@ PATCH /quotations/{id} と同じ
 ### リクエストボディ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+見積取消のレスポンス
+- id*: string - 見積ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時

@@ -43,7 +43,7 @@
 ### レスポンス
 
 - workloads*: array[object]
-- meta*: object
+- meta*: object - ページネーションのメタ情報
 
 ## PATCH /workloads/{id} — 工数編集
 
@@ -67,7 +67,7 @@
 
 ### レスポンス
 
-- workload*: object
+POST /workloads と同じ
 
 ## DELETE /workloads/{id} — 工数削除
 
@@ -89,4 +89,4 @@ GET /workloads と同じ
 ### レスポンス
 
 - workload_summaries*: array[object]
-- meta*: object
+- meta*: object - ページネーションのメタ情報

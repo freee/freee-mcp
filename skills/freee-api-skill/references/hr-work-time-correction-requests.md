@@ -58,58 +58,14 @@
   - break_records
 - work_records: array[object] - 勤務時間のリスト
   配列の要素:
-    - id*: integer(int32) - 申請ID 例: `1` (最小: 1, 最大: 2147483647)
-    - company_id*: integer(int32) - 事業所ID 例: `1` (最小: 1, 最大: 2147483647)
-    - application_number*: integer(int32) - 申請No 例: `1` (最小: 1, 最大: 2147483647)
-    - applicant_id*: integer(int32) - 申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
-    - approver_ids: array[integer] - 承認者のユーザーID配列
-      次の場合、空配列になります。
-      - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-      - 申請が差戻された
-    - target_date*: string(date) - 対象日 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
-    - clear_work_time*: boolean - 勤務時間削除フラグ（false:勤務時間を修正する、true:勤務時間を削除する）
-    - clock_in_at: string - 勤務開始時間
-      - 勤務時間が複数登録されている場合は、最初の勤務の出勤時間を返します。 例: `12:00` (パターン: ^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$)
-    - clock_out_at: string - 勤務終了時間
-      - 勤務時間が複数登録されている場合は、最後の勤務の退勤時間を返します。 例: `23:59` (パターン: ^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$)
-    - work_records: array[object] - 勤務時間のリスト
-      - 登録されている全ての勤務時間のリストを返します。
-    - lateness_mins*: integer(int32) - 遅刻分の時間（分単位）
-    - early_leaving_mins*: integer(int32) - 早退分の時間（分単位）
-    - break_records: array[object] - 休憩時間のリスト
-    - issue_date*: string(date) - 申請日 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
-    - comment: string - 申請理由 例: `申請理由`
-    - status*: string - 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し） (選択肢: draft, in_progress, approved, feedback) 例: `in_progress`
-    - passed_auto_check*: boolean - 自動チェック結果 例: `true`
-    - proxy_applicant_id: integer(int32) - 代理申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
+    - clock_in_at*: string - 開始時刻 例: `12:00` (パターン: ^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$)
+    - clock_out_at*: string - 終了時刻 例: `23:59` (パターン: ^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$)
 - lateness_mins: integer(int32) - 遅刻分の時間（分単位）
 - early_leaving_mins: integer(int32) - 早退分の時間（分単位）
 - break_records: array[object] - 休憩時間のリスト
   配列の要素:
-    - id*: integer(int32) - 申請ID 例: `1` (最小: 1, 最大: 2147483647)
-    - company_id*: integer(int32) - 事業所ID 例: `1` (最小: 1, 最大: 2147483647)
-    - application_number*: integer(int32) - 申請No 例: `1` (最小: 1, 最大: 2147483647)
-    - applicant_id*: integer(int32) - 申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
-    - approver_ids: array[integer] - 承認者のユーザーID配列
-      次の場合、空配列になります。
-      - 指定なしの申請経路を利用した、申請ステータスが承認済み以外の申請
-      - 申請が差戻された
-    - target_date*: string(date) - 対象日 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
-    - clear_work_time*: boolean - 勤務時間削除フラグ（false:勤務時間を修正する、true:勤務時間を削除する）
-    - clock_in_at: string - 勤務開始時間
-      - 勤務時間が複数登録されている場合は、最初の勤務の出勤時間を返します。 例: `12:00` (パターン: ^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$)
-    - clock_out_at: string - 勤務終了時間
-      - 勤務時間が複数登録されている場合は、最後の勤務の退勤時間を返します。 例: `23:59` (パターン: ^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$)
-    - work_records: array[object] - 勤務時間のリスト
-      - 登録されている全ての勤務時間のリストを返します。
-    - lateness_mins*: integer(int32) - 遅刻分の時間（分単位）
-    - early_leaving_mins*: integer(int32) - 早退分の時間（分単位）
-    - break_records: array[object] - 休憩時間のリスト
-    - issue_date*: string(date) - 申請日 (パターン: ^[0-9]{4}-[0-9]{2}-[0-9]{2}$)
-    - comment: string - 申請理由 例: `申請理由`
-    - status*: string - 申請ステータス。（draft:下書き、in_progress:申請中、approved:承認済、feedback:差戻し） (選択肢: draft, in_progress, approved, feedback) 例: `in_progress`
-    - passed_auto_check*: boolean - 自動チェック結果 例: `true`
-    - proxy_applicant_id: integer(int32) - 代理申請者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
+    - clock_in_at*: string - 開始時刻 例: `12:00` (パターン: ^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$)
+    - clock_out_at*: string - 終了時刻 例: `23:59` (パターン: ^[0-9]{2}:[0-9]{2}(:[0-9]{2})?$)
 - comment: string - 申請理由 例: `申請理由`
 - approval_flow_route_id*: integer(int32) - 申請経路ID（必須） 例: `1` (最小: 1, 最大: 2147483647)
 - approver_id: integer(int32) - 承認者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
@@ -130,6 +86,10 @@
 - company_id*: integer - 事業所ID
 - id* (path): integer - 勤務時間修正申請ID
 
+### レスポンス
+
+POST /api/v1/approval_requests/work_times と同じ
+
 ## PUT /api/v1/approval_requests/work_times/{id} — 勤務時間修正申請の更新
 
 概要 指定した事業所の勤務時間修正申請情報を更新します。 examples 勤務時間を修正する場合は以下のようなパラメータを指定します。 { "company_id": 1, "target_date": "2017-05-25", "break_records": [ { "clock_in_at": "12:00:00", "clock_out_at": "13:00:00" } ], "work_records": [ { "clock_in_at": "09:10:00", "clock_out_at": "18:20:00" } ], "approval_flow_route_id": 1 }
@@ -140,6 +100,14 @@
 ### パラメータ
 
 - id* (path): integer - 勤務時間修正申請ID
+
+### リクエストボディ
+
+POST /api/v1/approval_requests/work_times と同じ
+
+### レスポンス
+
+POST /api/v1/approval_requests/work_times と同じ
 
 ## DELETE /api/v1/approval_requests/work_times/{id} — 勤務時間修正申請の削除
 
@@ -171,3 +139,7 @@ PUT /api/v1/approval_requests/work_times/{id} と同じ
 - target_round*: integer(int32) - 対象round。差戻し等により申請がstepの最初からやり直しになるとroundの値が増えます。取得APIレスポンス.current_roundを送信してください。 例: `1` (最小: 1, 最大: 2147483647)
 - target_step_id*: integer(int32) - 対象承認ステップID。取得APIレスポンス.current_step_idを送信してください。 例: `1` (最小: 1, 最大: 2147483647)
 - next_approver_id: integer(int32) - 次のステップの承認者のユーザーID 例: `1` (最小: 1, 最大: 2147483647)
+
+### レスポンス
+
+POST /api/v1/approval_requests/work_times と同じ

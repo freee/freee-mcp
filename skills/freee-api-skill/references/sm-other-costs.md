@@ -24,6 +24,12 @@ start_amount_excluding_tax : 金額(税抜)の絞り込み下限 end_amount_excl
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+その他原価一覧のレスポンス
+- other_costs*: array[object]
+- meta*: object
+
 ## POST /other_costs — その他原価登録
 
 概要 新しいその他原価を登録します。 案件に紐づくその他原価、または案件に紐づかないその他原価を登録できます。
@@ -38,6 +44,13 @@ start_amount_excluding_tax : 金額(税抜)の絞り込み下限 end_amount_excl
 - amount_excluding_tax*: integer(int64) - 税抜金額 例: `10000` (最小: -999999999999, 最大: 999999999999)
 - incurred_date*: string(date) - 発生日 例: `2025-04-01`
 - memo: string - メモ 例: `その他原価メモ`
+
+### レスポンス
+
+その他原価登録のレスポンス
+- id*: string - その他原価ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## PATCH /other_costs/{id} — その他原価更新
 
@@ -60,6 +73,13 @@ freee会計の取引明細インポートから登録されたその他原価は
 - amount_excluding_tax: integer(int64) - 税抜金額 例: `10000` (最小: -999999999999, 最大: 999999999999)
 - incurred_date: string(date) - 発生日 例: `2025-04-01`
 - memo: string - メモ 例: `その他原価メモ`
+
+### レスポンス
+
+その他原価更新のレスポンス
+- id*: string - その他原価ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## GET /other_costs/{id} — その他原価詳細取得
 
@@ -100,6 +120,13 @@ PATCH /other_costs/{id} と同じ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
 
+### レスポンス
+
+その他原価復元のレスポンス
+- id*: string - その他原価ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
+
 ## POST /other_costs/{id}/cancellation — その他原価取消
 
 概要 指定されたIDのその他原価を取り消します。
@@ -111,3 +138,10 @@ PATCH /other_costs/{id} と同じ
 ### リクエストボディ
 
 POST /other_costs/{id}/restoration と同じ
+
+### レスポンス
+
+その他原価取消のレスポンス
+- id*: string - その他原価ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時

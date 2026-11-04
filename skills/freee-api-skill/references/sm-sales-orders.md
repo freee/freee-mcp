@@ -28,6 +28,12 @@ start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+受注一覧のレスポンス
+- sales_orders*: array[object]
+- meta*: object
+
 ## POST /sales_orders — 受注登録
 
 概要 新しい受注を登録します。 顧客からの注文情報を登録し、納品・請求・入金の予定情報を管理できます。
@@ -69,7 +75,33 @@ start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
 - business_id: string - 案件ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - quotation_id: string - 見積ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
-- lines*: array[object] - 明細リスト
+- lines*: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
+  配列の要素:
+    - line_type*: string - 明細種別 (選択肢: basic, text)
+    - master_item_id: string - 商品ID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - deal_line_type_id*: string - 明細取引タイプID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - description: string - 摘要 （basic のみ） 例: `パンフレットデザイン料`
+    - quantity*: number(double) - 数量 （basic のみ） 例: `100`
+    - uom_name: string - 単位 （basic のみ） 例: `個`
+    - unit_price*: number(double) - 単価 （basic のみ） 例: `1000` (最小: -999999999999, 最大: 999999999999)
+    - accounting_reporting_section_id: integer(int64) - 会計計上部門ID
+
+      ※ 親部門のIDは指定できません （basic のみ） 例: `67890` (最小: 1, 最大: 9223372036854776000)
+    - item_tag_id: integer(int64) - 会計品目タグID （basic のみ） 例: `2001` (最小: 1, 最大: 9223372036854776000)
+    - memo_tags: array[integer] - メモタグID （basic のみ）
+    - withholding_enabled*: boolean - 源泉徴収税対象明細かどうか （basic のみ） 例: `false`
+    - is_manual_tax_entry*: boolean - 税の手動入力を行うかどうか （basic のみ） 例: `false`
+    - tax: integer(int64) - 手動入力した税額
+
+      ※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。 （basic のみ） 例: `10000` (最小: -999999999999, 最大: 999999999999)
+    - text*: string - テキスト行 （text のみ） 例: `備考：特急料金が含まれます`
+
+### レスポンス
+
+受注登録のレスポンス
+- id*: string - 受注ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## GET /sales_orders/{id} — 受注詳細取得
 
@@ -131,7 +163,7 @@ start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 
 - charge_member: object - 社内担当者
 - reporting_section: object - 担当部門
 - internal_memo: string - 社内メモ
-- lines*: array[object] - 明細リスト
+- lines*: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
 
 ## PATCH /sales_orders/{id} — 受注更新
 
@@ -178,7 +210,33 @@ start_last_updated_date : 更新日(絞り込み開始) end_last_updated_date : 
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
 - business_id: string - 案件ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
 - quotation_id: string - 見積ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
-- lines: array[object] - 明細リスト
+- lines: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
+  配列の要素:
+    - line_type*: string - 明細種別 (選択肢: basic, text)
+    - master_item_id: string - 商品ID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - deal_line_type_id*: string - 明細取引タイプID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - description: string - 摘要 （basic のみ） 例: `パンフレットデザイン料`
+    - quantity*: number(double) - 数量 （basic のみ） 例: `100`
+    - uom_name: string - 単位 （basic のみ） 例: `個`
+    - unit_price*: number(double) - 単価 （basic のみ） 例: `1000` (最小: -999999999999, 最大: 999999999999)
+    - accounting_reporting_section_id: integer(int64) - 会計計上部門ID
+
+      ※ 親部門のIDは指定できません （basic のみ） 例: `67890` (最小: 1, 最大: 9223372036854776000)
+    - item_tag_id: integer(int64) - 会計品目タグID （basic のみ） 例: `2001` (最小: 1, 最大: 9223372036854776000)
+    - memo_tags: array[integer] - メモタグID （basic のみ）
+    - withholding_enabled*: boolean - 源泉徴収税対象明細かどうか （basic のみ） 例: `false`
+    - is_manual_tax_entry*: boolean - 税の手動入力を行うかどうか （basic のみ） 例: `false`
+    - tax: integer(int64) - 手動入力した税額
+
+      ※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。 （basic のみ） 例: `10000` (最小: -999999999999, 最大: 999999999999)
+    - text*: string - テキスト行 （text のみ） 例: `備考：特急料金が含まれます`
+
+### レスポンス
+
+受注更新のレスポンス
+- id*: string - 受注ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## POST /sales_orders/{id}/cancellation — 受注取消
 
@@ -191,3 +249,10 @@ PATCH /sales_orders/{id} と同じ
 ### リクエストボディ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+受注取消のレスポンス
+- id*: string - 受注ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時

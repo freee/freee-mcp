@@ -33,6 +33,12 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+納品一覧のレスポンス
+- deliveries*: array[object]
+- meta*: object
+
 ## POST /deliveries — 納品登録
 
 概要 新しい納品を登録します。 受注に紐づく納品、または独立した納品を登録できます。
@@ -81,7 +87,33 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
-- lines*: array[object] - 明細リスト
+- lines*: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
+  配列の要素:
+    - line_type*: string - 明細種別 (選択肢: basic, text)
+    - master_item_id: string - 商品ID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - deal_line_type_id*: string - 明細取引タイプID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - description: string - 摘要 （basic のみ） 例: `パンフレットデザイン料`
+    - quantity*: number(double) - 数量 （basic のみ） 例: `100`
+    - uom_name: string - 単位 （basic のみ） 例: `個`
+    - unit_price*: number(double) - 単価 （basic のみ） 例: `1000` (最小: -999999999999, 最大: 999999999999)
+    - accounting_reporting_section_id: integer(int64) - 会計計上部門ID
+
+      ※ 親部門のIDは指定できません （basic のみ） 例: `67890` (最小: 1, 最大: 9223372036854776000)
+    - item_tag_id: integer(int64) - 会計品目タグID （basic のみ） 例: `2001` (最小: 1, 最大: 9223372036854776000)
+    - memo_tags: array[integer] - メモタグID （basic のみ）
+    - withholding_enabled*: boolean - 源泉徴収税対象明細かどうか （basic のみ） 例: `false`
+    - is_manual_tax_entry*: boolean - 税の手動入力を行うかどうか （basic のみ） 例: `false`
+    - tax: integer(int64) - 手動入力した税額
+
+      ※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。 （basic のみ） 例: `10000` (最小: -999999999999, 最大: 999999999999)
+    - text*: string - テキスト行 （text のみ） 例: `備考：特急料金が含まれます`
+
+### レスポンス
+
+納品登録のレスポンス
+- id*: string - 納品ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## GET /deliveries/{id} — 納品詳細取得
 
@@ -144,7 +176,7 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 - charge_member: object - 社内担当者
 - reporting_section: object - 担当部門
 - internal_memo: string - 社内メモ
-- lines*: array[object] - 明細リスト
+- lines*: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
 
 ## PATCH /deliveries/{id} — 納品更新
 
@@ -197,8 +229,34 @@ start_registered_date : 登録日(絞り込み開始) end_registered_date : 登�
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
-- lines: array[object] - 明細リスト
+- lines: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
+  配列の要素:
+    - line_type*: string - 明細種別 (選択肢: basic, text)
+    - master_item_id: string - 商品ID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - deal_line_type_id*: string - 明細取引タイプID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - description: string - 摘要 （basic のみ） 例: `パンフレットデザイン料`
+    - quantity*: number(double) - 数量 （basic のみ） 例: `100`
+    - uom_name: string - 単位 （basic のみ） 例: `個`
+    - unit_price*: number(double) - 単価 （basic のみ） 例: `1000` (最小: -999999999999, 最大: 999999999999)
+    - accounting_reporting_section_id: integer(int64) - 会計計上部門ID
+
+      ※ 親部門のIDは指定できません （basic のみ） 例: `67890` (最小: 1, 最大: 9223372036854776000)
+    - item_tag_id: integer(int64) - 会計品目タグID （basic のみ） 例: `2001` (最小: 1, 最大: 9223372036854776000)
+    - memo_tags: array[integer] - メモタグID （basic のみ）
+    - withholding_enabled*: boolean - 源泉徴収税対象明細かどうか （basic のみ） 例: `false`
+    - is_manual_tax_entry*: boolean - 税の手動入力を行うかどうか （basic のみ） 例: `false`
+    - tax: integer(int64) - 手動入力した税額
+
+      ※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。 （basic のみ） 例: `10000` (最小: -999999999999, 最大: 999999999999)
+    - text*: string - テキスト行 （text のみ） 例: `備考：特急料金が含まれます`
 - branch_no: integer(int32) - 枝番 例: `1`
+
+### レスポンス
+
+納品更新のレスポンス
+- id*: string - 納品ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## POST /deliveries/{id}/cancellation — 納品取消
 
@@ -211,6 +269,13 @@ PATCH /deliveries/{id} と同じ
 ### リクエストボディ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+納品取消のレスポンス
+- id*: string - 納品ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## PUT /deliveries/{id}/delivery_status — 納品ステータス変更
 
@@ -228,6 +293,10 @@ PATCH /deliveries/{id} と同じ
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
 - delivery_status*: string - 納品ステータス (未納品: not_delivered, 納品済: delivered) (選択肢: not_delivered, delivered) 例: `not_delivered`
 
+### レスポンス
+
+PATCH /deliveries/{id} と同じ
+
 ## PUT /deliveries/{id}/acceptance_status — 検収ステータス変更
 
 概要 指定されたIDの納品の検収ステータスを変更します。
@@ -243,3 +312,7 @@ PATCH /deliveries/{id} と同じ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
 - acceptance_status*: string - 検収ステータス (未検収: not_accepted, 検収済: accepted) (選択肢: not_accepted, accepted) 例: `not_accepted`
+
+### レスポンス
+
+PATCH /deliveries/{id} と同じ

@@ -44,6 +44,12 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+原価予算一覧のレスポンス
+- cost_budgets*: array[object] （要素は type により形が異なる: external_procurement / other_cost / procurement）
+- meta*: object
+
 ## POST /cost_budgets — 原価予算登録
 
 概要 原価予算を新規登録します。 type で原価種別を指定してください。 procurement （仕入）はリクエストスキーマが異なります。 external_procurement （外部仕入）と other_cost （その他原価）は同じリクエストスキーマを使用します。
@@ -54,6 +60,39 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 ### リクエストボディ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- business_id: string - 案件ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- period_from_date*: string(date) - 期間開始日 例: `2025-04-01`
+- period_to_date*: string(date) - 期間終了日 例: `2025-06-30`
+- memo: string - 備考 例: `備考テキスト`
+- charge_employee_id: integer(int64) - 社内担当者の従業員ID
+
+  charge_member_id と同時に指定した場合は charge_member_id が優先されます。 例: `101` (最小: 0, 最大: 9223372036854776000)
+- charge_member_id: string - 社内担当者のメンバーID
+
+  charge_employee_id と同時に指定した場合は charge_member_id が優先されます。 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- reporting_section_id: integer(int64) - 担当部門ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- amount_excluding_tax*: integer(int64) - 税抜金額 例: `10000` (最小: -999999999999, 最大: 999999999999)
+- type*: string (選択肢: external_procurement, other_cost, procurement)
+- supplier_id: integer(int64) - 仕入先の取引先ID 例: `1001` (最小: 1, 最大: 9223372036854776000)
+- payment_partner_id: integer(int64) - 支払先の取引先ID 例: `1002` (最小: 1, 最大: 9223372036854776000)
+- quantity*: number(float) - 数量 例: `10` (最小: -99999999, 最大: 99999999)
+- unit_price*: number(float) - 単価 例: `10` (最小: -999999999999, 最大: 999999999999)
+- uom_name: string - 単位 例: `個`
+- master_item_id: string - 商品ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- deal_line_type_id*: string - 明細取引タイプID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+- accounting_reporting_section_id: integer(int64) - 会計計上部門ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+- item_tag_id: integer(int64) - 会計品目タグID 例: `2001` (最小: 1, 最大: 9223372036854776000)
+- memo_tag_ids: array[integer] - メモタグID
+- segment_tag_1_id: integer(int64) - セグメントタグ1のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
+- segment_tag_2_id: integer(int64) - セグメントタグ2のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
+- segment_tag_3_id: integer(int64) - セグメントタグ3のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+原価予算登録のレスポンス
+- id*: string - 原価予算ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## GET /cost_budgets/{id} — 原価予算詳細取得
 
@@ -63,6 +102,43 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 
 - company_id*: integer(int64) - 事業所ID
 - id* (path): string - 原価予算ID
+
+### レスポンス
+
+原価予算詳細取得のレスポンス
+type により形が異なる: external_procurement / other_cost / procurement
+- id*: string - 原価予算ID
+- cost_budget_no*: string - 原価予算No.
+- canceled*: boolean - 取消状態
+- type*: string
+- amount_excluding_tax*: integer(int64) - 税抜金額
+- date_period*: object - 発生予定期間
+- business: object - 案件
+- memo: string - 備考
+- reporting_section: object - 担当部門
+- charge_employee: object - 社内担当者
+- charge_member: object - 社内担当者
+- registered_by*: object - 登録者
+- registered_by_member: object - 登録者
+- last_updated_by*: object - 変更者
+- last_updated_by_member: object - 変更者
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
+- supplier: object - 仕入先 （procurement のみ）
+- payment_partner: object - 支払先 （procurement のみ）
+- master_item: object - 商品 （procurement のみ）
+- deal_line_type*: object - 明細取引タイプ （procurement のみ）
+- quantity*: number(double) - 数量 （procurement のみ）
+- uom_name: string - 単位 （procurement のみ）
+- unit_price*: number(double) - 単価 （procurement のみ）
+- tax_division*: object - 税区分 （procurement のみ）
+- account_item*: object - 勘定科目 （procurement のみ）
+- memo_tags: array[object] - メモタグ （procurement のみ）
+- item_tag: object - 会計品目タグ （procurement のみ）
+- segment_tag_1: object - セグメントタグ1 （procurement のみ）
+- segment_tag_2: object - セグメントタグ2 （procurement のみ）
+- segment_tag_3: object - セグメントタグ3 （procurement のみ）
+- accounting_reporting_section: object - 会計計上部門 （procurement のみ）
 
 ## PATCH /cost_budgets/{id} — 原価予算更新
 
@@ -104,6 +180,13 @@ type : 原価種別 (procurement, external_procurement, other_cost) start_amount
 - segment_tag_2_id: integer(int64) - セグメントタグ2のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
 - segment_tag_3_id: integer(int64) - セグメントタグ3のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
 
+### レスポンス
+
+原価予算更新のレスポンス
+- id*: string - 原価予算ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
+
 ## POST /cost_budgets/{id}/cancellation — 原価予算取消
 
 概要 指定されたIDの原価予算を取り消します。
@@ -114,4 +197,11 @@ PATCH /cost_budgets/{id} と同じ
 
 ### リクエストボディ
 
-POST /cost_budgets と同じ
+- company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+原価予算取消のレスポンス
+- id*: string - 原価予算ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時

@@ -30,6 +30,12 @@ start_business_date : 案件登録日(絞り込み開始) end_business_date : �
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+案件一覧のレスポンス
+- businesses*: array[object]
+- meta*: object
+
 ## POST /businesses — 案件登録
 
 概要 新しい案件を登録します。 顧客との商談や受注案件を管理するための案件情報を登録できます。
@@ -63,7 +69,14 @@ start_business_date : 案件登録日(絞り込み開始) end_business_date : �
 - custom_fields: array[object] - カスタム項目 例: `[{"definition_id":"01JPP4FD1CVQWCDSWA90VE1ZTM","value":"PJ-123456"},{"definition_id":"01JPP4FD1CVQWCDSWA90VE1ZTN","value":234}]`
   配列の要素:
     - definition_id*: string - カスタム項目ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
-    - value*: object - カスタム項目の値 例: `サンプル値`
+    - value*: string | number - カスタム項目の値 例: `サンプル値`
+
+### レスポンス
+
+案件登録のレスポンス
+- id*: string - 案件ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## GET /businesses/{id} — 案件詳細取得
 
@@ -73,6 +86,55 @@ start_business_date : 案件登録日(絞り込み開始) end_business_date : �
 
 - company_id*: integer(int64) - 事業所ID
 - id* (path): string - 案件ID
+
+### レスポンス
+
+案件詳細取得のレスポンス
+- id*: string - 案件ID
+- name*: string - 案件名称
+- business_date: string(date) - 案件登録日
+- charge_employee: object - 社内担当者
+- charge_member: object - 社内担当者
+- code*: string - 案件コード
+- canceled*: boolean - 取消状態
+- closed*: boolean - ロック状態
+- customer: object - 顧客
+- sales_progression: object - 受注確度
+- scheduled_completion_date: string(date) - 完了予定日
+- completion_date: string(date) - 完了日
+- business_phase: object - 案件フェーズ
+- reporting_section: object - 担当部門
+- registered_at*: string(date-time) - 登録日時
+- registered_by*: object - 登録者
+- registered_by_member: object - 登録者
+- last_updated_at*: string(date-time) - 変更日時
+- last_updated_by*: object - 変更者
+- last_updated_by_member: object - 変更者
+- common_business_id: string - 案件マスタID（ULID形式）
+- actual_profit: integer(int64) - 粗利(実績)
+- sales_totals_excluding_tax: integer(int64) - 売上合計金額(税抜)
+- procurement_totals_excluding_tax: integer(int64) - 仕入合計金額(税抜)
+- other_cost_totals_excluding_tax: integer(int64) - その他原価実績
+- prospect_sales_order: integer(int64) - 受注見込
+- prospect_purchase_order: integer(int64) - 発注見込
+- prospect_other_cost: integer(int64) - その他費用見込
+- quotation_totals_excluding_tax: integer(int64) - 見積合計金額(税抜)
+- sales_order_totals_excluding_tax: integer(int64) - 受注合計金額(税抜)
+- delivered_totals_excluding_tax: integer(int64) - 納品確定金額(税抜)
+- bill_totals_excluding_tax: integer(int64) - 請求合計金額(税抜)
+- purchase_order_totals_excluding_tax: integer(int64) - 発注合計金額(税抜)
+- actual_other_cost: integer(int64) - その他費用実績
+- prospect_profit: integer(int64) - 粗利(見込)
+- budget_profit: integer(int64) - 受発注差額(税抜)
+- margin_actual_rate_percent: number(float) - 粗利率実績
+- budget_total_labor_cost: integer(int64) - 人件費(予算)
+
+  ※freee工数管理と連携している場合のみ値が反映されます
+- actual_total_labor_cost: integer(int64) - 人件費(実績)
+
+  ※freee工数管理と連携している場合のみ値が反映されます
+- internal_memo: string - 社内メモ
+- custom_fields*: array[object] - カスタム項目一覧
 
 ## PATCH /businesses/{id} — 案件更新
 
@@ -111,7 +173,14 @@ start_business_date : 案件登録日(絞り込み開始) end_business_date : �
 - custom_fields: array[object] - カスタム項目 例: `[{"definition_id":"01JPP4FD1CVQWCDSWA90VE1ZTM","value":"PJ-123456"},{"definition_id":"01JPP4FD1CVQWCDSWA90VE1ZTN","value":234}]`
   配列の要素:
     - definition_id*: string - カスタム項目ID 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
-    - value*: object - カスタム項目の値 例: `サンプル値`
+    - value*: string | number - カスタム項目の値 例: `サンプル値`
+
+### レスポンス
+
+案件更新のレスポンス
+- id*: string - 案件ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## POST /businesses/{id}/cancellation — 案件取消
 
@@ -125,6 +194,13 @@ PATCH /businesses/{id} と同じ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
 
+### レスポンス
+
+案件取消のレスポンス
+- id*: string - 案件ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
+
 ## POST /businesses/{id}/close — 案件ロック
 
 概要 指定されたIDの案件をロックします。
@@ -137,6 +213,13 @@ PATCH /businesses/{id} と同じ
 
 POST /businesses/{id}/cancellation と同じ
 
+### レスポンス
+
+案件ロックのレスポンス
+- id*: string - 案件ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
+
 ## POST /businesses/{id}/reopen — 案件ロック解除
 
 概要 指定されたIDの案件ロックを解除します。
@@ -148,3 +231,10 @@ PATCH /businesses/{id} と同じ
 ### リクエストボディ
 
 POST /businesses/{id}/cancellation と同じ
+
+### レスポンス
+
+案件ロック解除のレスポンス
+- id*: string - 案件ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
