@@ -13,4 +13,4 @@
 ### レスポンス
 
 - workload_tag_groups*: array[object]
-- meta*: object
+- meta*: object - ページネーションのメタ情報

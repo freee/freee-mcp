@@ -33,6 +33,12 @@ periodic_sales_id : 定期売上IDで絞込 start_scheduled_date : 売上予定�
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+売上予定一覧のレスポンス
+- sales_schedules*: array[object] - 売上予定一覧
+- meta*: object
+
 ## GET /sales_schedules/{id} — 売上予定詳細取得
 
 概要 指定されたIDの売上予定の詳細情報を取得します。 指定された売上予定が既に売上として計上済みの場合、303 See Otherを返却し、Locationヘッダーに計上済み売上の詳細取得APIのURLを設定します。
@@ -41,6 +47,51 @@ periodic_sales_id : 定期売上IDで絞込 start_scheduled_date : 売上予定�
 
 - company_id*: integer(int64) - 事業所ID
 - id* (path): string - 売上予定ID
+
+### レスポンス
+
+売上予定詳細取得のレスポンス
+- id*: string - 売上予定ID
+- periodic_sales_id*: string - 定期売上ID
+- advance_receipt_id: string - 前受金ID
+- subject: string - 件名
+- customer_order_no: string - 顧客注文No.
+- scheduled_date*: string(date) - 売上予定日
+- registration_status*: string - 売上予定の登録ステータス (未登録: none, 処理中: in_progress, エラー: error)
+- customer*: object - 顧客
+- billing_creating_method_type*: string - 請求作成方法区分
+  * `automatically` - 自動作成
+  * `manually` - 手動作成
+  * `none` - なし
+- bills_on: string(date) - 請求予定日
+- invoice_template_name: string - 請求書テンプレート名称
+- billing_partner: object - 請求先
+- invoice_subject: string - 請求書件名
+- invoice_note: string - 請求書の備考欄に掲載する内容
+- collects_on: string(date) - 入金予定日
+- collecting_partner: object - 入金元
+- collection_method_type*: string - 入金方法
+  * `transfer` - 振込
+  * `cash` - 現金
+  * `bill_payable` - 手形
+  * `direct_debit` - 振替
+  * `none` - なし
+- charge_employee: object - 社内担当者
+- charge_member: object - 社内担当者
+- reporting_section: object - 担当部門
+- internal_memo: string - 社内メモ
+- amount_set*: object - 売上金額
+- amount_set_rates*: array[object] - 税率を含む金額セット
+- total_amount*: integer(int64) - 源泉徴収税額を除いた合計金額
+- amount_of_withholding_tax: integer(int64) - 源泉徴収税額
+- business: object - 案件
+- registered_by*: object - 登録者
+- registered_by_member: object - 登録者
+- last_updated_by*: object - 変更者
+- last_updated_by_member: object - 変更者
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
+- lines*: array[object] - 売上予定明細リスト （要素は line_type により形が異なる: basic / text）
 
 ## PATCH /sales_schedules/{id} — 売上予定更新
 
@@ -79,7 +130,36 @@ periodic_sales_id : 定期売上IDで絞込 start_scheduled_date : 売上予定�
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
-- lines: array[object] - 売上予定明細リスト（指定した場合、既存の明細は全て削除され、新しい明細に置き換えられます）
+- lines: array[object] - 売上予定明細リスト（指定した場合、既存の明細は全て削除され、新しい明細に置き換えられます） （要素は line_type により形が異なる: basic / text）
+  配列の要素:
+    - line_type*: string - 明細種別 (選択肢: basic, text)
+    - master_item_id: string - 商品ID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - deal_line_type_id*: string - 明細取引タイプID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - description: string - 摘要 （basic のみ） 例: `パンフレットデザイン料`
+    - quantity*: number(double) - 数量 （basic のみ） 例: `100`
+    - uom_name: string - 単位 （basic のみ） 例: `個`
+    - unit_price*: number(double) - 単価 （basic のみ） 例: `1000` (最小: -999999999999, 最大: 999999999999)
+    - accounting_reporting_section_id: integer(int64) - 会計計上部門ID
+
+      ※ 親部門のIDは指定できません （basic のみ） 例: `67890` (最小: 1, 最大: 9223372036854776000)
+    - item_tag_id: integer(int64) - 会計品目タグID （basic のみ） 例: `2001` (最小: 1, 最大: 9223372036854776000)
+    - memo_tags: array[integer] - メモタグID （basic のみ）
+    - withholding_enabled*: boolean - 源泉徴収税対象明細かどうか （basic のみ） 例: `false`
+    - is_manual_tax_entry*: boolean - 税の手動入力を行うかどうか （basic のみ） 例: `false`
+    - tax: integer(int64) - 手動入力した税額
+
+      ※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。 （basic のみ） 例: `10000` (最小: -999999999999, 最大: 999999999999)
+    - segment_tag_1_id: integer(int64) - セグメントタグ1のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - segment_tag_2_id: integer(int64) - セグメントタグ2のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - segment_tag_3_id: integer(int64) - セグメントタグ3のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - text*: string - テキスト行 （text のみ） 例: `備考：特急料金が含まれます`
+
+### レスポンス
+
+売上予定更新のレスポンス
+- id*: string - 売上予定ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## DELETE /sales_schedules/{id} — 売上予定削除
 
@@ -88,6 +168,13 @@ periodic_sales_id : 定期売上IDで絞込 start_scheduled_date : 売上予定�
 ### パラメータ
 
 GET /sales_schedules/{id} と同じ
+
+### レスポンス
+
+売上予定削除のレスポンス
+- id*: string - 売上予定ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## POST /sales_schedules/{id}/actualization — 売上予定の売上計上
 
@@ -100,3 +187,11 @@ PATCH /sales_schedules/{id} と同じ
 ### リクエストボディ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+売上予定計上のレスポンス
+- id*: string - 売上予定ID
+- sales_id*: string - 計上された売上のID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時

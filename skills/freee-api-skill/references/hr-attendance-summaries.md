@@ -44,7 +44,7 @@ work_recordsオプションにtrueを指定することで、明細となる日�
 - num_special_holidays_and_hours_used: object
 - total_lateness_and_early_leaving_mins: integer(int32) - 遅刻早退時間（分）
 - multi_hourly_wages: array[object] - 複数時給の労働時間の内訳（複数時給を設定している従業員のみ）
-- work_records: array[object] - 日々の勤怠情報
+- work_records: array[object] - 日々の勤怠情報 （要素は次のいずれかの形: ApiV1EmployeesWorkRecordSerializer / LegacyApiV1EmployeesWorkRecordSerializer）
 - total_shortage_work_mins: integer(int32) - 不足時間（分）
 - total_deemed_paid_excess_statutory_work_mins: integer(int32) - [deprecated] みなし外の法定内残業時間（分） ※ 削除予定のため total_deemed_paid_overtime_within_statutory_work_mins を参照してください
 - total_deemed_paid_overtime_within_statutory_work_mins: integer(int32) - みなし外の法定内残業時間（分）

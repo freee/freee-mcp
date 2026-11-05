@@ -33,6 +33,12 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+前受金一覧のレスポンス
+- advance_receipts*: array[object] - 前受金一覧
+- meta*: object
+
 ## POST /advance_receipts — 前受金登録
 
 概要 新しい前受金を登録します。 顧客から受け取った前受金情報を登録し、請求・入金管理に利用できます。
@@ -89,6 +95,13 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 - segment_tag_1_id: integer(int64) - セグメントタグ1のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
 - segment_tag_2_id: integer(int64) - セグメントタグ2のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
 - segment_tag_3_id: integer(int64) - セグメントタグ3のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+前受金登録のレスポンス
+- id*: string - 前受金ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## GET /advance_receipts/{id} — 前受金詳細取得
 
@@ -199,6 +212,13 @@ advance_receipt_no : 前受金No. start_advance_receipt_date : 前受金発生�
 - segment_tag_2_id: integer(int64) - セグメントタグ2のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
 - segment_tag_3_id: integer(int64) - セグメントタグ3のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
 
+### レスポンス
+
+前受金更新のレスポンス
+- id*: string - 前受金ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
+
 ## POST /advance_receipts/{id}/cancellation — 前受金取消
 
 概要 指定されたIDの前受金を取り消します。
@@ -210,6 +230,13 @@ PATCH /advance_receipts/{id} と同じ
 ### リクエストボディ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+前受金取消のレスポンス
+- id*: string - 前受金ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## POST /advance_receipts/{id}/reduction — 前受金取崩（売上登録）
 
@@ -260,6 +287,14 @@ PATCH /advance_receipts/{id} と同じ
     - segment_tag_1_id: integer(int64) - セグメントタグ1のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
     - segment_tag_2_id: integer(int64) - セグメントタグ2のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
     - segment_tag_3_id: integer(int64) - セグメントタグ3のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+前受金取崩のレスポンス
+- id*: string - 取崩元の前受金ID
+- sales_id*: string - 登録された売上のID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## POST /advance_receipts/{id}/periodic_reduction — 前受金取崩（定期売上登録）
 
@@ -313,6 +348,14 @@ PATCH /advance_receipts/{id} と同じ
     - segment_tag_2_id: integer(int64) - セグメントタグ2のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
     - segment_tag_3_id: integer(int64) - セグメントタグ3のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
 
+### レスポンス
+
+前受金取崩（定期売上登録）のレスポンス
+- id*: string - 取崩元の前受金ID
+- periodic_sales_id*: string - 登録された定期取崩売上ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
+
 ## PUT /advance_receipts/{id}/collection_status — 決済ステータス変更
 
 概要 指定されたIDの前受金の決済ステータスを変更します。
@@ -331,3 +374,7 @@ PATCH /advance_receipts/{id} と同じ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
 - collection_status*: string - 決済ステータス (未決済: not_settled, 決済済み: settled, 対象外: none) (選択肢: not_settled, settled, none) 例: `settled`
+
+### レスポンス
+
+PATCH /advance_receipts/{id} と同じ

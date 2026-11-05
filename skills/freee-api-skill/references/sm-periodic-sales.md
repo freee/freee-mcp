@@ -36,6 +36,12 @@ canceled : 取消状態(デフォルト:false) start_recurrence_period : 繰り�
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+定期売上一覧のレスポンス
+- periodic_sales*: array[object]
+- meta*: object
+
 ## POST /periodic_sales — 定期売上登録
 
 概要 新しい定期売上を登録します。 登録した定期売上の繰り返しルールに従って売上予定が作成されます。 前受金を取り崩す定期売上を登録する場合は、本APIではなく「前受金取崩（定期売上登録）」API（ POST /advance_receipts/{id}/periodic_reduction ）を使用してください。
@@ -80,7 +86,36 @@ canceled : 取消状態(デフォルト:false) start_recurrence_period : 繰り�
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
-- lines*: array[object] - 明細リスト
+- lines*: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
+  配列の要素:
+    - line_type*: string - 明細種別 (選択肢: basic, text)
+    - master_item_id: string - 商品ID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - deal_line_type_id*: string - 明細取引タイプID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - description: string - 摘要 （basic のみ） 例: `パンフレットデザイン料`
+    - quantity*: number(double) - 数量 （basic のみ） 例: `100`
+    - uom_name: string - 単位 （basic のみ） 例: `個`
+    - unit_price*: number(double) - 単価 （basic のみ） 例: `1000` (最小: -999999999999, 最大: 999999999999)
+    - accounting_reporting_section_id: integer(int64) - 会計計上部門ID
+
+      ※ 親部門のIDは指定できません （basic のみ） 例: `67890` (最小: 1, 最大: 9223372036854776000)
+    - item_tag_id: integer(int64) - 会計品目タグID （basic のみ） 例: `2001` (最小: 1, 最大: 9223372036854776000)
+    - memo_tags: array[integer] - メモタグID （basic のみ）
+    - withholding_enabled*: boolean - 源泉徴収税対象明細かどうか （basic のみ） 例: `false`
+    - is_manual_tax_entry*: boolean - 税の手動入力を行うかどうか （basic のみ） 例: `false`
+    - tax: integer(int64) - 手動入力した税額
+
+      ※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。 （basic のみ） 例: `10000` (最小: -999999999999, 最大: 999999999999)
+    - segment_tag_1_id: integer(int64) - セグメントタグ1のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - segment_tag_2_id: integer(int64) - セグメントタグ2のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - segment_tag_3_id: integer(int64) - セグメントタグ3のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - text*: string - テキスト行 （text のみ） 例: `備考：特急料金が含まれます`
+
+### レスポンス
+
+定期売上登録のレスポンス
+- id*: string - 定期売上ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## GET /periodic_sales/{id} — 定期売上詳細取得
 
@@ -90,6 +125,53 @@ canceled : 取消状態(デフォルト:false) start_recurrence_period : 繰り�
 
 - company_id*: integer(int64) - 事業所ID
 - id* (path): string - 定期売上ID
+
+### レスポンス
+
+定期売上詳細取得のレスポンス
+- id*: string - 定期売上ID
+- periodic_sales_no*: string - 定期売上No.
+- subject: string - 定期売上タイトル
+- canceled*: boolean - 取消状態
+- total_schedule_count: integer(int32) - 売上予定の総回数
+- recorded_count: integer(int32) - 計上済み回数
+- advance_receipt_id: string - 前受金ID（前受金由来の定期売上の場合のみ。それ以外はnull）
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
+- registered_by*: object - 登録者
+- registered_by_member: object - 登録者
+- last_updated_by*: object - 変更者
+- last_updated_by_member: object - 変更者
+- customer*: object - 顧客
+- business: object - 案件
+- charge_employee: object - 社内担当者
+- charge_member: object - 社内担当者
+- reporting_section: object - 担当部門
+- billing_partner: object - 請求先
+- collecting_partner: object - 入金元
+- invoice_note: string - 請求書の備考欄に掲載する内容
+- internal_memo: string - 社内メモ
+- total_amount_set*: object - 金額セット
+- each_amount_set*: object - 定期売上額（単体）
+- each_amount_set_rates*: array[object] - 定期売上単体の税率
+- customer_order_no*: string - 顧客注文No.
+- recurrence_rule*: object - 繰り返しルール
+- next_sales_on*: string(date) - 次回売上予定日
+- lines*: array[object] - 定期売上明細リスト （要素は line_type により形が異なる: basic / text）
+- billing_creating_method_type*: string - 請求作成方法区分
+  * `automatically` - 自動作成
+  * `manually` - 手動作成
+  * `none` - なし
+- bills_on_rule*: object - 予定日ルール
+- invoice_template_name: string - 請求書テンプレート名称
+- invoice_subject: string - 請求書件名
+- collects_on_rule*: object - 予定日ルール
+- collection_method_type*: string - 入金方法
+  * `transfer` - 振込
+  * `cash` - 現金
+  * `bill_payable` - 手形
+  * `direct_debit` - 振替
+  * `none` - なし
 
 ## PATCH /periodic_sales/{id} — 定期売上更新
 
@@ -139,7 +221,36 @@ canceled : 取消状態(デフォルト:false) start_recurrence_period : 繰り�
 
   ※ 親部門のIDは指定できません 例: `67890` (最小: 1, 最大: 9223372036854776000)
 - internal_memo: string - 社内メモ 例: `重要案件のため優先対応`
-- lines: array[object] - 明細リスト
+- lines: array[object] - 明細リスト （要素は line_type により形が異なる: basic / text）
+  配列の要素:
+    - line_type*: string - 明細種別 (選択肢: basic, text)
+    - master_item_id: string - 商品ID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - deal_line_type_id*: string - 明細取引タイプID （basic のみ） 例: `01JPP4FD1CVQWCDSWA90VE1ZTM`
+    - description: string - 摘要 （basic のみ） 例: `パンフレットデザイン料`
+    - quantity*: number(double) - 数量 （basic のみ） 例: `100`
+    - uom_name: string - 単位 （basic のみ） 例: `個`
+    - unit_price*: number(double) - 単価 （basic のみ） 例: `1000` (最小: -999999999999, 最大: 999999999999)
+    - accounting_reporting_section_id: integer(int64) - 会計計上部門ID
+
+      ※ 親部門のIDは指定できません （basic のみ） 例: `67890` (最小: 1, 最大: 9223372036854776000)
+    - item_tag_id: integer(int64) - 会計品目タグID （basic のみ） 例: `2001` (最小: 1, 最大: 9223372036854776000)
+    - memo_tags: array[integer] - メモタグID （basic のみ）
+    - withholding_enabled*: boolean - 源泉徴収税対象明細かどうか （basic のみ） 例: `false`
+    - is_manual_tax_entry*: boolean - 税の手動入力を行うかどうか （basic のみ） 例: `false`
+    - tax: integer(int64) - 手動入力した税額
+
+      ※is_manual_tax_entryがtrueの場合のみ参照されます。falseの場合は値を設定しても無視されます。 （basic のみ） 例: `10000` (最小: -999999999999, 最大: 999999999999)
+    - segment_tag_1_id: integer(int64) - セグメントタグ1のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - segment_tag_2_id: integer(int64) - セグメントタグ2のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - segment_tag_3_id: integer(int64) - セグメントタグ3のID （basic のみ） 例: `12345` (最小: 1, 最大: 9223372036854776000)
+    - text*: string - テキスト行 （text のみ） 例: `備考：特急料金が含まれます`
+
+### レスポンス
+
+定期売上更新のレスポンス
+- id*: string - 定期売上ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## GET /periodic_sales/{id}/sales_entries — 売上計上状況取得
 
@@ -152,6 +263,12 @@ canceled : 取消状態(デフォルト:false) start_recurrence_period : 繰り�
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+売上計上状況一覧のレスポンス
+- sales_entries*: array[object]
+- meta*: object
+
 ## POST /periodic_sales/{id}/cancellation — 定期売上取消
 
 概要 指定されたIDの定期売上を取り消します。
@@ -163,3 +280,10 @@ PATCH /periodic_sales/{id} と同じ
 ### リクエストボディ*
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+定期売上取消のレスポンス
+- id*: string - 定期売上ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時

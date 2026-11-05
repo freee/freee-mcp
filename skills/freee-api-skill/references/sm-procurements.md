@@ -34,6 +34,12 @@ start_registered_date : 仕入登録日(絞り込み開始) end_registered_date 
 - limit: integer(int32) - 取得レコードの件数（デフォルト：20, 最小：1, 最大：100）
 - offset: integer(int32) - 取得レコードのオフセット（デフォルト：0）
 
+### レスポンス
+
+仕入一覧のレスポンス
+- procurements*: array[object]
+- meta*: object
+
 ## POST /procurements — 仕入登録
 
 概要 新しい仕入を登録します。 仕入先への仕入情報を登録し、支払管理や会計連携に利用できます。
@@ -91,6 +97,13 @@ start_registered_date : 仕入登録日(絞り込み開始) end_registered_date 
     - segment_tag_1_id: integer(int64) - セグメントタグ1のID 例: `12345` (最小: 1, 最大: 9223372036854776000)
     - segment_tag_2_id: integer(int64) - セグメントタグ2のID 例: `12346` (最小: 1, 最大: 9223372036854776000)
     - segment_tag_3_id: integer(int64) - セグメントタグ3のID 例: `12347` (最小: 1, 最大: 9223372036854776000)
+
+### レスポンス
+
+仕入登録のレスポンス
+- id*: string - 仕入ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
 
 ## PATCH /procurements/{id} — 仕入更新
 
@@ -156,6 +169,13 @@ start_registered_date : 仕入登録日(絞り込み開始) end_registered_date 
     - segment_tag_2_id: integer(int64) - セグメントタグ2のID 例: `12346` (最小: 1, 最大: 9223372036854776000)
     - segment_tag_3_id: integer(int64) - セグメントタグ3のID 例: `12347` (最小: 1, 最大: 9223372036854776000)
 
+### レスポンス
+
+仕入更新のレスポンス
+- id*: string - 仕入ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
+
 ## GET /procurements/{id} — 仕入詳細取得
 
 概要 指定されたIDの仕入の詳細情報を取得します。 仕入の基本情報に加えて、明細情報や各種ステータスなどの詳細な情報も取得できます。
@@ -218,6 +238,13 @@ PATCH /procurements/{id} と同じ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
 
+### レスポンス
+
+仕入取消のレスポンス
+- id*: string - 仕入ID
+- registered_at*: string(date-time) - 登録日時
+- last_updated_at*: string(date-time) - 変更日時
+
 ## PUT /procurements/{id}/payment_status — 決済ステータス変更
 
 概要 指定されたIDの仕入の決済ステータスを変更します。
@@ -236,3 +263,7 @@ PATCH /procurements/{id} と同じ
 
 - company_id*: integer(int64) - 事業所ID 例: `1` (最小: 1, 最大: 9223372036854776000)
 - payment_status*: string - 手動設定する決済ステータス (未決済: not_settled, 一部決済済み: partially_settled, 決済済み: settled, 対象外: none) (選択肢: not_settled, partially_settled, settled, none) 例: `settled`
+
+### レスポンス
+
+PATCH /procurements/{id} と同じ

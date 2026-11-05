@@ -13,4 +13,4 @@
 ### レスポンス
 
 - sales_order_statuses*: array[object]
-- meta*: object
+- meta*: object - ページネーションのメタ情報
