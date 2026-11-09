@@ -10456,6 +10456,338 @@
         }
       }
     },
+    "/api/1/journals/search": {
+      "post": {
+        "tags": [
+          "Journals"
+        ],
+        "summary": "仕訳帳の仕訳一覧の取得",
+        "description": "## 概要\n\n指定した事業所の仕訳を、仕訳帳と同じ検索条件で絞り込んで取得します。検索条件はリクエストボディで指定します。\n\n## 定義\n\n- `debit` / `credit`: 仕訳の借方行・貸方行。配列の順が表示順です。\n- 消費税行 (`line_type: tax`): 税抜経理の期間に、仮払消費税等・仮受消費税等を取引先・税区分・貸借ごと (部門必須設定が「全科目」の事業所ではさらに部門ごと) にまとめた行です。`debit` / `credit` の末尾に付きます。明細としては存在しないため、`id` など一部の項目は `null` になります。\n\n## 検索条件の判定\n\n複数の条件を指定したときは、次の単位で判定します。\n\n- 仕訳単位: `start_issue_date` / `end_issue_date` / `deal_ids` / `start_created_date` / `end_created_date` / `adjustment` / `approval_status` / `current_approver_user_id` / `last_approver_user_id` / `create_user_id` / `receipts` / `receipt_partner_name` / `ref_number` / `txn_number` / `cost_allocation` / `reverse_journal` / `description` / `wallet_txn_description`。仕訳がそれぞれの条件を満たせばヒットします。\n- 明細行単位: `account_item_id` / `tax_code` / `partner_id` / `item_id` / `section_id` / `memo_tag_id` / `segment_tag_1_id` / `segment_tag_2_id` / `segment_tag_3_id` / `detail_amount_min` / `detail_amount_max`。同じ 1 つの明細行がすべての条件を満たす必要があります。\n- コメント単位: `comment_status` / `comment_important` / `comment_details` / `comment_poster_user_id` / `comment_recipient_user_id`。同じ 1 つのコメントがすべての条件を満たす必要があります。\n\n`account_item_id` に次の勘定科目を指定した場合は例外です。\n\n- 口座に紐づく勘定科目 (現金・普通預金など)、事業主借・事業主貸・役員借入金・役員貸付金: 勘定科目とそれ以外の明細行条件を別々に判定します。それぞれを満たす行が同じ仕訳の中にあればヒットします。\n- 仮払消費税等・仮受消費税等: 税抜経理の期間は、消費税行の元になる明細行 (税額があるもの) も検索対象に含めます。\n\n## 注意点\n\n- `start_issue_date` / `end_issue_date` と `deal_ids` のどちらも指定しない場合は 400 を返します。\n- 経理方式 (税込 / 税抜) は、仕訳の発生日が属する会計年度の設定で決まります。検索期間が複数の会計年度にまたがる場合は、仕訳ごとに経理方式が異なることがあります。\n- レスポンスにマスタの名称 (勘定科目名・部門名・取引先名など) は含まれません。名称は各マスタ API (`/api/1/account_items`、`/api/1/sections`、`/api/1/partners` など) で取得してください。\n- 存在しないマスタ ID (他の事業所のものを含む) を指定した場合は 400 を返します。ユーザー ID は事業所への所属を検証しないため、所属していないユーザーの ID を指定しても 0 件を返します。\n- `next_page_token` が `null` のレスポンスが最終ページです。トークンの中身には依存しないでください。ページを取得する間に仕訳が登録・更新・削除されると、重複や欠落が起きることがあります。\n- 検索結果への反映は非同期のため、登録・更新した直後の仕訳は含まれないことがあります。",
+        "operationId": "search_report_journals",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "description": "事業所ID"
+                  },
+                  "start_issue_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "発生日 開始 (YYYY-MM-DD、両端含む)。deal_ids が指定されていない場合は必須。"
+                  },
+                  "end_issue_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "発生日 終了 (YYYY-MM-DD、両端含む)。deal_ids が指定されていない場合は必須。"
+                  },
+                  "deal_ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "description": "取引ID配列。最大 500 件で、超えた場合は 400。複数指定は OR。指定時は発生日範囲を省略可能。両方指定した場合は取引の仕訳のうち発生日範囲内のものだけが返る。"
+                  },
+                  "start_created_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "作成日 開始 (YYYY-MM-DD、両端含む)。仕訳の作成日時 (created_at) を日付単位で絞り込む。"
+                  },
+                  "end_created_date": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "作成日 終了 (YYYY-MM-DD、両端含む)。仕訳の作成日時 (created_at) を日付単位で絞り込む。"
+                  },
+                  "account_item_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "勘定科目ID (単数)。仕訳帳画面と同様に単数指定のみ。指定した勘定科目が仮払消費税等 / 仮受消費税等の場合、税抜経理の期間は消費税行の元になる明細行 (税額があるもの) も検索対象に含まれます。"
+                  },
+                  "partner_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "取引先ID (単数)。"
+                  },
+                  "item_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "品目ID (単数)。"
+                  },
+                  "section_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "部門ID (単数)。指定した部門が事業所に存在しない場合は 400。閲覧不可な部門を指定した場合は 0 件を返す。"
+                  },
+                  "memo_tag_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "メモタグID (単数)。"
+                  },
+                  "segment_tag_1_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "セグメント1タグID (単数)。事業所で当該セグメントが未契約の場合に指定すると 400。"
+                  },
+                  "segment_tag_2_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "セグメント2タグID (単数)。事業所で当該セグメントが未契約の場合に指定すると 400。"
+                  },
+                  "segment_tag_3_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "セグメント3タグID (単数)。事業所で当該セグメントが未契約の場合に指定すると 400。"
+                  },
+                  "tax_code": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "税区分コード。仕訳内のいずれかの明細行がこの税区分に一致する仕訳を返す。"
+                  },
+                  "detail_amount_min": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "明細金額の下限。基準は detail_amount_basis で指定。"
+                  },
+                  "detail_amount_max": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "明細金額の上限。基準は detail_amount_basis で指定。"
+                  },
+                  "detail_amount_basis": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/reportJournalsDetailAmountBasis"
+                      }
+                    ],
+                    "description": "明細金額絞り込みの基準。既定 auto。"
+                  },
+                  "adjustment": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/reportJournalsAdjustmentOption"
+                      }
+                    ],
+                    "description": "決算整理仕訳による絞り込み。"
+                  },
+                  "approval_status": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/reportJournalsApprovalStatus"
+                      }
+                    ],
+                    "description": "承認ステータスによる絞り込み。"
+                  },
+                  "receipts": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/reportJournalsReceiptsOption"
+                      }
+                    ],
+                    "description": "証憑 (レシート) 添付有無による絞り込み。"
+                  },
+                  "cost_allocation": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/reportJournalsCostAllocationOption"
+                      }
+                    ],
+                    "description": "配賦仕訳による絞り込み。"
+                  },
+                  "reverse_journal": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/reportJournalsReverseJournalOption"
+                      }
+                    ],
+                    "description": "逆仕訳・元仕訳による絞り込み。"
+                  },
+                  "create_user_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "作成者ユーザーID。"
+                  },
+                  "current_approver_user_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "現在の承認待ちユーザーID (承認申請中のものが対象)。"
+                  },
+                  "last_approver_user_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "最終承認者ユーザーID (承認済みのものが対象)。"
+                  },
+                  "comment_status": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/reportJournalsCommentStatusOption"
+                      }
+                    ],
+                    "description": "コメントステータスによる絞り込み。"
+                  },
+                  "comment_important": {
+                    "type": "boolean",
+                    "description": "重要コメントで絞り込む。true のときのみ意味を持つ。false は指定なしと同義。"
+                  },
+                  "comment_details": {
+                    "type": "string",
+                    "description": "コメント本文の部分一致検索。"
+                  },
+                  "comment_poster_user_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "コメント投稿者ユーザーID。"
+                  },
+                  "comment_recipient_user_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "コメント宛先ユーザーID。"
+                  },
+                  "receipt_partner_name": {
+                    "type": "string",
+                    "description": "証憑の発行元名で検索 (部分一致)。"
+                  },
+                  "ref_number": {
+                    "type": "string",
+                    "description": "管理番号 (ref_number) による前方一致検索。"
+                  },
+                  "txn_number": {
+                    "type": "string",
+                    "description": "仕訳番号 (txn_number) による完全一致検索。"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "明細行の備考による部分一致検索。行単位ではなく仕訳単位で返る。"
+                  },
+                  "wallet_txn_description": {
+                    "type": "string",
+                    "description": "口座明細の取引内容による部分一致検索。口座明細から作られた仕訳のみが対象。"
+                  },
+                  "order_by": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/reportJournalsOrderByOption"
+                      }
+                    ],
+                    "description": "並び順のキー。既定は txn_date。"
+                  },
+                  "direction": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/reportJournalsDirectionOption"
+                      }
+                    ],
+                    "description": "並び順の方向。既定は asc。"
+                  },
+                  "page_size": {
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "最大取得件数。既定 100、範囲 1〜1000。"
+                  },
+                  "page_token": {
+                    "type": "string",
+                    "description": "ページネーションのトークン。前レスポンスの next_page_token をそのまま渡す。不透明文字列。"
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "仕訳帳の仕訳一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/reportJournalsJournal"
+                      },
+                      "description": "仕訳のリスト。"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次ページ取得のためのトークン。null の場合が最終ページ。"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "クライアントエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未認証",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/unauthorizedError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "未認可",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/forbiddenError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "リソースが存在しない",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/badRequestNotFoundError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "サーバーエラー",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/internalServerError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/1/reports/trial_bs": {
       "get": {
         "tags": [
@@ -15899,7 +16231,7 @@
           "Expense applications"
         ],
         "summary": "経費申請の作成",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費申請を作成する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>\n  <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は作成できません。</li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の経費申請を作成する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>\n  <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は作成できません。</li>\n  <li>\n    明細行ごとに部門・メモタグ・セグメントを設定するには、明細行のtag_assignmentにline（明細に個別付与）を指定し、明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定してください。\n    tag_assignmentを指定しない明細行には、申請全体のsection_id・tag_ids・segment_1〜3_tag_idが適用されます（application: 申請全体に付与）。\n  </li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n</ul>",
         "operationId": "create_expense_application",
         "requestBody": {
           "content": {
@@ -16070,7 +16402,7 @@
           "Expense applications"
         ],
         "summary": "経費申請の更新",
-        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の経費申請を更新する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、経費申請を更新することができます。</li>\n  <li>本APIでは、status(申請ステータス): draft:下書き, feedback:差戻しのみ更新可能です。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>\n  <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は更新できません。</li>\n  <li>申請全体のsection_id・tag_ids・segment_1〜3_tag_idは、指定した内容で置き換えられます。未指定の項目は削除されます。</li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n</ul>",
+        "description": "\n<h2 id=\"\">概要</h2>\n\n<p>指定した事業所の経費申請を更新する</p>\n\n<p>経費精算APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-expense-applications\" target=\"_blank\">freee会計経費精算APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、経費申請を更新することができます。</li>\n  <li>本APIでは、status(申請ステータス): draft:下書き, feedback:差戻しのみ更新可能です。</li>\n  <li>\n    申請ステータス(下書き、申請中)の指定と変更、及び承認操作（承認する、却下する、申請者へ差し戻す、特権承認する、承認済み・却下済みを取り消す）は以下を参考にして行ってください。\n    <ul>\n      <li>\n        承認操作は申請ステータスが申請中、承認済み、却下のものだけが対象です。\n        <ul>\n          <li>\n            初回申請の場合\n            <ul><li>申請の作成（POST）</li></ul>\n          </li>\n          <li>\n            作成済みの申請の申請ステータス変更・更新する場合\n            <ul><li>申請の更新（PUT）</li></ul>\n          </li>\n          <li>\n            申請中、承認済み、却下の申請の承認操作を行う場合\n            <ul><li>承認操作の実行（POST）</li></ul>\n          </li>\n        </ul>\n      </li>\n      <li>申請の削除（DELETE）が可能なのは申請ステータスが下書き、差戻しの場合のみです</li>\n    </ul>\n  </li>\n  <li>\n    承認者の指定に部門役職データ連携を活用した、以下のいずれかの承認ステップを含む申請経路にも対応しています。\n    <ul>\n      <li>役職指定（申請者の所属部門）</li>\n      <li>役職指定（申請時に部門指定）</li>\n      <li>部門および役職指定</li>\n    </ul>\n    申請者がどの所属部門として申請するかは applicant_group_id で指定します。申請者が複数の部門に所属している場合は必須です。1段階目の承認ステップが部門選択型の場合は approval_flow_group_id を指定してください。\n  </li>\n  <li>申請時には、申請タイトル(title)に加え、項目行については金額(amount)、日付(transaction_date)、内容(description)が必須項目となります。申請時の業務効率化のため、API入力をお勧めします。</li>\n  <li>本APIは駅すぱあと連携 (出発駅と到着駅から金額を自動入力する機能)には非対応です。駅すぱあと連携を使用した経費申請は更新できません。</li>\n  <li>\n    部門・メモタグ・セグメントの更新について\n    <ul>\n      <li>申請全体のsection_id・tag_ids・segment_1〜3_tag_idは、指定した内容で置き換えられます。未指定の項目は削除され、tag_assignmentがapplication（申請全体に付与）の明細行の値も空になります。</li>\n      <li>明細行の部門・メモタグ・セグメントは、明細行のtag_assignmentを指定した場合のみ更新されます。tag_assignmentを指定しない既存の明細行は、部門・メモタグ・セグメントと付与先が変更されません。</li>\n      <li>tag_assignmentにline（明細に個別付与）を指定すると、明細行のsection_id・tag_ids・segment_1〜3_tag_idの内容で置き換えられます。指定しなかった項目は空になります。</li>\n      <li>tag_assignmentにapplication（申請全体に付与）を指定すると、明細に個別付与した値を削除して申請全体の値を適用します。明細行のsection_id・tag_ids・segment_1〜3_tag_idは無視されるため、明細行ごとに値を変えたい場合はlineを指定してください。</li>\n    </ul>\n  </li>\n  <li>本APIは条件分岐を含む申請経路にも対応しています。</li>\n</ul>",
         "operationId": "update_expense_application",
         "parameters": [
           {
@@ -25511,6 +25843,54 @@
                             }
                           }
                         }
+                      },
+                      "tag_assignment": {
+                        "type": "string",
+                        "description": "明細行の部門・メモタグ・セグメントの付与先<br>\n<ul>\n  <li>application: 申請全体に付与（画面の「申請全体に合わせる」）。申請全体のsection_id・tag_ids・segment_1〜3_tag_idを明細行に適用します。明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定しても無視します。</li>\n  <li>line: 明細に個別付与（画面の「個別付与」）。明細行のsection_id・tag_ids・segment_1〜3_tag_idを明細行に設定します。</li>\n</ul>\n未指定またはnullの場合は申請全体に付与（application）として作成します。<br>\n明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定する場合は、lineを指定してください。tag_assignmentを指定せずにこれらを指定すると400エラーになります。<br>\n上記以外の値を指定すると400エラーになります。",
+                        "example": "line",
+                        "nullable": true
+                      },
+                      "section_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1,
+                        "description": "明細行の部門ID<br>\ntag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合は部門なしになります。<br>\n存在しない部門や、申請者が利用できない部門を指定すると400エラーになります。",
+                        "example": 101,
+                        "nullable": true
+                      },
+                      "tag_ids": {
+                        "type": "array",
+                        "description": "明細行のメモタグID<br>\ntag_assignmentにlineを指定した場合のみ有効です。未指定の場合はメモタグなしになります。<br>\n存在しないメモタグを指定すると400エラーになります。",
+                        "items": {
+                          "type": "integer",
+                          "format": "int64",
+                          "minimum": 1,
+                          "example": 202
+                        }
+                      },
+                      "segment_1_tag_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1,
+                        "description": "明細行のセグメント１タグID<br>\ntag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント１タグなしになります。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント１が利用可能なプラン契約・設定になっている必要があります。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a>",
+                        "example": 1,
+                        "nullable": true
+                      },
+                      "segment_2_tag_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1,
+                        "description": "明細行のセグメント２タグID<br>\ntag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント２タグなしになります。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント２が利用可能なプラン契約・設定になっている必要があります。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a>",
+                        "example": 2,
+                        "nullable": true
+                      },
+                      "segment_3_tag_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1,
+                        "description": "明細行のセグメント３タグID<br>\ntag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント３タグなしになります。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント３が利用可能なプラン契約・設定になっている必要があります。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a>",
+                        "example": 3,
+                        "nullable": true
                       }
                     }
                   }
@@ -25623,12 +26003,12 @@
             "type": "integer",
             "format": "int64",
             "minimum": 1,
-            "description": "部門ID<br>\n未指定の場合は部門なしで更新されます。",
+            "description": "部門ID<br>\n未指定の場合は部門なしで更新されます。<br>\n明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。",
             "example": 101
           },
           "tag_ids": {
             "type": "array",
-            "description": "メモタグID<br>\n未指定の場合はメモタグなしで更新されます。",
+            "description": "メモタグID<br>\n未指定の場合はメモタグなしで更新されます。<br>\n明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。",
             "items": {
               "type": "integer",
               "format": "int64",
@@ -25787,6 +26167,54 @@
                             }
                           }
                         }
+                      },
+                      "tag_assignment": {
+                        "type": "string",
+                        "description": "明細行の部門・メモタグ・セグメントの付与先<br>\n<ul>\n  <li>application: 申請全体に付与（画面の「申請全体に合わせる」）。申請全体のsection_id・tag_ids・segment_1〜3_tag_idを明細行に適用します。明細に個別付与した部門・メモタグ・セグメントは削除されます。明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定しても無視します。</li>\n  <li>line: 明細に個別付与（画面の「個別付与」）。明細行の部門・メモタグ・セグメントを、明細行のsection_id・tag_ids・segment_1〜3_tag_idの内容で置き換えます。指定しなかった項目は空になるため、更新後も残したい値は必ず指定してください。</li>\n</ul>\n未指定またはnullの場合、既存の明細行の部門・メモタグ・セグメントと付与先は変更しません（申請全体のsection_id・tag_ids・segment_1〜3_tag_idと異なり、省略しても削除されません）。新規に追加する明細行は申請全体に付与（application）として作成します。<br>\nただし未指定またはnullの場合、経費科目の利用可否は明細行の部門ではなく申請全体のsection_idで判定します。個別付与した明細行で部門の利用制限がある経費科目を使っている場合に申請中（draft: false）にするときは、lineを指定し、明細行のsection_id・tag_ids・segment_1〜3_tag_idも指定してください。<br>\n個別付与した明細行を申請全体に合わせるには、applicationを指定してください。<br>\n明細行のsection_id・tag_ids・segment_1〜3_tag_idを指定する場合は、lineを指定してください。tag_assignmentを指定せずにこれらを指定すると400エラーになります。<br>\n上記以外の値を指定すると400エラーになります。",
+                        "example": "line",
+                        "nullable": true
+                      },
+                      "section_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1,
+                        "description": "明細行の部門ID<br>\ntag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合は部門なしになります。<br>\n存在しない部門や、申請者が利用できない部門を指定すると400エラーになります。",
+                        "example": 101,
+                        "nullable": true
+                      },
+                      "tag_ids": {
+                        "type": "array",
+                        "description": "明細行のメモタグID<br>\ntag_assignmentにlineを指定した場合のみ有効です。未指定の場合はメモタグなしになります。<br>\n存在しないメモタグを指定すると400エラーになります。",
+                        "items": {
+                          "type": "integer",
+                          "format": "int64",
+                          "minimum": 1,
+                          "example": 202
+                        }
+                      },
+                      "segment_1_tag_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1,
+                        "description": "明細行のセグメント１タグID<br>\ntag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント１タグなしになります。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント１が利用可能なプラン契約・設定になっている必要があります。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a>",
+                        "example": 1,
+                        "nullable": true
+                      },
+                      "segment_2_tag_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1,
+                        "description": "明細行のセグメント２タグID<br>\ntag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント２タグなしになります。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント２が利用可能なプラン契約・設定になっている必要があります。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a>",
+                        "example": 2,
+                        "nullable": true
+                      },
+                      "segment_3_tag_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1,
+                        "description": "明細行のセグメント３タグID<br>\ntag_assignmentにlineを指定した場合のみ有効です。未指定またはnullの場合はセグメント３タグなしになります。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。事業所でセグメント３が利用可能なプラン契約・設定になっている必要があります。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a>",
+                        "example": 3,
+                        "nullable": true
                       }
                     }
                   }
@@ -25846,21 +26274,21 @@
             "type": "integer",
             "format": "int64",
             "minimum": 1,
-            "description": "セグメント１タグID<br>\n未指定の場合はセグメント１タグなしで更新されます。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a><br>\n",
+            "description": "セグメント１タグID<br>\n未指定の場合はセグメント１タグなしで更新されます。<br>\n明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a><br>\n",
             "example": 1
           },
           "segment_2_tag_id": {
             "type": "integer",
             "format": "int64",
             "minimum": 1,
-            "description": "セグメント２タグID<br>\n未指定の場合はセグメント２タグなしで更新されます。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a><br>\n",
+            "description": "セグメント２タグID<br>\n未指定の場合はセグメント２タグなしで更新されます。<br>\n明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a><br>\n",
             "example": 2
           },
           "segment_3_tag_id": {
             "type": "integer",
             "format": "int64",
             "minimum": 1,
-            "description": "セグメント３タグID<br>\n未指定の場合はセグメント３タグなしで更新されます。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a><br>\n",
+            "description": "セグメント３タグID<br>\n未指定の場合はセグメント３タグなしで更新されます。<br>\n明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。<br>\nセグメントタグ一覧の取得APIを利用して取得してください。<br>\n<a href=\"https://support.freee.co.jp/hc/ja/articles/360020679611\" target=\"_blank\">セグメント（分析用タグ）の設定</a><br>\n",
             "example": 3
           }
         }
@@ -28176,6 +28604,454 @@
             }
           }
         }
+      },
+      "reportJournalsJournal": {
+        "type": "object",
+        "required": [
+          "id",
+          "deal_id",
+          "txn_date",
+          "txn_number",
+          "adjustment",
+          "approval_status",
+          "create_user_id",
+          "last_approver_user_id",
+          "current_approver_user_ids",
+          "ref_number",
+          "deal_origin_name",
+          "created_at",
+          "updated_at",
+          "receipt_ids",
+          "debit",
+          "credit"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "仕訳ID。"
+          },
+          "deal_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "取引ID。取引に紐づかない仕訳 (振替伝票のみ等) では null。"
+          },
+          "txn_date": {
+            "type": "string",
+            "format": "date",
+            "description": "発生日 (YYYY-MM-DD)。"
+          },
+          "txn_number": {
+            "type": "string",
+            "nullable": true,
+            "description": "仕訳番号。仕訳番号を使用しない設定の事業所では常に null。英数字形式があるため文字列。"
+          },
+          "adjustment": {
+            "type": "boolean",
+            "description": "決算整理仕訳フラグ。"
+          },
+          "approval_status": {
+            "allOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "in_progress",
+                  "approved"
+                ],
+                "description": "仕訳の承認ステータス"
+              }
+            ],
+            "description": "承認ステータス。"
+          },
+          "create_user_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "作成者ユーザーID。"
+          },
+          "last_approver_user_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "最終承認者ユーザーID。未承認は null。"
+          },
+          "current_approver_user_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "現在の承認待ちユーザーIDのリスト。承認済み・フローなしは空配列。会計のロールを持たないユーザーは含まない。"
+          },
+          "ref_number": {
+            "type": "string",
+            "nullable": true,
+            "description": "管理番号 (ref_number)。"
+          },
+          "deal_origin_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "取引の登録元表示ラベル (「手動」「自動で経理」「freee請求書」など)。"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "仕訳の作成日時。"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "仕訳の最終更新日時。"
+          },
+          "receipt_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "紐づく証憑IDのリスト。閲覧権限がない場合は空配列。"
+          },
+          "debit": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "line_type",
+                "account_item_id",
+                "amount",
+                "net_amount",
+                "vat",
+                "tax_code",
+                "partner_id",
+                "item_id",
+                "section_id",
+                "segment_tag_1_id",
+                "segment_tag_2_id",
+                "segment_tag_3_id",
+                "memo_tag_ids",
+                "description"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "nullable": true,
+                  "description": "明細行ID。消費税行では null。"
+                },
+                "line_type": {
+                  "allOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "detail",
+                        "tax"
+                      ],
+                      "description": "仕訳明細行の種別。detail は通常明細、tax は税抜経理事業所の消費税行。"
+                    }
+                  ],
+                  "description": "行種別。detail は通常明細、tax は税抜経理事業所の消費税行。"
+                },
+                "account_item_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "勘定科目ID。消費税行では仮払/仮受消費税勘定を指す。"
+                },
+                "amount": {
+                  "type": "integer",
+                  "format": "int64",
+                  "description": "表示金額。税込経理では税込金額、税抜経理では税抜金額。消費税行では集約された税額そのものが入る。"
+                },
+                "net_amount": {
+                  "type": "integer",
+                  "format": "int64",
+                  "nullable": true,
+                  "description": "税抜金額。経理方式によらず、その明細の税込金額から消費税額を引いた値。消費税行では null。"
+                },
+                "vat": {
+                  "type": "integer",
+                  "format": "int64",
+                  "nullable": true,
+                  "description": "消費税額。通常明細ではその明細の税額、消費税行では null。"
+                },
+                "tax_code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "nullable": true,
+                  "description": "税区分コード。"
+                },
+                "partner_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "nullable": true,
+                  "description": "取引先ID。"
+                },
+                "item_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "nullable": true,
+                  "description": "品目ID。消費税行では null。"
+                },
+                "section_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "nullable": true,
+                  "description": "部門ID。消費税行では、部門必須設定が「全科目」の事業所のときのみ集約キーとして設定される。"
+                },
+                "segment_tag_1_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "nullable": true,
+                  "description": "セグメント1タグID。消費税行では null。"
+                },
+                "segment_tag_2_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "nullable": true,
+                  "description": "セグメント2タグID。消費税行では null。"
+                },
+                "segment_tag_3_id": {
+                  "type": "integer",
+                  "format": "int64",
+                  "nullable": true,
+                  "description": "セグメント3タグID。消費税行では null。"
+                },
+                "memo_tag_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "description": "メモタグIDのリスト。常に配列を返し、null は返さない。消費税行では空配列。"
+                },
+                "description": {
+                  "type": "string",
+                  "nullable": true,
+                  "description": "行の備考。逆仕訳の確認等で利用可能。消費税行では null。"
+                }
+              },
+              "description": "仕訳の借方または貸方の 1 行。通常明細 (detail) と消費税行 (tax) が同じスキーマで返る。",
+              "additionalProperties": false
+            },
+            "description": "借方行のリスト。配列順が表示順。税抜経理事業所では消費税行 (line_type: tax) が末尾に付与されることがある。"
+          },
+          "credit": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/reportJournalsJournal/properties/debit/items"
+            },
+            "description": "貸方行のリスト。配列順が表示順。税抜経理事業所では消費税行 (line_type: tax) が末尾に付与されることがある。"
+          }
+        },
+        "description": "仕訳 (Transaction) 単位のレスポンス。",
+        "additionalProperties": false
+      },
+      "reportJournalsJournalLine": {
+        "type": "object",
+        "required": [
+          "id",
+          "line_type",
+          "account_item_id",
+          "amount",
+          "net_amount",
+          "vat",
+          "tax_code",
+          "partner_id",
+          "item_id",
+          "section_id",
+          "segment_tag_1_id",
+          "segment_tag_2_id",
+          "segment_tag_3_id",
+          "memo_tag_ids",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "明細行ID。消費税行では null。"
+          },
+          "line_type": {
+            "allOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "detail",
+                  "tax"
+                ],
+                "description": "仕訳明細行の種別。detail は通常明細、tax は税抜経理事業所の消費税行。"
+              }
+            ],
+            "description": "行種別。detail は通常明細、tax は税抜経理事業所の消費税行。"
+          },
+          "account_item_id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "勘定科目ID。消費税行では仮払/仮受消費税勘定を指す。"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "表示金額。税込経理では税込金額、税抜経理では税抜金額。消費税行では集約された税額そのものが入る。"
+          },
+          "net_amount": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "税抜金額。経理方式によらず、その明細の税込金額から消費税額を引いた値。消費税行では null。"
+          },
+          "vat": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "消費税額。通常明細ではその明細の税額、消費税行では null。"
+          },
+          "tax_code": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "税区分コード。"
+          },
+          "partner_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "取引先ID。"
+          },
+          "item_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "品目ID。消費税行では null。"
+          },
+          "section_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "部門ID。消費税行では、部門必須設定が「全科目」の事業所のときのみ集約キーとして設定される。"
+          },
+          "segment_tag_1_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "セグメント1タグID。消費税行では null。"
+          },
+          "segment_tag_2_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "セグメント2タグID。消費税行では null。"
+          },
+          "segment_tag_3_id": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "description": "セグメント3タグID。消費税行では null。"
+          },
+          "memo_tag_ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "メモタグIDのリスト。常に配列を返し、null は返さない。消費税行では空配列。"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "行の備考。逆仕訳の確認等で利用可能。消費税行では null。"
+          }
+        },
+        "description": "仕訳の借方または貸方の 1 行。通常明細 (detail) と消費税行 (tax) が同じスキーマで返る。",
+        "additionalProperties": false
+      },
+      "reportJournalsLineType": {
+        "type": "string",
+        "enum": [
+          "detail",
+          "tax"
+        ],
+        "description": "仕訳明細行の種別。detail は通常明細、tax は税抜経理事業所の消費税行。"
+      },
+      "reportJournalsApprovalStatus": {
+        "type": "string",
+        "enum": [
+          "none",
+          "in_progress",
+          "approved"
+        ],
+        "description": "仕訳の承認ステータス"
+      },
+      "reportJournalsDetailAmountBasis": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "tax_included"
+        ],
+        "description": "明細金額絞り込みの基準。auto は検索期間に重なる全会計年度が税込経理のときのみ税込基準、それ以外は税抜基準。"
+      },
+      "reportJournalsAdjustmentOption": {
+        "type": "string",
+        "enum": [
+          "only",
+          "without"
+        ],
+        "description": "決算整理仕訳による絞り込み"
+      },
+      "reportJournalsReceiptsOption": {
+        "type": "string",
+        "enum": [
+          "only",
+          "without"
+        ],
+        "description": "証憑 (レシート) 添付有無による絞り込み"
+      },
+      "reportJournalsCostAllocationOption": {
+        "type": "string",
+        "enum": [
+          "only",
+          "without"
+        ],
+        "description": "配賦仕訳による絞り込み。事業所で配賦機能が無効な場合に指定すると 400。"
+      },
+      "reportJournalsReverseJournalOption": {
+        "type": "string",
+        "enum": [
+          "reverse",
+          "not_reverse",
+          "base",
+          "not_base",
+          "both",
+          "neither"
+        ],
+        "description": "逆仕訳・元仕訳による絞り込み。事業所で逆仕訳機能が無効な場合に指定すると 400。"
+      },
+      "reportJournalsCommentStatusOption": {
+        "type": "string",
+        "enum": [
+          "posted",
+          "raised",
+          "resolved"
+        ],
+        "description": "コメントステータスによる絞り込み"
+      },
+      "reportJournalsOrderByOption": {
+        "type": "string",
+        "enum": [
+          "txn_date",
+          "created_at"
+        ],
+        "description": "並び順のキー。値はレスポンスのフィールド名と揃えている。"
+      },
+      "reportJournalsDirectionOption": {
+        "type": "string",
+        "enum": [
+          "asc",
+          "desc"
+        ],
+        "description": "並び順の方向"
       },
       "journalStatusResponse": {
         "type": "object",
@@ -42346,6 +43222,57 @@
                                   "example": 15025
                                 }
                               }
+                            },
+                            "tag_assignment": {
+                              "type": "string",
+                              "description": "明細行の部門・メモタグ・セグメントの付与先\n* `application` - 申請全体に付与（画面の「申請全体に合わせる」）\n* `line` - 明細に個別付与（画面の「個別付与」）",
+                              "enum": [
+                                "application",
+                                "line"
+                              ],
+                              "example": "line"
+                            },
+                            "section_id": {
+                              "type": "integer",
+                              "format": "int64",
+                              "minimum": 1,
+                              "description": "明細行の部門ID\ntag_assignmentがapplicationの場合は申請全体のsection_idと同じ値を返します。部門が設定されていない場合はnullになります。",
+                              "example": 101,
+                              "nullable": true
+                            },
+                            "tag_ids": {
+                              "type": "array",
+                              "description": "明細行のメモタグID\ntag_assignmentがapplicationの場合は申請全体のtag_idsと同じ値を返します。",
+                              "items": {
+                                "type": "integer",
+                                "format": "int64",
+                                "minimum": 1,
+                                "example": 202
+                              }
+                            },
+                            "segment_1_tag_id": {
+                              "type": "integer",
+                              "format": "int64",
+                              "minimum": 1,
+                              "description": "明細行のセグメント１タグID\ntag_assignmentがapplicationの場合は申請全体のsegment_1_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。",
+                              "example": 1,
+                              "nullable": true
+                            },
+                            "segment_2_tag_id": {
+                              "type": "integer",
+                              "format": "int64",
+                              "minimum": 1,
+                              "description": "明細行のセグメント２タグID\ntag_assignmentがapplicationの場合は申請全体のsegment_2_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。",
+                              "example": 2,
+                              "nullable": true
+                            },
+                            "segment_3_tag_id": {
+                              "type": "integer",
+                              "format": "int64",
+                              "minimum": 1,
+                              "description": "明細行のセグメント３タグID\ntag_assignmentがapplicationの場合は申請全体のsegment_3_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。",
+                              "example": 3,
+                              "nullable": true
                             }
                           }
                         }
@@ -42756,6 +43683,57 @@
                                 }
                               }
                             },
+                            "nullable": true
+                          },
+                          "tag_assignment": {
+                            "type": "string",
+                            "description": "明細行の部門・メモタグ・セグメントの付与先\n* `application` - 申請全体に付与（画面の「申請全体に合わせる」）\n* `line` - 明細に個別付与（画面の「個別付与」）",
+                            "enum": [
+                              "application",
+                              "line"
+                            ],
+                            "example": "line"
+                          },
+                          "section_id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1,
+                            "description": "明細行の部門ID\ntag_assignmentがapplicationの場合は申請全体のsection_idと同じ値を返します。部門が設定されていない場合はnullになります。",
+                            "example": 101,
+                            "nullable": true
+                          },
+                          "tag_ids": {
+                            "type": "array",
+                            "description": "明細行のメモタグID\ntag_assignmentがapplicationの場合は申請全体のtag_idsと同じ値を返します。",
+                            "items": {
+                              "type": "integer",
+                              "format": "int64",
+                              "minimum": 1,
+                              "example": 202
+                            }
+                          },
+                          "segment_1_tag_id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1,
+                            "description": "明細行のセグメント１タグID\ntag_assignmentがapplicationの場合は申請全体のsegment_1_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。",
+                            "example": 1,
+                            "nullable": true
+                          },
+                          "segment_2_tag_id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1,
+                            "description": "明細行のセグメント２タグID\ntag_assignmentがapplicationの場合は申請全体のsegment_2_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。",
+                            "example": 2,
+                            "nullable": true
+                          },
+                          "segment_3_tag_id": {
+                            "type": "integer",
+                            "format": "int64",
+                            "minimum": 1,
+                            "description": "明細行のセグメント３タグID\ntag_assignmentがapplicationの場合は申請全体のsegment_3_tag_idと同じ値を返します。タグが設定されていない場合はnullになります。",
+                            "example": 3,
                             "nullable": true
                           }
                         }
