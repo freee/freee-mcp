@@ -167,10 +167,14 @@ POST /api/1/expense_applications と同じ
 - description: string - 備考 (10000文字以内) 例: `◯◯連携先ID: cx12345`
 - section_id: integer(int64) - 部門ID
 
-  未指定の場合は部門なしで更新されます。 例: `101` (最小: 1)
+  未指定の場合は部門なしで更新されます。
+
+  明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。 例: `101` (最小: 1)
 - tag_ids: array[integer] - メモタグID
 
   未指定の場合はメモタグなしで更新されます。
+
+  明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。
 - purchase_lines: array[object] - 経費申請の申請行一覧（配列）
   配列の要素:
     - id: integer(int64) - 経費申請の申請行ID: 既存申請行を更新する場合に指定します。IDを指定しない申請行は、新規行として扱われ追加されます。また、purchase_linesに含まれない既存の申請行は削除されます。更新後も残したい行は、必ず経費申請の申請行IDを指定してpurchase_linesに含めてください。 例: `1` (最小: 1)
@@ -245,6 +249,8 @@ POST /api/1/expense_applications と同じ
 
   未指定の場合はセグメント１タグなしで更新されます。
 
+  明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。
+
   セグメントタグ一覧の取得APIを利用して取得してください。
 
   セグメント（分析用タグ）の設定 例: `1` (最小: 1)
@@ -252,12 +258,16 @@ POST /api/1/expense_applications と同じ
 
   未指定の場合はセグメント２タグなしで更新されます。
 
+  明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。
+
   セグメントタグ一覧の取得APIを利用して取得してください。
 
   セグメント（分析用タグ）の設定 例: `2` (最小: 1)
 - segment_3_tag_id: integer(int64) - セグメント３タグID
 
   未指定の場合はセグメント３タグなしで更新されます。
+
+  明細行のtag_assignmentがapplication（申請全体に付与）の明細行にも同じ値が適用されます。
 
   セグメントタグ一覧の取得APIを利用して取得してください。
 
