@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.js|*.ts|*.jsx|*.tsx) bun run biome format --write \"$f\";; esac"
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in *.js|*.ts|*.jsx|*.tsx) cd \"$CLAUDE_PROJECT_DIR\" && bun run biome format --write --no-errors-on-unmatched \"$f\";; esac"
           }
         ]
       }
