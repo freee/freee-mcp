@@ -574,8 +574,8 @@ export function generateClientModeTool(server: McpServer): void {
     {
       title: 'freee API GET 一括リクエスト',
       description:
-        `freee API GET を複数まとめて実行 (最大${BULK_GET_MAX_REQUESTS}件、部分成功あり)。` +
-        `ID一覧から詳細をまとめて取得する場合などに使う。バイナリ(PDF等)は対象外 - ${SERVICE_HINT} (${SKILL_HINT})`,
+        `freee API GET 一括: データをまとめて取得 (最大${BULK_GET_MAX_REQUESTS}件、部分成功あり)。` +
+        `ID一覧から詳細をまとめて取得する場合などに使う。バイナリ(PDF等)は対象外 (${SKILL_HINT})`,
       inputSchema: {
         requests: z
           .array(
@@ -622,8 +622,8 @@ export function generateClientModeTool(server: McpServer): void {
     {
       title: 'freee API 書き込み一括リクエスト',
       description:
-        `freee API POST/PUT/PATCH/DELETE を複数まとめて実行 (最大${BULK_WRITE_MAX_REQUESTS}件)。` +
-        `既定は直列実行・失敗時に残りを中止 - ${SERVICE_HINT} (${SKILL_HINT})`,
+        `freee API POST/PUT/PATCH/DELETE 一括: データをまとめて作成・更新・削除 (最大${BULK_WRITE_MAX_REQUESTS}件)。` +
+        `既定は直列実行・失敗時に残りを中止 (${SKILL_HINT})`,
       inputSchema: {
         requests: z
           .array(
