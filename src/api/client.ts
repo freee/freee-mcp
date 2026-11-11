@@ -126,6 +126,12 @@ async function readBinaryResponse(response: Response, maxBytes?: number): Promis
 }
 
 /**
+ * freee API が 429 を返したときに投げるエラー。bulk ツールが残りのリクエストを
+ * 打ち切る判定に使う。name は付け替えず、ログ上の error chain は従来どおり `Error`。
+ */
+export class RateLimitError extends Error {}
+
+/**
  * Build a Japanese retry guidance message from a Retry-After header value.
  * RFC 7231 §7.1.3 allows delta-seconds (integer) or HTTP-date forms; both are
  * normalized to a "N秒後に再試行してください。" message. Falls back to a
@@ -370,7 +376,7 @@ export async function makeApiRequest(
     const retryAfter = response.headers.get('Retry-After');
     const errorInfo = await formatResponseErrorInfo(response);
     const retryMsg = formatRetryAfterMessage(retryAfter);
-    const rateLimitError = new Error(
+    const rateLimitError = new RateLimitError(
       `レートリミットに達しました (429): ${errorInfo}\n事業所ID: ${companyId}\n${retryMsg}`,
     );
     recorder?.recordApiCall({

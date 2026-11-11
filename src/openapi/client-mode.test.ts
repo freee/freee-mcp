@@ -57,6 +57,7 @@ vi.mock('./schema-loader.js', () => ({
 vi.mock('../api/client.js', () => ({
   makeApiRequest: vi.fn(() => Promise.resolve({ ok: true })),
   isBinaryFileResponse: vi.fn(() => false),
+  RateLimitError: class RateLimitError extends Error {},
 }));
 
 vi.mock('../storage/context.js', () => ({
@@ -649,5 +650,169 @@ describe('coercibleRecord', () => {
     expect(inputSchema.required).toContain('body');
 
     await client.close();
+  });
+});
+
+describe('bulk tools', () => {
+  type BulkResponse = {
+    isError?: boolean;
+    content: Array<{ type: string; text: string }>;
+  };
+  type BulkBody = {
+    summary: { total: number; succeeded: number; failed: number; skipped: number };
+    results: Array<{ index: number; status: string; data?: unknown; error?: string }>;
+  };
+  const parse = (res: BulkResponse): BulkBody => JSON.parse(res.content[0].text) as BulkBody;
+
+  async function getHandler(name: string): Promise<CapturedHandler> {
+    const { generateClientModeTool } = await import('./client-mode.js');
+    generateClientModeTool(stubServer);
+    const handler = capturedHandlers.get(name);
+    if (!handler) throw new Error(`${name} not registered`);
+    return handler;
+  }
+
+  it('freee_api_bulk_get runs every request as GET and returns results in input order', async () => {
+    const clientModule = await import('../api/client.js');
+    const echoPath = async (_m: string, path: string) => ({ path });
+    vi.mocked(clientModule.makeApiRequest)
+      .mockImplementationOnce(echoPath)
+      .mockImplementationOnce(echoPath)
+      .mockImplementationOnce(echoPath);
+
+    const handler = await getHandler('freee_api_bulk_get');
+    const res = (await handler({
+      requests: [
+        { service: 'accounting', path: '/api/1/deals/1' },
+        { service: 'accounting', path: '/api/1/deals/2', query: { foo: 'bar' } },
+        { service: 'accounting', path: '/api/1/deals/3' },
+      ],
+    })) as BulkResponse;
+
+    expect(res.isError).toBeUndefined();
+    const body = parse(res);
+    expect(body.summary).toEqual({ total: 3, succeeded: 3, failed: 0, skipped: 0 });
+    expect(body.results.map((r) => r.data)).toEqual([
+      { path: '/api/1/deals/1' },
+      { path: '/api/1/deals/2' },
+      { path: '/api/1/deals/3' },
+    ]);
+    for (const call of vi.mocked(clientModule.makeApiRequest).mock.calls) {
+      expect(call[0]).toBe('GET');
+    }
+  });
+
+  it('freee_api_bulk_get keeps going after a failure (partial success, no isError)', async () => {
+    const clientModule = await import('../api/client.js');
+    vi.mocked(clientModule.makeApiRequest)
+      .mockResolvedValueOnce({ ok: 1 })
+      .mockRejectedValueOnce(new Error('API request failed: 404'))
+      .mockResolvedValueOnce({ ok: 3 });
+
+    const handler = await getHandler('freee_api_bulk_get');
+    const res = (await handler({
+      requests: [
+        { service: 'accounting', path: '/api/1/deals/1' },
+        { service: 'accounting', path: '/api/1/deals/2' },
+        { service: 'accounting', path: '/api/1/deals/3' },
+      ],
+      concurrency: 1,
+    })) as BulkResponse;
+
+    expect(res.isError).toBeUndefined();
+    const body = parse(res);
+    expect(body.summary).toEqual({ total: 3, succeeded: 2, failed: 1, skipped: 0 });
+    expect(body.results[1]).toMatchObject({ status: 'error' });
+    expect(body.results[1].error).toMatch(/APIリクエストエラー/);
+  });
+
+  it('stops dispatching remaining requests after a 429', async () => {
+    const clientModule = await import('../api/client.js');
+    vi.mocked(clientModule.makeApiRequest)
+      .mockResolvedValueOnce({ ok: 1 })
+      .mockRejectedValueOnce(new clientModule.RateLimitError('レートリミットに達しました (429)'));
+
+    const handler = await getHandler('freee_api_bulk_get');
+    const res = (await handler({
+      requests: [
+        { service: 'accounting', path: '/api/1/deals/1' },
+        { service: 'accounting', path: '/api/1/deals/2' },
+        { service: 'accounting', path: '/api/1/deals/3' },
+        { service: 'accounting', path: '/api/1/deals/4' },
+      ],
+      concurrency: 1,
+    })) as BulkResponse;
+
+    const body = parse(res);
+    expect(body.summary).toEqual({ total: 4, succeeded: 1, failed: 1, skipped: 2 });
+    expect(clientModule.makeApiRequest).toHaveBeenCalledTimes(2);
+  });
+
+  it('freee_api_bulk_write stops on the first error by default and runs serially', async () => {
+    const clientModule = await import('../api/client.js');
+    vi.mocked(clientModule.makeApiRequest)
+      .mockResolvedValueOnce({ ok: 1 })
+      .mockRejectedValueOnce(new Error('API request failed: 400'));
+
+    const handler = await getHandler('freee_api_bulk_write');
+    const res = (await handler({
+      requests: [
+        { method: 'POST', service: 'accounting', path: '/api/1/deals', body: { a: 1 } },
+        { method: 'PUT', service: 'accounting', path: '/api/1/deals/2', body: { a: 2 } },
+        { method: 'DELETE', service: 'accounting', path: '/api/1/deals/3', body: { a: 3 } },
+      ],
+    })) as BulkResponse;
+
+    const body = parse(res);
+    expect(body.summary).toEqual({ total: 3, succeeded: 1, failed: 1, skipped: 1 });
+    expect(body.results[2]).toMatchObject({ status: 'skipped' });
+    const calls = vi.mocked(clientModule.makeApiRequest).mock.calls;
+    expect(calls.map((c) => c[0])).toEqual(['POST', 'PUT']);
+  });
+
+  it('freee_api_bulk_write never sends a body with DELETE', async () => {
+    const clientModule = await import('../api/client.js');
+    const handler = await getHandler('freee_api_bulk_write');
+    await handler({
+      requests: [
+        { method: 'DELETE', service: 'accounting', path: '/api/1/deals/3', body: { a: 3 } },
+      ],
+    });
+    expect(vi.mocked(clientModule.makeApiRequest).mock.calls[0][3]).toBeUndefined();
+  });
+
+  it('returns isError: true when every request fails', async () => {
+    const clientModule = await import('../api/client.js');
+    vi.mocked(clientModule.makeApiRequest)
+      .mockRejectedValueOnce(new Error('API request failed: 500'))
+      .mockRejectedValueOnce(new Error('API request failed: 500'));
+
+    const handler = await getHandler('freee_api_bulk_get');
+    const res = (await handler({
+      requests: [
+        { service: 'accounting', path: '/api/1/deals/1' },
+        { service: 'accounting', path: '/api/1/deals/2' },
+      ],
+    })) as BulkResponse;
+
+    expect(res.isError).toBe(true);
+    expect(parse(res).summary.failed).toBe(2);
+  });
+
+  it('rejects binary responses with guidance to use the single-request tool', async () => {
+    const clientModule = await import('../api/client.js');
+    vi.mocked(clientModule.isBinaryFileResponse).mockReturnValueOnce(true);
+    vi.mocked(clientModule.makeApiRequest).mockResolvedValueOnce({
+      data: Buffer.from('%PDF'),
+      mimeType: 'application/pdf',
+      size: 4,
+    } as never);
+
+    const handler = await getHandler('freee_api_bulk_get');
+    const res = (await handler({
+      requests: [{ service: 'accounting', path: '/api/1/receipts/1/download' }],
+    })) as BulkResponse;
+
+    expect(parse(res).results[0].error).toMatch(/freee_api_get を個別に使用/);
   });
 });

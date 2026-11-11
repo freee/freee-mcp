@@ -191,14 +191,16 @@ AI Agent との会話中に freee API の操作を依頼すると、これらの
 
 HTTPメソッドごとのシンプルなツール構成:
 
-| ツール                 | 説明               | 例                 |
-| ---------------------- | ------------------ | ------------------ |
-| `freee_api_get`        | データ取得         | `/api/1/deals`     |
-| `freee_api_post`       | 新規作成           | `/api/1/deals`     |
-| `freee_api_put`        | 更新               | `/api/1/deals/123` |
-| `freee_api_delete`     | 削除               | `/api/1/deals/123` |
-| `freee_api_patch`      | 部分更新           | `/api/1/deals/123` |
-| `freee_api_list_paths` | エンドポイント一覧 | -                  |
+| ツール                 | 説明               | 例                           |
+| ---------------------- | ------------------ | ---------------------------- |
+| `freee_api_get`        | データ取得         | `/api/1/deals`               |
+| `freee_api_post`       | 新規作成           | `/api/1/deals`               |
+| `freee_api_put`        | 更新               | `/api/1/deals/123`           |
+| `freee_api_delete`     | 削除               | `/api/1/deals/123`           |
+| `freee_api_patch`      | 部分更新           | `/api/1/deals/123`           |
+| `freee_api_bulk_get`   | GET の一括実行     | `/api/1/deals/123` を複数    |
+| `freee_api_bulk_write` | 書き込みの一括実行 | POST/PUT/PATCH/DELETE を複数 |
+| `freee_api_list_paths` | エンドポイント一覧 | -                            |
 
 パスは OpenAPI スキーマに対して自動検証されます。
 
