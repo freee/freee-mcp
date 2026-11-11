@@ -1,11 +1,16 @@
+import { existsSync, readdirSync, readFileSync, statSync } from "fs";
+import { join } from "path";
 import { describe, expect, it } from "vitest";
 import {
   buildEndpointsMarkdown,
   countOperations,
   findServicesMissingFromIndex,
+  formatIndexLocation,
+  layoutReferences,
   replaceOperationCount,
   type OpenAPISchema,
   type PathData,
+  type RenderedReference,
 } from "./generate-references";
 
 /**
@@ -822,5 +827,101 @@ describe("replaceOperationCount", () => {
 describe("API_CONFIGS と SERVICE_LABELS の整合", () => {
   it("索引対象の service がすべて SERVICE_LABELS に存在する", () => {
     expect(findServicesMissingFromIndex()).toEqual([]);
+  });
+});
+
+describe("layoutReferences", () => {
+  const labels = { pm: { label: "freee工数管理" }, hr: { label: "freee人事労務" } };
+
+  function ref(prefix: string, name: string, tagName: string, bodyLines: number): RenderedReference {
+    const body = Array.from({ length: bodyLines }, (_, i) => `line ${i + 1}`).join("\n");
+    return {
+      prefix,
+      fileName: `${prefix}-${name}.md`,
+      tagName,
+      summary: tagName,
+      isMcpOnly: false,
+      markdown: `# ${tagName}\n\n${body}\n`,
+    };
+  }
+
+  it("しきい値未満のタグを service ごとに束ね、行範囲が各タグの節を指す", () => {
+    const refs = [ref("pm", "teams", "Teams", 2), ref("pm", "users", "Users", 3), ref("pm", "projects", "Projects", 50)];
+    const { files, entries } = layoutReferences(refs, labels, 200);
+
+    expect(files.map((f) => f.fileName).sort()).toEqual(["pm-misc.md", "pm-projects.md"]);
+
+    const misc = files.find((f) => f.fileName === "pm-misc.md")?.content.split("\n") ?? [];
+    for (const entry of entries.filter((e) => e.lines)) {
+      const { start, end } = entry.lines ?? { start: 0, end: 0 };
+      const section = misc.slice(start - 1, end);
+      expect(section[0]).toBe(`# ${entry.tagName}`);
+      expect(section.at(-1)).toMatch(/^line \d+$/);
+      // 範囲の直後は空行か、次のタグの見出し前の区切り
+      expect(misc[end] ?? "").toBe("");
+    }
+  });
+
+  it("索引はタグの並び順を保ち、束ねたタグにだけ行範囲を付ける", () => {
+    const refs = [ref("pm", "users", "Users", 1), ref("pm", "projects", "Projects", 50), ref("pm", "teams", "Teams", 1)];
+    const { entries } = layoutReferences(refs, labels, 200);
+
+    expect(entries.map((e) => e.tagName)).toEqual(["Projects", "Teams", "Users"]);
+    expect(entries.map(formatIndexLocation)).toEqual(["pm-projects.md", "pm-misc.md L3-5", "pm-misc.md L7-9"]);
+  });
+
+  it("束ねる対象が1つしかない service は単独ファイルのままにする", () => {
+    const refs = [ref("hr", "groups", "Groups", 1), ref("hr", "employees", "Employees", 50)];
+    const { files, entries } = layoutReferences(refs, labels, 200);
+
+    expect(files.map((f) => f.fileName).sort()).toEqual(["hr-employees.md", "hr-groups.md"]);
+    expect(entries.every((e) => e.lines === undefined)).toBe(true);
+  });
+});
+
+const SKILL_DIR = join(__dirname, "..", "skills", "freee-api-skill");
+
+/**
+ * skill ディレクトリに置けるファイル数の上限。配布時に VERSION.md が1つ足されるので
+ * リポジトリ上はこれより1つ少なくなければならない。
+ */
+const SKILL_FILE_LIMIT = 200;
+
+function countFiles(dir: string): number {
+  return readdirSync(dir).reduce((sum, name) => {
+    const path = join(dir, name);
+    return sum + (statSync(path).isDirectory() ? countFiles(path) : 1);
+  }, 0);
+}
+
+describe("skill ディレクトリ", () => {
+  it("配布時の VERSION.md を含めてもファイル数が上限以内に収まる", () => {
+    expect(countFiles(SKILL_DIR) + 1).toBeLessThanOrEqual(SKILL_FILE_LIMIT);
+  });
+
+  it("レシピ・SKILL.md から参照している references/ のファイルと見出しが存在する", () => {
+    const sources = [
+      join(SKILL_DIR, "SKILL.md"),
+      ...readdirSync(join(SKILL_DIR, "recipes")).map((name) => join(SKILL_DIR, "recipes", name)),
+    ];
+    const broken: string[] = [];
+
+    for (const source of sources) {
+      const text = readFileSync(source, "utf-8");
+      // `references/foo.md` と、束ねたファイルの `references/foo-misc.md` の `# Tag`
+      for (const m of text.matchAll(/(?<![-\w])`references\/([\w-]+\.md)`(?: の `# ([^`]+)`)?/g)) {
+        const [, fileName, heading] = m;
+        const path = join(SKILL_DIR, "references", fileName);
+        if (!existsSync(path)) {
+          broken.push(`${source}: references/${fileName}`);
+          continue;
+        }
+        if (heading && !readFileSync(path, "utf-8").split("\n").includes(`# ${heading}`)) {
+          broken.push(`${source}: references/${fileName} # ${heading}`);
+        }
+      }
+    }
+
+    expect(broken).toEqual([]);
   });
 });

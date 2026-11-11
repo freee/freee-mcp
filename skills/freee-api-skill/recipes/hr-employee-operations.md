@@ -65,5 +65,5 @@ freee_api_get {
 ## リファレンス
 
 - `references/hr-employees.md` - 従業員
-- `references/hr-payroll-statements.md` - 給与明細
-- `references/hr-bonus-statements.md` - 賞与明細
+- `references/hr-misc.md` の `# 給与明細` - 給与明細
+- `references/hr-misc.md` の `# 賞与明細` - 賞与明細

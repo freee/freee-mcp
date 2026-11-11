@@ -71,7 +71,7 @@ PM `GET /workloads` で登録した工数を取得し、日・プロジェクト
 
 ## リファレンス
 
-- `references/pm-workloads.md` - 工数実績
-- `references/pm-people.md` - 従業員（payroll_employee_id）
-- `references/pm-users.md` - ログインユーザー
+- `references/pm-misc.md` の `# Workloads` - 工数実績
+- `references/pm-misc.md` の `# People` - 従業員（payroll_employee_id）
+- `references/pm-misc.md` の `# Users` - ログインユーザー
 - `references/hr-attendances.md` - 勤怠

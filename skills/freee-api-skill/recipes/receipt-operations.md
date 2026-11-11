@@ -71,4 +71,4 @@ freee_api_put {
 
 ## リファレンス
 
-パス一覧・パラメータ・レスポンス、アップロード制限の詳細は `references/accounting-receipts.md` を参照。
+パス一覧・パラメータ・レスポンス、アップロード制限の詳細は `references/accounting-misc.md` の `# Receipts` を参照。

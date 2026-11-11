@@ -4,7 +4,7 @@ freee会計APIを使った支払依頼の登録・検索ガイド。
 
 ## 作成前の注意
 
-支払依頼の作成に必要な勘定科目ID（`account_item_id`）、税区分コード（`tax_code`）、申請経路ID（`approval_flow_route_id`）は事業所ごとに異なる。推測せず、事前にAPIで取得すること（勘定科目・税区分の取得方法は `recipes/deal-operations.md` の「取引作成の前準備」、申請経路は `references/accounting-approval-flow-routes.md` を参照）。
+支払依頼の作成に必要な勘定科目ID（`account_item_id`）、税区分コード（`tax_code`）、申請経路ID（`approval_flow_route_id`）は事業所ごとに異なる。推測せず、事前にAPIで取得すること（勘定科目・税区分の取得方法は `recipes/deal-operations.md` の「取引作成の前準備」、申請経路は `references/accounting-misc.md` の `# Approval flow routes` を参照）。
 
 ## 使用例
 

@@ -68,5 +68,5 @@ freee_api_put {
 ## リファレンス
 
 - `references/hr-attendances.md` - 勤怠（勤怠記録・勤怠サマリ）
-- `references/hr-time-clocks.md` - 打刻
-- `references/hr-login-user.md` - ログインユーザー
+- `references/hr-misc.md` の `# タイムレコーダー(打刻)` - 打刻
+- `references/hr-misc.md` の `# ログインユーザー` - ログインユーザー
