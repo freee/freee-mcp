@@ -19,9 +19,9 @@ import {
 
 const SUPPORTED_IMAGE_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
 
-const SERVICE_HINT =
-  'service: accounting/hr/invoice/pm/sm/it_management/fixed_asset_management/partner_management/survey/launch/employee_evaluation/tax_return';
-const SKILL_HINT = '詳細ガイドはfreee-api-skill skillを参照';
+// 各メソッドツールの description 末尾に付ける共通ヒント。service の値一覧は
+// inputSchema の enum と serviceSchema の describe に任せ、ここでは列挙しない。
+const TOOL_HINT = 'パス不明時は freee_api_list_paths (詳細ガイドはfreee-api-skill skillを参照)';
 
 // mcp-only（freee-mcp リモート版限定）エンドポイントを stdio（ローカル）モードで
 // 呼んだときに返すメッセージ。文言は skill のバナー・reference と揃える。
@@ -46,7 +46,10 @@ const serviceSchema = z
     'employee_evaluation',
     'tax_return',
   ])
-  .describe('対象のfreeeサービス');
+  // 値名から製品名が自明でないものだけ対応を書く（トークン節約）
+  .describe(
+    'pm=工数管理, sm=販売, launch=開業。survey/launch/employee_evaluation はリモート版限定',
+  );
 
 const UTF8_BOM = String.fromCharCode(0xfeff);
 const XML_UTF8_ERROR_MESSAGE = 'XMLレスポンスをUTF-8として読み取れませんでした。';
@@ -305,7 +308,7 @@ export function generateClientModeTool(server: McpServer): void {
     'freee_api_get',
     {
       title: 'freee API GET リクエスト',
-      description: `freee API GET - ${SERVICE_HINT} (${SKILL_HINT})`,
+      description: `freee API でデータを取得 (GET)。${TOOL_HINT}`,
       inputSchema: {
         service: serviceSchema,
         path: z.string().describe('APIパス (例: /api/1/deals)'),
@@ -322,7 +325,7 @@ export function generateClientModeTool(server: McpServer): void {
     'freee_api_post',
     {
       title: 'freee API POST リクエスト',
-      description: `freee API POST - ${SERVICE_HINT} (${SKILL_HINT})`,
+      description: `freee API でデータを新規作成 (POST)。${TOOL_HINT}`,
       inputSchema: {
         service: serviceSchema,
         path: z.string().describe('APIパス (例: /api/1/deals)'),
@@ -340,7 +343,7 @@ export function generateClientModeTool(server: McpServer): void {
     'freee_api_put',
     {
       title: 'freee API PUT リクエスト',
-      description: `freee API PUT - ${SERVICE_HINT} (${SKILL_HINT})`,
+      description: `freee API でデータを更新 (PUT)。${TOOL_HINT}`,
       inputSchema: {
         service: serviceSchema,
         path: z.string().describe('APIパス (例: /api/1/deals/123)'),
@@ -358,7 +361,7 @@ export function generateClientModeTool(server: McpServer): void {
     'freee_api_delete',
     {
       title: 'freee API DELETE リクエスト',
-      description: `freee API DELETE - ${SERVICE_HINT} (${SKILL_HINT})`,
+      description: `freee API でデータを削除 (DELETE)。${TOOL_HINT}`,
       inputSchema: {
         service: serviceSchema,
         path: z.string().describe('APIパス (例: /api/1/deals/123)'),
@@ -375,7 +378,7 @@ export function generateClientModeTool(server: McpServer): void {
     'freee_api_patch',
     {
       title: 'freee API PATCH リクエスト',
-      description: `freee API PATCH - ${SERVICE_HINT} (${SKILL_HINT})`,
+      description: `freee API でデータを部分更新 (PATCH)。${TOOL_HINT}`,
       inputSchema: {
         service: serviceSchema,
         path: z.string().describe('APIパス (例: /api/1/deals/123)'),
