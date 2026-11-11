@@ -279,7 +279,7 @@ export function _resetApiConfigs(): void {
   }
   _loadedSources.clear();
   _pathRegexCache.clear();
-  _cachedPathList = null;
+  _cachedPathList = {};
   _mcpOnlyPaths = null;
 }
 
@@ -440,15 +440,23 @@ export function validatePathForService(
   };
 }
 
-// Cached result of listAllAvailablePaths (schemas don't change at runtime)
-let _cachedPathList: string | null = null;
+// Cached results of listAllAvailablePaths (schemas don't change at runtime).
+// Keyed by whether mcp-only paths are excluded.
+let _cachedPathList: { all?: string; excludeMcpOnly?: string } = {};
+
+export interface ListAllAvailablePathsOptions {
+  /** mcp-only（freee-mcp リモート版限定）のパスを一覧から除外する。stdio モード用。 */
+  excludeMcpOnly?: boolean;
+}
 
 /**
  * Lists all available paths across all API schemas, grouped by API type
  */
-export function listAllAvailablePaths(): string {
-  if (_cachedPathList !== null) {
-    return _cachedPathList;
+export function listAllAvailablePaths(options: ListAllAvailablePathsOptions = {}): string {
+  const cacheKey = options.excludeMcpOnly ? 'excludeMcpOnly' : 'all';
+  const cached = _cachedPathList[cacheKey];
+  if (cached !== undefined) {
+    return cached;
   }
 
   const sections: string[] = [];
@@ -458,6 +466,10 @@ export function listAllAvailablePaths(): string {
     const pathList: string[] = [];
 
     Object.entries(paths).forEach(([path, pathItem]) => {
+      if (options.excludeMcpOnly && isMcpOnlyPath(path)) {
+        return;
+      }
+
       const methods = Object.keys(pathItem as MinimalPathItem)
         .filter((m) => ['get', 'post', 'put', 'delete', 'patch'].includes(m))
         .map((m) => m.toUpperCase());
@@ -472,6 +484,7 @@ export function listAllAvailablePaths(): string {
     }
   }
 
-  _cachedPathList = sections.join('\n');
-  return _cachedPathList;
+  const result = sections.join('\n');
+  _cachedPathList[cacheKey] = result;
+  return result;
 }

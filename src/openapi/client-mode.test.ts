@@ -234,6 +234,45 @@ describe('generateClientModeTool - privacy', () => {
     }
   });
 
+  it('excludes mcp-only paths from freee_api_list_paths in stdio mode', async () => {
+    const schemaLoader = await import('./schema-loader.js');
+
+    const { generateClientModeTool } = await import('./client-mode.js');
+    generateClientModeTool(stubServer);
+    const listHandler = capturedHandlers.get('freee_api_list_paths');
+    expect(listHandler).toBeDefined();
+
+    // transport は既定で stdio（src/server/user-agent.ts）
+    const result = (await listHandler?.({}, undefined)) as {
+      content: Array<{ type: string; text: string }>;
+    };
+
+    expect(schemaLoader.listAllAvailablePaths).toHaveBeenCalledWith({ excludeMcpOnly: true });
+    expect(result.content[0].text).toMatch(/リモート版）限定のエンドポイントは/);
+  });
+
+  it('includes mcp-only paths in freee_api_list_paths in remote mode', async () => {
+    const schemaLoader = await import('./schema-loader.js');
+    const { initUserAgentTransportMode } = await import('../server/user-agent.js');
+
+    const { generateClientModeTool } = await import('./client-mode.js');
+    generateClientModeTool(stubServer);
+    const listHandler = capturedHandlers.get('freee_api_list_paths');
+    expect(listHandler).toBeDefined();
+
+    initUserAgentTransportMode('remote');
+    try {
+      const result = (await listHandler?.({}, undefined)) as {
+        content: Array<{ type: string; text: string }>;
+      };
+
+      expect(schemaLoader.listAllAvailablePaths).toHaveBeenCalledWith({ excludeMcpOnly: false });
+      expect(result.content[0].text).not.toMatch(/リモート版）限定のエンドポイントは/);
+    } finally {
+      initUserAgentTransportMode('stdio');
+    }
+  });
+
   it('returns isError: true when upstream API responds with 5xx', async () => {
     const clientModule = await import('../api/client.js');
     vi.mocked(clientModule.makeApiRequest).mockRejectedValueOnce(

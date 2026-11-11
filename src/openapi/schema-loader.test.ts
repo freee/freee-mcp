@@ -360,6 +360,36 @@ describe('schema-loader', () => {
 
       expect(paths).toContain('/api/1/deals');
     });
+
+    it('should include mcp-only paths by default', () => {
+      const paths = listAllAvailablePaths();
+
+      expect(paths).toContain('/hub/survey/base_surveys');
+      expect(paths).toContain('/hub/launch/kaigyo_application');
+      expect(paths).toContain('/hub/employee_evaluation/evaluation_results');
+    });
+
+    it('should exclude mcp-only paths and their now-empty sections when excludeMcpOnly is set', () => {
+      const paths = listAllAvailablePaths({ excludeMcpOnly: true });
+
+      expect(paths).not.toContain('/hub/survey/');
+      expect(paths).not.toContain('/hub/launch/');
+      expect(paths).not.toContain('/hub/employee_evaluation/');
+      expect(paths).not.toContain('freeeサーベイ API');
+      // mcp-only 以外は残る
+      expect(paths).toContain('/api/1/deals');
+      expect(paths).toContain('/hub/it_management/');
+      expect(paths).toContain('/hub/tax_return/');
+    });
+
+    it('should cache each variant independently', () => {
+      const excluded = listAllAvailablePaths({ excludeMcpOnly: true });
+      const all = listAllAvailablePaths();
+
+      expect(all).not.toBe(excluded);
+      expect(all).toContain('/hub/survey/base_surveys');
+      expect(listAllAvailablePaths({ excludeMcpOnly: true })).toBe(excluded);
+    });
   });
 
   describe('isMcpOnlyPath', () => {

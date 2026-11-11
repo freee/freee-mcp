@@ -399,14 +399,19 @@ export function generateClientModeTool(server: McpServer): void {
     async () => {
       const recorder = getCurrentRecorder();
       const toolStart = Date.now();
-      const pathsList = listAllAvailablePaths();
+      // stdio（ローカル）モードでは mcp-only エンドポイントは呼び出せないため一覧から外す
+      const isStdio = getTransportMode() === 'stdio';
+      const pathsList = listAllAvailablePaths({ excludeMcpOnly: isStdio });
       recorder?.recordToolCall({
         tool: 'freee_api_list_paths',
         status: 'success',
         duration_ms: Date.now() - toolStart,
       });
+      const stdioNote = isStdio
+        ? '\n\n※ freee-mcp（リモート版）限定のエンドポイントは、ローカルモード（transport: stdio）では利用できないため省略しています。'
+        : '';
       return createTextResponse(
-        `# freee API 利用可能なエンドポイント一覧${pathsList}\n\n` +
+        `# freee API 利用可能なエンドポイント一覧${pathsList}${stdioNote}\n\n` +
           `使用例:\n` +
           `freee_api_get { "service": "accounting", "path": "/api/1/deals", "query": { "limit": 10 } }\n` +
           `freee_api_get { "service": "accounting", "path": "/api/1/deals", "query": { "type": "income", "limit": 5 } }\n` +
