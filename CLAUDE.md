@@ -153,6 +153,7 @@ Common issues:
 - `skills/freee-api-skill/references/INDEX.md` は `scripts/generate-references.ts` が自動生成する（手編集しないこと）。新しいドメインを追加する場合は同スクリプトの `SERVICE_LABELS` にも prefix を足す
 - skill ディレクトリはファイル数の上限が 200（配布時に `VERSION.md` が 1 つ加わる）。このため references は `BUNDLE_THRESHOLD_BYTES` 未満のタグを `<service>-misc.md` に束ね、INDEX.md に行範囲を載せている。スキーマ同期でタグの束ね先が変わると、レシピのリンクが切れることがある。その場合は `generate-references.test.ts` が検出するので、リンクを直す
 - `README.md` の「対応操作数」は `<!-- API-STATS-TOTAL-START -->` ～ `<!-- API-STATS-TOTAL-END -->` の間を同スクリプトが `API_CONFIGS` の全スキーマから再計算して埋める（手編集しないこと）。スキーマを更新したら `bun run fetch:schemas` → `bun run generate:references` で自動的に追従する
+- `README.md` の「Agent Skills の内容」表のファイル数は `<!-- SKILL-FILE-COUNTS-START -->` ～ `<!-- SKILL-FILE-COUNTS-END -->` の間を同スクリプトが生成後のファイルから数えて埋める（手編集しないこと）。行は 1 列目の名前（`SERVICE_LABELS` のラベルから `freee` を外したもの、およびサイン）で特定する。新しいドメインを追加したら表に行を足す（足し忘れは `generate-references.test.ts` が検出する）
 - `SKILL.md` は実行時に毎回読まれるので、セットアップ手順（`SETUP.md`）や配色定義（`COLORS.md`）のように条件が揃ったときだけ必要な情報は別ファイルに置き、`SKILL.md` からは参照条件だけ書く
 
 ## Skill レシピの書き方
