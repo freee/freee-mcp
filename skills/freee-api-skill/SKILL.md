@@ -146,6 +146,7 @@ serviceパラメータ (必須):
 - `recipes/survey-operations.md` - サーベイ（サーベイ企画・実施回の取得）
 - `recipes/launch-operations.md` - 開業（開業申請用データの参照・更新）
 - `recipes/fixed-asset-management-operations.md` - 固定資産管理（安全な更新・削除判断・Web画面への引き継ぎ）
+- `recipes/receivable-management-operations.md` - 債権管理（消込・取引反映の確認・取引反映の取消と解除の判断）
 - `recipes/corporate-tax-return-operations.md` - 申告（法人税申告・帳票の参照）
 - `recipes/report-operations.md` - 試算表・総勘定元帳（レポート取得・未承認仕訳の確認）
 - `recipes/freee-mcp-tag.md` - メモタグ「freee-mcp」の付与ガイド

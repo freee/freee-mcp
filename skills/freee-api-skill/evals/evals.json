@@ -94,12 +94,12 @@
     {
       "id": 8,
       "prompt": "freee で使えるAPIの一覧を教えて\n\n注意: これはドライランです。実際にMCPツールは呼び出さず、どのツールをどのパラメータで呼び出すべきかを手順として説明してください。レシピやリファレンスの参照は実際に行ってください。",
-      "expected_output": "freee_api_list_paths を呼び出す計画を示し、12個のサービス（会計・人事労務・請求書・工数管理・販売・IT管理・固定資産・業務委託管理・サーベイ・開業・人事評価・申告）について説明する。",
+      "expected_output": "freee_api_list_paths を呼び出す計画を示し、13個のサービス（会計・人事労務・請求書・工数管理・販売・IT管理・固定資産・債権管理・業務委託管理・サーベイ・開業・人事評価・申告）について説明する。",
       "assertions": [
         "freee_api_list_paths ツールを呼び出す計画を示している",
-        "会計・人事労務・請求書・工数管理・販売・IT管理・固定資産・業務委託管理・サーベイ・開業・人事評価・申告の各サービスについて言及している",
-        "各サービスの service パラメータ値（accounting, hr, invoice, pm, sm, it_management, fixed_asset_management, partner_management, survey, launch, employee_evaluation, tax_return）を正確に示している",
-        "各サービスのパス体系の違い（/api/1/ vs /api/v1/ vs /invoices vs /hub/it_management/ vs /hub/fixed_asset_management/ vs /hub/partner_management/ vs /hub/survey/ vs /hub/launch/ vs /hub/employee_evaluation/ vs /hub/tax_return/ 等）に言及している",
+        "会計・人事労務・請求書・工数管理・販売・IT管理・固定資産・債権管理・業務委託管理・サーベイ・開業・人事評価・申告の各サービスについて言及している",
+        "各サービスの service パラメータ値（accounting, hr, invoice, pm, sm, it_management, fixed_asset_management, receivable_management, partner_management, survey, launch, employee_evaluation, tax_return）を正確に示している",
+        "各サービスのパス体系の違い（/api/1/ vs /api/v1/ vs /invoices vs /hub/it_management/ vs /hub/fixed_asset_management/ vs /hub/receivable_management/ vs /hub/partner_management/ vs /hub/survey/ vs /hub/launch/ vs /hub/employee_evaluation/ vs /hub/tax_return/ 等）に言及している",
         "MCPツール（freee_api_list_paths 等）を実際には呼び出していない"
       ]
     },
@@ -253,6 +253,35 @@
         "既存の要素を含めた配列全体を freee_api_patch で送る計画を示している",
         "relation に日本語ではなく mother を指定する計画を示している",
         "MCPツール（freee_api_get 等）を実際には呼び出していない"
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "A社から入金があった。振込手数料440円が引かれているので、それも含めてA社の請求書と消込しておいて\n\n注意: これはドライランです。実際にMCPツールは呼び出さず、どのツールをどの順序で呼び出すべきかを手順として説明してください。レシピの参照は実際に行ってください。",
+      "expected_output": "recipes/receivable-management-operations.md を参照し、請求一覧・入金一覧で対象を特定して詳細で残額を確認し、差額440円を振込手数料の差額調整（正の値）として勘定科目と合わせてユーザーに確認したうえで消込を登録し、消込結果を取得して status が allocated であることを確認する。会計への反映は別操作であることに触れる。",
+      "assertions": [
+        "recipes/receivable-management-operations.md を実際に参照している",
+        "API呼び出しでは service に receivable_management を指定する計画を示している",
+        "取引先名ではなく partner_id で請求を絞り込むため、先に取引先を特定する計画を示している",
+        "請求取得・入金取得で請求残額と入金残額を確認する計画を示している",
+        "振込手数料を正の値の差額調整として扱い、勘定科目をユーザーに確認する計画を示している",
+        "消込の登録前に対象と金額をユーザーに確認する計画を示している",
+        "消込後に消込結果を取得して確認し、freee会計への取引反映は別操作であることに言及している",
+        "MCPツール（freee_api_get、freee_api_post 等）を実際には呼び出していない"
+      ]
+    },
+    {
+      "id": 21,
+      "prompt": "債権管理でさっきの消込、間違えたから取り消して\n\n注意: これはドライランです。実際にMCPツールは呼び出さず、どのように意図を確認して処理を分岐すべきか説明してください。レシピの参照は実際に行ってください。",
+      "expected_output": "recipes/receivable-management-operations.md を参照し、消込結果の status を確認したうえで、freee会計への計上だけを取り消す取引反映の取消（unpost）か、消込自体を取り消す解除（DELETE）かをユーザーに確認する。解除は元に戻せないことを示して改めて実行確認を取り、操作後に取得し直して結果を確認する。",
+      "assertions": [
+        "recipes/receivable-management-operations.md を実際に参照している",
+        "API呼び出しでは service に receivable_management を指定する計画を示している",
+        "最初の依頼だけで取消や解除を実行する計画になっていない",
+        "取引反映の取消（/allocations/{id}/unpost）と消込の解除（DELETE /allocations/{id}）を区別している",
+        "消込結果を取得して status を確認してから処理を分岐する計画を示している",
+        "解除は元に戻せないことを説明し、別途明示的な実行確認を取る計画を示している",
+        "MCPツールを実際には呼び出していない"
       ]
     }
   ]
