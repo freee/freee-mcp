@@ -1,7 +1,13 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { isBinaryFileResponse, makeApiRequest, RateLimitError } from '../api/client.js';
+import {
+  ensureValidAccessToken,
+  ForbiddenError,
+  isBinaryFileResponse,
+  makeApiRequest,
+  RateLimitError,
+} from '../api/client.js';
 import { makeErrorChain, serializeErrorChain } from '../server/error-serializer.js';
 import { sanitizePath } from '../server/logger.js';
 import { getCurrentRecorder } from '../server/request-context.js';
@@ -97,34 +103,51 @@ function decodeUtf8Xml(data: Buffer, mimeType: string): string {
 // forwarding the call, and `{type: "object"}` alone causes them to reject
 // string-shaped bodies before the server-side coercion can run (issue #410).
 const recordSchema = z.record(z.string(), z.unknown());
-const jsonStringToRecord = z
-  .string()
-  .transform((val, ctx) => {
-    if (val.startsWith(UTF8_BOM)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          `string starts with a UTF-8 BOM (U+FEFF), which is not valid JSON. ` +
-          `The MCP client likely transcoded the payload through a transport ` +
-          `that prepended a BOM (commonly seen on Windows). ` +
-          `Send the JSON without a BOM.`,
-      });
-      return z.NEVER;
-    }
-    try {
-      return JSON.parse(val);
-    } catch {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          `expected object or JSON-encoded object string; received string ` +
-          `of length ${val.length} that could not be parsed as JSON`,
-      });
-      return z.NEVER;
-    }
-  })
-  .pipe(recordSchema);
-const coercibleRecordSchema = z.union([recordSchema, jsonStringToRecord]);
+
+/**
+ * JSON 文字列をデコードしてから `schema` で検証する zod スキーマを作る。
+ * エラーメッセージには文字列の長さだけを載せ、ペイロードの中身は出さない。
+ */
+function jsonStringTo<T extends z.ZodTypeAny>(schema: T, expected: 'object' | 'array') {
+  return z
+    .string()
+    .transform((val, ctx) => {
+      if (val.startsWith(UTF8_BOM)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            `string starts with a UTF-8 BOM (U+FEFF), which is not valid JSON. ` +
+            `The MCP client likely transcoded the payload through a transport ` +
+            `that prepended a BOM (commonly seen on Windows). ` +
+            `Send the JSON without a BOM.`,
+        });
+        return z.NEVER;
+      }
+      try {
+        return JSON.parse(val) as unknown;
+      } catch {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            `expected ${expected} or JSON-encoded ${expected} string; received string ` +
+            `of length ${val.length} that could not be parsed as JSON`,
+        });
+        return z.NEVER;
+      }
+    })
+    .pipe(schema);
+}
+
+const coercibleRecordSchema = z.union([recordSchema, jsonStringTo(recordSchema, 'object')]);
+
+/**
+ * 配列、または JSON 文字列にエンコードされた配列を受け付ける。
+ * coercibleRecord と同じ理由（一部の MCP クライアントは配列引数も文字列で送る）で
+ * 公開 JSON Schema を `anyOf: [{type: "array"}, {type: "string"}]` にする。
+ */
+function coercibleArray<T extends z.ZodTypeAny>(arraySchema: z.ZodArray<T>, description: string) {
+  return z.union([arraySchema, jsonStringTo(arraySchema, 'array')]).describe(description);
+}
 
 export function coercibleRecord(description: string) {
   return coercibleRecordSchema.describe(description);
@@ -405,6 +428,12 @@ async function runBulk(
         if (error instanceof RateLimitError) {
           stopReason ??=
             'レートリミット (429) に達したため実行しませんでした。時間をおいて再実行してください。';
+        } else if (error instanceof ForbiddenError) {
+          // freee は過度のアクセスを 403 で制限する（約 10 分で解除）。権限不足との区別が
+          // つかないため、制限中の API に投げ続けないよう 429 と同様に打ち切る。
+          stopReason ??=
+            `リクエスト #${index} が 403 を返したため実行しませんでした。` +
+            'アクセス過多による制限（10 分程度で解除）か、権限不足の可能性があります。';
         }
       }
       if (options.stopOnError && results[index].status === 'error') {
@@ -447,6 +476,31 @@ function createBulkTool(toolName: string, defaults: { concurrency: number; stopO
       'mcp.tool.bulk.methods': [...new Set(args.requests.map((r) => r.method))].join(','),
       ...(service ? { 'mcp.tool.service': service } : {}),
     });
+
+    // 並列ワーカーがそれぞれトークンをリフレッシュすると、同じ refresh token を
+    // 複数回使って競合する。先に 1 回だけ確定させてからリクエストを流す。
+    let accessToken: string | null = null;
+    let tokenError: unknown;
+    try {
+      accessToken = await ensureValidAccessToken(tokenContext);
+    } catch (error) {
+      recorder?.recordError({ source: 'tool_handler', chain: serializeErrorChain(error) });
+      tokenError = error;
+    }
+    if (!accessToken) {
+      recorder?.recordToolCall({
+        tool: toolName,
+        service,
+        status: 'error',
+        duration_ms: Date.now() - startTime,
+      });
+      const detail = tokenError ? `\nエラー詳細: ${formatErrorMessage(tokenError)}` : '';
+      return createTextResponse(
+        '認証が必要です。freee_authenticate ツールを使用して認証を行ってください。' +
+          `（bulk のリクエストは実行していません）${detail}`,
+        { isError: true },
+      );
+    }
 
     const results = await runBulk(
       args.requests,
@@ -577,17 +631,19 @@ export function generateClientModeTool(server: McpServer): void {
         `freee API GET 一括: データをまとめて取得 (最大${BULK_GET_MAX_REQUESTS}件、部分成功あり)。` +
         `ID一覧から詳細をまとめて取得する場合などに使う。バイナリ(PDF等)は対象外 (${SKILL_HINT})`,
       inputSchema: {
-        requests: z
-          .array(
-            z.object({
-              service: serviceSchema,
-              path: bulkPathSchema,
-              query: bulkQuerySchema,
-            }),
-          )
-          .min(1)
-          .max(BULK_GET_MAX_REQUESTS)
-          .describe('実行するリクエストの配列'),
+        requests: coercibleArray(
+          z
+            .array(
+              z.object({
+                service: serviceSchema,
+                path: bulkPathSchema,
+                query: bulkQuerySchema,
+              }),
+            )
+            .min(1)
+            .max(BULK_GET_MAX_REQUESTS),
+          '実行するリクエストの配列',
+        ),
         concurrency: z
           .number()
           .int()
@@ -625,19 +681,21 @@ export function generateClientModeTool(server: McpServer): void {
         `freee API POST/PUT/PATCH/DELETE 一括: データをまとめて作成・更新・削除 (最大${BULK_WRITE_MAX_REQUESTS}件)。` +
         `既定は直列実行・失敗時に残りを中止 (${SKILL_HINT})`,
       inputSchema: {
-        requests: z
-          .array(
-            z.object({
-              method: z.enum(['POST', 'PUT', 'PATCH', 'DELETE']).describe('HTTPメソッド'),
-              service: serviceSchema,
-              path: bulkPathSchema,
-              body: coercibleRecord('リクエストボディ (DELETE では不要)').optional(),
-              query: bulkQuerySchema,
-            }),
-          )
-          .min(1)
-          .max(BULK_WRITE_MAX_REQUESTS)
-          .describe('実行するリクエストの配列 (配列順に実行)'),
+        requests: coercibleArray(
+          z
+            .array(
+              z.object({
+                method: z.enum(['POST', 'PUT', 'PATCH', 'DELETE']).describe('HTTPメソッド'),
+                service: serviceSchema,
+                path: bulkPathSchema,
+                body: coercibleRecord('リクエストボディ (DELETE では不要)').optional(),
+                query: bulkQuerySchema,
+              }),
+            )
+            .min(1)
+            .max(BULK_WRITE_MAX_REQUESTS),
+          '実行するリクエストの配列 (配列順に実行)',
+        ),
         concurrency: z
           .number()
           .int()

@@ -132,6 +132,24 @@ async function readBinaryResponse(response: Response, maxBytes?: number): Promis
 export class RateLimitError extends Error {}
 
 /**
+ * freee API が 403 を返したときに投げるエラー。freee は過度のアクセスを検知すると
+ * 403 で約 10 分アクセスを制限する（会計・人事労務 API リファレンスの「API 使用制限」）。
+ * 権限不足でも 403 になり body からは区別できないため、bulk ツールは 403 でも残りを打ち切る。
+ * name は付け替えず、ログ上の error chain は従来どおり `Error`。
+ */
+export class ForbiddenError extends Error {}
+
+/**
+ * 有効なアクセストークンを取得する（期限切れならここでリフレッシュする）。
+ * bulk ツールが並列リクエストの前に 1 回だけ呼び、リフレッシュの競合を防ぐ。
+ */
+export async function ensureValidAccessToken(tokenContext?: TokenContext): Promise<string | null> {
+  return tokenContext
+    ? tokenContext.tokenStore.getValidAccessToken(tokenContext.userId)
+    : getValidAccessToken();
+}
+
+/**
  * Build a Japanese retry guidance message from a Retry-After header value.
  * RFC 7231 §7.1.3 allows delta-seconds (integer) or HTTP-date forms; both are
  * normalized to a "N秒後に再試行してください。" message. Falls back to a
@@ -347,7 +365,7 @@ export async function makeApiRequest(
 
   if (response.status === 403) {
     const errorInfo = await formatResponseErrorInfo(response);
-    const forbiddenError = new Error(
+    const forbiddenError = new ForbiddenError(
       `アクセス拒否 (403): ${errorInfo}\n` +
         `事業所ID: ${companyId}\n\n` +
         `レートリミットの可能性があります。数分待ってから再試行してください。\n` +
