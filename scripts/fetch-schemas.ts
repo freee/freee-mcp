@@ -315,6 +315,13 @@ const SCHEMA_SOURCES = [
     outputFile: "fixed-asset-management-api-schema.json",
     minimalFile: "fixed-asset-management.json",
   },
+  {
+    // freee債権管理 Public API（/hub/receivable_management/ プレフィックス）。
+    name: "receivable-management-api",
+    url: "https://api-schema.freee.co.jp/receivable_management.yml",
+    outputFile: "receivable-management-api-schema.json",
+    minimalFile: "receivable-management.json",
+  },
 ];
 
 /**

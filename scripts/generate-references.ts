@@ -1220,6 +1220,7 @@ const API_CONFIGS: ReferenceApiConfig[] = [
   { apiKey: "sm-api", schemaFile: join(OPENAPI_DIR, "sm-api-schema.json"), prefix: "sm", outputDir: OUTPUT_DIR },
   { apiKey: "it-management-api", schemaFile: join(OPENAPI_DIR, "it-management-api-schema.json"), prefix: "it-management", outputDir: OUTPUT_DIR },
   { apiKey: "fixed-asset-management-api", schemaFile: join(OPENAPI_DIR, "fixed-asset-management-api-schema.json"), prefix: "fixed-asset-management", outputDir: OUTPUT_DIR },
+  { apiKey: "receivable-management-api", schemaFile: join(OPENAPI_DIR, "receivable-management-api-schema.json"), prefix: "receivable-management", outputDir: OUTPUT_DIR },
   { apiKey: "partner-management-api", schemaFile: join(OPENAPI_DIR, "partner-management-api-schema.json"), prefix: "partner-management", outputDir: OUTPUT_DIR },
   { apiKey: "tax-return-api", schemaFile: join(OPENAPI_DIR, "tax-return-api-schema.json"), prefix: "tax-return", outputDir: OUTPUT_DIR },
   // ここ由来のパスは mcp-only とみなされ、各リファレンス冒頭に MCP_ONLY_BANNER が
@@ -1249,6 +1250,7 @@ const SERVICE_LABELS: Record<string, { service: string; label: string }> = {
   sm: { service: "sm", label: "freee販売" },
   "it-management": { service: "it_management", label: "freeeIT管理" },
   "fixed-asset-management": { service: "fixed_asset_management", label: "freee固定資産" },
+  "receivable-management": { service: "receivable_management", label: "freee債権管理" },
   "partner-management": { service: "partner_management", label: "freee業務委託管理" },
   survey: { service: "survey", label: "freeeサーベイ" },
   launch: { service: "launch", label: "freee開業" },

@@ -1,0 +1,2493 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "freee債権管理 API",
+    "termsOfService": "https://app.secure.freee.co.jp/terms-freee-api.html",
+    "license": {
+      "name": "© Since 2013 freee K.K."
+    },
+    "description": "<h2 id=\"start_guide\">スタートガイド</h2>\n<p>freee API開発がはじめての方は<a href=\"https://developer.freee.co.jp/getting-started\">freee APIスタートガイド</a>を参照してください。</p>\n<hr />\n<h2 id=\"specification\">仕様</h2><h3 id=\"accounting_master\">会計マスタ項目</h3><p>リクエスト・レスポンスの取引先ID (<code>partner_id</code> / <code>partner_ids[]</code>)、勘定科目ID (<code>account_item_id</code> / <code>adjustment_account_item_id</code>)、口座ID (<code>bank_account_id</code>) は、freee会計 のマスタのIDです。指定するときは freee会計 で取得したIDを使ってください。会計マスタ項目の詳細は<a href=\"https://developer.freee.co.jp/guideline/master-guideline\" target=\"_blank\">会計マスタガイドライン</a>を参照してください。</p><p>このAPIは取引先名・勘定科目名・口座名などのマスタの内容を返しません。必要な場合は、IDで freee会計APIのエンドポイント (例: <a href=\"https://developer.freee.co.jp/reference/accounting/reference#operations-tag-Partners\" target=\"_blank\">Partners 取引先</a>、<a href=\"https://developer.freee.co.jp/reference/accounting/reference#operations-tag-Account_items\" target=\"_blank\">AccountItems 勘定科目</a>、<a href=\"https://developer.freee.co.jp/reference/accounting/reference#operations-tag-Walletables\" target=\"_blank\">Walletables 口座</a>) から取得してください。freee会計APIの詳細は<a href=\"https://developer.freee.co.jp/reference/accounting/reference\" target=\"_blank\">会計APIリファレンス</a>を参照してください。</p>\n<h3 id=\"api_endpoint\">APIエンドポイント</h3>\n<p>https://api.freee.co.jp/hub/</p>\n<h3 id=\"about_authorize\">認証について</h3>\n<p>OAuth2.0を利用します。詳細は<a href=\"https://developer.freee.co.jp/reference/#%e8%aa%8d%e8%a8%bc\" target=\"_blank\">リファレンスの認証に関する記載</a>を参照してください。</p>\n<h3 id=\"data_format\">データフォーマット</h3>\n<p>リクエスト、レスポンスともにJSON形式をサポートしていますが、詳細は、API毎の説明欄（application/jsonなど）を確認してください。</p>\n<h3 id=\"compatibility\">後方互換性ありの変更</h3>\n<p>freeeでは、APIを改善していくために以下のような変更は後方互換性ありとして通知なく変更を入れることがあります。アプリケーション実装者は以下を踏まえて開発を行ってください。</p>\n<ul>\n<li>新しいAPIリソース・エンドポイントの追加</li>\n<li>既存のAPIに対して必須ではない新しいリクエストパラメータの追加</li>\n<li>既存のAPIレスポンスに対する新しいプロパティの追加</li>\n<li>既存のAPIレスポンスに対するプロパティの順番の入れ変え</li>\n<li>keyとなっているidやcodeの長さの変更（長くする）</li>\n<li>エラーメッセージの変更</li>\n</ul>\n<h3 id=\"common_response_header\">共通レスポンスヘッダー</h3>\n<p>すべてのAPIのレスポンスには以下のHTTPヘッダーが含まれます。</p>\n<ul>\n<li>\n<p>Freee-Request-Id</p>\n<ul>\n<li>各リクエスト毎に発行されるID</li>\n</ul>\n</li>\n</ul>\n<h3 id=\"common_error_response\">共通エラーレスポンス</h3>\n<p>APIリクエストでエラーが発生した場合は、エラー原因に応じたステータスコードおよびメッセージを返します。</p>\n<table border=\"1\">\n<tbody>\n<tr>\n<th style=\"padding: 10px\"><strong>ステータスコード</strong></th>\n<th style=\"padding: 10px\"><strong>原因</strong></th>\n</tr>\n<tr><td style=\"padding: 10px\">400</td><td style=\"padding: 10px\">リクエストパラメータが不正</td></tr>\n<tr><td style=\"padding: 10px\">401</td><td style=\"padding: 10px\">アクセストークンが無効</td></tr>\n<tr><td style=\"padding: 10px\">403</td><td style=\"padding: 10px\">アクセス権限がない</td></tr>\n<tr><td style=\"padding: 10px\">404</td><td style=\"padding: 10px\">リソースが存在しない</td></tr>\n<tr><td style=\"padding: 10px\">429</td><td style=\"padding: 10px\">リクエスト回数制限を超えた</td></tr>\n<tr><td style=\"padding: 10px\">500</td><td style=\"padding: 10px\">システム内で予期しないエラーが発生</td></tr>\n</tbody>\n</table>\n<p>エラーレスポンスは以下の形式で返されます。</p>\n<pre><code>{\n&nbsp;&nbsp;\"code\": \"AHB-3003-0002\",\n&nbsp;&nbsp;\"message\": \"リクエストの形式が正しくありません。\",\n&nbsp;&nbsp;\"fields\": [\n&nbsp;&nbsp;&nbsp;&nbsp;{\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"name\": \"company_id\",\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\"message\": \"事業所IDは必須です。\"\n&nbsp;&nbsp;&nbsp;&nbsp;}\n&nbsp;&nbsp;]\n}</code></pre>\n<h3 id=\"api_rate_limit\">API使用制限</h3>\n<p>APIリクエストは1分あたり60回、1時間あたり1500回、1日あたり3000回を上限としています。<br>\nAPI使用ステータスはRFC準拠のレスポンスヘッダに付与されます。各ヘッダの意味は次のとおりです。</p>\n<table>\n<thead>\n<tr>\n<th>ヘッダ名</th>\n<th>説明</th>\n<th>例</th>\n</tr>\n</thead>\n<tbody>\n<tr><td>RateLimit-Policy</td><td>ポリシー情報（上限と期間）</td><td><code>\"base_rate_limit_minute\";q=60;w=60</code></td></tr>\n<tr><td>RateLimit</td><td>残り回数とリセットまでの秒数</td><td><code>\"base_rate_limit_minute\";r=59;t=45</code></td></tr>\n</tbody>\n</table>\n<p>この上限を超えた場合APIアクセスは制限され、http status codeは429となります。</p>\n<p>また、上記に加えfreeeは一定期間に過度のアクセスを検知した場合、APIアクセスをコントロールする場合があります。<br>\nその際のhttp status codeは403となります。制限がかかってから10分程度が過ぎると再度使用することができるようになります。</p>",
+    "version": "0.0.0"
+  },
+  "tags": [
+    {
+      "name": "receivable_management_allocations",
+      "description": "receivable_management_allocations",
+      "x-displayName": "消込"
+    },
+    {
+      "name": "receivable_management_incoming_payments",
+      "description": "receivable_management_incoming_payments",
+      "x-displayName": "入金"
+    },
+    {
+      "name": "receivable_management_receivables",
+      "description": "receivable_management_receivables",
+      "x-displayName": "請求"
+    },
+    {
+      "name": "receivable_management_usages",
+      "description": "receivable_management_usages",
+      "x-displayName": "利用状況"
+    }
+  ],
+  "paths": {
+    "/hub/receivable_management/allocations": {
+      "get": {
+        "operationId": "list_receivable_management_allocations",
+        "summary": "消込結果一覧取得",
+        "description": "事業所の消込結果の一覧を取得します。\n\n## 注意点\n\n- 絞り込み条件を複数指定した場合は、すべてに該当する消込結果を返します。\n- 消込結果に含まれる請求・入金・差額調整の内訳は返しません。必要な場合は、消込結果取得APIで取得してください。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.statuses"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.allocated_at_from"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.allocated_at_to"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.allocated_by"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.total_adjustment_amount_from"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.total_adjustment_amount_to"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.adjustment_account_item_id"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.adjustment_amount_from"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.adjustment_amount_to"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.sort_by"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.ListRequest.sort_order"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "消込結果一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ReceivableManagement.Allocations.Allocation"
+                      },
+                      "description": "消込結果の一覧。該当する消込結果が無い場合は空配列"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのトークン。次のページが無い場合は null",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "receivable_management_allocations"
+        ]
+      },
+      "post": {
+        "operationId": "create_receivable_management_allocation",
+        "summary": "消込",
+        "description": "請求と入金を紐づけて消込します。登録された消込結果のステータスは allocated (取引反映待ち) です。\n\n## 金額の条件\n\n- 請求・入金はそれぞれ 1 件以上指定します。\n- 請求に充当する金額の合計は、入金金額と差額調整の金額の合計と一致させてください。\n- 差額調整の金額は、入金が請求より少ない場合 (振込手数料など) は正、多い場合は負の値を指定します。\n\n## 従量課金\n\n入金は 1 件につき 1 回、はじめて消込したときに充当件数として数えます。当月の充当件数が上限件数を超えた分が従量課金の対象です。消込を解除して同じ入金を再度消込しても、重ねて数えません。\n\n## リトライ\n\nこのAPIは冪等ではありませんが、1 つの入金を複数の消込結果に含めることはできないため、同じリクエストを再実行しても消込結果が重複して登録されることはありません。\n結果が分からない場合は、入金取得APIで、指定した入金の入金残額 (unallocated_amount) が 0 になっているかで確認できます。",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "消込レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "登録された消込結果のID",
+                      "example": "01H5D1C19V442X3BA9TEPGDSTB"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "receivable_management_allocations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  },
+                  "receivables": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ReceivableManagement.Allocations.AllocationReceivableForCreate"
+                    },
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "description": "消込する請求 (1〜10 件)"
+                  },
+                  "incoming_payments": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ReceivableManagement.Allocations.AllocationIncomingPaymentForCreate"
+                    },
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "description": "消込に使う入金 (1〜10 件)"
+                  }
+                },
+                "required": [
+                  "company_id",
+                  "receivables",
+                  "incoming_payments"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/receivable_management/allocations/{id}": {
+      "get": {
+        "operationId": "get_receivable_management_allocation",
+        "summary": "消込結果取得",
+        "description": "消込結果と、消込結果に含まれる請求・入金・差額調整の内訳を取得します。\n\n## 注意点\n\n- 請求・入金は ID と充当した金額だけを返します。請求・入金のそのほかの項目は、請求取得API・入金取得APIで取得してください。\n- 差額調整の勘定科目名は返しません。必要な場合は `account_item_id` で freee会計 の勘定科目APIを利用してください。\n- 解除した消込結果は取得できません。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "消込結果取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceivableManagement.Allocations.AllocationDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "receivable_management_allocations"
+        ]
+      },
+      "delete": {
+        "operationId": "delete_receivable_management_allocation",
+        "summary": "消込の解除",
+        "description": "消込を解除し、請求の請求残額と入金の入金残額を消込前に戻します。消込結果の差額調整は削除されます。解除した消込結果は、消込結果一覧取得APIで取得できなくなります。\n\n## 入金への影響\n\n消込中に freee会計 で入金が変更されていた場合は、解除したときにその変更が入金に反映されます。freee会計 で削除された、または出金に変更された入金は、解除と同時に削除されます。\nfreee会計 で入金を処理済みにしていた場合、解除後の入金は処理済みになり、再度消込することはできません。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.DeleteRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.DeleteRequest.id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "消込の解除レスポンス"
+          }
+        },
+        "tags": [
+          "receivable_management_allocations"
+        ]
+      }
+    },
+    "/hub/receivable_management/allocations/{id}/post": {
+      "post": {
+        "operationId": "post_receivable_management_allocation",
+        "summary": "消込結果の取引反映",
+        "description": "消込結果を freee会計 に取引反映するよう受け付けます。取引反映は受け付けた後に非同期で行うため、202 は受け付けたことだけを表し、取引反映の成否は含みません。\n\n## 取引反映の結果\n\n受け付けた消込結果は、消込結果取得APIで status が posting (取引反映中) になります。取引反映の結果は、status が posted (取引反映済み) または post_failed (取引反映失敗) に変わったことで確認してください。\n\n受け付けるときに消込結果の status でエラーを返すことはありません。取引反映できなかった場合は status が post_failed になり、理由は消込結果取得APIの accounting_sync_error_reason_message で確認できます。post_failed の消込結果も、再度実行すると受け付けます。解除した消込結果は、存在しない消込結果と同じく 404 を返します。\n\n## リトライ\n\n消込結果が取引反映済み (status が posted)、または取引反映中 (status が posting) の場合は、何もせずに 202 を返します。同じ消込結果に対して再実行しても問題ありません。\n受け付けてから一定時間 (現在は 24 時間) 内に取引反映が完了しなかった場合、status は受け付ける前の値 (allocated / post_failed) に戻ります。その場合は再度実行してください。post_failed に戻った場合、消込結果取得APIの accounting_sync_error_reason と accounting_sync_error_reason_message は受け付ける前の失敗理由を返します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.PostRequest.id"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "消込結果の取引反映レスポンス"
+          }
+        },
+        "tags": [
+          "receivable_management_allocations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/receivable_management/allocations/{id}/unpost": {
+      "post": {
+        "operationId": "unpost_receivable_management_allocation",
+        "summary": "消込結果の取引反映の取消",
+        "description": "取引反映済み (status が posted) の消込結果について取引反映を取り消し、status を allocated (取引反映待ち) に戻します。freee会計 に計上されていた決済取引が削除され、請求に対応する取引が「未決済」もしくは「決済中」に戻ります。差額を含む消込結果の場合は、合わせて差額に対応する取引も削除されます。債権管理 の消込結果は解除されません。解除する場合は消込の解除APIを使ってください。\n\n## 取り消せない場合\n\n- 400: 消込結果が取引反映失敗 (status が post_failed)。取り消すものが無いため、必要な場合は消込の解除APIで解除してください\n- 400: 呼び出したユーザーが、freee会計 で入金の口座にアクセスできない、または取り消す権限が無い\n- 404: 消込結果が存在しない、または解除されている\n- 409: 消込結果が取引反映中 (status が posting)。取引反映の完了後に再実行してください\n- 409: 取引反映した入金が、債権管理 以外 (freee会計 の画面など) で消込されている\n- 409: freee会計 が年度締め・巻き戻しの処理中。処理の完了後に再実行してください\n- 422: 取引反映した入金が freee会計 で処理中、入金に紐づく仕訳が承認済みなど、freee会計 が取消を受け付けなかった (理由は message を確認してください)\n\n## リトライ\n\n消込結果が allocated の場合は、何もせずに 204 を返します。同じ消込結果に対して再実行しても問題ありません。\n取消には時間がかかることがあり、呼び出し元がタイムアウト・切断しても、取消は完了していることがあります。結果が分からない場合は再実行するか、消込結果取得APIで status を確認してください。\n前のリクエストの処理中に再実行すると、処理の完了を待ちきれずに 500 を返すことがあります。その場合は時間をおいて再実行してください。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Allocations.UnpostRequest.id"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "消込結果の取引反映の取消レスポンス"
+          }
+        },
+        "tags": [
+          "receivable_management_allocations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company_id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "事業所ID",
+                    "example": 1
+                  }
+                },
+                "required": [
+                  "company_id"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "description": "The body type of the operation request or response."
+        }
+      }
+    },
+    "/hub/receivable_management/incoming_payments": {
+      "get": {
+        "operationId": "list_receivable_management_incoming_payments",
+        "summary": "入金一覧取得",
+        "description": "事業所の入金の一覧を取得します。入金には、freee会計 の口座から取り込んだものと、手動で登録したものがあります。\n\n## 注意点\n\n- 絞り込み条件を複数指定した場合は、すべてに該当する入金を返します。\n- 口座名は返しません。必要な場合は `bank_account_id` で freee会計 の口座APIを利用してください。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.bank_account_id"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.origin"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.statuses"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.issue_date_from"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.issue_date_to"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.amount_from"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.amount_to"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.allocated_amount_from"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.allocated_amount_to"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.sort_by"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.ListRequest.sort_order"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "入金一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ReceivableManagement.IncomingPayments.IncomingPayment"
+                      },
+                      "description": "入金の一覧。該当する入金が無い場合は空配列"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのトークン。次のページが無い場合は null",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "receivable_management_incoming_payments"
+        ]
+      }
+    },
+    "/hub/receivable_management/incoming_payments/{id}": {
+      "get": {
+        "operationId": "get_receivable_management_incoming_payment",
+        "summary": "入金取得",
+        "description": "入金と、入金を含む消込結果のIDを取得します。\n\n## 注意点\n\n- 口座名は返しません。必要な場合は `bank_account_id` で freee会計 の口座APIを利用してください。\n- 消込結果は ID だけを返します。消込結果の内容は消込結果取得APIで取得してください。解除した消込結果は含みません。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.IncomingPayments.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "入金取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceivableManagement.IncomingPayments.IncomingPaymentDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "receivable_management_incoming_payments"
+        ]
+      }
+    },
+    "/hub/receivable_management/receivables": {
+      "get": {
+        "operationId": "list_receivable_management_receivables",
+        "summary": "請求一覧取得",
+        "description": "事業所の請求の一覧を取得します。\n\n## 注意点\n\n- 絞り込み条件を複数指定した場合は、すべてに該当する請求を返します。\n- 取引先名・取引先コードは返しません。必要な場合は `partner_id` で freee会計 の取引先APIを利用してください。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.page_token"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.origin"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.statuses"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.partner_ids"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.billing_date_from"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.billing_date_to"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.due_date_from"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.due_date_to"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.amount_from"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.amount_to"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.due_amount_from"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.due_amount_to"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.report_no"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.sort_by"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListRequest.sort_order"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "請求一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ReceivableManagement.Receivables.Receivable"
+                      },
+                      "description": "請求の一覧。該当する請求が無い場合は空配列"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのトークン。次のページが無い場合は null",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "receivable_management_receivables"
+        ]
+      }
+    },
+    "/hub/receivable_management/receivables/{id}": {
+      "get": {
+        "operationId": "get_receivable_management_receivable",
+        "summary": "請求取得",
+        "description": "請求と、請求を含む消込結果のIDを取得します。\n\n## 注意点\n\n- 取引先名・取引先コードは返しません。必要な場合は `partner_id` で freee会計 の取引先APIを利用してください。\n- 消込結果は ID だけを返します。消込結果の内容は消込結果取得APIで取得してください。解除した消込結果は含みません。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.GetRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.GetRequest.id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "請求取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceivableManagement.Receivables.ReceivableDetail"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "receivable_management_receivables"
+        ]
+      }
+    },
+    "/hub/receivable_management/receivables/{id}/lines": {
+      "get": {
+        "operationId": "list_receivable_management_receivable_lines",
+        "summary": "請求明細一覧取得",
+        "description": "請求明細の一覧を取得します。請求明細ごとに消込する場合は、ここで取得した請求明細IDを消込APIの `receivable_line_id` に指定します。\n\n## 注意点\n\n- 請求明細は請求明細IDの昇順 (登録された順) で返します。並び順は指定できません。\n- 請求が存在しない場合は、空の一覧ではなく 404 を返します。\n- freee請求書 で請求書が更新されると、請求明細は新しい請求明細IDで登録し直されます。続きのページを取得する前に更新された場合は 400 を返すので、最初のページから取得し直してください。以前に取得した請求明細IDは使えなくなります。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListLinesRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListLinesRequest.id"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListLinesRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Receivables.ListLinesRequest.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "請求明細一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ReceivableManagement.Receivables.ReceivableLine"
+                      },
+                      "description": "請求明細の一覧。請求明細IDの昇順"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "次のページを取得するためのトークン。次のページが無い場合は null",
+                      "example": "eyJvcmRlciI6W10sImlkIjoiYWJjIn0"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "receivable_management_receivables"
+        ]
+      }
+    },
+    "/hub/receivable_management/company/usages": {
+      "get": {
+        "operationId": "get_receivable_management_usages",
+        "summary": "当月の利用状況取得",
+        "description": "事業所の当月の充当件数を、上限件数・上限件数を超えているかどうかと合わせて取得します。上限件数を超えた場合、従量課金の対象になる件数は usage_count から included_usage_count を引いた件数です。\n\n## 注意点\n\n- 当月は日本時間の暦月です。過去の月は取得できません。\n- 件数は事業所全体の合計です。\n- 契約情報を一時的に取得できなかった場合は 500 を返します。時間をおいて再試行してください。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ReceivableManagement.Usages.GetRequest"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "当月の利用状況取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReceivableManagement.Usages.Usage"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "receivable_management_usages"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "OAuth2Auth": [
+        "write",
+        "read"
+      ]
+    }
+  ],
+  "components": {
+    "parameters": {
+      "ReceivableManagement.Allocations.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1 ページあたりの取得件数 (既定値 100、上限 500)。0 以下を指定した場合は既定値になります",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "maximum": 500
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "次のページを取得するためのトークン。前回のレスポンスの next_page_token を指定します。絞り込み条件と sort_by / sort_order は前回と同じ値を指定してください",
+        "schema": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.statuses": {
+        "name": "statuses[]",
+        "in": "query",
+        "required": false,
+        "description": "消込ステータス (複数指定可、いずれかに該当する消込結果を返します)。\nallocated = 取引反映待ち、posted = 取引反映済み、post_failed = 取引反映失敗。\nレスポンスの status と違い posting (取引反映中) は指定できません。取引反映中の消込結果は、取引反映を受け付ける前のステータス (allocated / post_failed) で絞り込まれます。3 件まで指定できます",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "allocated",
+              "posted",
+              "post_failed"
+            ]
+          },
+          "maxItems": 3
+        }
+      },
+      "ReceivableManagement.Allocations.ListRequest.allocated_at_from": {
+        "name": "allocated_at_from",
+        "in": "query",
+        "required": false,
+        "description": "消込日の開始日。指定日を含みます。allocated_at_to との期間は 10 年以内で指定してください",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.allocated_at_to": {
+        "name": "allocated_at_to",
+        "in": "query",
+        "required": false,
+        "description": "消込日の終了日。指定日を含みます",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.allocated_by": {
+        "name": "allocated_by",
+        "in": "query",
+        "required": false,
+        "description": "消込を実行したユーザーのID。freee会計 のユーザーAPI (Users) で取得できるIDを指定します",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.total_adjustment_amount_from": {
+        "name": "total_adjustment_amount_from",
+        "in": "query",
+        "required": false,
+        "description": "差額調整の合計金額の下限。指定額を含みます。負の値も指定できます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": -1000000000000,
+          "maximum": 1000000000000
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.total_adjustment_amount_to": {
+        "name": "total_adjustment_amount_to",
+        "in": "query",
+        "required": false,
+        "description": "差額調整の合計金額の上限。指定額を含みます。負の値も指定できます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": -1000000000000,
+          "maximum": 1000000000000
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.adjustment_account_item_id": {
+        "name": "adjustment_account_item_id",
+        "in": "query",
+        "required": false,
+        "description": "差額調整の勘定科目ID (freee会計)。この勘定科目の差額調整を 1 件以上含む消込結果を返します",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.adjustment_amount_from": {
+        "name": "adjustment_amount_from",
+        "in": "query",
+        "required": false,
+        "description": "差額調整 1 件ごとの金額の下限 (合計ではありません)。指定額を含みます。負の値も指定できます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": -1000000000000,
+          "maximum": 1000000000000
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.adjustment_amount_to": {
+        "name": "adjustment_amount_to",
+        "in": "query",
+        "required": false,
+        "description": "差額調整 1 件ごとの金額の上限 (合計ではありません)。指定額を含みます。負の値も指定できます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": -1000000000000,
+          "maximum": 1000000000000
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.sort_by": {
+        "name": "sort_by",
+        "in": "query",
+        "required": false,
+        "description": "並び替えの項目 (既定値 allocated_at)",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "allocated_at",
+            "total_receivable_amount",
+            "total_adjustment_amount"
+          ]
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.ListRequest.sort_order": {
+        "name": "sort_order",
+        "in": "query",
+        "required": false,
+        "description": "並び順 (既定値 desc)",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "取得する消込結果のID",
+        "schema": {
+          "type": "string",
+          "minLength": 26,
+          "maxLength": 26
+        }
+      },
+      "ReceivableManagement.Allocations.DeleteRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Allocations.DeleteRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "解除する消込結果のID",
+        "schema": {
+          "type": "string",
+          "minLength": 26,
+          "maxLength": 26
+        }
+      },
+      "ReceivableManagement.Allocations.PostRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "取引反映する消込結果のID",
+        "schema": {
+          "type": "string",
+          "minLength": 26,
+          "maxLength": 26
+        }
+      },
+      "ReceivableManagement.Allocations.UnpostRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "取引反映を取り消す消込結果のID",
+        "schema": {
+          "type": "string",
+          "minLength": 26,
+          "maxLength": 26
+        }
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1 ページあたりの取得件数 (既定値 100、上限 500)。0 以下を指定した場合は既定値になります",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "maximum": 500
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "次のページを取得するためのトークン。前回のレスポンスの next_page_token を指定します。絞り込み条件と sort_by / sort_order は前回と同じ値を指定してください",
+        "schema": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.bank_account_id": {
+        "name": "bank_account_id",
+        "in": "query",
+        "required": false,
+        "description": "freee会計 の口座ID。指定した口座から取り込んだ入金だけを返します。\n消込口座に登録されていない口座を指定した場合は、空の一覧ではなく 404 を返します",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.origin": {
+        "name": "origin",
+        "in": "query",
+        "required": false,
+        "description": "発生元。sync = freee会計 の口座から取り込み、manual = 手動登録",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "sync",
+            "manual"
+          ]
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.statuses": {
+        "name": "statuses[]",
+        "in": "query",
+        "required": false,
+        "description": "消込状況 (複数指定可、いずれかに該当する入金を返します)。\nprocessed = 入金残額が 0、または freee会計 で処理済みにした入金、unprocessed = それ以外の入金。2 件まで指定できます",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "processed",
+              "unprocessed"
+            ]
+          },
+          "maxItems": 2
+        }
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.issue_date_from": {
+        "name": "issue_date_from",
+        "in": "query",
+        "required": false,
+        "description": "入金日の開始日。指定日を含みます",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.issue_date_to": {
+        "name": "issue_date_to",
+        "in": "query",
+        "required": false,
+        "description": "入金日の終了日。指定日を含みます",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.amount_from": {
+        "name": "amount_from",
+        "in": "query",
+        "required": false,
+        "description": "入金金額の下限。指定額を含みます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.amount_to": {
+        "name": "amount_to",
+        "in": "query",
+        "required": false,
+        "description": "入金金額の上限。指定額を含みます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.allocated_amount_from": {
+        "name": "allocated_amount_from",
+        "in": "query",
+        "required": false,
+        "description": "消込済み金額の下限。指定額を含みます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.allocated_amount_to": {
+        "name": "allocated_amount_to",
+        "in": "query",
+        "required": false,
+        "description": "消込済み金額の上限。指定額を含みます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 0
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.sort_by": {
+        "name": "sort_by",
+        "in": "query",
+        "required": false,
+        "description": "並び替えの項目 (既定値 issue_date)",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "issue_date",
+            "amount",
+            "allocated_amount"
+          ]
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.ListRequest.sort_order": {
+        "name": "sort_order",
+        "in": "query",
+        "required": false,
+        "description": "並び順 (既定値 desc)",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.IncomingPayments.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "取得する入金のID (ULID 形式の 26 文字)。形式が不正な場合は 400 を返します",
+        "schema": {
+          "type": "string",
+          "minLength": 26,
+          "maxLength": 26
+        }
+      },
+      "ReceivableManagement.Receivables.ListRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1 ページあたりの取得件数 (既定値 100、上限 500)。0 以下を指定した場合は既定値になります",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "maximum": 500
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "次のページを取得するためのトークン。前回のレスポンスの next_page_token を指定します。絞り込み条件と sort_by / sort_order は前回と同じ値を指定してください",
+        "schema": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.origin": {
+        "name": "origin",
+        "in": "query",
+        "required": false,
+        "description": "発生元。invoice = freee請求書",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "invoice"
+          ]
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.statuses": {
+        "name": "statuses[]",
+        "in": "query",
+        "required": false,
+        "description": "消込状況 (複数指定可、いずれかに該当する請求を返します)。\nunprocessed = 請求残額が残っている、processed = 請求残額が 0、archived = 管理対象外。\nunprocessed / processed に管理対象外の請求は含みません。\n未指定の場合は管理対象外を含むすべての請求を返します。3 件まで指定できます",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "unprocessed",
+              "processed",
+              "archived"
+            ]
+          },
+          "maxItems": 3
+        }
+      },
+      "ReceivableManagement.Receivables.ListRequest.partner_ids": {
+        "name": "partner_ids[]",
+        "in": "query",
+        "required": false,
+        "description": "freee会計 の取引先ID (複数指定可、いずれかに該当する請求を返します)。100 件まで指定できます",
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ReceivableManagement.Receivables.PartnerIdString"
+          },
+          "maxItems": 100
+        }
+      },
+      "ReceivableManagement.Receivables.ListRequest.billing_date_from": {
+        "name": "billing_date_from",
+        "in": "query",
+        "required": false,
+        "description": "請求日の開始日。指定日を含みます",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.billing_date_to": {
+        "name": "billing_date_to",
+        "in": "query",
+        "required": false,
+        "description": "請求日の終了日。指定日を含みます",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.due_date_from": {
+        "name": "due_date_from",
+        "in": "query",
+        "required": false,
+        "description": "入金期日の開始日。指定日を含みます",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.due_date_to": {
+        "name": "due_date_to",
+        "in": "query",
+        "required": false,
+        "description": "入金期日の終了日。指定日を含みます",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.amount_from": {
+        "name": "amount_from",
+        "in": "query",
+        "required": false,
+        "description": "請求金額の下限。指定額を含みます。負の値も指定できます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": -1000000000000,
+          "maximum": 1000000000000
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.amount_to": {
+        "name": "amount_to",
+        "in": "query",
+        "required": false,
+        "description": "請求金額の上限。指定額を含みます。負の値も指定できます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": -1000000000000,
+          "maximum": 1000000000000
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.due_amount_from": {
+        "name": "due_amount_from",
+        "in": "query",
+        "required": false,
+        "description": "請求残額の下限。指定額を含みます。負の値も指定できます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": -1000000000000,
+          "maximum": 1000000000000
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.due_amount_to": {
+        "name": "due_amount_to",
+        "in": "query",
+        "required": false,
+        "description": "請求残額の上限。指定額を含みます。負の値も指定できます",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": -1000000000000,
+          "maximum": 1000000000000
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.report_no": {
+        "name": "report_no",
+        "in": "query",
+        "required": false,
+        "description": "請求書番号 (完全一致)",
+        "schema": {
+          "type": "string",
+          "maxLength": 255
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.sort_by": {
+        "name": "sort_by",
+        "in": "query",
+        "required": false,
+        "description": "並び替えの項目 (既定値 billing_date)",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "billing_date",
+            "amount",
+            "due_amount",
+            "due_date"
+          ]
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListRequest.sort_order": {
+        "name": "sort_order",
+        "in": "query",
+        "required": false,
+        "description": "並び順 (既定値 desc)",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.GetRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.GetRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "取得する請求のID (ULID 形式の 26 文字)。形式が不正な場合は 400 を返します",
+        "schema": {
+          "type": "string",
+          "minLength": 26,
+          "maxLength": 26
+        }
+      },
+      "ReceivableManagement.Receivables.ListLinesRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListLinesRequest.id": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "請求明細を取得する請求のID (ULID 形式の 26 文字)。形式が不正な場合は 400 を返します",
+        "schema": {
+          "type": "string",
+          "minLength": 26,
+          "maxLength": 26
+        }
+      },
+      "ReceivableManagement.Receivables.ListLinesRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1 ページあたりの取得件数 (既定値 100、上限 500)。0 以下を指定した場合は既定値になります",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "maximum": 500
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Receivables.ListLinesRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "次のページを取得するためのトークン。前回のレスポンスの next_page_token を指定します。請求IDは前回と同じ値を指定してください。前回の取得の後に請求明細が登録し直された場合や、別の請求のトークンを指定した場合は 400 を返します",
+        "schema": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "explode": false
+      },
+      "ReceivableManagement.Usages.GetRequest": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      }
+    },
+    "schemas": {
+      "ReceivableManagement.Allocations.Allocation": {
+        "type": "object",
+        "required": [
+          "id",
+          "allocation_number",
+          "allocated_at",
+          "status",
+          "registration_method",
+          "allocated_by",
+          "total_receivable_count",
+          "total_receivable_amount",
+          "total_incoming_payment_count",
+          "total_incoming_payment_amount",
+          "total_adjustment_count",
+          "total_adjustment_amount"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "消込結果ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTB"
+          },
+          "allocation_number": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込番号 (事業所ごとの連番)",
+            "example": "1"
+          },
+          "allocated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "消込日時",
+            "example": "2026-01-31T10:00:00+09:00"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "allocated",
+              "posting",
+              "posted",
+              "post_failed"
+            ],
+            "description": "消込ステータス。allocated = 取引反映待ち、posting = 取引反映中、posted = 取引反映済み、post_failed = 取引反映失敗。\nposting は、取引反映を受け付けてから一定時間 (現在は 24 時間) 内に取引反映が完了しないと、受付前の status に戻ります",
+            "example": "allocated"
+          },
+          "registration_method": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "auto"
+            ],
+            "description": "消込方法。manual = 手動、auto = 自動",
+            "example": "manual"
+          },
+          "allocated_by": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込を実行したユーザーのID。ユーザー名が必要な場合は、このIDで freee会計 のユーザーAPI (Users) を利用してください",
+            "example": "1"
+          },
+          "total_receivable_count": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込結果に含まれる請求の件数",
+            "example": "1"
+          },
+          "total_receivable_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "請求に充当した金額の合計",
+            "example": "11000"
+          },
+          "total_incoming_payment_count": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込結果に含まれる入金の件数",
+            "example": "1"
+          },
+          "total_incoming_payment_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込結果に含まれる入金の入金金額の合計 (差額調整を含まない)。消込したときの入金金額の合計で、入金が後から更新されても変わりません。消込結果取得APIの入金ごとの amount の合計と一致します",
+            "example": "10560"
+          },
+          "total_adjustment_count": {
+            "type": "string",
+            "format": "int64",
+            "description": "差額調整の件数",
+            "example": "1"
+          },
+          "total_adjustment_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "差額調整の金額の合計",
+            "example": "440"
+          }
+        },
+        "description": "消込結果",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Allocations.AllocationDetailReceivableLine": {
+        "type": "object",
+        "required": [
+          "receivable_line_id",
+          "amount_applied"
+        ],
+        "properties": {
+          "receivable_line_id": {
+            "type": "string",
+            "description": "請求明細ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTC"
+          },
+          "amount_applied": {
+            "type": "string",
+            "format": "int64",
+            "description": "この明細に充当した金額",
+            "example": "11000"
+          }
+        },
+        "description": "請求明細ごとに充当した金額",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Allocations.AllocationDetailReceivable": {
+        "type": "object",
+        "required": [
+          "receivable_id",
+          "amount_applied",
+          "lines"
+        ],
+        "properties": {
+          "receivable_id": {
+            "type": "string",
+            "description": "請求ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTB"
+          },
+          "amount_applied": {
+            "type": "string",
+            "format": "int64",
+            "description": "この請求に充当した金額",
+            "example": "11000"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivableManagement.Allocations.AllocationDetailReceivableLine"
+            },
+            "description": "明細ごとに充当した金額。明細を指定せずに消込した場合も、自動で割り当てた明細を返します"
+          }
+        },
+        "description": "消込結果に含まれる請求",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Allocations.AllocationDetailAdjustment": {
+        "type": "object",
+        "required": [
+          "id",
+          "account_item_id",
+          "amount",
+          "description"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "差額調整ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTE"
+          },
+          "account_item_id": {
+            "type": "string",
+            "format": "int64",
+            "description": "差額調整の勘定科目ID (freee会計)",
+            "example": "1"
+          },
+          "amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "差額調整の金額。入金が請求より少ない場合 (振込手数料など) は正、多い場合は負の値",
+            "example": "440"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "差額調整の理由",
+            "example": "振込手数料"
+          }
+        },
+        "description": "差額調整",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Allocations.AllocationDetailIncomingPayment": {
+        "type": "object",
+        "required": [
+          "incoming_payment_id",
+          "amount",
+          "adjustments"
+        ],
+        "properties": {
+          "incoming_payment_id": {
+            "type": "string",
+            "description": "入金ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTD"
+          },
+          "amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込したときの入金金額 (差額調整を含まない)。消込結果のすべての入金の amount と差額調整の amount を合計すると、請求への充当額の合計と一致します",
+            "example": "10560"
+          },
+          "adjustments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivableManagement.Allocations.AllocationDetailAdjustment"
+            },
+            "description": "この入金の差額調整。差額調整が無い場合は空配列"
+          }
+        },
+        "description": "消込結果に含まれる入金",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Allocations.AllocationDetail": {
+        "type": "object",
+        "required": [
+          "id",
+          "allocation_number",
+          "allocated_at",
+          "status",
+          "registration_method",
+          "allocated_by",
+          "accounting_sync_error_reason",
+          "accounting_sync_error_reason_message",
+          "receivables",
+          "incoming_payments"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "消込結果ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTB"
+          },
+          "allocation_number": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込番号 (事業所ごとの連番)",
+            "example": "1"
+          },
+          "allocated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "消込日時",
+            "example": "2026-01-31T10:00:00+09:00"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "allocated",
+              "posting",
+              "posted",
+              "post_failed"
+            ],
+            "description": "消込ステータス。allocated = 取引反映待ち、posting = 取引反映中、posted = 取引反映済み、post_failed = 取引反映失敗。\nposting は、取引反映を受け付けてから一定時間 (現在は 24 時間) 内に取引反映が完了しないと、受付前の status に戻ります",
+            "example": "allocated"
+          },
+          "registration_method": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "auto"
+            ],
+            "description": "消込方法。manual = 手動、auto = 自動",
+            "example": "manual"
+          },
+          "allocated_by": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込を実行したユーザーのID。ユーザー名が必要な場合は、このIDで freee会計 のユーザーAPI (Users) を利用してください",
+            "example": "1"
+          },
+          "accounting_sync_error_reason": {
+            "type": "string",
+            "nullable": true,
+            "description": "直近の取引反映に失敗した理由を表す値。status が post_failed の場合だけ返し、それ以外の場合と、理由が記録されていない場合は null。\n取引反映を受け付けてから一定時間内に完了せず post_failed に戻った場合は、受け付ける前の失敗理由を返します。\nプログラムで処理を分ける場合に使います。利用者に表示する場合は accounting_sync_error_reason_message を使ってください。\naccounting_unavailable と accounting_closing は、時間をおいて再度取引反映すると解消することがあります。\n値は今後追加されることがあります",
+            "example": null
+          },
+          "accounting_sync_error_reason_message": {
+            "type": "string",
+            "nullable": true,
+            "description": "直近の取引反映に失敗した理由と対処を説明する、利用者向けの文。accounting_sync_error_reason が null の場合は null",
+            "example": null
+          },
+          "receivables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivableManagement.Allocations.AllocationDetailReceivable"
+            },
+            "description": "消込結果に含まれる請求"
+          },
+          "incoming_payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivableManagement.Allocations.AllocationDetailIncomingPayment"
+            },
+            "description": "消込結果に含まれる入金"
+          }
+        },
+        "description": "消込結果の詳細",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Allocations.AllocationReceivableLineForCreate": {
+        "type": "object",
+        "required": [
+          "receivable_line_id",
+          "amount_applied"
+        ],
+        "properties": {
+          "receivable_line_id": {
+            "type": "string",
+            "minLength": 26,
+            "maxLength": 26,
+            "description": "請求明細ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTC"
+          },
+          "amount_applied": {
+            "type": "string",
+            "format": "int64",
+            "description": "この明細に充当する金額。1,000,000,000,000 以下の正の整数を指定します。同じ明細を重複して指定することはできません",
+            "example": "11000"
+          }
+        },
+        "description": "充当先の請求明細",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Allocations.AllocationReceivableForCreate": {
+        "type": "object",
+        "required": [
+          "receivable_id"
+        ],
+        "properties": {
+          "receivable_id": {
+            "type": "string",
+            "minLength": 26,
+            "maxLength": 26,
+            "description": "請求ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTB"
+          },
+          "amount_applied": {
+            "type": "string",
+            "format": "int64",
+            "description": "この請求に充当する金額。請求残額以下かつ 1,000,000,000,000 以下の正の整数を指定します。\nlines を指定する場合は lines の金額の合計と一致させてください。\n省略した場合、lines を指定していれば lines の合計、指定していなければ請求残額の全額を充当します",
+            "example": "11000"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivableManagement.Allocations.AllocationReceivableLineForCreate"
+            },
+            "maxItems": 5000,
+            "description": "明細ごとに充当する場合に指定します。省略した場合は請求内の明細へ自動で割り当てます。\n事業所設定で「明細単位の消込」を有効にしている場合だけ指定できます。5000 件まで指定できます"
+          }
+        },
+        "description": "消込対象の請求",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Allocations.AllocationAdjustmentForCreate": {
+        "type": "object",
+        "required": [
+          "account_item_id",
+          "amount"
+        ],
+        "properties": {
+          "account_item_id": {
+            "type": "string",
+            "format": "int64",
+            "description": "差額調整の勘定科目ID (freee会計)。入力候補で「使用する」にしている勘定科目だけを指定できます",
+            "example": "1"
+          },
+          "amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "差額調整の金額。入金が請求より少ない場合 (振込手数料など) は正、多い場合は負の値を指定します。0 は指定できず、絶対値は 1,000,000,000,000 以下にしてください",
+            "example": "440"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "差額調整の理由",
+            "example": "振込手数料"
+          }
+        },
+        "description": "差額調整",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Allocations.AllocationIncomingPaymentForCreate": {
+        "type": "object",
+        "required": [
+          "incoming_payment_id"
+        ],
+        "properties": {
+          "incoming_payment_id": {
+            "type": "string",
+            "minLength": 26,
+            "maxLength": 26,
+            "description": "入金ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTD"
+          },
+          "adjustments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivableManagement.Allocations.AllocationAdjustmentForCreate"
+            },
+            "maxItems": 10,
+            "description": "この入金の差額調整 (振込手数料・雑収入など)。10 件まで指定できます"
+          }
+        },
+        "description": "消込に使用する入金",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.IncomingPayments.IncomingPayment": {
+        "type": "object",
+        "required": [
+          "id",
+          "issue_date",
+          "amount",
+          "allocated_amount",
+          "unallocated_amount",
+          "description",
+          "bank_account_id",
+          "comment",
+          "origin",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "入金ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTB"
+          },
+          "issue_date": {
+            "type": "string",
+            "format": "date",
+            "description": "入金日",
+            "example": "2026-01-31"
+          },
+          "amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "入金金額",
+            "example": "11000"
+          },
+          "allocated_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込済み金額",
+            "example": "1000"
+          },
+          "unallocated_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "入金残額 (入金金額 - 消込済み金額)",
+            "example": "10000"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "摘要。摘要が無い場合は null (空文字は、摘要が空であることを表します)",
+            "example": "振込 カ）フリー"
+          },
+          "bank_account_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "int64",
+            "description": "入金元の freee会計 の口座ID。freee会計 の口座から取り込んでいない入金の場合は null。\n口座名が必要な場合はこのIDで freee会計 の口座APIを利用してください",
+            "example": "1"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "description": "入金のメモ",
+            "example": "1月分の入金"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "sync",
+              "manual"
+            ],
+            "description": "発生元。sync = freee会計 の口座から取り込み、manual = 手動登録",
+            "example": "sync"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "processed",
+              "unprocessed"
+            ],
+            "description": "消込状況。processed = 入金残額が 0、または freee会計 で処理済みにした入金、unprocessed = それ以外の入金",
+            "example": "unprocessed"
+          }
+        },
+        "description": "入金",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.IncomingPayments.AllocationReference": {
+        "type": "object",
+        "required": [
+          "allocation_id"
+        ],
+        "properties": {
+          "allocation_id": {
+            "type": "string",
+            "description": "消込結果ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTB"
+          }
+        },
+        "description": "消込結果への参照",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.IncomingPayments.IncomingPaymentDetail": {
+        "type": "object",
+        "required": [
+          "id",
+          "issue_date",
+          "amount",
+          "allocated_amount",
+          "unallocated_amount",
+          "description",
+          "bank_account_id",
+          "comment",
+          "origin",
+          "status",
+          "allocations"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "入金ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTB"
+          },
+          "issue_date": {
+            "type": "string",
+            "format": "date",
+            "description": "入金日",
+            "example": "2026-01-31"
+          },
+          "amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "入金金額",
+            "example": "11000"
+          },
+          "allocated_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込済み金額",
+            "example": "1000"
+          },
+          "unallocated_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "入金残額 (入金金額 - 消込済み金額)",
+            "example": "10000"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "摘要。摘要が無い場合は null (空文字は、摘要が空であることを表します)",
+            "example": "振込 カ）フリー"
+          },
+          "bank_account_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "int64",
+            "description": "入金元の freee会計 の口座ID。freee会計 の口座から取り込んでいない入金の場合は null。\n口座名が必要な場合はこのIDで freee会計 の口座APIを利用してください",
+            "example": "1"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "description": "入金のメモ",
+            "example": "1月分の入金"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "sync",
+              "manual"
+            ],
+            "description": "発生元。sync = freee会計 の口座から取り込み、manual = 手動登録",
+            "example": "sync"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "processed",
+              "unprocessed"
+            ],
+            "description": "消込状況。processed = 入金残額が 0、または freee会計 で処理済みにした入金、unprocessed = それ以外の入金",
+            "example": "unprocessed"
+          },
+          "allocations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivableManagement.IncomingPayments.AllocationReference"
+            },
+            "description": "入金を含む消込結果の一覧。消込日時の降順 (同じ日時の場合は消込番号の降順) で返します。消込結果が無い場合は空配列"
+          }
+        },
+        "description": "入金の詳細",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Receivables.PartnerIdString": {
+        "type": "string",
+        "maxLength": 19,
+        "pattern": "^[0-9]+$",
+        "format": "int64",
+        "description": "freee会計 の取引先ID"
+      },
+      "ReceivableManagement.Receivables.Receivable": {
+        "type": "object",
+        "required": [
+          "id",
+          "partner_id",
+          "contact_name",
+          "contact_department",
+          "issue_date",
+          "amount",
+          "allocated_amount",
+          "due_amount",
+          "billing_date",
+          "due_date",
+          "report_id",
+          "report_no",
+          "branch_no",
+          "origin",
+          "status",
+          "is_archived",
+          "archived_at",
+          "archived_by",
+          "comment",
+          "payment_method"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "請求ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTB"
+          },
+          "partner_id": {
+            "type": "string",
+            "format": "int64",
+            "description": "freee会計 の取引先ID。取引先名・取引先コードが必要な場合はこのIDで freee会計 の取引先APIを利用してください",
+            "example": "1"
+          },
+          "contact_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "freee請求書 の帳票に設定された取引先担当者の氏名。freee請求書と連携していない請求、または未設定の場合は null",
+            "example": "山田 太郎"
+          },
+          "contact_department": {
+            "type": "string",
+            "nullable": true,
+            "description": "freee請求書 の帳票に設定された取引先担当者の部署。freee請求書と連携していない請求、または未設定の場合は null",
+            "example": "経理部"
+          },
+          "issue_date": {
+            "type": "string",
+            "format": "date",
+            "description": "発生日",
+            "example": "2026-01-15"
+          },
+          "amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "請求金額",
+            "example": "11000"
+          },
+          "allocated_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込済み金額",
+            "example": "1000"
+          },
+          "due_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "請求残額 (請求金額 - 消込済み金額)",
+            "example": "10000"
+          },
+          "billing_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "請求日",
+            "example": "2026-01-15"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "入金期日",
+            "example": "2026-02-28"
+          },
+          "report_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "int64",
+            "description": "freee請求書 の帳票ID。freee請求書と連携していない請求の場合は null。\n1 つの請求に複数の帳票が紐づく場合は最新の帳票を返します\n(report_no / branch_no / contact_name / contact_department も同じ帳票の値です)",
+            "example": "1"
+          },
+          "report_no": {
+            "type": "string",
+            "nullable": true,
+            "description": "請求書番号。枝番は branch_no で返します",
+            "example": "INV-0001"
+          },
+          "branch_no": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "請求書番号の枝番",
+            "example": 1
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "invoice"
+            ],
+            "description": "発生元。invoice = freee請求書",
+            "example": "invoice"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "processed",
+              "unprocessed"
+            ],
+            "description": "消込状況。processed = 請求残額が 0、unprocessed = 請求残額が残っている。管理対象外かどうかは is_archived で判定してください",
+            "example": "unprocessed"
+          },
+          "is_archived": {
+            "type": "boolean",
+            "description": "管理対象外かどうか",
+            "example": false
+          },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "管理対象外にした日時。管理対象外でない場合は null",
+            "example": "2026-01-20T10:00:00+09:00"
+          },
+          "archived_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "int64",
+            "description": "管理対象外にしたユーザーのID。管理対象外でない場合、または記録が無い場合は null。ユーザー名が必要な場合は、このIDで freee会計 のユーザーAPI (Users) を利用してください",
+            "example": "1"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "description": "請求のメモ",
+            "example": "分割入金予定"
+          },
+          "payment_method": {
+            "type": "string",
+            "enum": [
+              "transfer",
+              "card",
+              "direct_debit",
+              "cash",
+              "bill_payable",
+              "deferred_payment"
+            ],
+            "nullable": true,
+            "description": "freee請求書 の帳票に設定された入金方法。freee請求書と連携していない請求、または未設定の場合は null。\ntransfer = 振込、card = カード、direct_debit = 振替、cash = 現金、\nbill_payable = 手形、deferred_payment = おまかせ回収",
+            "example": "transfer"
+          }
+        },
+        "description": "請求",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Receivables.AllocationReference": {
+        "type": "object",
+        "required": [
+          "allocation_id"
+        ],
+        "properties": {
+          "allocation_id": {
+            "type": "string",
+            "description": "消込結果ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTB"
+          }
+        },
+        "description": "消込結果への参照",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Receivables.ReceivableDetail": {
+        "type": "object",
+        "required": [
+          "id",
+          "partner_id",
+          "contact_name",
+          "contact_department",
+          "issue_date",
+          "amount",
+          "allocated_amount",
+          "due_amount",
+          "billing_date",
+          "due_date",
+          "report_id",
+          "report_no",
+          "branch_no",
+          "origin",
+          "status",
+          "is_archived",
+          "archived_at",
+          "archived_by",
+          "comment",
+          "payment_method",
+          "allocations"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "請求ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTB"
+          },
+          "partner_id": {
+            "type": "string",
+            "format": "int64",
+            "description": "freee会計 の取引先ID。取引先名・取引先コードが必要な場合はこのIDで freee会計 の取引先APIを利用してください",
+            "example": "1"
+          },
+          "contact_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "freee請求書 の帳票に設定された取引先担当者の氏名。freee請求書と連携していない請求、または未設定の場合は null",
+            "example": "山田 太郎"
+          },
+          "contact_department": {
+            "type": "string",
+            "nullable": true,
+            "description": "freee請求書 の帳票に設定された取引先担当者の部署。freee請求書と連携していない請求、または未設定の場合は null",
+            "example": "経理部"
+          },
+          "issue_date": {
+            "type": "string",
+            "format": "date",
+            "description": "発生日",
+            "example": "2026-01-15"
+          },
+          "amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "請求金額",
+            "example": "11000"
+          },
+          "allocated_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "消込済み金額",
+            "example": "1000"
+          },
+          "due_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "請求残額 (請求金額 - 消込済み金額)",
+            "example": "10000"
+          },
+          "billing_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "請求日",
+            "example": "2026-01-15"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "入金期日",
+            "example": "2026-02-28"
+          },
+          "report_id": {
+            "type": "string",
+            "nullable": true,
+            "format": "int64",
+            "description": "freee請求書 の帳票ID。freee請求書と連携していない請求の場合は null。\n1 つの請求に複数の帳票が紐づく場合は最新の帳票を返します\n(report_no / branch_no / contact_name / contact_department も同じ帳票の値です)",
+            "example": "1"
+          },
+          "report_no": {
+            "type": "string",
+            "nullable": true,
+            "description": "請求書番号。枝番は branch_no で返します",
+            "example": "INV-0001"
+          },
+          "branch_no": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true,
+            "description": "請求書番号の枝番",
+            "example": 1
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "invoice"
+            ],
+            "description": "発生元。invoice = freee請求書",
+            "example": "invoice"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "processed",
+              "unprocessed"
+            ],
+            "description": "消込状況。processed = 請求残額が 0、unprocessed = 請求残額が残っている。管理対象外かどうかは is_archived で判定してください",
+            "example": "unprocessed"
+          },
+          "is_archived": {
+            "type": "boolean",
+            "description": "管理対象外かどうか",
+            "example": false
+          },
+          "archived_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "管理対象外にした日時。管理対象外でない場合は null",
+            "example": "2026-01-20T10:00:00+09:00"
+          },
+          "archived_by": {
+            "type": "string",
+            "nullable": true,
+            "format": "int64",
+            "description": "管理対象外にしたユーザーのID。管理対象外でない場合、または記録が無い場合は null。ユーザー名が必要な場合は、このIDで freee会計 のユーザーAPI (Users) を利用してください",
+            "example": "1"
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true,
+            "description": "請求のメモ",
+            "example": "分割入金予定"
+          },
+          "payment_method": {
+            "type": "string",
+            "enum": [
+              "transfer",
+              "card",
+              "direct_debit",
+              "cash",
+              "bill_payable",
+              "deferred_payment"
+            ],
+            "nullable": true,
+            "description": "freee請求書 の帳票に設定された入金方法。freee請求書と連携していない請求、または未設定の場合は null。\ntransfer = 振込、card = カード、direct_debit = 振替、cash = 現金、\nbill_payable = 手形、deferred_payment = おまかせ回収",
+            "example": "transfer"
+          },
+          "allocations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReceivableManagement.Receivables.AllocationReference"
+            },
+            "description": "請求を含む消込結果の一覧。消込日時の降順 (同じ日時の場合は消込番号の降順) で返します。消込結果が無い場合は空配列"
+          }
+        },
+        "description": "請求の詳細",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Receivables.ReceivableLine": {
+        "type": "object",
+        "required": [
+          "id",
+          "amount",
+          "allocated_amount",
+          "due_amount",
+          "description",
+          "line_sales_date"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "請求明細ID",
+            "example": "01H5D1C19V442X3BA9TEPGDSTC"
+          },
+          "amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "請求明細の金額",
+            "example": "11000"
+          },
+          "allocated_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "請求明細の消込済み金額。請求明細を指定せずに登録した消込結果も、自動で請求明細へ割り当てた金額を含みます",
+            "example": "1000"
+          },
+          "due_amount": {
+            "type": "string",
+            "format": "int64",
+            "description": "請求明細の残額 (請求明細の金額 - 請求明細の消込済み金額)",
+            "example": "10000"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "摘要。摘要が無い場合は null (空文字は、摘要が空であることを表します)",
+            "example": "コンサルティング費用"
+          },
+          "line_sales_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "freee請求書 の明細に設定された取引日",
+            "example": "2026-01-15"
+          }
+        },
+        "description": "請求明細",
+        "additionalProperties": false
+      },
+      "ReceivableManagement.Usages.Usage": {
+        "type": "object",
+        "required": [
+          "start_date",
+          "end_date",
+          "usage_count",
+          "included_usage_count",
+          "has_overage"
+        ],
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "対象月の初日",
+            "example": "2026-01-01"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "description": "対象月の末日",
+            "example": "2026-01-31"
+          },
+          "usage_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "当月の充当件数。入金 1 件につき、はじめて消込した月に 1 回だけ数えます。\n消込を解除しても減らず、同じ入金を再度消込しても増えません",
+            "example": 120
+          },
+          "included_usage_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "当月の上限件数。リクエスト時点の契約で計算した、ベースプランに含まれる件数とまとめ割で購入した件数の合計です。usage_count がこれを超えた分が従量課金の対象です",
+            "example": 100
+          },
+          "has_overage": {
+            "type": "boolean",
+            "description": "充当件数が上限件数を超えているかどうか",
+            "example": true
+          }
+        },
+        "description": "当月の利用状況",
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "OAuth2Auth": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://accounts.secure.freee.co.jp/public_api/authorize",
+            "tokenUrl": "https://accounts.secure.freee.co.jp/public_api/token",
+            "scopes": {
+              "write": "",
+              "read": ""
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.freee.co.jp",
+      "description": "",
+      "variables": {}
+    }
+  ]
+}

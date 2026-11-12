@@ -1,0 +1,566 @@
+{
+  "paths": {
+    "/hub/receivable_management/allocations": {
+      "get": {
+        "summary": "消込結果一覧取得",
+        "description": "事業所の消込結果の一覧を取得します。\n\n## 注意点\n\n- 絞り込み条件を複数指定した場合は、すべてに該当する消込結果を返します。\n- 消込結果に含まれる請求・入金・差額調整の内訳は返しません。必要な場合は、消込結果取得APIで取得してください。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1 ページあたりの取得件数 (既定値 100、上限 500)。0 以下を指定した場合は既定値になります",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "次のページを取得するためのトークン。前回のレスポンスの next_page_token を指定します。絞り込み条件と sort_by / sort_order は前回と同じ値を指定してください",
+            "explode": false
+          },
+          {
+            "name": "statuses[]",
+            "in": "query",
+            "type": "array",
+            "required": false,
+            "description": "消込ステータス (複数指定可、いずれかに該当する消込結果を返します)。\nallocated = 取引反映待ち、posted = 取引反映済み、post_failed = 取引反映失敗。\nレスポンスの status と違い posting (取引反映中) は指定できません。取引反映中の消込結果は、取引反映を受け付ける前のステータス (allocated / post_failed) で絞り込まれます。3 件まで指定できます"
+          },
+          {
+            "name": "allocated_at_from",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "消込日の開始日。指定日を含みます。allocated_at_to との期間は 10 年以内で指定してください",
+            "explode": false
+          },
+          {
+            "name": "allocated_at_to",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "消込日の終了日。指定日を含みます",
+            "explode": false
+          },
+          {
+            "name": "allocated_by",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "消込を実行したユーザーのID。freee会計 のユーザーAPI (Users) で取得できるIDを指定します",
+            "explode": false
+          },
+          {
+            "name": "total_adjustment_amount_from",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "差額調整の合計金額の下限。指定額を含みます。負の値も指定できます",
+            "explode": false
+          },
+          {
+            "name": "total_adjustment_amount_to",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "差額調整の合計金額の上限。指定額を含みます。負の値も指定できます",
+            "explode": false
+          },
+          {
+            "name": "adjustment_account_item_id",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "差額調整の勘定科目ID (freee会計)。この勘定科目の差額調整を 1 件以上含む消込結果を返します",
+            "explode": false
+          },
+          {
+            "name": "adjustment_amount_from",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "差額調整 1 件ごとの金額の下限 (合計ではありません)。指定額を含みます。負の値も指定できます",
+            "explode": false
+          },
+          {
+            "name": "adjustment_amount_to",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "差額調整 1 件ごとの金額の上限 (合計ではありません)。指定額を含みます。負の値も指定できます",
+            "explode": false
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "並び替えの項目 (既定値 allocated_at)",
+            "explode": false
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "並び順 (既定値 desc)",
+            "explode": false
+          }
+        ]
+      },
+      "post": {
+        "summary": "消込",
+        "description": "請求と入金を紐づけて消込します。登録された消込結果のステータスは allocated (取引反映待ち) です。\n\n## 金額の条件\n\n- 請求・入金はそれぞれ 1 件以上指定します。\n- 請求に充当する金額の合計は、入金金額と差額調整の金額の合計と一致させてください。\n- 差額調整の金額は、入金が請求より少ない場合 (振込手数料など) は正、多い場合は負の値を指定します。\n\n## 従量課金\n\n入金は 1 件につき 1 回、はじめて消込したときに充当件数として数えます。当月の充当件数が上限件数を超えた分が従量課金の対象です。消込を解除して同じ入金を再度消込しても、重ねて数えません。\n\n## リトライ\n\nこのAPIは冪等ではありませんが、1 つの入金を複数の消込結果に含めることはできないため、同じリクエストを再実行しても消込結果が重複して登録されることはありません。\n結果が分からない場合は、入金取得APIで、指定した入金の入金残額 (unallocated_amount) が 0 になっているかで確認できます。",
+        "hasJsonBody": true
+      }
+    },
+    "/hub/receivable_management/allocations/{id}": {
+      "get": {
+        "summary": "消込結果取得",
+        "description": "消込結果と、消込結果に含まれる請求・入金・差額調整の内訳を取得します。\n\n## 注意点\n\n- 請求・入金は ID と充当した金額だけを返します。請求・入金のそのほかの項目は、請求取得API・入金取得APIで取得してください。\n- 差額調整の勘定科目名は返しません。必要な場合は `account_item_id` で freee会計 の勘定科目APIを利用してください。\n- 解除した消込結果は取得できません。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "取得する消込結果のID"
+          }
+        ]
+      },
+      "delete": {
+        "summary": "消込の解除",
+        "description": "消込を解除し、請求の請求残額と入金の入金残額を消込前に戻します。消込結果の差額調整は削除されます。解除した消込結果は、消込結果一覧取得APIで取得できなくなります。\n\n## 入金への影響\n\n消込中に freee会計 で入金が変更されていた場合は、解除したときにその変更が入金に反映されます。freee会計 で削除された、または出金に変更された入金は、解除と同時に削除されます。\nfreee会計 で入金を処理済みにしていた場合、解除後の入金は処理済みになり、再度消込することはできません。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "解除する消込結果のID"
+          }
+        ]
+      }
+    },
+    "/hub/receivable_management/allocations/{id}/post": {
+      "post": {
+        "summary": "消込結果の取引反映",
+        "description": "消込結果を freee会計 に取引反映するよう受け付けます。取引反映は受け付けた後に非同期で行うため、202 は受け付けたことだけを表し、取引反映の成否は含みません。\n\n## 取引反映の結果\n\n受け付けた消込結果は、消込結果取得APIで status が posting (取引反映中) になります。取引反映の結果は、status が posted (取引反映済み) または post_failed (取引反映失敗) に変わったことで確認してください。\n\n受け付けるときに消込結果の status でエラーを返すことはありません。取引反映できなかった場合は status が post_failed になり、理由は消込結果取得APIの accounting_sync_error_reason_message で確認できます。post_failed の消込結果も、再度実行すると受け付けます。解除した消込結果は、存在しない消込結果と同じく 404 を返します。\n\n## リトライ\n\n消込結果が取引反映済み (status が posted)、または取引反映中 (status が posting) の場合は、何もせずに 202 を返します。同じ消込結果に対して再実行しても問題ありません。\n受け付けてから一定時間 (現在は 24 時間) 内に取引反映が完了しなかった場合、status は受け付ける前の値 (allocated / post_failed) に戻ります。その場合は再度実行してください。post_failed に戻った場合、消込結果取得APIの accounting_sync_error_reason と accounting_sync_error_reason_message は受け付ける前の失敗理由を返します。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "取引反映する消込結果のID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/receivable_management/allocations/{id}/unpost": {
+      "post": {
+        "summary": "消込結果の取引反映の取消",
+        "description": "取引反映済み (status が posted) の消込結果について取引反映を取り消し、status を allocated (取引反映待ち) に戻します。freee会計 に計上されていた決済取引が削除され、請求に対応する取引が「未決済」もしくは「決済中」に戻ります。差額を含む消込結果の場合は、合わせて差額に対応する取引も削除されます。債権管理 の消込結果は解除されません。解除する場合は消込の解除APIを使ってください。\n\n## 取り消せない場合\n\n- 400: 消込結果が取引反映失敗 (status が post_failed)。取り消すものが無いため、必要な場合は消込の解除APIで解除してください\n- 400: 呼び出したユーザーが、freee会計 で入金の口座にアクセスできない、または取り消す権限が無い\n- 404: 消込結果が存在しない、または解除されている\n- 409: 消込結果が取引反映中 (status が posting)。取引反映の完了後に再実行してください\n- 409: 取引反映した入金が、債権管理 以外 (freee会計 の画面など) で消込されている\n- 409: freee会計 が年度締め・巻き戻しの処理中。処理の完了後に再実行してください\n- 422: 取引反映した入金が freee会計 で処理中、入金に紐づく仕訳が承認済みなど、freee会計 が取消を受け付けなかった (理由は message を確認してください)\n\n## リトライ\n\n消込結果が allocated の場合は、何もせずに 204 を返します。同じ消込結果に対して再実行しても問題ありません。\n取消には時間がかかることがあり、呼び出し元がタイムアウト・切断しても、取消は完了していることがあります。結果が分からない場合は再実行するか、消込結果取得APIで status を確認してください。\n前のリクエストの処理中に再実行すると、処理の完了を待ちきれずに 500 を返すことがあります。その場合は時間をおいて再実行してください。",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "取引反映を取り消す消込結果のID"
+          }
+        ],
+        "hasJsonBody": true
+      }
+    },
+    "/hub/receivable_management/incoming_payments": {
+      "get": {
+        "summary": "入金一覧取得",
+        "description": "事業所の入金の一覧を取得します。入金には、freee会計 の口座から取り込んだものと、手動で登録したものがあります。\n\n## 注意点\n\n- 絞り込み条件を複数指定した場合は、すべてに該当する入金を返します。\n- 口座名は返しません。必要な場合は `bank_account_id` で freee会計 の口座APIを利用してください。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1 ページあたりの取得件数 (既定値 100、上限 500)。0 以下を指定した場合は既定値になります",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "次のページを取得するためのトークン。前回のレスポンスの next_page_token を指定します。絞り込み条件と sort_by / sort_order は前回と同じ値を指定してください",
+            "explode": false
+          },
+          {
+            "name": "bank_account_id",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "freee会計 の口座ID。指定した口座から取り込んだ入金だけを返します。\n消込口座に登録されていない口座を指定した場合は、空の一覧ではなく 404 を返します",
+            "explode": false
+          },
+          {
+            "name": "origin",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "発生元。sync = freee会計 の口座から取り込み、manual = 手動登録",
+            "explode": false
+          },
+          {
+            "name": "statuses[]",
+            "in": "query",
+            "type": "array",
+            "required": false,
+            "description": "消込状況 (複数指定可、いずれかに該当する入金を返します)。\nprocessed = 入金残額が 0、または freee会計 で処理済みにした入金、unprocessed = それ以外の入金。2 件まで指定できます"
+          },
+          {
+            "name": "issue_date_from",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "入金日の開始日。指定日を含みます",
+            "explode": false
+          },
+          {
+            "name": "issue_date_to",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "入金日の終了日。指定日を含みます",
+            "explode": false
+          },
+          {
+            "name": "amount_from",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "入金金額の下限。指定額を含みます",
+            "explode": false
+          },
+          {
+            "name": "amount_to",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "入金金額の上限。指定額を含みます",
+            "explode": false
+          },
+          {
+            "name": "allocated_amount_from",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "消込済み金額の下限。指定額を含みます",
+            "explode": false
+          },
+          {
+            "name": "allocated_amount_to",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "消込済み金額の上限。指定額を含みます",
+            "explode": false
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "並び替えの項目 (既定値 issue_date)",
+            "explode": false
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "並び順 (既定値 desc)",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/receivable_management/incoming_payments/{id}": {
+      "get": {
+        "summary": "入金取得",
+        "description": "入金と、入金を含む消込結果のIDを取得します。\n\n## 注意点\n\n- 口座名は返しません。必要な場合は `bank_account_id` で freee会計 の口座APIを利用してください。\n- 消込結果は ID だけを返します。消込結果の内容は消込結果取得APIで取得してください。解除した消込結果は含みません。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "取得する入金のID (ULID 形式の 26 文字)。形式が不正な場合は 400 を返します"
+          }
+        ]
+      }
+    },
+    "/hub/receivable_management/receivables": {
+      "get": {
+        "summary": "請求一覧取得",
+        "description": "事業所の請求の一覧を取得します。\n\n## 注意点\n\n- 絞り込み条件を複数指定した場合は、すべてに該当する請求を返します。\n- 取引先名・取引先コードは返しません。必要な場合は `partner_id` で freee会計 の取引先APIを利用してください。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1 ページあたりの取得件数 (既定値 100、上限 500)。0 以下を指定した場合は既定値になります",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "次のページを取得するためのトークン。前回のレスポンスの next_page_token を指定します。絞り込み条件と sort_by / sort_order は前回と同じ値を指定してください",
+            "explode": false
+          },
+          {
+            "name": "origin",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "発生元。invoice = freee請求書",
+            "explode": false
+          },
+          {
+            "name": "statuses[]",
+            "in": "query",
+            "type": "array",
+            "required": false,
+            "description": "消込状況 (複数指定可、いずれかに該当する請求を返します)。\nunprocessed = 請求残額が残っている、processed = 請求残額が 0、archived = 管理対象外。\nunprocessed / processed に管理対象外の請求は含みません。\n未指定の場合は管理対象外を含むすべての請求を返します。3 件まで指定できます"
+          },
+          {
+            "name": "partner_ids[]",
+            "in": "query",
+            "type": "array",
+            "required": false,
+            "description": "freee会計 の取引先ID (複数指定可、いずれかに該当する請求を返します)。100 件まで指定できます"
+          },
+          {
+            "name": "billing_date_from",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "請求日の開始日。指定日を含みます",
+            "explode": false
+          },
+          {
+            "name": "billing_date_to",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "請求日の終了日。指定日を含みます",
+            "explode": false
+          },
+          {
+            "name": "due_date_from",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "入金期日の開始日。指定日を含みます",
+            "explode": false
+          },
+          {
+            "name": "due_date_to",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "入金期日の終了日。指定日を含みます",
+            "explode": false
+          },
+          {
+            "name": "amount_from",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "請求金額の下限。指定額を含みます。負の値も指定できます",
+            "explode": false
+          },
+          {
+            "name": "amount_to",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "請求金額の上限。指定額を含みます。負の値も指定できます",
+            "explode": false
+          },
+          {
+            "name": "due_amount_from",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "請求残額の下限。指定額を含みます。負の値も指定できます",
+            "explode": false
+          },
+          {
+            "name": "due_amount_to",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "請求残額の上限。指定額を含みます。負の値も指定できます",
+            "explode": false
+          },
+          {
+            "name": "report_no",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "請求書番号 (完全一致)",
+            "explode": false
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "並び替えの項目 (既定値 billing_date)",
+            "explode": false
+          },
+          {
+            "name": "sort_order",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "並び順 (既定値 desc)",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/receivable_management/receivables/{id}": {
+      "get": {
+        "summary": "請求取得",
+        "description": "請求と、請求を含む消込結果のIDを取得します。\n\n## 注意点\n\n- 取引先名・取引先コードは返しません。必要な場合は `partner_id` で freee会計 の取引先APIを利用してください。\n- 消込結果は ID だけを返します。消込結果の内容は消込結果取得APIで取得してください。解除した消込結果は含みません。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "取得する請求のID (ULID 形式の 26 文字)。形式が不正な場合は 400 を返します"
+          }
+        ]
+      }
+    },
+    "/hub/receivable_management/receivables/{id}/lines": {
+      "get": {
+        "summary": "請求明細一覧取得",
+        "description": "請求明細の一覧を取得します。請求明細ごとに消込する場合は、ここで取得した請求明細IDを消込APIの `receivable_line_id` に指定します。\n\n## 注意点\n\n- 請求明細は請求明細IDの昇順 (登録された順) で返します。並び順は指定できません。\n- 請求が存在しない場合は、空の一覧ではなく 404 を返します。\n- freee請求書 で請求書が更新されると、請求明細は新しい請求明細IDで登録し直されます。続きのページを取得する前に更新された場合は 400 を返すので、最初のページから取得し直してください。以前に取得した請求明細IDは使えなくなります。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "type": "string",
+            "required": true,
+            "description": "請求明細を取得する請求のID (ULID 形式の 26 文字)。形式が不正な場合は 400 を返します"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "description": "1 ページあたりの取得件数 (既定値 100、上限 500)。0 以下を指定した場合は既定値になります",
+            "explode": false
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "description": "次のページを取得するためのトークン。前回のレスポンスの next_page_token を指定します。請求IDは前回と同じ値を指定してください。前回の取得の後に請求明細が登録し直された場合や、別の請求のトークンを指定した場合は 400 を返します",
+            "explode": false
+          }
+        ]
+      }
+    },
+    "/hub/receivable_management/company/usages": {
+      "get": {
+        "summary": "当月の利用状況取得",
+        "description": "事業所の当月の充当件数を、上限件数・上限件数を超えているかどうかと合わせて取得します。上限件数を超えた場合、従量課金の対象になる件数は usage_count から included_usage_count を引いた件数です。\n\n## 注意点\n\n- 当月は日本時間の暦月です。過去の月は取得できません。\n- 件数は事業所全体の合計です。\n- 契約情報を一時的に取得できなかった場合は 500 を返します。時間をおいて再試行してください。",
+        "parameters": [
+          {
+            "name": "company_id",
+            "in": "query",
+            "type": "integer",
+            "required": true,
+            "description": "事業所ID",
+            "explode": false
+          }
+        ]
+      }
+    }
+  }
+}

@@ -58,6 +58,7 @@ type SchemaSourceId =
   | 'sm'
   | 'it_management'
   | 'fixed_asset_management'
+  | 'receivable_management'
   | 'partner_management'
   | 'tax_return'
   | 'mcponly';
@@ -70,6 +71,7 @@ const SCHEMA_FILES: Record<SchemaSourceId, string> = {
   sm: 'sm.json',
   it_management: 'it-management.json',
   fixed_asset_management: 'fixed-asset-management.json',
+  receivable_management: 'receivable-management.json',
   partner_management: 'partner-management.json',
   tax_return: 'tax-return.json',
   mcponly: 'mcponly.json',
@@ -99,6 +101,7 @@ export type ApiType =
   | 'sm'
   | 'it_management'
   | 'fixed_asset_management'
+  | 'receivable_management'
   | 'partner_management'
   | 'survey'
   | 'launch'
@@ -160,6 +163,11 @@ const SERVICE_METADATA: Record<ApiType, ServiceMetadata> = {
     source: 'fixed_asset_management',
     baseUrl: 'https://api.freee.co.jp',
     name: 'freee固定資産 API',
+  },
+  receivable_management: {
+    source: 'receivable_management',
+    baseUrl: 'https://api.freee.co.jp',
+    name: 'freee債権管理 API',
   },
   partner_management: {
     source: 'partner_management',
