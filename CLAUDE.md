@@ -37,7 +37,9 @@ MCP server that exposes freee API endpoints as MCP tools:
   - Automatically detects API type from path and uses correct base URL
   - Validates paths against all OpenAPI schemas before execution
   - Supports all 5 freee APIs seamlessly
-- Requests: `makeApiRequest()` in `src/api/client.ts` handles API calls with auto-auth and company_id injection
+- Requests: `makeApiRequest()` in `src/api/client.ts` handles API calls with auto-auth and company_id validation
+  - company_id is not injected automatically; callers must pass it in `query` or `body`
+  - A company_id that differs from the current company (`freee_set_current_company`) is rejected before the request is sent
 
 ### Configuration
 
