@@ -20,6 +20,7 @@ describe('schema-loader', () => {
       'sm',
       'it_management',
       'fixed_asset_management',
+      'receivable_management',
       'partner_management',
       'survey',
       'launch',
@@ -108,6 +109,29 @@ describe('schema-loader', () => {
       expect(result.isValid).toBe(true);
       expect(result.apiType).toBe('fixed_asset_management');
       expect(result.baseUrl).toBe('https://api.freee.co.jp');
+    });
+
+    it('should validate receivable management API paths', () => {
+      const result = validatePathForService(
+        'GET',
+        '/hub/receivable_management/receivables/123',
+        'receivable_management',
+      );
+
+      expect(result.isValid).toBe(true);
+      expect(result.apiType).toBe('receivable_management');
+      expect(result.baseUrl).toBe('https://api.freee.co.jp');
+    });
+
+    it('should validate receivable management allocation post action', () => {
+      const result = validatePathForService(
+        'POST',
+        '/hub/receivable_management/allocations/123/post',
+        'receivable_management',
+      );
+
+      expect(result.isValid).toBe(true);
+      expect(result.apiType).toBe('receivable_management');
     });
 
     it('should return serialization metadata for referenced IT management parameters', () => {
@@ -271,6 +295,7 @@ describe('schema-loader', () => {
       'FREEE_API_BASE_URL_SM',
       'FREEE_API_BASE_URL_IT_MANAGEMENT',
       'FREEE_API_BASE_URL_FIXED_ASSET_MANAGEMENT',
+      'FREEE_API_BASE_URL_RECEIVABLE_MANAGEMENT',
       'FREEE_API_BASE_URL_PARTNER_MANAGEMENT',
       'FREEE_API_BASE_URL_SURVEY',
       'FREEE_API_BASE_URL_LAUNCH',
@@ -294,6 +319,7 @@ describe('schema-loader', () => {
       expect(API_CONFIGS.sm.baseUrl).toBe('https://api.freee.co.jp/sm');
       expect(API_CONFIGS.it_management.baseUrl).toBe('https://api.freee.co.jp');
       expect(API_CONFIGS.fixed_asset_management.baseUrl).toBe('https://api.freee.co.jp');
+      expect(API_CONFIGS.receivable_management.baseUrl).toBe('https://api.freee.co.jp');
       expect(API_CONFIGS.tax_return.baseUrl).toBe('https://api.freee.co.jp');
     });
 
@@ -311,6 +337,14 @@ describe('schema-loader', () => {
       expect(API_CONFIGS.pm.baseUrl).toBe('https://api.freee.co.jp/pm');
       expect(API_CONFIGS.sm.baseUrl).toBe('https://api.freee.co.jp/sm');
       expect(API_CONFIGS.it_management.baseUrl).toBe('https://api.freee.co.jp');
+      expect(API_CONFIGS.fixed_asset_management.baseUrl).toBe('https://api.freee.co.jp');
+      expect(API_CONFIGS.receivable_management.baseUrl).toBe('https://api.freee.co.jp');
+    });
+
+    it('should override receivable management base URL with its env var', () => {
+      process.env.FREEE_API_BASE_URL_RECEIVABLE_MANAGEMENT = 'https://staging.example.com';
+      _resetApiConfigs();
+      expect(API_CONFIGS.receivable_management.baseUrl).toBe('https://staging.example.com');
       expect(API_CONFIGS.fixed_asset_management.baseUrl).toBe('https://api.freee.co.jp');
     });
 
@@ -346,6 +380,7 @@ describe('schema-loader', () => {
       expect(paths).toContain('freee工数管理 API');
       expect(paths).toContain('freee販売 API');
       expect(paths).toContain('freee固定資産 API');
+      expect(paths).toContain('freee債権管理 API');
       expect(paths).toContain('freee申告 API');
     });
 
@@ -413,6 +448,7 @@ describe('schema-loader', () => {
       expect(isMcpOnlyPath('/api/1/deals')).toBe(false);
       expect(isMcpOnlyPath('/hub/it_management/members')).toBe(false);
       expect(isMcpOnlyPath('/hub/fixed_asset_management/fixed_assets')).toBe(false);
+      expect(isMcpOnlyPath('/hub/receivable_management/receivables')).toBe(false);
       expect(isMcpOnlyPath('/hub/tax_return/corporate')).toBe(false);
     });
 

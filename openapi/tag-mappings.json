@@ -127,6 +127,12 @@
   "fixed-asset-management-api": {
     "fixed_asset_management_fixed_assets": "fixed-assets"
   },
+  "receivable-management-api": {
+    "receivable_management_allocations": "allocations",
+    "receivable_management_incoming_payments": "incoming-payments",
+    "receivable_management_receivables": "receivables",
+    "receivable_management_usages": "usages"
+  },
   "tax-return-api": {
     "tax_return_corporate": "corporate"
   },

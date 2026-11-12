@@ -144,6 +144,13 @@
 
 - fixed-asset-management-fixed-assets.md — fixed_assets
 
+## receivable_management - freee債権管理
+
+- receivable-management-allocations.md — receivable_management_allocations
+- receivable-management-misc.md L3-65 — receivable_management_incoming_payments
+- receivable-management-misc.md L67-166 — receivable_management_receivables
+- receivable-management-misc.md L168-191 — receivable_management_usages
+
 ## partner_management - freee業務委託管理
 
 - partner-management-misc.md L3-57 — partner_management_orderer_company_users

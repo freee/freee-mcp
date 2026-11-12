@@ -93,6 +93,7 @@ Sign development mode: Use `"command": "bun", "args": ["run", "src/sign/index.ts
 - `FREEE_API_BASE_URL_EMPLOYEE_EVALUATION` - 人事評価API
 - `FREEE_API_BASE_URL_TAX_RETURN` - 申告API
 - `FREEE_API_BASE_URL_FIXED_ASSET_MANAGEMENT` - 固定資産API
+- `FREEE_API_BASE_URL_RECEIVABLE_MANAGEMENT` - 債権管理API
 - `FREEE_SIGN_API_URL` - サインAPI（`src/sign/config.ts` で処理）
 
 ### Remote モードのロギング (canonical log line)

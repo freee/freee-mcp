@@ -40,6 +40,7 @@ const serviceSchema = z
     'sm',
     'it_management',
     'fixed_asset_management',
+    'receivable_management',
     'partner_management',
     'survey',
     'launch',
