@@ -6,7 +6,7 @@
  */
 
 import { join, dirname } from "path";
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, readdir, readFile, unlink, writeFile } from "fs/promises";
 import { existsSync } from "fs";
 import { fileURLToPath } from "url";
 
@@ -781,18 +781,34 @@ function formatSuccessResponse(
 }
 
 /**
- * Extract endpoints by tag from OpenAPI schema
+ * 1タグ分のリファレンス本文。renderReference() が作り、layoutReferences() が
+ * 単独ファイルにするか束ねるかを決める。
  */
+export interface RenderedReference {
+  prefix: string;
+  /** 単独ファイルにしたときのファイル名（束ねる場合も並び順のキーに使う） */
+  fileName: string;
+  tagName: string;
+  summary: string;
+  isMcpOnly: boolean;
+  markdown: string;
+}
+
 /**
- * INDEX.md の1行分。generateReference() が生成のついでに返す。
+ * INDEX.md の1行分。束ねたファイルに入ったタグは lines に行範囲（1始まり・両端含む）を持つ。
  */
-interface IndexEntry {
+export interface IndexEntry {
   prefix: string;
   fileName: string;
   tagName: string;
   summary: string;
   isMcpOnly: boolean;
+  lines?: { start: number; end: number };
 }
+
+/**
+ * Extract endpoints by tag from OpenAPI schema
+ */
 
 function extractEndpointsByTag(
   schema: OpenAPISchema,
@@ -919,18 +935,17 @@ export function buildEndpointsMarkdown(
 }
 
 /**
- * Generate reference document for a single tag
+ * 1タグ分のリファレンス本文を作る。エンドポイントが1つも無いタグ（スキーマから
+ * 消えたタグが tag-mappings.json に残っている場合など）は null を返す。
  */
-async function generateReference(
+function renderReference(
   apiName: string,
   schema: OpenAPISchema,
   tagName: string,
   englishName: string,
-  prefix: string,
-  outputDir: string
-): Promise<IndexEntry> {
+  prefix: string
+): RenderedReference | null {
   const fileName = `${prefix}-${englishName}.md`;
-  const outputFile = join(outputDir, fileName);
 
   // Get tag description from schema.
   // 説明がないタグは `${tagName}の操作` のような情報量ゼロの見出しになるだけなので出さない。
@@ -939,6 +954,10 @@ async function generateReference(
 
   // Extract endpoints for this tag
   const endpoints = extractEndpointsByTag(schema, tagName);
+  if (endpoints.length === 0) {
+    console.warn(`  Skipped ${fileName}: tag "${tagName}" has no endpoints`);
+    return null;
+  }
 
   // mcp-only（freee-mcp リモート版限定）判定: このタグのいずれかのパスが
   // mcponly-api-schema.json 由来なら、リファレンス冒頭にバナーを挿入する。
@@ -949,14 +968,10 @@ async function generateReference(
 
   const overview = tagDesc ? `\n${tagDesc}\n` : "";
 
-  // Generate markdown document
   const markdown = `# ${tagName}
 ${banner}${overview}
 ${endpointsMd.trimEnd()}
 `;
-
-  await writeFile(outputFile, markdown, "utf-8");
-  console.log(`Generated: ${fileName}`);
 
   return {
     prefix,
@@ -965,7 +980,90 @@ ${endpointsMd.trimEnd()}
     // タグ説明がない API（pm 等）は日本語ラベルが取れないのでタグ名で代用する。
     summary: tagDesc || tagName,
     isMcpOnly,
+    markdown,
   };
+}
+
+/**
+ * これ未満のサイズ（バイト）のタグは service ごとに1ファイルへ束ねる。
+ *
+ * skill ディレクトリにはファイル数の上限（200）があるため、タグごとに1ファイル
+ * だと API の追加でいずれ溢れる。一方で全部を大きなファイルにまとめると、
+ * 1タグを調べるたびに読む量が増える。そこで小さいタグだけを束ね、INDEX.md に
+ * 行範囲を載せて該当部分だけ読めるようにする。大きいタグは単独ファイルのまま。
+ */
+export const BUNDLE_THRESHOLD_BYTES = 8000;
+
+/** 小さいタグを束ねたファイルの名前 */
+export function bundleFileName(prefix: string): string {
+  return `${prefix}-misc.md`;
+}
+
+function countLines(text: string): number {
+  return text.split("\n").length;
+}
+
+/**
+ * レンダリング済みのリファレンスを出力ファイルに割り付ける。
+ *
+ * service（prefix）ごとに BUNDLE_THRESHOLD_BYTES 未満のタグを `<prefix>-misc.md` に
+ * 束ね、各タグの行範囲を IndexEntry.lines に記録する。束ねる対象が1つしかない
+ * service は束ねてもファイル数が減らないので単独ファイルのままにする。
+ */
+export function layoutReferences(
+  references: RenderedReference[],
+  labels: Record<string, { label: string }>,
+  threshold: number = BUNDLE_THRESHOLD_BYTES
+): { files: Array<{ fileName: string; content: string }>; entries: IndexEntry[] } {
+  const files: Array<{ fileName: string; content: string }> = [];
+  const entries: IndexEntry[] = [];
+
+  const toEntry = (ref: RenderedReference, fileName: string, lines?: IndexEntry["lines"]): IndexEntry => ({
+    prefix: ref.prefix,
+    fileName,
+    tagName: ref.tagName,
+    summary: ref.summary,
+    isMcpOnly: ref.isMcpOnly,
+    ...(lines ? { lines } : {}),
+  });
+
+  const prefixes = [...new Set(references.map((ref) => ref.prefix))];
+  for (const prefix of prefixes) {
+    const refs = references
+      .filter((ref) => ref.prefix === prefix)
+      .sort((a, b) => a.fileName.localeCompare(b.fileName));
+    const small = refs.filter((ref) => Buffer.byteLength(ref.markdown, "utf-8") < threshold);
+    const bundled = small.length >= 2 ? new Set(small) : new Set<RenderedReference>();
+
+    // 束ねるタグの行範囲を先に確定させる
+    const bundleFile = bundleFileName(prefix);
+    const lineRanges = new Map<RenderedReference, { start: number; end: number }>();
+    if (bundled.size > 0) {
+      const label = labels[prefix]?.label ?? prefix;
+      let content = `<!-- ${label} の小さいタグをまとめたファイル。タグごとの行範囲は INDEX.md を参照し、必要な範囲だけ読むこと。 -->\n`;
+      for (const ref of bundled) {
+        const body = ref.markdown.trimEnd();
+        // 直前のタグとの間に空行を1つ挟む
+        const start = countLines(content) + 1;
+        lineRanges.set(ref, { start, end: start + countLines(body) - 1 });
+        content += `\n${body}\n`;
+      }
+      files.push({ fileName: bundleFile, content });
+    }
+
+    // 索引は束ねたかどうかに関係なく、タグ名ベースの並びを保つ
+    for (const ref of refs) {
+      const lines = lineRanges.get(ref);
+      if (lines) {
+        entries.push(toEntry(ref, bundleFile, lines));
+      } else {
+        files.push({ fileName: ref.fileName, content: ref.markdown });
+        entries.push(toEntry(ref, ref.fileName));
+      }
+    }
+  }
+
+  return { files, entries };
 }
 
 /**
@@ -1062,9 +1160,8 @@ async function processApi(
   schemaFile: string,
   prefix: string | undefined,
   tagServices: Record<string, string> | undefined,
-  mappings: TagMappings,
-  outputDir: string
-): Promise<IndexEntry[]> {
+  mappings: TagMappings
+): Promise<RenderedReference[]> {
   console.log("");
   console.log(`Processing ${apiKey}...`);
   console.log("================================");
@@ -1080,7 +1177,7 @@ async function processApi(
     return [];
   }
 
-  const entries: IndexEntry[] = [];
+  const references: RenderedReference[] = [];
   for (const [tagName, englishName] of Object.entries(tagMappings)) {
     if (englishName) {
       const filePrefix = prefix ?? tagServices?.[tagName];
@@ -1090,14 +1187,13 @@ async function processApi(
             `Add it to tagServices in API_CONFIGS (and to SERVICE_LABELS).`
         );
       }
-      entries.push(
-        await generateReference(apiKey, schema, tagName, englishName, filePrefix, outputDir)
-      );
+      const reference = renderReference(apiKey, schema, tagName, englishName, filePrefix);
+      if (reference) references.push(reference);
     }
   }
 
-  console.log(`Generated ${entries.length} files for ${apiKey}`);
-  return entries;
+  console.log(`Rendered ${references.length} tags for ${apiKey}`);
+  return references;
 }
 
 // API configurations
@@ -1191,6 +1287,29 @@ function toIndexText(text: string): string {
 }
 
 /**
+ * 索引に載せる場所。束ねたファイルのタグは行範囲を付ける。
+ */
+export function formatIndexLocation(entry: IndexEntry): string {
+  return entry.lines
+    ? `${entry.fileName} L${entry.lines.start}-${entry.lines.end}`
+    : entry.fileName;
+}
+
+/**
+ * 今回生成しなかった .md を出力ディレクトリから消す。
+ *
+ * 束ねる・束ねないの割り付けはタグのサイズで変わるし、スキーマからタグが消える
+ * こともあるので、前回の生成物が残るとファイル数が増え続けてしまう。
+ */
+async function removeStaleReferences(outputDir: string, keep: Set<string>): Promise<void> {
+  for (const name of await readdir(outputDir)) {
+    if (!name.endsWith(".md") || keep.has(name)) continue;
+    await unlink(join(outputDir, name));
+    console.log(`Removed stale reference: ${name}`);
+  }
+}
+
+/**
  * Generate references/INDEX.md from the entries collected during generation.
  *
  * リファレンス本体と同じソース（tag-mappings.json + スキーマ）から作るので、
@@ -1200,9 +1319,12 @@ async function writeReferenceIndex(entries: IndexEntry[], outputDir: string): Pr
   let markdown = `# API リファレンス索引
 
 \`freee_api_*\` ツールの service ごとに、\`references/\` 内の各リファレンスを
-「ファイル名 — 内容」の形式で列挙する。
+「ファイル名 [行範囲] — 内容」の形式で列挙する。
 目的の API が分かっている場合はここからファイルを特定し、分からない場合は
 \`references/\` 全体をキーワード検索する。
+
+\`L120-185\` のような行範囲が付いたものは、小さいタグを1ファイルに束ねたもの。
+ファイル全体ではなく、その範囲だけを読む（Read なら offset=120, limit=66）。
 
 このファイルは \`scripts/generate-references.ts\` が自動生成する（手編集しないこと）。
 `;
@@ -1214,15 +1336,15 @@ async function writeReferenceIndex(entries: IndexEntry[], outputDir: string): Pr
 
     markdown += `\n## ${service} - ${label}\n\n`;
 
-    for (const entry of rows.sort((a, b) => a.fileName.localeCompare(b.fileName))) {
+    for (const entry of rows) {
       const mcpOnly = entry.isMcpOnly ? "⚠ freee-mcp（リモート版） 限定 / " : "";
-      markdown += `- ${entry.fileName} — ${mcpOnly}${toIndexText(entry.summary)}\n`;
+      markdown += `- ${formatIndexLocation(entry)} — ${mcpOnly}${toIndexText(entry.summary)}\n`;
     }
   }
 
   const outputFile = join(outputDir, "INDEX.md");
   await writeFile(outputFile, markdown, "utf-8");
-  console.log(`Generated: INDEX.md (${entries.length} references)`);
+  console.log(`Generated: INDEX.md (${entries.length} tags)`);
 }
 
 // README の対応操作数を差し込むマーカー。スキーマを更新するたびに手で数え直すと
@@ -1349,25 +1471,31 @@ async function main(): Promise<void> {
     }
 
     // Process each API
-    const indexEntries: IndexEntry[] = [];
+    const references: RenderedReference[] = [];
     for (const { apiKey, schemaFile, prefix, tagServices, outputDir } of API_CONFIGS) {
-      const entries = await processApi(
-        apiKey,
-        schemaFile,
-        prefix,
-        tagServices,
-        mappings,
-        outputDir
-      );
-      // sign は SIGN-GUIDE.md がリファレンス一覧を持っているので索引の対象外。
+      const rendered = await processApi(apiKey, schemaFile, prefix, tagServices, mappings);
       if (outputDir === OUTPUT_DIR) {
-        indexEntries.push(...entries);
+        references.push(...rendered);
+        continue;
+      }
+      // sign は SIGN-GUIDE.md がファイル名でリファレンス一覧を持っているので、
+      // 束ねずにタグごとの単独ファイルのまま出力する。
+      for (const ref of rendered) {
+        await writeFile(join(outputDir, ref.fileName), ref.markdown, "utf-8");
       }
     }
 
-    // Generate references/INDEX.md
+    // references/ は小さいタグを束ねて出力する（ファイル数の上限対策）
     console.log("");
-    await writeReferenceIndex(indexEntries, OUTPUT_DIR);
+    const { files, entries } = layoutReferences(references, SERVICE_LABELS);
+    for (const { fileName, content } of files) {
+      await writeFile(join(OUTPUT_DIR, fileName), content, "utf-8");
+    }
+    console.log(`Wrote ${files.length} reference files for ${references.length} tags`);
+    await removeStaleReferences(OUTPUT_DIR, new Set([...files.map((f) => f.fileName), "INDEX.md"]));
+
+    // Generate references/INDEX.md
+    await writeReferenceIndex(entries, OUTPUT_DIR);
 
     // Update the supported operation count in README.md
     await updateReadmeOperationCount(API_CONFIGS);

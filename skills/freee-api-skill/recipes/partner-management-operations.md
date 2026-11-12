@@ -4,17 +4,17 @@ freee業務委託管理APIを使った、発注者（orderer）視点でのパ�
 
 各エンドポイントのパラメータとレスポンス仕様は以下を参照。
 
-- `references/partner-management-orderer-company-users.md` - 企業ユーザー（発注者側）
-- `references/partner-management-orderer-sections.md` - 部門
-- `references/partner-management-partner-management-orderer-partners.md` - パートナー
-- `references/partner-management-partner-management-orderer-projects.md` - プロジェクト（一覧・詳細）
-- `references/partner-management-partner-management-orderer-project-partners.md` - プロジェクトパートナー
-- `references/partner-management-partner-management-orderer-project-business-partners.md` - プロジェクトのログインなしパートナー
-- `references/partner-management-partner-management-orderer-project-company-users.md` - プロジェクト担当者
+- `references/partner-management-misc.md` の `# partner_management_orderer_company_users` - 企業ユーザー（発注者側）
+- `references/partner-management-misc.md` の `# partner_management_orderer_sections` - 部門
+- `references/partner-management-misc.md` の `# partner_management_orderer_partners` - パートナー
+- `references/partner-management-misc.md` の `# partner_management_orderer_projects` - プロジェクト（一覧・詳細）
+- `references/partner-management-misc.md` の `# partner_management_orderer_project_partners` - プロジェクトパートナー
+- `references/partner-management-misc.md` の `# partner_management_orderer_project_business_partners` - プロジェクトのログインなしパートナー
+- `references/partner-management-misc.md` の `# partner_management_orderer_project_company_users` - プロジェクト担当者
 - `references/partner-management-partner-management-orderer-tasks.md` - タスク（発注書）の一覧・詳細
 - `references/partner-management-partner-management-orderer-task-line-items.md` - タスク品目
-- `references/partner-management-partner-management-orderer-task-line-items-custom-fields.md` - タスク品目のカスタム項目
-- `references/partner-management-partner-management-orderer-task-delivery-data-custom-fields.md` - タスク納品データのカスタム項目
+- `references/partner-management-misc.md` の `# partner_management_orderer_task_line_items_custom_fields` - タスク品目のカスタム項目
+- `references/partner-management-misc.md` の `# partner_management_orderer_task_delivery_data_custom_fields` - タスク納品データのカスタム項目
 
 ## 読み取り専用
 

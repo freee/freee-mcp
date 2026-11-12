@@ -140,5 +140,5 @@ freee_api_get {
 - `references/sm-purchase-orders.md` - 発注
 - `references/sm-procurements.md` - 仕入
 - `references/sm-cost-budgets.md` - 原価予算
-- `references/sm-other-costs.md` - その他原価
-- `references/sm-master.md` - マスタ（商品・明細取引タイプ・案件フェーズ・受注確度・従業員等）
+- `references/sm-misc.md` の `# other_costs` - その他原価
+- `references/sm-misc.md` の `# master` - マスタ（商品・明細取引タイプ・案件フェーズ・受注確度・従業員等）

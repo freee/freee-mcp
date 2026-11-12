@@ -50,4 +50,4 @@ freee_api_get {
 パス一覧・パラメータ・レスポンスの詳細は以下を参照:
 
 - `references/accounting-trial-balance.md` - 試算表（BS/PL/CR）
-- `references/accounting-general-ledgers.md` - 総勘定元帳
+- `references/accounting-misc.md` の `# General ledgers` - 総勘定元帳

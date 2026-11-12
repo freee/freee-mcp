@@ -43,4 +43,4 @@ freee_api_post {
 
 ## リファレンス
 
-メモタグのパラメータ詳細は `references/accounting-tags.md` を参照。
+メモタグのパラメータ詳細は `references/accounting-misc.md` の `# Tags` を参照。
