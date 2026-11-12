@@ -41,13 +41,15 @@ const EXPECTED: Record<
   freee_api_put: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
   freee_api_delete: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
   freee_api_patch: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
+  freee_api_bulk_get: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+  freee_api_bulk_write: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
   freee_api_list_paths: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
 };
 
 describe('tool annotations', () => {
   it.each([
-    ['stdio', false, 15],
-    ['remote', true, 13],
+    ['stdio', false, 17],
+    ['remote', true, 15],
   ])('%s: every tool sets readOnlyHint / destructiveHint / openWorldHint explicitly', (_, remote, count) => {
     const annotations = collectAnnotations(remote);
 

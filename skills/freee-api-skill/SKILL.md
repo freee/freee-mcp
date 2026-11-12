@@ -92,6 +92,8 @@ API 呼び出し:
 - `freee_api_put` - PUT リクエスト
 - `freee_api_delete` - DELETE リクエスト
 - `freee_api_patch` - PATCH リクエスト
+- `freee_api_bulk_get` - GET を複数まとめて実行（最大20件・部分成功あり。ID一覧から詳細をまとめて取る場合など）
+- `freee_api_bulk_write` - POST/PUT/PATCH/DELETE を複数まとめて実行（最大10件・既定は直列で失敗時に残りを中止）
 - `freee_api_list_paths` - 利用可能なAPIパス一覧
 
 serviceパラメータ (必須):

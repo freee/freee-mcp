@@ -1,6 +1,13 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { isBinaryFileResponse, makeApiRequest } from '../api/client.js';
+import {
+  ensureValidAccessToken,
+  ForbiddenError,
+  isBinaryFileResponse,
+  makeApiRequest,
+  RateLimitError,
+} from '../api/client.js';
 import { makeErrorChain, serializeErrorChain } from '../server/error-serializer.js';
 import { sanitizePath } from '../server/logger.js';
 import { getCurrentRecorder } from '../server/request-context.js';
@@ -100,118 +107,161 @@ function decodeUtf8Xml(data: Buffer, mimeType: string): string {
 // forwarding the call, and `{type: "object"}` alone causes them to reject
 // string-shaped bodies before the server-side coercion can run (issue #410).
 const recordSchema = z.record(z.string(), z.unknown());
-const jsonStringToRecord = z
-  .string()
-  .transform((val, ctx) => {
-    if (val.startsWith(UTF8_BOM)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          `string starts with a UTF-8 BOM (U+FEFF), which is not valid JSON. ` +
-          `The MCP client likely transcoded the payload through a transport ` +
-          `that prepended a BOM (commonly seen on Windows). ` +
-          `Send the JSON without a BOM.`,
-      });
-      return z.NEVER;
-    }
-    try {
-      return JSON.parse(val);
-    } catch {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          `expected object or JSON-encoded object string; received string ` +
-          `of length ${val.length} that could not be parsed as JSON`,
-      });
-      return z.NEVER;
-    }
-  })
-  .pipe(recordSchema);
-const coercibleRecordSchema = z.union([recordSchema, jsonStringToRecord]);
+
+/**
+ * JSON 文字列をデコードしてから `schema` で検証する zod スキーマを作る。
+ * エラーメッセージには文字列の長さだけを載せ、ペイロードの中身は出さない。
+ */
+function jsonStringTo<T extends z.ZodTypeAny>(schema: T, expected: 'object' | 'array') {
+  return z
+    .string()
+    .transform((val, ctx) => {
+      if (val.startsWith(UTF8_BOM)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            `string starts with a UTF-8 BOM (U+FEFF), which is not valid JSON. ` +
+            `The MCP client likely transcoded the payload through a transport ` +
+            `that prepended a BOM (commonly seen on Windows). ` +
+            `Send the JSON without a BOM.`,
+        });
+        return z.NEVER;
+      }
+      try {
+        return JSON.parse(val) as unknown;
+      } catch {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            `expected ${expected} or JSON-encoded ${expected} string; received string ` +
+            `of length ${val.length} that could not be parsed as JSON`,
+        });
+        return z.NEVER;
+      }
+    })
+    .pipe(schema);
+}
+
+const coercibleRecordSchema = z.union([recordSchema, jsonStringTo(recordSchema, 'object')]);
+
+/**
+ * 配列、または JSON 文字列にエンコードされた配列を受け付ける。
+ * coercibleRecord と同じ理由（一部の MCP クライアントは配列引数も文字列で送る）で
+ * 公開 JSON Schema を `anyOf: [{type: "array"}, {type: "string"}]` にする。
+ */
+function coercibleArray<T extends z.ZodTypeAny>(arraySchema: z.ZodArray<T>, description: string) {
+  return z.union([arraySchema, jsonStringTo(arraySchema, 'array')]).describe(description);
+}
 
 export function coercibleRecord(description: string) {
   return coercibleRecordSchema.describe(description);
 }
 
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+interface ApiRequestArgs {
+  service: ApiType;
+  path: string;
+  query?: Record<string, unknown>;
+  body?: Record<string, unknown>;
+}
+
+type RequestOutcome =
+  | {
+      kind: 'response';
+      result: Awaited<ReturnType<typeof makeApiRequest>>;
+      actualPath: string;
+    }
+  | { kind: 'rejected'; message: string; isError: boolean };
+
+/**
+ * パス検証 → mcp-only ゲート → freee API 呼び出しまでを行う共通処理。
+ * 検証で弾いた場合は error を recorder に記録して `rejected` を返す。
+ * freee API 呼び出しの失敗（4xx/5xx/network 等）は throw するので呼び出し側で扱う。
+ * tool_call の記録は呼び出し側（単発ツール / bulk ツール）の責務。
+ */
+async function executeRequest(
+  method: HttpMethod,
+  args: ApiRequestArgs,
+  tokenContext: ReturnType<typeof extractTokenContext>,
+): Promise<RequestOutcome> {
+  const recorder = getCurrentRecorder();
+  const { service, path, query, body } = args;
+
+  const validation = validatePathForService(method, path, service);
+  if (!validation.isValid) {
+    recorder?.recordError({
+      source: 'validation',
+      error_type: 'path_validation_failed',
+      chain: makeErrorChain('ValidationError', validation.message ?? 'unknown validation error'),
+    });
+    return {
+      kind: 'rejected',
+      message:
+        `パス検証エラー: ${validation.message}\n\n` +
+        `利用可能なパスを確認するには freee_api_list_paths ツールを使用してください。`,
+      isError: false,
+    };
+  }
+
+  const actualPath = validation.actualPath ?? path;
+
+  // mcp-only エンドポイントはローカル（stdio）モードでは freee API 側で拒否される。
+  // 往復を避け、ユーザーへの案内を確実にするため、ここで API を叩かずに弾く。
+  if (getTransportMode() === 'stdio' && isMcpOnlyPath(actualPath)) {
+    recorder?.recordError({
+      source: 'validation',
+      error_type: 'mcp_only_endpoint_local_mode',
+      chain: makeErrorChain('McpOnlyEndpointError', MCP_ONLY_LOCAL_MESSAGE),
+    });
+    return { kind: 'rejected', message: MCP_ONLY_LOCAL_MESSAGE, isError: true };
+  }
+
+  const result = await makeApiRequest(
+    method,
+    actualPath,
+    query,
+    body,
+    validation.baseUrl,
+    tokenContext,
+    validation.operation?.parameters,
+    validation.operation?.accept,
+  );
+  return { kind: 'response', result, actualPath };
+}
+
 /**
  * Creates a tool handler for a specific HTTP method
  */
-function createMethodTool(method: string) {
+function createMethodTool(method: HttpMethod) {
   const toolName = `freee_api_${method.toLowerCase()}`;
 
-  return async (
-    args: {
-      service: ApiType;
-      path: string;
-      query?: Record<string, unknown>;
-      body?: Record<string, unknown>;
-    },
-    extra?: AuthExtra,
-  ) => {
+  return async (args: ApiRequestArgs, extra?: AuthExtra) => {
     const recorder = getCurrentRecorder();
     const startTime = Date.now();
     const safePath = sanitizePath(args.path);
     const tokenContext = extractTokenContext(extra);
 
     try {
-      const { service, path, query, body } = args;
+      const { service } = args;
       setToolAttributes({
         'mcp.tool.service': service,
         'mcp.tool.path': safePath,
         'mcp.tool.method': method,
       });
 
-      const validation = validatePathForService(method, path, service);
-      if (!validation.isValid) {
+      const outcome = await executeRequest(method, args, tokenContext);
+      if (outcome.kind === 'rejected') {
         recorder?.recordToolCall({
           tool: toolName,
           service,
           status: 'error',
           duration_ms: Date.now() - startTime,
         });
-        recorder?.recordError({
-          source: 'validation',
-          error_type: 'path_validation_failed',
-          chain: makeErrorChain(
-            'ValidationError',
-            validation.message ?? 'unknown validation error',
-          ),
-        });
-        return createTextResponse(
-          `パス検証エラー: ${validation.message}\n\n` +
-            `利用可能なパスを確認するには freee_api_list_paths ツールを使用してください。`,
-        );
+        return createTextResponse(outcome.message, outcome.isError ? { isError: true } : undefined);
       }
 
-      const actualPath = validation.actualPath ?? path;
-
-      // mcp-only エンドポイントはローカル（stdio）モードでは freee API 側で拒否される。
-      // 往復を避け、ユーザーへの案内を確実にするため、ここで API を叩かずに弾く。
-      if (getTransportMode() === 'stdio' && isMcpOnlyPath(actualPath)) {
-        recorder?.recordToolCall({
-          tool: toolName,
-          service,
-          status: 'error',
-          duration_ms: Date.now() - startTime,
-        });
-        recorder?.recordError({
-          source: 'validation',
-          error_type: 'mcp_only_endpoint_local_mode',
-          chain: makeErrorChain('McpOnlyEndpointError', MCP_ONLY_LOCAL_MESSAGE),
-        });
-        return createTextResponse(MCP_ONLY_LOCAL_MESSAGE, { isError: true });
-      }
-
-      const result = await makeApiRequest(
-        method,
-        actualPath,
-        query,
-        body,
-        validation.baseUrl,
-        tokenContext,
-        validation.operation?.parameters,
-        validation.operation?.accept,
-      );
+      const { result, actualPath } = outcome;
 
       let baseMimeType: string | undefined;
       let xmlText: string | undefined;
@@ -299,10 +349,195 @@ function createMethodTool(method: string) {
   };
 }
 
+// bulk ツールの上限。freee API のレートリミットとレスポンスサイズを考慮して小さめに置く。
+export const BULK_GET_MAX_REQUESTS = 20;
+export const BULK_WRITE_MAX_REQUESTS = 10;
+const BULK_GET_DEFAULT_CONCURRENCY = 3;
+const BULK_GET_MAX_CONCURRENCY = 5;
+// 書き込みは既定で直列実行。順序依存の更新や途中失敗時の影響範囲を読みやすくするため。
+const BULK_WRITE_DEFAULT_CONCURRENCY = 1;
+const BULK_WRITE_MAX_CONCURRENCY = 3;
+
+interface BulkRequestItem extends ApiRequestArgs {
+  method: HttpMethod;
+}
+
+type BulkItemResult =
+  | { index: number; status: 'success'; data: unknown }
+  | { index: number; status: 'error'; error: string }
+  | { index: number; status: 'skipped'; reason: string };
+
+/**
+ * executeRequest の結果を bulk の結果要素に変換する。
+ * バイナリレスポンス（PDF/画像/CSV/XML 等）は bulk では返さず、単発ツールを案内する。
+ */
+function toBulkResult(
+  index: number,
+  item: BulkRequestItem,
+  outcome: RequestOutcome,
+): BulkItemResult {
+  if (outcome.kind === 'rejected') {
+    return { index, status: 'error', error: outcome.message };
+  }
+  if (isBinaryFileResponse(outcome.result)) {
+    return {
+      index,
+      status: 'error',
+      error:
+        `バイナリレスポンス（${outcome.result.mimeType}）は bulk ツールでは取得できません。` +
+        `freee_api_${item.method.toLowerCase()} を個別に使用してください。`,
+    };
+  }
+  return { index, status: 'success', data: outcome.result };
+}
+
+/**
+ * 複数リクエストを並列数を制限して実行する。
+ * - 429（レートリミット）を受けたら未着手のリクエストは実行せず skipped にする
+ * - stopOnError が true の場合、いずれかが失敗した時点で未着手分を skipped にする
+ * 結果は入力順で返す。
+ */
+async function runBulk(
+  items: BulkRequestItem[],
+  options: { concurrency: number; stopOnError: boolean },
+  tokenContext: ReturnType<typeof extractTokenContext>,
+): Promise<BulkItemResult[]> {
+  const results: BulkItemResult[] = new Array(items.length);
+  let next = 0;
+  let stopReason: string | undefined;
+
+  const worker = async (): Promise<void> => {
+    while (next < items.length) {
+      const index = next++;
+      if (stopReason) {
+        results[index] = { index, status: 'skipped', reason: stopReason };
+        continue;
+      }
+      const item = items[index];
+      try {
+        // 単発の freee_api_delete と同じく DELETE ではボディを送らない
+        const request = item.method === 'DELETE' ? { ...item, body: undefined } : item;
+        const outcome = await executeRequest(item.method, request, tokenContext);
+        results[index] = toBulkResult(index, item, outcome);
+      } catch (error) {
+        getCurrentRecorder()?.recordError({
+          source: 'tool_handler',
+          chain: serializeErrorChain(error),
+        });
+        results[index] = {
+          index,
+          status: 'error',
+          error: `APIリクエストエラー: ${formatErrorMessage(error)}`,
+        };
+        if (error instanceof RateLimitError) {
+          stopReason ??=
+            'レートリミット (429) に達したため実行しませんでした。時間をおいて再実行してください。';
+        } else if (error instanceof ForbiddenError) {
+          // freee は過度のアクセスを 403 で制限する（約 10 分で解除）。権限不足との区別が
+          // つかないため、制限中の API に投げ続けないよう 429 と同様に打ち切る。
+          stopReason ??=
+            `リクエスト #${index} が 403 を返したため実行しませんでした。` +
+            'アクセス過多による制限（10 分程度で解除）か、権限不足の可能性があります。';
+        }
+      }
+      if (options.stopOnError && results[index].status === 'error') {
+        stopReason ??= `リクエスト #${index} が失敗したため実行しませんでした (stop_on_error)。`;
+      }
+    }
+  };
+
+  const workerCount = Math.min(options.concurrency, items.length);
+  await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  return results;
+}
+
+function formatBulkResponse(results: BulkItemResult[]): CallToolResult {
+  const summary = {
+    total: results.length,
+    succeeded: results.filter((r) => r.status === 'success').length,
+    failed: results.filter((r) => r.status === 'error').length,
+    skipped: results.filter((r) => r.status === 'skipped').length,
+  };
+  // 1件でも成功していれば部分成功として isError は付けない（各要素の status を見る）。
+  return createTextResponse(JSON.stringify({ summary, results }), {
+    isError: summary.succeeded === 0,
+  });
+}
+
+function createBulkTool(toolName: string, defaults: { concurrency: number; stopOnError: boolean }) {
+  return async (
+    args: { requests: BulkRequestItem[]; concurrency?: number; stop_on_error?: boolean },
+    extra?: AuthExtra,
+  ): Promise<CallToolResult> => {
+    const recorder = getCurrentRecorder();
+    const startTime = Date.now();
+    const tokenContext = extractTokenContext(extra);
+    const services = new Set(args.requests.map((r) => r.service));
+    const service = services.size === 1 ? args.requests[0].service : undefined;
+
+    setToolAttributes({
+      'mcp.tool.bulk.count': args.requests.length,
+      'mcp.tool.bulk.methods': [...new Set(args.requests.map((r) => r.method))].join(','),
+      ...(service ? { 'mcp.tool.service': service } : {}),
+    });
+
+    // 並列ワーカーがそれぞれトークンをリフレッシュすると、同じ refresh token を
+    // 複数回使って競合する。先に 1 回だけ確定させてからリクエストを流す。
+    let accessToken: string | null = null;
+    let tokenError: unknown;
+    try {
+      accessToken = await ensureValidAccessToken(tokenContext);
+    } catch (error) {
+      recorder?.recordError({ source: 'tool_handler', chain: serializeErrorChain(error) });
+      tokenError = error;
+    }
+    if (!accessToken) {
+      recorder?.recordToolCall({
+        tool: toolName,
+        service,
+        status: 'error',
+        duration_ms: Date.now() - startTime,
+      });
+      const detail = tokenError ? `\nエラー詳細: ${formatErrorMessage(tokenError)}` : '';
+      return createTextResponse(
+        '認証が必要です。freee_authenticate ツールを使用して認証を行ってください。' +
+          `（bulk のリクエストは実行していません）${detail}`,
+        { isError: true },
+      );
+    }
+
+    const results = await runBulk(
+      args.requests,
+      {
+        concurrency: args.concurrency ?? defaults.concurrency,
+        stopOnError: args.stop_on_error ?? defaults.stopOnError,
+      },
+      tokenContext,
+    );
+    const response = formatBulkResponse(results);
+
+    recorder?.recordToolCall({
+      tool: toolName,
+      service,
+      status: response.isError ? 'error' : 'success',
+      duration_ms: Date.now() - startTime,
+    });
+    return response;
+  };
+}
+
+const bulkPathSchema = z.string().describe('APIパス (例: /api/1/deals/123)');
+const bulkQuerySchema = coercibleRecord('クエリパラメータ (オプション)').optional();
+
 /**
  * Generates API client tools as sub-commands per HTTP method
  */
 export function generateClientModeTool(server: McpServer): void {
+  const bulkGetHandler = createBulkTool('freee_api_bulk_get', {
+    concurrency: BULK_GET_DEFAULT_CONCURRENCY,
+    stopOnError: false,
+  });
+
   // GET tool
   registerTracedTool(
     server,
@@ -389,6 +624,97 @@ export function generateClientModeTool(server: McpServer): void {
       annotations: getHttpMethodToolAnnotations('PATCH'),
     },
     createMethodTool('PATCH'),
+  );
+
+  registerTracedTool(
+    server,
+    'freee_api_bulk_get',
+    {
+      title: 'freee API GET 一括リクエスト',
+      description:
+        `freee API GET 一括: データをまとめて取得 (最大${BULK_GET_MAX_REQUESTS}件、部分成功あり)。` +
+        `ID一覧から詳細をまとめて取得する場合などに使う。バイナリ(PDF等)は対象外 (${SKILL_HINT})`,
+      inputSchema: {
+        requests: coercibleArray(
+          z
+            .array(
+              z.object({
+                service: serviceSchema,
+                path: bulkPathSchema,
+                query: bulkQuerySchema,
+              }),
+            )
+            .min(1)
+            .max(BULK_GET_MAX_REQUESTS),
+          '実行するリクエストの配列',
+        ),
+        concurrency: z
+          .number()
+          .int()
+          .min(1)
+          .max(BULK_GET_MAX_CONCURRENCY)
+          .optional()
+          .describe(`同時実行数 (既定: ${BULK_GET_DEFAULT_CONCURRENCY})`),
+        stop_on_error: z
+          .boolean()
+          .optional()
+          .describe('失敗時に未実行分を中止するか (既定: false)'),
+      },
+      annotations: getHttpMethodToolAnnotations('GET'),
+    },
+    (
+      args: {
+        requests: ApiRequestArgs[];
+        concurrency?: number;
+        stop_on_error?: boolean;
+      },
+      extra?: AuthExtra,
+    ) =>
+      bulkGetHandler(
+        { ...args, requests: args.requests.map((r) => ({ ...r, method: 'GET' as const })) },
+        extra,
+      ),
+  );
+
+  registerTracedTool(
+    server,
+    'freee_api_bulk_write',
+    {
+      title: 'freee API 書き込み一括リクエスト',
+      description:
+        `freee API POST/PUT/PATCH/DELETE 一括: データをまとめて作成・更新・削除 (最大${BULK_WRITE_MAX_REQUESTS}件)。` +
+        `既定は直列実行・失敗時に残りを中止 (${SKILL_HINT})`,
+      inputSchema: {
+        requests: coercibleArray(
+          z
+            .array(
+              z.object({
+                method: z.enum(['POST', 'PUT', 'PATCH', 'DELETE']).describe('HTTPメソッド'),
+                service: serviceSchema,
+                path: bulkPathSchema,
+                body: coercibleRecord('リクエストボディ (DELETE では不要)').optional(),
+                query: bulkQuerySchema,
+              }),
+            )
+            .min(1)
+            .max(BULK_WRITE_MAX_REQUESTS),
+          '実行するリクエストの配列 (配列順に実行)',
+        ),
+        concurrency: z
+          .number()
+          .int()
+          .min(1)
+          .max(BULK_WRITE_MAX_CONCURRENCY)
+          .optional()
+          .describe(`同時実行数 (既定: ${BULK_WRITE_DEFAULT_CONCURRENCY} = 直列)`),
+        stop_on_error: z.boolean().optional().describe('失敗時に未実行分を中止するか (既定: true)'),
+      },
+      annotations: getHttpMethodToolAnnotations('POST'),
+    },
+    createBulkTool('freee_api_bulk_write', {
+      concurrency: BULK_WRITE_DEFAULT_CONCURRENCY,
+      stopOnError: true,
+    }),
   );
 
   // Add helper tool to list available paths
