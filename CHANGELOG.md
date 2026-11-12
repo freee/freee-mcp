@@ -1,5 +1,27 @@
 # freee-mcp
 
+## 0.38.0
+
+### Minor Changes
+
+- [`b42f775`](https://github.com/freee/freee-mcp/commit/b42f7750846af850c4bba53ee4ee254d37dd8a55): freee 債権管理 Public API（債権・入金・消込・利用状況）に対応しました。`service: receivable_management` で呼び出せます。
+- [`68bd350`](https://github.com/freee/freee-mcp/commit/68bd350242e2b8db81301362f0f91a3538f2f69d): 複数の API リクエストをまとめて実行する `freee_api_bulk_get` / `freee_api_bulk_write` ツールを追加
+
+  - `freee_api_bulk_get`: GET を最大 20 件まで並列実行（読み取り専用）。一部が失敗しても残りの結果を返す
+  - `freee_api_bulk_write`: POST/PUT/PATCH/DELETE を最大 10 件まで実行。既定では直列実行し、失敗した時点で残りを中止する
+  - レートリミット（429、または freee がアクセス過多の制限に使う 403）を受けた場合は、未実行のリクエストを中止する
+
+- [`3aa8bd2`](https://github.com/freee/freee-mcp/commit/3aa8bd2b73015e085a34b10379e244f84ecf9226): Skill の API リファレンスで小さいタグを service ごとに 1 ファイルへまとめ、skill のファイル数を上限（200）内に収めた
+
+  - 索引（INDEX.md）に行範囲を載せ、該当タグの部分だけを読めるようにした
+
+### Patch Changes
+
+- [`3eebdde`](https://github.com/freee/freee-mcp/commit/3eebdde2b93e114266958aa7f1aaf767db753133): freee 債権管理の消込、取引反映の確認、取引反映の取消と解除の判断を行うレシピを追加しました。
+- [`70afc07`](https://github.com/freee/freee-mcp/commit/70afc0774828553760ddfb2c429437fd1e7f5e5f): ローカルモード（stdio）の `freee_api_list_paths` から、freee-mcp（リモート版）限定で呼び出せないエンドポイントを除外するように修正
+- [`a18167a`](https://github.com/freee/freee-mcp/commit/a18167a08c50ff8e5492d0f76892d05c09fae297): README の「Agent Skills の内容」表のファイル数を、リファレンス生成時に自動で更新するようにしました。あわせて現在のファイル数に修正しました。
+- [`0252ced`](https://github.com/freee/freee-mcp/commit/0252cedad485e4ec2958625a07e1af5fcceccf3f): freee_api_get / post / put / delete / patch ツールの説明を、service 値の列挙から各ツールの用途（取得・新規作成・更新・削除・部分更新）の説明に置き換えました。service の値と製品名の対応は引数の説明に移し、サーバー説明の対応ドメインに固定資産・申告を追加しました。
+
 ## 0.37.12
 
 ### Patch Changes
