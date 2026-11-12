@@ -80,13 +80,13 @@ freee_api_get {
 パス一覧・パラメータ・レスポンスの詳細は以下を参照:
 
 - `references/pm-projects.md` - プロジェクト
-- `references/pm-workloads.md` - 工数実績・工数サマリ
-- `references/pm-workload-tag-groups.md` - 工数タグ
-- `references/pm-project-tag-groups.md` - プロジェクトタグ
-- `references/pm-sales-order-statuses.md` - 受注ステータス
-- `references/pm-labor-budgets.md` - 人件費予算
-- `references/pm-people.md` - 従業員
-- `references/pm-teams.md` - チーム
-- `references/pm-partners.md` - 取引先
-- `references/pm-unit-costs.md` - 従業員単価
-- `references/pm-users.md` - ログインユーザー
+- `references/pm-misc.md` の `# Workloads` - 工数実績・工数サマリ
+- `references/pm-misc.md` の `# WorkloadTagGroups` - 工数タグ
+- `references/pm-misc.md` の `# ProjectTagGroups` - プロジェクトタグ
+- `references/pm-misc.md` の `# SalesOrderStatuses` - 受注ステータス
+- `references/pm-misc.md` の `# LaborBudgets` - 人件費予算
+- `references/pm-misc.md` の `# People` - 従業員
+- `references/pm-misc.md` の `# Teams` - チーム
+- `references/pm-misc.md` の `# Partners` - 取引先
+- `references/pm-misc.md` の `# UnitCosts` - 従業員単価
+- `references/pm-misc.md` の `# Users` - ログインユーザー

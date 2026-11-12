@@ -1,6 +1,6 @@
 ---
 name: freee-api-skill
-description: "freee-mcp / freee-sign-mcp と連携するスキル。会計・人事労務・請求書・工数管理・販売・IT管理・固定資産・業務委託管理・サーベイ・開業・人事評価・申告・サイン（電子契約）の詳細APIリファレンスと使い方ガイドを提供。freee の経費申請・取引登録・勤怠打刻・給与明細・見積書・試算表・仕訳・従業員管理・工数登録・売上管理・SaaSアカウント管理・備品管理・固定資産管理・業務委託先の企業ユーザー/部門管理・サーベイ企画/実施回の取得・開業申請用データの参照/更新・人事評価結果の取得・法人税申告データや帳票の参照・電子契約の文書管理などの操作やAPI仕様を調べたいときに使う。ユーザーが freee のデータ操作、会計処理、人事労務管理、請求・見積、プロジェクト工数管理、販売管理、IT管理、固定資産管理、業務委託管理、サーベイ、開業、人事評価、申告、電子契約について質問や操作を依頼してきた場合は、明示的に freee と言及していなくても、このスキルの利用を検討すること。サインは別途 freee-sign-mcp の設定が必要。"
+description: "freee-mcp / freee-sign-mcp と連携するスキル。会計・人事労務・請求書・工数管理・販売・IT管理・固定資産・債権管理・業務委託管理・サーベイ・開業・人事評価・申告・サイン（電子契約）の詳細APIリファレンスと使い方ガイドを提供。freee の経費申請・取引登録・勤怠打刻・給与明細・見積書・試算表・仕訳・従業員管理・工数登録・売上管理・SaaSアカウント管理・備品管理・固定資産管理・債権/入金/消込の管理・業務委託先の企業ユーザー/部門管理・サーベイ企画/実施回の取得・開業申請用データの参照/更新・人事評価結果の取得・法人税申告データや帳票の参照・電子契約の文書管理などの操作やAPI仕様を調べたいときに使う。ユーザーが freee のデータ操作、会計処理、人事労務管理、請求・見積、プロジェクト工数管理、販売管理、IT管理、固定資産管理、債権管理、業務委託管理、サーベイ、開業、人事評価、申告、電子契約について質問や操作を依頼してきた場合は、明示的に freee と言及していなくても、このスキルの利用を検討すること。サインは別途 freee-sign-mcp の設定が必要。"
 license: Apache-2.0
 metadata:
   author: freee_jp
@@ -11,7 +11,7 @@ metadata:
 
 ## 概要
 
-freee の会計・人事労務・請求書・工数管理・販売・IT管理・固定資産・業務委託管理・サーベイ・開業・人事評価・申告のデータを AI から直接操作できるスキルです。
+freee の会計・人事労務・請求書・工数管理・販売・IT管理・固定資産・債権管理・業務委託管理・サーベイ・開業・人事評価・申告のデータを AI から直接操作できるスキルです。
 
 [freee-mcp](https://www.npmjs.com/package/freee-mcp) (MCP サーバー) を通じて freee API と連携。
 
@@ -41,13 +41,18 @@ API リファレンスが `references/` に含まれます。各リファレン�
 1. `references/INDEX.md` を読む（service ごとのファイル名と内容の一覧）
 2. 索引で特定できない場合は `references/` 内のファイルをキーワード検索する
 
+`<service>-misc.md` は小さいタグを複数まとめたファイルで、全体を読むと不要なタグまで読み込むことになる。必ず該当タグの範囲だけを読む:
+
+- 索引に `accounting-misc.md L120-185` のように行範囲があれば、Read に offset と limit を付けて読む（この例なら offset=120, limit=66）
+- レシピなどで `references/accounting-misc.md` の `# Tags` のように見出しだけ指定されている場合は、索引で行範囲を引くか、見出し行を検索して位置を特定してから読む
+
 リファレンスの記法:
 
 - `名前*` は必須、無印は任意
 - 見出しの `### リクエストボディ*` はリクエストボディ自体が必須であることを示す
 - パラメータは特記なき限り query。`(path)` `(header)` は該当箇所に明記
 - パラメータ名末尾の `[]` はパラメータ名の一部であり API 呼び出し時に省略してはいけない
-- `GET /xxx と同じ` は、同一ファイル内の該当エンドポイントと内容が同一であることを示す
+- `GET /xxx と同じ` は、同じタグ内の該当エンドポイントと内容が同一であることを示す
 - `（X により形が異なる: a / b）` `（次のいずれかの形: A / B）` は、値によって含まれる項目が変わる構造を示す（配列の場合は `（要素は …）`）。全形の項目を1つにまとめて記載し、一部の形にしかない項目には `（a のみ）` を付ける（その項目の `*` はその形での必須を示す）
 - `string | number` は、いずれかの型の値を取ることを示す
 - レスポンスはトップレベルの項目のみ記載。ネストした構造は実際に API を呼び出して確認する
@@ -87,6 +92,8 @@ API 呼び出し:
 - `freee_api_put` - PUT リクエスト
 - `freee_api_delete` - DELETE リクエスト
 - `freee_api_patch` - PATCH リクエスト
+- `freee_api_bulk_get` - GET を複数まとめて実行（最大20件・部分成功あり。ID一覧から詳細をまとめて取る場合など）
+- `freee_api_bulk_write` - POST/PUT/PATCH/DELETE を複数まとめて実行（最大10件・既定は直列で失敗時に残りを中止）
 - `freee_api_list_paths` - 利用可能なAPIパス一覧
 
 serviceパラメータ (必須):
@@ -98,6 +105,7 @@ serviceパラメータ (必須):
 - `sm` - freee販売（見積、受注、売上など） 例: `/businesses`
 - `it_management` - freeeIT管理（メンバー、SaaSアカウント、アプリ、備品、部署、会社など） 例: `/hub/it_management/members`
 - `fixed_asset_management` - freee固定資産（固定資産の一覧、詳細、登録、更新、削除） 例: `/hub/fixed_asset_management/fixed_assets`
+- `receivable_management` - freee債権管理（債権、入金、消込、利用状況） 例: `/hub/receivable_management/receivables`
 - `partner_management` - freee業務委託管理（業務委託先の企業ユーザー・部門） 例: `/hub/partner_management/orderer/company_users`
 - `survey` - freeeサーベイ（サーベイ企画、実施回）※ freee-mcp（リモート版） 限定 例: `/hub/survey/base_surveys`
 - `launch` - freee開業（開業申請用データの参照・更新）※ freee-mcp（リモート版） 限定 例: `/hub/launch/kaigyo_application`
@@ -140,6 +148,7 @@ serviceパラメータ (必須):
 - `recipes/survey-operations.md` - サーベイ（サーベイ企画・実施回の取得）
 - `recipes/launch-operations.md` - 開業（開業申請用データの参照・更新）
 - `recipes/fixed-asset-management-operations.md` - 固定資産管理（安全な更新・削除判断・Web画面への引き継ぎ）
+- `recipes/receivable-management-operations.md` - 債権管理（消込・取引反映の確認・取引反映の取消と解除の判断）
 - `recipes/corporate-tax-return-operations.md` - 申告（法人税申告・帳票の参照）
 - `recipes/report-operations.md` - 試算表・総勘定元帳（レポート取得・未承認仕訳の確認）
 - `recipes/freee-mcp-tag.md` - メモタグ「freee-mcp」の付与ガイド

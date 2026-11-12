@@ -174,20 +174,20 @@ IT管理 に固有の次のエラーは、再認証では解決しない。こ�
 
 パス一覧・パラメータ・レスポンスの詳細は以下を参照:
 
-- `references/it-management-members.md` - メンバー
-- `references/it-management-application-account.md` - SaaSアカウント
-- `references/it-management-assets.md` - 備品
-- `references/it-management-asset-statuses.md` - 備品ステータス
-- `references/it-management-asset-categories.md` - 備品種別
-- `references/it-management-departments.md` - 部署
-- `references/it-management-asset-attributes.md` - 備品属性
-- `references/it-management-asset-locations.md` - 備品保管場所
-- `references/it-management-asset-members.md` - 備品利用者
-- `references/it-management-applications.md` - アプリ
-- `references/it-management-application-masters.md` - アプリマスタ
-- `references/it-management-custom-application-masters.md` - カスタムアプリマスタ
-- `references/it-management-product-companies.md` - 会社
-- `references/it-management-positions.md` - 役職
-- `references/it-management-employment-types.md` - 雇用形態
-- `references/it-management-guests.md` - ゲスト
-- `references/it-management-system-account-owners.md` - システムアカウント
+- `references/it-management-misc.md` の `# it_management_members` - メンバー
+- `references/it-management-misc.md` の `# it_management_application_accounts` - SaaSアカウント
+- `references/it-management-misc.md` の `# it_management_assets` - 備品
+- `references/it-management-misc.md` の `# it_management_asset_statuses` - 備品ステータス
+- `references/it-management-misc.md` の `# it_management_asset_categories` - 備品種別
+- `references/it-management-misc.md` の `# it_management_departments` - 部署
+- `references/it-management-misc.md` の `# it_management_asset_attributes` - 備品属性
+- `references/it-management-misc.md` の `# it_management_asset_locations` - 備品保管場所
+- `references/it-management-misc.md` の `# it_management_asset_members` - 備品利用者
+- `references/it-management-misc.md` の `# it_management_applications` - アプリ
+- `references/it-management-misc.md` の `# it_management_application_masters` - アプリマスタ
+- `references/it-management-misc.md` の `# it_management_custom_application_masters` - カスタムアプリマスタ
+- `references/it-management-misc.md` の `# it_management_product_companies` - 会社
+- `references/it-management-misc.md` の `# it_management_positions` - 役職
+- `references/it-management-misc.md` の `# it_management_employment_types` - 雇用形態
+- `references/it-management-misc.md` の `# it_management_guests` - ゲスト
+- `references/it-management-misc.md` の `# it_management_system_account_owners` - システムアカウント
