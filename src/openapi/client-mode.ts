@@ -323,8 +323,8 @@ function createMethodTool(method: HttpMethod) {
 }
 
 // bulk ツールの上限。freee API のレートリミットとレスポンスサイズを考慮して小さめに置く。
-export const BULK_GET_MAX_REQUESTS = 50;
-export const BULK_WRITE_MAX_REQUESTS = 20;
+export const BULK_GET_MAX_REQUESTS = 20;
+export const BULK_WRITE_MAX_REQUESTS = 10;
 const BULK_GET_DEFAULT_CONCURRENCY = 3;
 const BULK_GET_MAX_CONCURRENCY = 5;
 // 書き込みは既定で直列実行。順序依存の更新や途中失敗時の影響範囲を読みやすくするため。
