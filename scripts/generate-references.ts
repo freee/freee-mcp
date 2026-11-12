@@ -18,6 +18,8 @@ const PROJECT_ROOT = join(SCRIPT_DIR, "..");
 const OPENAPI_DIR = join(PROJECT_ROOT, "openapi");
 const OUTPUT_DIR = join(PROJECT_ROOT, "skills", "freee-api-skill", "references");
 const SIGN_OUTPUT_DIR = join(PROJECT_ROOT, "skills", "freee-api-skill", "sign-references");
+// 申告の帳票ごとのリファレンス。このスクリプトでは生成しないが、README のファイル数には含める。
+const TAX_RETURN_REFERENCES_DIR = join(PROJECT_ROOT, "skills", "freee-api-skill", "tax-return-references");
 const MAPPINGS_FILE = join(OPENAPI_DIR, "tag-mappings.json");
 
 // mcp-only（freee-mcp リモート版でのみ利用可）区分のエンドポイントを集約したスキーマ。
@@ -1423,6 +1425,132 @@ async function updateReadmeOperationCount(
   console.log(`Updated README.md: ${total} operations`);
 }
 
+// README の「Agent Skills の内容」表のファイル数を差し込むマーカー。
+// 表の 1 列目（API 名）で行を特定し、最後の列（ファイル数）だけを書き換える。
+const README_FILE_COUNTS_START = "<!-- SKILL-FILE-COUNTS-START -->";
+const README_FILE_COUNTS_END = "<!-- SKILL-FILE-COUNTS-END -->";
+
+// SERVICE_LABELS に無い（INDEX.md の対象外の）リファレンスの README 上の行名。
+const SIGN_README_LABEL = "サイン";
+
+/**
+ * SERVICE_LABELS のラベルから、README の表の 1 列目に書く名前を作る。
+ * 例: "freee会計" -> "会計"、"人事評価" -> "人事評価"
+ */
+export function toReadmeLabel(label: string): string {
+  return label.replace(/^freee/, "");
+}
+
+/**
+ * README の表の行名ごとに、リファレンスのファイル数を数える。
+ *
+ * @param referenceFileNames references/ 内のファイル名（INDEX.md を含んでいてもよい）
+ * @param extraCounts service の prefix ごとに加算するファイル数（申告の帳票リファレンスなど）
+ * @param signFileCount sign-references/ 内のファイル数
+ */
+export function countReferenceFiles(
+  referenceFileNames: string[],
+  extraCounts: Record<string, number>,
+  signFileCount: number
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const [prefix, { label }] of Object.entries(SERVICE_LABELS)) {
+    const count = referenceFileNames.filter(
+      (name) => name.startsWith(`${prefix}-`) && name.endsWith(".md")
+    ).length;
+    counts.set(toReadmeLabel(label), count + (extraCounts[prefix] ?? 0));
+  }
+  counts.set(SIGN_README_LABEL, signFileCount);
+  return counts;
+}
+
+/**
+ * README のマーカー間にある表の、ファイル数の列を書き換える。
+ *
+ * 列幅は元のセルの幅を保つ（収まらない場合だけ広げる）。表の行名が counts に無い行は
+ * 書き換えずに unknownLabels で返す。マーカーが見つからなければ null を返す。
+ */
+export function replaceFileCounts(
+  readme: string,
+  counts: Map<string, number>
+): { readme: string; unknownLabels: string[] } | null {
+  const start = readme.indexOf(README_FILE_COUNTS_START);
+  if (start === -1) return null;
+  const contentStart = start + README_FILE_COUNTS_START.length;
+  const end = readme.indexOf(README_FILE_COUNTS_END, contentStart);
+  if (end === -1) return null;
+
+  const unknownLabels: string[] = [];
+  const lines = readme.slice(contentStart, end).split("\n");
+  // 1 行目はヘッダー、2 行目は区切り行なので、3 行目以降のデータ行だけを対象にする。
+  const tableLines = lines.filter((line) => line.trimStart().startsWith("|"));
+  const dataLines = new Set(tableLines.slice(2));
+
+  const replaced = lines.map((line) => {
+    if (!dataLines.has(line)) return line;
+
+    const cells = line.split("|");
+    // "| a | b | c |" を split すると先頭と末尾が空文字になる
+    if (cells.length < 4) return line;
+    const label = cells[1].trim();
+    const count = counts.get(label);
+    if (count === undefined) {
+      unknownLabels.push(label);
+      return line;
+    }
+
+    const lastIndex = cells.length - 2;
+    const width = cells[lastIndex].length;
+    cells[lastIndex] = ` ${count}`.padEnd(Math.max(width, String(count).length + 2));
+    return cells.join("|");
+  });
+
+  return {
+    readme: readme.slice(0, contentStart) + replaced.join("\n") + readme.slice(end),
+    unknownLabels,
+  };
+}
+
+/**
+ * ディレクトリ内の .md ファイルの数を返す。ディレクトリが無ければ 0。
+ */
+async function countMarkdownFiles(dir: string): Promise<number> {
+  if (!existsSync(dir)) return 0;
+  return (await readdir(dir)).filter((name) => name.endsWith(".md")).length;
+}
+
+/**
+ * README.md の「Agent Skills の内容」表のファイル数を、生成後のファイルから数えて書き戻す。
+ */
+async function updateReadmeFileCounts(): Promise<void> {
+  const counts = countReferenceFiles(
+    await readdir(OUTPUT_DIR),
+    { "tax-return": await countMarkdownFiles(TAX_RETURN_REFERENCES_DIR) },
+    await countMarkdownFiles(SIGN_OUTPUT_DIR)
+  );
+
+  const readme = await readFile(README_FILE, "utf-8");
+  const result = replaceFileCounts(readme, counts);
+  if (result === null) {
+    console.warn(
+      `Skipped README.md: ${README_FILE_COUNTS_START} ... ${README_FILE_COUNTS_END} markers not found`
+    );
+    return;
+  }
+  if (result.unknownLabels.length > 0) {
+    console.warn(
+      `README.md file counts: no reference files for ${result.unknownLabels.join(", ")} (left unchanged)`
+    );
+  }
+  if (result.readme === readme) {
+    console.log("README.md file counts are up to date.");
+    return;
+  }
+
+  await writeFile(README_FILE, result.readme, "utf-8");
+  console.log("Updated README.md: Agent Skills file counts");
+}
+
 /**
  * Main execution
  */
@@ -1501,6 +1629,9 @@ async function main(): Promise<void> {
 
     // Update the supported operation count in README.md
     await updateReadmeOperationCount(API_CONFIGS);
+
+    // Update the per-service file counts in README.md
+    await updateReadmeFileCounts();
 
     console.log("");
     console.log("========================================");

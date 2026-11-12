@@ -4,10 +4,13 @@ import { describe, expect, it } from "vitest";
 import {
   buildEndpointsMarkdown,
   countOperations,
+  countReferenceFiles,
   findServicesMissingFromIndex,
   formatIndexLocation,
   layoutReferences,
+  replaceFileCounts,
   replaceOperationCount,
+  toReadmeLabel,
   type OpenAPISchema,
   type PathData,
   type RenderedReference,
@@ -821,6 +824,123 @@ describe("replaceOperationCount", () => {
     expect(
       replaceOperationCount("<!-- API-STATS-TOTAL-START -->485\n", 485)
     ).toBeNull();
+  });
+});
+
+describe("countReferenceFiles", () => {
+  it("service の prefix ごとに .md を数え、README の行名をキーにする", () => {
+    const counts = countReferenceFiles(
+      ["INDEX.md", "accounting-deals.md", "accounting-misc.md", "hr-employees.md", "pm-misc.md"],
+      {},
+      0
+    );
+
+    expect(counts.get("会計")).toBe(2);
+    expect(counts.get("人事労務")).toBe(1);
+    expect(counts.get("工数管理")).toBe(1);
+    expect(counts.get("販売")).toBe(0);
+  });
+
+  it("prefix が他の service の一部でも取り違えない", () => {
+    const counts = countReferenceFiles(
+      ["it-management-misc.md", "fixed-asset-management-fixed-assets.md", "receivable-management-misc.md"],
+      {},
+      0
+    );
+
+    expect(counts.get("IT管理")).toBe(1);
+    expect(counts.get("固定資産")).toBe(1);
+    expect(counts.get("債権管理")).toBe(1);
+  });
+
+  it("追加分とサインのファイル数を加える", () => {
+    const counts = countReferenceFiles(["tax-return-corporate.md"], { "tax-return": 30 }, 8);
+
+    expect(counts.get("申告")).toBe(31);
+    expect(counts.get("サイン")).toBe(8);
+  });
+});
+
+describe("replaceFileCounts", () => {
+  const readme = [
+    "## Agent Skills の内容",
+    "",
+    "<!-- SKILL-FILE-COUNTS-START -->",
+    "",
+    "| API          | 内容       | ファイル数 |",
+    "| ------------ | ---------- | ---------- |",
+    "| 会計         | 取引など   | 33         |",
+    "| 業務委託管理 | 部門など   | 3          |",
+    "",
+    "<!-- SKILL-FILE-COUNTS-END -->",
+    "",
+  ].join("\n");
+
+  it("ファイル数の列だけを、列幅を保って書き換える", () => {
+    const result = replaceFileCounts(readme, new Map([["会計", 20], ["業務委託管理", 3]]));
+
+    expect(result?.readme).toBe(readme.replace("| 33         |", "| 20         |"));
+    expect(result?.unknownLabels).toEqual([]);
+  });
+
+  it("同じ件数なら入力と等しい文字列を返す", () => {
+    const result = replaceFileCounts(readme, new Map([["会計", 33], ["業務委託管理", 3]]));
+
+    expect(result?.readme).toBe(readme);
+  });
+
+  it("列幅に収まらない件数はセルを広げる", () => {
+    const result = replaceFileCounts(
+      "<!-- SKILL-FILE-COUNTS-START -->\n| API | n |\n| --- | - |\n| 会計 | 1 |\n<!-- SKILL-FILE-COUNTS-END -->",
+      new Map([["会計", 1234]])
+    );
+
+    expect(result?.readme).toContain("| 会計 | 1234 |");
+  });
+
+  it("件数が分からない行は書き換えずに返す", () => {
+    const result = replaceFileCounts(readme, new Map([["会計", 20]]));
+
+    expect(result?.readme).toContain("| 業務委託管理 | 部門など   | 3          |");
+    expect(result?.unknownLabels).toEqual(["業務委託管理"]);
+  });
+
+  it("ヘッダー行と区切り行は書き換えない", () => {
+    const result = replaceFileCounts(readme, new Map([["API", 1], ["会計", 20], ["業務委託管理", 3]]));
+
+    expect(result?.readme).toContain("| API          | 内容       | ファイル数 |");
+  });
+
+  it("マーカーが無ければ null を返す", () => {
+    expect(replaceFileCounts("# freee-mcp\n", new Map())).toBeNull();
+  });
+});
+
+describe("README の Agent Skills の内容", () => {
+  const readme = readFileSync(join(__dirname, "..", "README.md"), "utf-8");
+  const counts = countReferenceFiles([], {}, 0);
+
+  it("表のすべての行の件数を数えられる", () => {
+    expect(replaceFileCounts(readme, counts)?.unknownLabels).toEqual([]);
+  });
+
+  it("SERVICE_LABELS のすべての service に表の行がある", () => {
+    const table = readme.slice(
+      readme.indexOf("<!-- SKILL-FILE-COUNTS-START -->"),
+      readme.indexOf("<!-- SKILL-FILE-COUNTS-END -->")
+    );
+    const rowLabels = table
+      .split("\n")
+      .filter((line) => line.startsWith("|"))
+      .map((line) => line.split("|")[1].trim());
+    const missing = [...counts.keys()].filter((label) => !rowLabels.includes(label));
+
+    expect(missing).toEqual([]);
+  });
+
+  it("toReadmeLabel は freee 接頭辞だけを外す", () => {
+    expect(toReadmeLabel("freee会計")).toBe("会計");
+    expect(toReadmeLabel("人事評価")).toBe("人事評価");
   });
 });
 
