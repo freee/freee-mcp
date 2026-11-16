@@ -270,6 +270,7 @@ GET /api/1/expense_applications/currencies/{id} と同じ
 - description_setting*: string - 備考の入力設定 (optional: 任意入力, required: 必須入力)
 - commuter_pass_deduction*: string - 定期券区間控除の利用設定 (disable: 利用しない, enable: 利用する)
 - default_flow_route_src_id*: integer(int64) - デフォルトで選択する申請経路のID (未設定の場合は null)。申請経路一覧の取得API (`/api/1/approval_flow_routes`) のレスポンス id と同じ値です。
+- traffic_line_template_src_id: integer(int64) - 交通経路・交通系ICカードから作成した明細にデフォルトで選択する経費科目の source_line_template_id (未設定の場合は null)。経費科目一覧の取得API (`/api/1/expense_application_line_templates`) のレスポンス source_line_template_id と同じ値です。削除済みの経費科目を指していることがあります。更新では null と 0 のどちらも未設定に戻す指示になります。更新で省略した場合は現在の設定を変更しません。ただし更新で line_template_setting に disable を指定した場合は、省略しても未設定に戻します。
 - observer_addition*: string - 承認者以外の閲覧者追加の利用設定 (disable: 利用しない, enable: 利用する)
 - receipt_partner_name_setting*: string - 支払先の入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示)
 - default_title*: string - 申請タイトルの初期値 (255文字以内)
@@ -297,6 +298,7 @@ GET /api/1/expense_applications/currencies/{id} と同じ
 - description_setting*: string - 備考の入力設定 (optional: 任意入力, required: 必須入力) (選択肢: optional, required) 例: `optional`
 - commuter_pass_deduction*: string - 定期券区間控除の利用設定 (disable: 利用しない, enable: 利用する) (選択肢: disable, enable) 例: `disable`
 - default_flow_route_src_id*: integer(int64) - デフォルトで選択する申請経路のID (未設定の場合は null)。申請経路一覧の取得API (`/api/1/approval_flow_routes`) のレスポンス id と同じ値です。 例: `101` (最小: 1)
+- traffic_line_template_src_id: integer(int64) - 交通経路・交通系ICカードから作成した明細にデフォルトで選択する経費科目の source_line_template_id (未設定の場合は null)。経費科目一覧の取得API (`/api/1/expense_application_line_templates`) のレスポンス source_line_template_id と同じ値です。削除済みの経費科目を指していることがあります。更新では null と 0 のどちらも未設定に戻す指示になります。更新で省略した場合は現在の設定を変更しません。ただし更新で line_template_setting に disable を指定した場合は、省略しても未設定に戻します。 例: `1`
 - observer_addition*: string - 承認者以外の閲覧者追加の利用設定 (disable: 利用しない, enable: 利用する) (選択肢: disable, enable) 例: `disable`
 - receipt_partner_name_setting*: string - 支払先の入力設定 (optional: 任意入力, required: 必須入力, disable: 非表示) (選択肢: optional, required, disable) 例: `disable`
 - default_title*: string - 申請タイトルの初期値 (255文字以内) 例: `交通費精算`
@@ -433,7 +435,7 @@ APIを利用するユーザーに閲覧権限のない部門が紐づく請求�
 概要 指定した事業所の取引（収入・支出）の支払行を作成する
 
 定義
-issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支払残額 type income : 収入 expense : 支出 details : 取引の明細行 renews : 取引の+更新行 payments : 取引の支払行 from_walletable_type bank_account : 銀行口座 credit_card : クレジットカード wallet : 現金 private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）
+issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支払残額 type income : 収入 expense : 支出 details : 取引の明細行 renews : 取引の+更新行 payments : 取引の支払行 from_walletable_type bank_account : 銀行口座 credit_card : クレジットカード wallet : 現金 private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）
 
 ### パラメータ
 
@@ -456,7 +458,7 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
 概要 指定した事業所の取引（収入・支出）の支払行を更新する
 
 定義
-issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支払残額 type income : 収入 expense : 支出 details : 取引の明細行 renews : 取引の+更新行 payments : 取引の支払行 from_walletable_type bank_account : 銀行口座 credit_card : クレジットカード wallet : 現金 private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）
+issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支払残額 type income : 収入 expense : 支出 details : 取引の明細行 renews : 取引の+更新行 payments : 取引の支払行 from_walletable_type bank_account : 銀行口座 credit_card : クレジットカード wallet : 現金 private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）
 
 ### パラメータ
 
@@ -634,7 +636,7 @@ GET /api/1/receipts/{id} と同じ
 概要 指定した事業所の取引（収入・支出）の+更新を作成する
 
 定義
-issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支払残額 type income : 収入 expense : 支出 details : 取引の明細行 accruals : 取引の債権債務行 renews : 取引の+更新行 payments : 取引の支払行 from_walletable_type bank_account : 銀行口座 credit_card : クレジットカード wallet : 現金 private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）
+issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支払残額 type income : 収入 expense : 支出 details : 取引の明細行 accruals : 取引の債権債務行 renews : 取引の+更新行 payments : 取引の支払行 from_walletable_type bank_account : 銀行口座 credit_card : クレジットカード wallet : 現金 private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）
 
 注意点
 本APIではdetails(取引の明細行)、accruals(債権債務行)、renewsのdetails(+更新の明細行)のみ操作可能です。 本APIで取引を更新すると、消費税の計算方法は必ず内税方式が選択されます。
@@ -676,7 +678,7 @@ issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支�
 概要 指定した事業所の取引（収入・支出）の+更新を更新する
 
 定義
-issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支払残額 type income : 収入 expense : 支出 details : 取引の明細行 accruals : 取引の債権債務行 renews : 取引の+更新行 payments : 取引の支払行 from_walletable_type bank_account : 銀行口座 credit_card : クレジットカード wallet : 現金 private_account_item : プライベート資金（法人の場合は役員借入金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）
+issue_date : 発生日 due_date : 支払期日 amount : 金額 due_amount : 支払残額 type income : 収入 expense : 支出 details : 取引の明細行 accruals : 取引の債権債務行 renews : 取引の+更新行 payments : 取引の支払行 from_walletable_type bank_account : 銀行口座 credit_card : クレジットカード wallet : 現金 private_account_item : プライベート資金（法人の場合は役員貸付金もしくは役員借入金、個人の場合は事業主貸もしくは事業主借）
 
 注意点
 本APIでは+更新の更新のみ可能です。取引や支払行に対する更新はできません。 renew_idにはrenewsのid(+更新ID)を指定してください。renewsのdetailsのid(+更新の明細行ID)を指定できません。 月締めされている仕訳に紐づく＋更新行の編集・削除はできません。 承認済み...

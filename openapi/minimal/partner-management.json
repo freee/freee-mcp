@@ -66,7 +66,7 @@
             "in": "query",
             "type": "string",
             "required": false,
-            "description": "アカウント状態で絞り込む",
+            "description": "アカウント状態で絞り込む (invitation_pending は招待から 1 週間以内の招待中のみ。期限切れは invitation_expired で絞り込む)",
             "explode": false
           },
           {

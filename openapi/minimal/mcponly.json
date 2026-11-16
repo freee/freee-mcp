@@ -275,6 +275,13 @@
             "explode": false
           },
           {
+            "name": "ids[]",
+            "in": "query",
+            "type": "array",
+            "required": false,
+            "description": "人事評価結果IDでのフィルタ。最大50件まで指定できます。指定しない場合は人事評価結果IDで絞り込みません。"
+          },
+          {
             "name": "employee_ids[]",
             "in": "query",
             "type": "array",
@@ -286,7 +293,7 @@
             "in": "query",
             "type": "string",
             "required": false,
-            "description": "評価期間の開始日（yyyy-mm-dd）",
+            "description": "評価イベントの開始日（yyyy-mm-dd）",
             "explode": false
           },
           {
@@ -294,7 +301,7 @@
             "in": "query",
             "type": "string",
             "required": false,
-            "description": "評価期間の終了日（yyyy-mm-dd）",
+            "description": "評価イベントの終了日（yyyy-mm-dd）",
             "explode": false
           },
           {
