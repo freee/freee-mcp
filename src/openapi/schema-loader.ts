@@ -222,6 +222,10 @@ const _pathRegexCache = new Map<string, RegExp>();
  * This is a defense-in-depth control and complements request validation in
  * `makeApiRequest`. Do not relax this to `[^/]+` without introducing equivalent
  * canonicalization/validation guarantees.
+ *
+ * Each placeholder is a capture group, in the order the placeholders appear, so
+ * the matched values can be checked against their declared types
+ * (see `isValidPathParameterValue`).
  */
 function getPathRegex(schemaPath: string): RegExp {
   let regex = _pathRegexCache.get(schemaPath);
@@ -229,7 +233,7 @@ function getPathRegex(schemaPath: string): RegExp {
     // Do not allow URL metacharacters (?, #, &, =) to match placeholders.
     // Using `[^/]+` would treat '/api/1/deals/{id}' as matching
     // '/api/1/deals/123?company_id=B', enabling query smuggling via a path argument.
-    const pattern = schemaPath.replace(/\{[^}]+\}/g, '[^/?#&=]+');
+    const pattern = schemaPath.replace(/\{[^}]+\}/g, '([^/?#&=]+)');
     regex = new RegExp(`^${pattern}$`);
     _pathRegexCache.set(schemaPath, regex);
   }
@@ -356,11 +360,94 @@ interface PathValidationResult {
   actualPath?: string;
   apiType?: ApiType;
   baseUrl?: string;
+  /**
+   * Company ID taken from the path (e.g. `{id}` of `/api/1/companies/{id}`).
+   * Callers must check it against the current company, the same way `company_id`
+   * in query/body is checked, because a path argument would otherwise select
+   * another tenant without any check on the MCP side.
+   */
+  companyIdInPath?: string;
+}
+
+interface PathParameterMatch {
+  name: string;
+  value: string;
+  type?: string;
+}
+
+const PLACEHOLDER_PATTERN = /\{([^}]+)\}/g;
+
+function getPlaceholderNames(schemaPath: string): string[] {
+  return [...schemaPath.matchAll(PLACEHOLDER_PATTERN)].map((m) => m[1]);
+}
+
+/** Pairs each placeholder with the value captured by `getPathRegex` and its declared type. */
+function matchPathParameters(
+  schemaPath: string,
+  operation: MinimalOperation,
+  match: RegExpExecArray,
+): PathParameterMatch[] {
+  const declaredTypes = new Map(
+    (operation.parameters ?? [])
+      .filter((parameter) => parameter.in === 'path')
+      .map((parameter): [string, string] => [parameter.name, parameter.type]),
+  );
+  return getPlaceholderNames(schemaPath).map((name, index) => ({
+    name,
+    value: match[index + 1],
+    type: declaredTypes.get(name),
+  }));
+}
+
+function decodePathSegment(raw: string): string | null {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return null;
+  }
 }
 
 /**
- * Internal helper to find a path and method in a specific API schema
- * Returns PathValidationResult if found, null otherwise
+ * Checks a raw path segment against the declared parameter type.
+ *
+ * `getPathRegex` only keeps a value inside one literal segment. Percent-encoded
+ * separators (`%2f`) and dot segments (`..`, `%2e%2e`) still pass it and are sent
+ * to the freee API as path traversal, so they are rejected here.
+ */
+function isValidPathParameterValue(raw: string, type: string | undefined): boolean {
+  if (type === 'integer') {
+    return /^[0-9]+$/.test(raw);
+  }
+  const decoded = decodePathSegment(raw);
+  if (decoded === null || decoded === '.' || decoded === '..') {
+    return false;
+  }
+  return !/[/\\]/.test(decoded) && !/\p{Cc}/u.test(decoded);
+}
+
+/** `{company_id}` anywhere, or `{id}` right after a `companies` segment. */
+function isCompanyIdPlaceholder(schemaPath: string, name: string): boolean {
+  return name === 'company_id' || (name === 'id' && schemaPath.includes('/companies/{id}'));
+}
+
+function invalidPathParameterResult(
+  path: string,
+  parameter: PathParameterMatch,
+): PathValidationResult {
+  const expectation =
+    parameter.type === 'integer'
+      ? 'must contain digits only'
+      : 'must be a single path segment (no "/", "\\", "." or ".." even when percent-encoded)';
+  return {
+    isValid: false,
+    message: `Path parameter '${parameter.name}' in '${path}' ${expectation}.`,
+  };
+}
+
+/**
+ * Internal helper to find a path and method in a specific API schema.
+ * Returns a valid result when found, an invalid result when the path only matches
+ * with a malformed path parameter, and null when nothing matches.
  */
 function findPathInSchema(
   normalizedMethod: keyof MinimalPathItem,
@@ -369,42 +456,47 @@ function findPathInSchema(
   config: ApiConfig,
 ): PathValidationResult | null {
   const paths = config.schema.paths;
+  const found = (operation: MinimalOperation, companyIdInPath?: string): PathValidationResult => ({
+    isValid: true,
+    message: 'Valid path and method',
+    operation,
+    actualPath: path,
+    apiType,
+    baseUrl: config.baseUrl,
+    companyIdInPath,
+  });
 
-  // Try exact match first
-  if (path in paths) {
-    const pathItem = paths[path];
-    if (normalizedMethod in pathItem) {
-      return {
-        isValid: true,
-        message: 'Valid path and method',
-        operation: pathItem[normalizedMethod],
-        actualPath: path,
-        apiType,
-        baseUrl: config.baseUrl,
-      };
-    }
+  // Try exact match first. A schema template such as '/deals/{id}' is not a
+  // concrete path, so it must go through placeholder validation below.
+  const exactOperation = path.includes('{') ? undefined : paths[path]?.[normalizedMethod];
+  if (exactOperation) {
+    return found(exactOperation);
   }
 
-  // Try pattern matching for paths with parameters
-  for (const schemaPath of Object.keys(paths)) {
-    const regex = getPathRegex(schemaPath);
-
-    if (regex.test(path)) {
-      const pathItem = paths[schemaPath];
-      if (normalizedMethod in pathItem) {
-        return {
-          isValid: true,
-          message: 'Valid path and method',
-          operation: pathItem[normalizedMethod],
-          actualPath: path,
-          apiType,
-          baseUrl: config.baseUrl,
-        };
-      }
+  // Try pattern matching for paths with parameters. A candidate whose parameters
+  // fail type validation is skipped rather than rejected outright, so that another
+  // schema path matching the same request (e.g. one declaring the segment as a
+  // string instead of an integer) can still be selected.
+  let rejection: PathValidationResult | null = null;
+  for (const [schemaPath, pathItem] of Object.entries(paths)) {
+    const operation = pathItem[normalizedMethod];
+    const match = operation ? getPathRegex(schemaPath).exec(path) : null;
+    if (!operation || !match) {
+      continue;
     }
+    const parameters = matchPathParameters(schemaPath, operation, match);
+    const invalid = parameters.find((p) => !isValidPathParameterValue(p.value, p.type));
+    if (invalid) {
+      rejection ??= invalidPathParameterResult(path, invalid);
+      continue;
+    }
+    return found(
+      operation,
+      parameters.find((p) => isCompanyIdPlaceholder(schemaPath, p.name))?.value,
+    );
   }
 
-  return null;
+  return rejection;
 }
 
 /**
@@ -423,29 +515,31 @@ export function validatePathForService(
   if (service !== undefined) {
     // Validate against specific service
     const config = API_CONFIGS[service];
-    const result = findPathInSchema(normalizedMethod, path, service, config);
-    if (result) {
-      return result;
-    }
-    return {
-      isValid: false,
-      message: `Path '${path}' not found in ${config.name} schema. Please check the path format or use freee_api_list_paths to see available endpoints.`,
-    };
+    return (
+      findPathInSchema(normalizedMethod, path, service, config) ?? {
+        isValid: false,
+        message: `Path '${path}' not found in ${config.name} schema. Please check the path format or use freee_api_list_paths to see available endpoints.`,
+      }
+    );
   }
 
   // Search across all API schemas
+  let rejection: PathValidationResult | null = null;
   for (const [apiType, config] of Object.entries(API_CONFIGS) as [ApiType, ApiConfig][]) {
     const result = findPathInSchema(normalizedMethod, path, apiType, config);
-    if (result) {
+    if (result?.isValid) {
       return result;
     }
+    rejection ??= result;
   }
 
-  // Path not found in any API
-  return {
-    isValid: false,
-    message: `Path '${path}' not found in any freee API schema. Please check the path format or use freee_api_list_paths to see available endpoints.`,
-  };
+  // Path not found in any API (or only found with a malformed path parameter)
+  return (
+    rejection ?? {
+      isValid: false,
+      message: `Path '${path}' not found in any freee API schema. Please check the path format or use freee_api_list_paths to see available endpoints.`,
+    }
+  );
 }
 
 // Cached results of listAllAvailablePaths (schemas don't change at runtime).

@@ -286,6 +286,88 @@ describe('schema-loader', () => {
     });
   });
 
+  describe('validatePathForService - path parameter validation', () => {
+    it.each([
+      ['encoded traversal', '/api/1/companies/..%2f2002'],
+      ['dot segment', '/api/1/deals/..'],
+      ['encoded dot segment', '/api/1/deals/%2e%2e'],
+      ['non-numeric value', '/api/1/deals/abc'],
+      ['signed number', '/api/1/deals/-1'],
+    ])('should reject an integer path parameter with %s', (_label, path) => {
+      const result = validatePathForService('GET', path, 'accounting');
+
+      expect(result.isValid).toBe(false);
+      expect(result.message).toContain('must contain digits only');
+    });
+
+    it('should reject a malformed path parameter when searching across all APIs', () => {
+      const result = validatePathForService('GET', '/api/1/companies/..%2f2002');
+
+      expect(result.isValid).toBe(false);
+      expect(result.message).toContain("Path parameter 'id'");
+    });
+
+    it.each([
+      ['dot segment', '/api/1/partners/code/..'],
+      ['encoded dot segment', '/api/1/partners/code/%2E%2E'],
+      ['encoded slash', '/api/1/partners/code/a%2fb'],
+      ['encoded backslash', '/api/1/partners/code/a%5cb'],
+      ['control character', '/api/1/partners/code/a%0ab'],
+      ['malformed percent-encoding', '/api/1/partners/code/%E0%A4%A'],
+    ])('should reject a string path parameter with %s', (_label, path) => {
+      // '/api/1/partners/code/{code}' only supports PUT
+      const result = validatePathForService('PUT', path, 'accounting');
+
+      expect(result.isValid).toBe(false);
+      expect(result.message).toContain('single path segment');
+    });
+
+    it('should accept ordinary string path parameters', () => {
+      expect(
+        validatePathForService('PUT', '/api/1/partners/code/P-001', 'accounting').isValid,
+      ).toBe(true);
+      expect(
+        validatePathForService(
+          'PUT',
+          '/api/1/partners/code/%E5%8F%96%E5%BC%95%E5%85%88',
+          'accounting',
+        ).isValid,
+      ).toBe(true);
+      expect(
+        validatePathForService('GET', '/api/v1/employees/1/work_records/2026-11-18', 'hr').isValid,
+      ).toBe(true);
+    });
+
+    it('should not treat a schema template as a concrete path', () => {
+      const result = validatePathForService('GET', '/api/1/deals/{id}', 'accounting');
+
+      expect(result.isValid).toBe(false);
+    });
+  });
+
+  describe('validatePathForService - companyIdInPath', () => {
+    it.each([
+      ['/api/1/companies/{id}', '/api/1/companies/1001', 'accounting'],
+      ['/api/1/taxes/companies/{company_id}', '/api/1/taxes/companies/1001', 'accounting'],
+      ['/api/v1/companies/{company_id}/employees', '/api/v1/companies/1001/employees', 'hr'],
+    ] as const)('should extract the company id from %s', (_schemaPath, path, service) => {
+      const result = validatePathForService('GET', path, service);
+
+      expect(result.isValid).toBe(true);
+      expect(result.companyIdInPath).toBe('1001');
+    });
+
+    it('should not report a company id for paths whose id is not a company', () => {
+      expect(validatePathForService('GET', '/api/1/deals/1001', 'accounting').companyIdInPath).toBe(
+        undefined,
+      );
+      expect(
+        validatePathForService('GET', '/hub/it_management/product_companies/abc', 'it_management')
+          .companyIdInPath,
+      ).toBe(undefined);
+    });
+  });
+
   describe('resolveBaseUrl (env var overrides)', () => {
     const envVarNames = [
       'FREEE_API_BASE_URL_ACCOUNTING',

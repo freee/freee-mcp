@@ -66,6 +66,7 @@ vi.mock('../api/client.js', () => ({
 
 vi.mock('../storage/context.js', () => ({
   extractTokenContext: vi.fn(() => ({ userId: 'test-user', tokenStore: {} })),
+  resolveCompanyId: vi.fn(() => Promise.resolve('1001')),
 }));
 
 const stubServer = {} as McpServer;
@@ -212,6 +213,51 @@ describe('generateClientModeTool - privacy', () => {
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toMatch(/freee-mcp（リモート版）でのみ利用できます/);
     expect(clientModule.makeApiRequest).not.toHaveBeenCalled();
+  });
+
+  it('rejects a company id in the path that differs from the current company', async () => {
+    const schemaLoader = await import('./schema-loader.js');
+    const clientModule = await import('../api/client.js');
+    vi.mocked(schemaLoader.validatePathForService).mockReturnValueOnce({
+      isValid: true,
+      message: 'Valid path and method',
+      companyIdInPath: '2002',
+    });
+
+    const { generateClientModeTool } = await import('./client-mode.js');
+    generateClientModeTool(stubServer);
+    const getHandler = capturedHandlers.get('freee_api_get');
+
+    const result = (await getHandler?.(
+      { service: 'accounting', path: '/api/1/companies/2002' },
+      undefined,
+    )) as { isError?: boolean; content: Array<{ type: string; text: string }> };
+
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toMatch(/company_id の不整合/);
+    expect(clientModule.makeApiRequest).not.toHaveBeenCalled();
+  });
+
+  it('allows a company id in the path that matches the current company', async () => {
+    const schemaLoader = await import('./schema-loader.js');
+    const clientModule = await import('../api/client.js');
+    vi.mocked(schemaLoader.validatePathForService).mockReturnValueOnce({
+      isValid: true,
+      message: 'Valid path and method',
+      companyIdInPath: '1001',
+    });
+
+    const { generateClientModeTool } = await import('./client-mode.js');
+    generateClientModeTool(stubServer);
+    const getHandler = capturedHandlers.get('freee_api_get');
+
+    const result = (await getHandler?.(
+      { service: 'accounting', path: '/api/1/companies/1001' },
+      undefined,
+    )) as { isError?: boolean };
+
+    expect(result.isError).not.toBe(true);
+    expect(clientModule.makeApiRequest).toHaveBeenCalledTimes(1);
   });
 
   it('allows mcp-only endpoints in remote mode', async () => {
