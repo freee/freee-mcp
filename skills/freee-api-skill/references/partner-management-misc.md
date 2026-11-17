@@ -18,7 +18,7 @@ partner_management_orderer_company_users
 - email: string - メールアドレスの完全一致で絞り込む
 - role_id: integer(int64) - ロールIDで絞り込む
 - section_code: string - 部門コードで絞り込む
-- status: string - アカウント状態 (active: 有効, invitation_pending: 招待中) (選択肢: active, invitation_pending)
+- status: string - アカウント状態 (active: 有効, invitation_pending: 招待中, invitation_expired: 招待の期限切れ) (選択肢: active, invitation_pending, invitation_expired)
 - freee_account_integrated: boolean - freeeアカウント連携済みかで絞り込む
 - two_factor_authentication_setting_type: string - 2FA設定タイプ (unset: 未設定, mail: メール, app: アプリ) (選択肢: unset, mail, app)
 - saml_sso_enabled: boolean - SAML SSO設定済みかで絞り込む
@@ -45,7 +45,7 @@ partner_management_orderer_company_users
 - id*: integer(int32) - CompanyUser ID
 - email*: string - メールアドレス
 - name*: string - 氏名
-- status*: string - アカウント状態 (active: 有効, invitation_pending: 招待中)
+- status*: string - アカウント状態 (active: 有効, invitation_pending: 招待中, invitation_expired: 招待の期限切れ)
 - role_id*: integer(int64) - ロールID。基本ロールは全企業共通で 1: オーナー, 2: マスター, 3: 経理, 4: メンバー で固定。
 - section_code*: string - 部門コード。部門未設定の場合は null
 - two_factor_authentication_setting_type*: string - 2FA設定タイプ (unset: 未設定, mail: メール, app: アプリ)

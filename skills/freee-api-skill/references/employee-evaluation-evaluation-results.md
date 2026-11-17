@@ -11,9 +11,10 @@ employee_evaluation
 ### パラメータ
 
 - company_id*: integer(int64) - 事業所ID
+- ids[]: array[integer] - 人事評価結果IDでのフィルタ。最大50件まで指定できます。指定しない場合は人事評価結果IDで絞り込みません。
 - employee_ids[]: array[integer] - 従業員IDでのフィルタ。最大50件まで指定できます。指定しない場合はアクセス可能な全従業員が対象です。
-- start_date: string(date) - 評価期間の開始日（yyyy-mm-dd）
-- end_date: string(date) - 評価期間の終了日（yyyy-mm-dd）
+- start_date: string(date) - 評価イベントの開始日（yyyy-mm-dd）
+- end_date: string(date) - 評価イベントの終了日（yyyy-mm-dd）
 - page_size: integer(int32) - 1ページあたりの取得件数（デフォルト100、最大500）
 - page_token: string - 次ページ取得用トークン
 

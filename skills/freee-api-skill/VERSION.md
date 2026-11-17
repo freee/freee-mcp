@@ -1,1 +1,1 @@
-freee-mcp version: 0.38.0
+freee-mcp version: 0.38.1
