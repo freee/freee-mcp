@@ -1,5 +1,11 @@
 # freee-mcp
 
+## 0.38.2
+
+### Patch Changes
+
+- [`4956465`](https://github.com/freee/freee-mcp/commit/4956465f3106d4aa64cdc73dda674ff42bb949f8): 申告リファレンス（別表一）の「同非区分」のコード値対応表を修正（1=同族会社, 3=非同族会社, 4=特定同族会社）
+
 ## 0.38.1
 
 ### Patch Changes
