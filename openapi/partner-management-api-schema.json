@@ -3388,7 +3388,7 @@
         "name": "status",
         "in": "query",
         "required": false,
-        "description": "アカウント状態で絞り込む",
+        "description": "アカウント状態で絞り込む (invitation_pending は招待から 1 週間以内の招待中のみ。期限切れは invitation_expired で絞り込む)",
         "schema": {
           "$ref": "#/components/schemas/PartnerManagement.Orderer.CompanyUsers.CompanyUserStatus"
         },
@@ -4540,9 +4540,10 @@
         "type": "string",
         "enum": [
           "active",
-          "invitation_pending"
+          "invitation_pending",
+          "invitation_expired"
         ],
-        "description": "アカウント状態 (active: 有効, invitation_pending: 招待中)"
+        "description": "アカウント状態 (active: 有効, invitation_pending: 招待中, invitation_expired: 招待の期限切れ)"
       },
       "PartnerManagement.Orderer.CompanyUsers.TwoFactorAuthenticationSettingType": {
         "type": "string",
@@ -4632,7 +4633,7 @@
                 "$ref": "#/components/schemas/PartnerManagement.Orderer.CompanyUsers.CompanyUserStatus"
               }
             ],
-            "description": "アカウント状態 (active: 有効, invitation_pending: 招待中)"
+            "description": "アカウント状態 (active: 有効, invitation_pending: 招待中, invitation_expired: 招待の期限切れ)"
           },
           "role_id": {
             "type": "integer",

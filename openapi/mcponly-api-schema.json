@@ -1060,6 +1060,9 @@
             "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.company_id"
           },
           {
+            "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.ids"
+          },
+          {
             "$ref": "#/components/parameters/EmployeeEvaluation.EvaluationResults.ListRequest.employee_ids"
           },
           {
@@ -1404,6 +1407,20 @@
         },
         "explode": false
       },
+      "EmployeeEvaluation.EvaluationResults.ListRequest.ids": {
+        "name": "ids[]",
+        "in": "query",
+        "required": false,
+        "description": "人事評価結果IDでのフィルタ。最大50件まで指定できます。指定しない場合は人事評価結果IDで絞り込みません。",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "maxItems": 50
+        }
+      },
       "EmployeeEvaluation.EvaluationResults.ListRequest.employee_ids": {
         "name": "employee_ids[]",
         "in": "query",
@@ -1422,7 +1439,7 @@
         "name": "start_date",
         "in": "query",
         "required": false,
-        "description": "評価期間の開始日（yyyy-mm-dd）",
+        "description": "評価イベントの開始日（yyyy-mm-dd）",
         "schema": {
           "type": "string",
           "format": "date"
@@ -1433,7 +1450,7 @@
         "name": "end_date",
         "in": "query",
         "required": false,
-        "description": "評価期間の終了日（yyyy-mm-dd）",
+        "description": "評価イベントの終了日（yyyy-mm-dd）",
         "schema": {
           "type": "string",
           "format": "date"
@@ -2772,7 +2789,9 @@
           "id",
           "employee_id",
           "evaluation_cycle_id",
+          "evaluation_cycle_name",
           "evaluation_category_id",
+          "evaluation_category_name",
           "created_at"
         ],
         "properties": {
@@ -2788,19 +2807,35 @@
           },
           "evaluation_cycle_id": {
             "type": "string",
-            "description": "評価期間ID",
+            "description": "評価イベントID",
             "example": "10"
+          },
+          "evaluation_cycle_name": {
+            "type": "string",
+            "description": "評価イベント名",
+            "example": "2026年上期評価"
           },
           "evaluation_category_id": {
             "type": "string",
-            "description": "評価項目ID",
+            "description": "評価種別ID",
             "example": "20"
+          },
+          "evaluation_category_name": {
+            "type": "string",
+            "description": "評価種別名",
+            "example": "能力評価"
           },
           "evaluation_category_selectbox_option_id": {
             "type": "string",
             "nullable": true,
-            "description": "評価項目の選択肢ID",
+            "description": "評価種別の選択肢ID",
             "example": "30"
+          },
+          "evaluation_category_selectbox_option_name": {
+            "type": "string",
+            "nullable": true,
+            "description": "評価種別の選択肢名。評価種別の選択肢IDがない場合はnullです。",
+            "example": "A"
           },
           "value": {
             "type": "string",

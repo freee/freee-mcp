@@ -21,27 +21,27 @@
 - accounting-deals.md — 取引（収入・支出）
 - accounting-misc.md L147-175 — 経費申請の金額の自動計算
 - accounting-misc.md L177-250 — 経費精算の外貨
-- accounting-misc.md L252-313 — Expense application forms
+- accounting-misc.md L252-315 — Expense application forms
 - accounting-expense-application-line-templates.md — 経費科目
 - accounting-expense-applications.md — 経費精算
-- accounting-misc.md L315-341 — 固定資産台帳
-- accounting-misc.md L343-378 — 総勘定元帳
-- accounting-misc.md L380-425 — 請求書
+- accounting-misc.md L317-343 — 固定資産台帳
+- accounting-misc.md L345-380 — 総勘定元帳
+- accounting-misc.md L382-427 — 請求書
 - accounting-items.md — 品目
 - accounting-journals.md — 仕訳帳
 - accounting-manual-journals.md — 振替伝票
 - accounting-partners.md — 取引先
 - accounting-payment-requests.md — 支払依頼
-- accounting-misc.md L427-485 — 取引（収入・支出）の支払行
+- accounting-misc.md L429-487 — 取引（収入・支出）の支払行
 - accounting-purchase-requests.md — 購買申請
-- accounting-misc.md L487-529 — 見積書
-- accounting-misc.md L531-626 — ファイルボックス（証憑ファイル）
-- accounting-misc.md L628-731 — 取引（収入・支出）の+更新
+- accounting-misc.md L489-531 — 見積書
+- accounting-misc.md L533-628 — ファイルボックス（証憑ファイル）
+- accounting-misc.md L630-733 — 取引（収入・支出）の+更新
 - accounting-sections.md — 部門
 - accounting-segment-tags.md — セグメントタグ
-- accounting-misc.md L733-754 — フォーム用選択項目情報
-- accounting-misc.md L756-853 — メモタグ
-- accounting-misc.md L855-900 — 税区分
+- accounting-misc.md L735-756 — フォーム用選択項目情報
+- accounting-misc.md L758-855 — メモタグ
+- accounting-misc.md L857-902 — 税区分
 - accounting-transfers.md — 取引（振替）
 - accounting-trial-balance.md — 試算表
 - accounting-user-matchers.md — 自動登録ルール

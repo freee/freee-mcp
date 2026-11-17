@@ -13595,6 +13595,7 @@
           "approval_flow_route_id",
           "approval_flow_route_name",
           "approval_flow_logs",
+          "comments",
           "current_round"
         ],
         "properties": {
@@ -13698,6 +13699,13 @@
             "description": "承認履歴",
             "items": {
               "$ref": "#/components/schemas/ApiV1ApprovalFlowLogsParams"
+            }
+          },
+          "comments": {
+            "type": "array",
+            "description": "申請についたコメント（投稿順）<br>\n申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1ApprovalFlowCommentsParams"
             }
           },
           "current_step_id": {
@@ -14030,6 +14038,7 @@
           "approval_flow_route_id",
           "approval_flow_route_name",
           "approval_flow_logs",
+          "comments",
           "current_round",
           "values"
         ],
@@ -14181,6 +14190,13 @@
               "$ref": "#/components/schemas/ApiV1ApprovalFlowLogsParams"
             }
           },
+          "comments": {
+            "type": "array",
+            "description": "申請についたコメント（投稿順）<br>\n申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1ApprovalFlowCommentsParams"
+            }
+          },
           "current_step_id": {
             "type": "integer",
             "description": "現在承認ステップID<br>\n申請を差戻した場合、nullになります。",
@@ -14225,6 +14241,7 @@
           "approval_flow_route_id",
           "approval_flow_route_name",
           "approval_flow_logs",
+          "comments",
           "current_round"
         ],
         "properties": {
@@ -14361,6 +14378,13 @@
             "description": "承認履歴",
             "items": {
               "$ref": "#/components/schemas/ApiV1ApprovalFlowLogsParams"
+            }
+          },
+          "comments": {
+            "type": "array",
+            "description": "申請についたコメント（投稿順）<br>\n申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1ApprovalFlowCommentsParams"
             }
           },
           "current_step_id": {
@@ -14533,6 +14557,7 @@
           "approval_flow_route_id",
           "approval_flow_route_name",
           "approval_flow_logs",
+          "comments",
           "current_round"
         ],
         "properties": {
@@ -14666,6 +14691,13 @@
               "$ref": "#/components/schemas/ApiV1ApprovalFlowLogsParams"
             }
           },
+          "comments": {
+            "type": "array",
+            "description": "申請についたコメント（投稿順）<br>\n申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1ApprovalFlowCommentsParams"
+            }
+          },
           "current_step_id": {
             "type": "integer",
             "description": "現在承認ステップID<br>\n申請を差戻した場合、nullになります。",
@@ -14710,6 +14742,36 @@
           "update_at": {
             "type": "string",
             "description": "申請操作をした日付時間",
+            "format": "date-time",
+            "example": "2022-06-08T09:46:46.000+09:00"
+          }
+        }
+      },
+      "ApiV1ApprovalFlowCommentsParams": {
+        "type": "object",
+        "required": [
+          "comment",
+          "user_id",
+          "posted_at"
+        ],
+        "properties": {
+          "comment": {
+            "type": "string",
+            "description": "コメント本文",
+            "example": "確認しました。"
+          },
+          "user_id": {
+            "type": "integer",
+            "description": "コメントを書いたユーザーのユーザーID<br>\n次の場合、nullになります。\n- 従業員に紐付かない管理者が書いた\n- 書いた従業員が削除されている\n- 書いた従業員がユーザーアカウントに紐付いていない（招待の解除など）",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "example": 1,
+            "nullable": true
+          },
+          "posted_at": {
+            "type": "string",
+            "description": "コメントを書いた日付時間",
             "format": "date-time",
             "example": "2022-06-08T09:46:46.000+09:00"
           }
@@ -19512,6 +19574,7 @@
           "approval_flow_route_id",
           "approval_flow_route_name",
           "approval_flow_logs",
+          "comments",
           "current_round"
         ],
         "properties": {
@@ -19655,6 +19718,13 @@
             "description": "承認履歴",
             "items": {
               "$ref": "#/components/schemas/ApiV1ApprovalFlowLogsParams"
+            }
+          },
+          "comments": {
+            "type": "array",
+            "description": "申請についたコメント（投稿順）<br>\n申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1ApprovalFlowCommentsParams"
             }
           },
           "current_step_id": {
@@ -20094,6 +20164,7 @@
               "approval_flow_route_id",
               "approval_flow_route_name",
               "approval_flow_logs",
+              "comments",
               "current_round"
             ],
             "properties": {
@@ -20245,6 +20316,13 @@
                 "description": "承認履歴",
                 "items": {
                   "$ref": "#/components/schemas/ApiV1ApprovalFlowLogsParams"
+                }
+              },
+              "comments": {
+                "type": "array",
+                "description": "申請についたコメント（投稿順）<br>\n申請者・代理申請者・承認者・管理者が書いたコメントだけを返します。自動で付くコメントは含みません。",
+                "items": {
+                  "$ref": "#/components/schemas/ApiV1ApprovalFlowCommentsParams"
                 }
               },
               "current_step_id": {
