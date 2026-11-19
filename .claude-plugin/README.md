@@ -2,6 +2,8 @@
 
 freee会計、人事労務、請求書、工数管理、販売、IT管理、固定資産、債権管理、業務委託管理、サーベイ、開業、人事評価、申告を Claude から操作するための freee 公式プラグインです。
 
+The official freee plugin for Claude. It connects Claude to the freee Remote MCP server (`https://mcp.freee.co.jp/mcp`) and adds an Agent Skill with API references and task recipes for freee Accounting, HR, Invoice, Project Management, Sales, IT Management, Fixed Assets, Receivables, Partner Management, Survey, Launch, Employee Evaluation and Tax Return. Claude asks you to confirm before it creates, updates or deletes data, and adds the memo tag `freee-mcp` to the records it creates.
+
 このプラグインには次の 2 つが含まれます。
 
 - Remote MCP サーバー `freee`（`https://mcp.freee.co.jp/mcp`）: freee が運用するサーバーで、freee API の呼び出し・認証・リクエスト検証を担当します。ローカルでのインストールやセットアップは不要です
@@ -42,6 +44,7 @@ freee サイン（電子契約）のリファレンスも含まれますが、�
 - freee のデータへのアクセスは、すべて Remote MCP サーバー `https://mcp.freee.co.jp/mcp` を経由します。サーバーは、利用者が OAuth で許可したアカウントの権限の範囲で freee API を呼び出します
 - Agent Skill は Markdown のリファレンスとレシピだけで構成されており、スクリプトの実行や外部への通信は行いません
 - 作成・更新・削除の操作は freee 上の実データに反映されます。Claude が書き込み系のツールを呼び出す前に、内容を確認してください
+- Claude が作成した取引・経費申請・振替伝票・支払依頼・請求書などには、freee-mcp 経由で作成したことが分かるようにメモタグ「freee-mcp」が付きます。事業所にこのタグが無い場合は、タグも作成されます。タグは freee の Web 画面にも表示され、メモタグでの絞り込みに使えます
 - 個人情報の取り扱いは [freee のプライバシーポリシー](https://www.freee.co.jp/privacy_policy/) をご覧ください
 
 ## ローカル MCP を使う場合
