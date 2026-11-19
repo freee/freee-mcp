@@ -93,7 +93,7 @@ API 呼び出し:
 - `freee_api_delete` - DELETE リクエスト
 - `freee_api_patch` - PATCH リクエスト
 - `freee_api_bulk_get` - GET を複数まとめて実行（最大20件・部分成功あり。ID一覧から詳細をまとめて取る場合など）
-- `freee_api_bulk_write` - POST/PUT/PATCH/DELETE を複数まとめて実行（最大10件・既定は直列で失敗時に残りを中止）
+- `freee_api_bulk_write` - POST/PUT/PATCH/DELETE を複数まとめて実行（最大10件・既定は直列で失敗時に残りを中止）。実行前の確認は「書き込み前の確認」を参照
 - `freee_api_list_paths` - 利用可能なAPIパス一覧
 
 serviceパラメータ (必須):
@@ -127,6 +127,14 @@ serviceパラメータ (必須):
 注意:
 - `company_id` は現在設定されている事業所と一致している必要がある。不一致の場合はエラーになる
 - 事業所を変更する場合: 先に `freee_set_current_company` で切り替えてからリクエストを実行
+
+### 書き込み前の確認
+
+`freee_api_post` / `freee_api_put` / `freee_api_patch` / `freee_api_delete` / `freee_api_bulk_write` は freee 上の実データを変更する。呼び出す前に、対象事業所と、作成・変更する内容（更新なら変更前後の差分、削除なら対象）をユーザーに示し、確認を得てから実行する。
+
+- `freee_api_bulk_write` では、含まれるリクエストをすべて一覧で示してから1回の確認で実行する。確認後にリクエストを追加・変更した場合は、改めて確認を得る
+- メモタグ「freee-mcp」を付与する場合は、そのこともあわせて伝える（`recipes/freee-mcp-tag.md`）
+- 各レシピに書き込み前の確認手順がある場合は、その手順に従う
 
 ### レシピ
 
