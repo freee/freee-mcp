@@ -30,7 +30,7 @@
     "fetch:schemas": "bun run scripts/fetch-schemas.ts",
     "count:apis": "bun run scripts/count-apis.ts",
     "changeset": "changeset",
-    "version": "changeset version",
+    "version": "changeset version && bun run scripts/pin-skill-npx-versions.ts",
     "release": "bun run build && changeset publish"
   },
   "author": "freee_jp",

@@ -46,27 +46,11 @@ sign_file_upload {
 
 Base64 文字列が小さい場合（目安: 数十 KB まで）は sign_api_post でも作成できる。body の形式は `../sign-references/sign-documents.md` の POST /v1/documents/uploads を参照。
 
-### MCP 外から送る（curl でのデバッグ・直接呼び出し）
-
-MCP を経由せず API を直接呼び出す場合のベース URL は https://ninja-sign.com（`../SIGN-GUIDE.md` 参照）。アクセストークンは `~/.config/freee-mcp/sign-tokens.json` の access_token を使用する。
-
-```bash
-base64 -w0 契約書.pdf > content.b64
-jq -n --arg name "契約書.pdf" --rawfile content content.b64 \
-  '{file: {name: $name, content: $content}, uploader_id: 42, folder_id: 123}' \
-  | curl -X POST https://ninja-sign.com/v1/documents/uploads \
-      -H "Authorization: Bearer $ACCESS_TOKEN" \
-      -H "Content-Type: application/json" \
-      -d @-
-```
-
-保管用の POST /v1/pdf_documents に送る場合は、body のキーが file ではなく pdf_file になる（title パラメータはない）。
-
 ## アップロード後の流れ（署名依頼まで）
 
 1. 文書を作成（上記いずれか）し、レスポンスの document.id を控える
 2. 相手に入力させる欄（押印欄・テキスト欄など）が必要な場合のみ入力項目を付与: GET /v1/items で item_id を確認し、POST /v1/documents/{document_id}/document_items を呼ぶ（order は 0 が送信者、1 以降が n 番目の受領者）。合意・署名だけを求める場合、この手順は不要
-3. 送信前にユーザーが内容を確認する場合はここで止める。確認は freee サイン Web UI で文書を開いてもらう。PDF を API で取得する方法（GET /v1/documents/{document_id} に Accept: application/pdf）は sign_api_get がヘッダー指定に対応していないため MCP 経由では実行できず、curl 等の直接呼び出しが必要（PDF 作成処理中はエラーになるため時間を置いて再実行）
+3. 送信前にユーザーが内容を確認する場合はここで止める。確認は freee サイン Web UI で文書を開いてもらう。PDF を API で取得する方法（GET /v1/documents/{document_id} に Accept: application/pdf）は sign_api_get がヘッダー指定に対応していないため MCP 経由では実行できない
 4. 文書を送信: POST /v1/documents/{document_id}/confirmations（メール / SMS / 署名者用 URL 発行）
 
 送信（メールの場合）の例:
