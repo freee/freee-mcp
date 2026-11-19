@@ -385,6 +385,48 @@ describe('client', () => {
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
+    it.each([
+      ['/api/1/deals/../users/me'],
+      ['/api/1/deals/./123'],
+      ['/api/1/deals/%2e%2e/users/me'],
+      ['/api/1/deals/%2E%2E/users/me'],
+      ['/api/1/deals/.%2e/users/me'],
+      ['/api/1/deals/%2e'],
+      ['/api/1/deals/1%2f..'],
+      ['/api/1/deals/1%2F2'],
+      ['/api/1/deals/1%5c2'],
+      ['/api/1/deals/1\\2'],
+    ])('should reject path that changes when normalized: %s', async (path) => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+
+      await expect(makeApiRequest('GET', path)).rejects.toThrow('"." / ".." の segment');
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it('should not let a path escape the base URL path', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+
+      await expect(
+        makeApiRequest('GET', '//api/v1/users/me', undefined, undefined, `${TEST_API_URL}/hr`),
+      ).rejects.toThrow('API path が API の base URL の外を指しています。');
+      await expect(makeApiRequest('GET', 'https://example.com/api/1/users/me')).rejects.toThrow(
+        'API path が API の base URL の外を指しています。',
+      );
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it('should accept dots that are not a whole segment', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      mockFetch.mockResolvedValue(createJsonResponse({ ok: true }));
+
+      await makeApiRequest('GET', '/api/1/files/report.v1..csv');
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${TEST_API_URL}/api/1/files/report.v1..csv`,
+        expect.anything(),
+      );
+    });
+
     it('should not produce duplicate company_id query parameters', async () => {
       await setupAccessToken(TEST_ACCESS_TOKEN);
       mockFetch.mockResolvedValue(createJsonResponse({}));
@@ -857,6 +899,37 @@ describe('client', () => {
       });
       // Query values must not be in the path_pattern.
       expect(JSON.stringify(apiCalls[0])).not.toContain('limit=10');
+    });
+
+    it('records the path actually sent, relative to the base URL', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        status: 200,
+        headers: createMockHeaders('application/json'),
+        json: (): Promise<unknown> => Promise.resolve({ ok: true }),
+        text: (): Promise<string> => Promise.resolve(JSON.stringify({ ok: true })),
+      });
+
+      const { RequestRecorder, withRequestRecorder } = await import('../server/request-context.js');
+      const recorder = new RequestRecorder({
+        request_id: 'req-api-base-path',
+        source_ip: '127.0.0.1',
+        method: 'POST',
+        path: '/mcp',
+      });
+
+      await withRequestRecorder(recorder, () =>
+        makeApiRequest('GET', '/api/v1/employees/123', undefined, undefined, `${TEST_API_URL}/hr`),
+      );
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${TEST_API_URL}/hr/api/v1/employees/123`,
+        expect.anything(),
+      );
+      const payload = recorder.buildPayload({ status: 200, duration_ms: 1 });
+      const apiCalls = payload.api.calls as Array<Record<string, unknown>>;
+      expect(apiCalls[0]?.path_pattern).toBe('/api/v1/employees/:id');
     });
 
     it('omits query_keys (rather than logging an empty array) when params is {}', async () => {
