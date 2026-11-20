@@ -15,7 +15,7 @@ Claude 及び Claude Desktop では「カスタマイズ」より「カスタム
 - 名前: `freee`
 - URL: `https://mcp.freee.co.jp/mcp`
 
-初回接続時にブラウザで freee への認証が自動的に行われます。`npx freee-mcp@0.38.2 configure` の実行は不要です。
+初回接続時にブラウザで freee への認証が自動的に行われます。`npx freee-mcp@0.38.3 configure` の実行は不要です。
 
 その他の AI ツールでは、それぞれの案内に従って Remote MCP サーバーを追加してください。
 
@@ -24,7 +24,7 @@ Claude 及び Claude Desktop では「カスタマイズ」より「カスタム
 freee アプリケーションを自分で登録し、ローカルで MCP サーバーを起動する方法です。
 
 ```bash
-npx freee-mcp@0.38.2 configure
+npx freee-mcp@0.38.3 configure
 ```
 
 ブラウザで freee にログインし、事業所を選択します。設定は `~/.config/freee-mcp/config.json` に保存されます。
