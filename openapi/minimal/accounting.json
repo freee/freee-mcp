@@ -4403,7 +4403,7 @@
     "/api/1/payment_requests": {
       "get": {
         "summary": "支払依頼一覧の取得",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼一覧を取得する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、支払依頼の一覧を取得することができます。</li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼一覧を取得する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、支払依頼の一覧を取得することができます。</li>\n  <li>パラメータ status を指定しない場合、ステータスでは絞り込まず、すべてのステータスの支払依頼を返します。</li>\n  <li>\n    パラメータ status には申請ステータスと取引ステータスのどちらかを指定します。レスポンスでは申請ステータスを status、取引ステータスを deal_status として返します。\n    <ul>\n      <li>パラメータ status に <code>approved</code> を指定した場合は、取引が登録されていない承認済の支払依頼のみを返します。取引が登録された承認済の支払依頼は、<code>unsettled</code> または <code>settled</code> を指定すると取得できます。レスポンスの status は取引の有無に関わらず <code>approved</code> です。</li>\n      <li>例: パラメータ status に <code>settled</code> を指定した場合、レスポンスの status が <code>approved</code>、deal_status が <code>settled</code> の支払依頼を返します。</li>\n    </ul>\n  </li>\n  <li>後続の支払依頼が存在する場合でも、取得件数が limit より少なくなることがあります。</li>\n</ul>",
         "parameters": [
           {
             "name": "company_id",
@@ -4429,6 +4429,18 @@
             "in": "query",
             "type": "string",
             "description": "申請日で絞込：終了日(yyyy-mm-dd)"
+          },
+          {
+            "name": "start_last_approval_date",
+            "in": "query",
+            "type": "string",
+            "description": "最新の承認日で絞込：開始日(yyyy-mm-dd)\n最新の承認日は、支払依頼に対して行われた承認（特権承認を含む）のうち最も新しい承認の日付で、申請が承認済になった日とは限りません。そのため、承認済以外の支払依頼も対象になります。\n* 承認経路の途中のステップのみ承認された支払依頼は、そのステップの承認日\n* 承認後に差戻し・却下された支払依頼は、差戻し・却下前の承認日\n* 差戻し後に再度承認された支払依頼は、再承認日\n* 一度も承認されていない支払依頼は対象外\n\n2026年10月20日以降に承認または更新された支払依頼のみが対象です。"
+          },
+          {
+            "name": "end_last_approval_date",
+            "in": "query",
+            "type": "string",
+            "description": "最新の承認日で絞込：終了日(yyyy-mm-dd)\n最新の承認日は、支払依頼に対して行われた承認（特権承認を含む）のうち最も新しい承認の日付で、申請が承認済になった日とは限りません。そのため、承認済以外の支払依頼も対象になります。\n* 承認経路の途中のステップのみ承認された支払依頼は、そのステップの承認日\n* 承認後に差戻し・却下された支払依頼は、差戻し・却下前の承認日\n* 差戻し後に再度承認された支払依頼は、再承認日\n* 一度も承認されていない支払依頼は対象外\n\n2026年10月20日以降に承認または更新された支払依頼のみが対象です。"
           },
           {
             "name": "start_issue_date",

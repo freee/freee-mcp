@@ -4810,15 +4810,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "employee_attendance_tags": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/ApiV1EmployeesAssignedAttendanceTagSerializer"
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/ApiV1EmployeesAttendanceTagsController.update_response"
                 }
               }
             }
@@ -16844,9 +16836,21 @@
             "description": "早退分の時間（分単位）",
             "format": "int32"
           },
+          "half_paid_holiday_mins": {
+            "type": "integer",
+            "description": "[deprecated] 有給休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
+            "format": "int32"
+          },
           "half_special_holiday_mins": {
             "type": "integer",
             "description": "[deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
+            "format": "int32"
+          },
+          "hourly_paid_holiday_mins": {
+            "type": "integer",
+            "description": "[deprecated] 有給休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください",
             "deprecated": true,
             "format": "int32"
           },
@@ -16891,6 +16895,12 @@
             "type": "string",
             "description": "勤怠メモ",
             "maxLength": 255
+          },
+          "paid_holiday": {
+            "type": "number",
+            "description": "[deprecated] この日に対する有給取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_paid_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_paid_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください",
+            "deprecated": true,
+            "format": "float"
           },
           "paid_holidays": {
             "type": "array",
@@ -21990,6 +22000,7 @@
             "type": "string",
             "description": "前職の退職日 現在年-10年1月1日から現在年+5年12月31日まで登録可能",
             "format": "date",
+            "nullable": true,
             "example": "2022-03-31"
           }
         }
@@ -22771,6 +22782,124 @@
           }
         }
       },
+      "ApiV1EmployeesAssignedAttendanceMinsTagSerializer": {
+        "type": "object",
+        "required": [
+          "attendance_mins_tag",
+          "mins"
+        ],
+        "properties": {
+          "attendance_mins_tag": {
+            "$ref": "#/components/schemas/ApiV1EmployeesAttendanceMinsTagSerializer"
+          },
+          "mins": {
+            "type": "integer",
+            "description": "勤怠タグ時間数（分）",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 5999,
+            "example": 60
+          }
+        }
+      },
+      "ApiV1EmployeesAttendanceMinsTagSerializer": {
+        "type": "object",
+        "required": [
+          "id",
+          "company_id",
+          "name",
+          "description",
+          "input_unit_mins",
+          "max_mins",
+          "published",
+          "is_employee_usable"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "勤怠タグID",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "example": 1
+          },
+          "company_id": {
+            "type": "integer",
+            "description": "事業所ID",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "勤怠タグ名称",
+            "example": "勤怠タグの名称"
+          },
+          "description": {
+            "type": "string",
+            "description": "勤怠タグ備考",
+            "example": "勤怠タグの備考"
+          },
+          "input_unit_mins": {
+            "type": "integer",
+            "description": "勤怠タグ時間数入力単位（分）",
+            "format": "int32",
+            "enum": [
+              1,
+              5,
+              10,
+              15,
+              30,
+              60
+            ],
+            "example": 15
+          },
+          "max_mins": {
+            "type": "integer",
+            "description": "勤怠タグ時間数上限（分）",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 5999,
+            "example": 480
+          },
+          "published": {
+            "type": "boolean",
+            "description": "勤怠タグ公開ステータス",
+            "example": true
+          },
+          "is_employee_usable": {
+            "type": "boolean",
+            "description": "対象従業員が利用可能かどうか",
+            "example": true
+          }
+        }
+      },
+      "ApiV1EmployeesAttendanceMinsTagUpdateRequestSerializer": {
+        "type": "object",
+        "required": [
+          "attendance_tag_id",
+          "mins"
+        ],
+        "properties": {
+          "attendance_tag_id": {
+            "type": "integer",
+            "description": "勤怠タグID",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "example": 1
+          },
+          "mins": {
+            "type": "integer",
+            "description": "勤怠タグ時間数（分）",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 5999,
+            "example": 60
+          }
+        }
+      },
       "ApiV1EmployeesAttendanceTagsController.index_response": {
         "type": "object",
         "properties": {
@@ -22778,6 +22907,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ApiV1EmployeesAttendanceTagSerializer"
+            }
+          },
+          "employee_attendance_mins_tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1EmployeesAttendanceMinsTagSerializer"
             }
           }
         }
@@ -22790,14 +22925,19 @@
             "items": {
               "$ref": "#/components/schemas/ApiV1EmployeesAssignedAttendanceTagSerializer"
             }
+          },
+          "employee_attendance_mins_tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1EmployeesAssignedAttendanceMinsTagSerializer"
+            }
           }
         }
       },
       "ApiV1EmployeesAttendanceTagsController.update_body": {
         "type": "object",
         "required": [
-          "company_id",
-          "employee_attendance_tags"
+          "company_id"
         ],
         "properties": {
           "company_id": {
@@ -22813,6 +22953,30 @@
             "description": "更新対象の勤怠タグのリスト",
             "items": {
               "$ref": "#/components/schemas/ApiV1EmployeesAttendanceTagUpdateRequestSerializer"
+            }
+          },
+          "employee_attendance_mins_tags": {
+            "type": "array",
+            "description": "更新対象の勤怠時間数タグのリスト",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1EmployeesAttendanceMinsTagUpdateRequestSerializer"
+            }
+          }
+        }
+      },
+      "ApiV1EmployeesAttendanceTagsController.update_response": {
+        "type": "object",
+        "properties": {
+          "employee_attendance_tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1EmployeesAssignedAttendanceTagSerializer"
+            }
+          },
+          "employee_attendance_mins_tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1EmployeesAssignedAttendanceMinsTagSerializer"
             }
           }
         }
@@ -22908,14 +23072,19 @@
             "items": {
               "$ref": "#/components/schemas/ApiV1EmployeesAttendanceTagSummary"
             }
+          },
+          "employee_attendance_mins_tag_summaries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1EmployeesAttendanceMinsTagSummary"
+            }
           }
         }
       },
       "ApiV1EmployeesAttendanceTagSummariesController.update_body": {
         "type": "object",
         "required": [
-          "company_id",
-          "employee_attendance_tag_summaries"
+          "company_id"
         ],
         "properties": {
           "company_id": {
@@ -22932,6 +23101,13 @@
             "items": {
               "$ref": "#/components/schemas/ApiV1EmployeesAttendanceTagSummaryUpdateRequestSerializer"
             }
+          },
+          "employee_attendance_mins_tag_summaries": {
+            "type": "array",
+            "description": "更新対象の時間数タグサマリのリスト",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1EmployeesAttendanceMinsTagSummaryUpdateRequestSerializer"
+            }
           }
         }
       },
@@ -22943,6 +23119,127 @@
             "items": {
               "$ref": "#/components/schemas/ApiV1EmployeesAttendanceTagSummary"
             }
+          },
+          "employee_attendance_mins_tag_summaries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiV1EmployeesAttendanceMinsTagSummary"
+            }
+          }
+        }
+      },
+      "ApiV1EmployeesAttendanceMinsTagSummary": {
+        "type": "object",
+        "required": [
+          "attendance_mins_tag",
+          "mins"
+        ],
+        "properties": {
+          "attendance_mins_tag": {
+            "type": "object",
+            "required": [
+              "id",
+              "company_id",
+              "name",
+              "description",
+              "input_unit_mins",
+              "max_mins",
+              "published",
+              "is_employee_usable"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "description": "勤怠タグID",
+                "format": "int32",
+                "minimum": 1,
+                "maximum": 2147483647,
+                "example": 1
+              },
+              "company_id": {
+                "type": "integer",
+                "description": "事業所ID",
+                "format": "int32",
+                "minimum": 1,
+                "maximum": 2147483647,
+                "example": 1
+              },
+              "name": {
+                "type": "string",
+                "description": "勤怠タグ名称",
+                "example": "勤怠タグの名称"
+              },
+              "description": {
+                "type": "string",
+                "description": "勤怠タグ備考",
+                "example": "勤怠タグの備考"
+              },
+              "input_unit_mins": {
+                "type": "integer",
+                "description": "時間数入力単位（分）",
+                "format": "int32",
+                "enum": [
+                  1,
+                  5,
+                  10,
+                  15,
+                  30,
+                  60
+                ],
+                "example": 15
+              },
+              "max_mins": {
+                "type": "integer",
+                "description": "時間数上限（分）",
+                "format": "int32",
+                "minimum": 1,
+                "maximum": 5999,
+                "example": 180
+              },
+              "published": {
+                "type": "boolean",
+                "description": "勤怠タグ公開ステータス",
+                "example": true
+              },
+              "is_employee_usable": {
+                "type": "boolean",
+                "description": "対象従業員が利用可能かどうか",
+                "example": true
+              }
+            }
+          },
+          "mins": {
+            "type": "integer",
+            "description": "勤怠タグ時間数（分）",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 44640,
+            "example": 60
+          }
+        }
+      },
+      "ApiV1EmployeesAttendanceMinsTagSummaryUpdateRequestSerializer": {
+        "type": "object",
+        "required": [
+          "attendance_tag_id",
+          "mins"
+        ],
+        "properties": {
+          "attendance_tag_id": {
+            "type": "integer",
+            "description": "勤怠タグID",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 2147483647,
+            "example": 1
+          },
+          "mins": {
+            "type": "integer",
+            "description": "勤怠タグ時間数（分）",
+            "format": "int32",
+            "minimum": 0,
+            "maximum": 44640,
+            "example": 60
           }
         }
       },

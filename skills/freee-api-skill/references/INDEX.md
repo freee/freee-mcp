@@ -74,8 +74,8 @@
 - hr-misc.md L655-726 — 部門の操作
 - hr-special-holiday-requests.md — 特別休暇申請の操作
 - hr-misc.md L728-794 — タイムレコーダー(打刻)機能の操作
-- hr-misc.md L796-838 — 勤怠タグサマリの操作
-- hr-misc.md L840-893 — 勤怠タグの操作
+- hr-misc.md L796-843 — 勤怠タグサマリの操作
+- hr-misc.md L845-903 — 勤怠タグの操作
 - hr-work-time-correction-requests.md — 勤務時間修正申請の操作
 - hr-year-end-adjustments.md — 年末調整の操作
 

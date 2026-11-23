@@ -1073,7 +1073,7 @@
           "master"
         ],
         "summary": "案件カスタム項目定義一覧",
-        "description": "<h2 id=\"\">概要</h2>\n<p>\nカスタム項目定義の一覧を取得します。\n使用可能なもののみを返却します。\n</p>\n\n<h3>入力形式の一覧</h3>\n<ul>\n  <li><code>text</code>: 一行テキスト</li>\n  <li><code>textarea</code>: 複数行テキスト</li>\n  <li><code>amount</code>: 金額</li>\n  <li><code>quantity</code>: 数量</li>\n  <li><code>number</code>: 数値</li>\n  <li><code>date</code>: 日付</li>\n  <li><code>enum</code>: プルダウン</li>\n  <li><code>partner</code>: 取引先</li>\n  <li><code>employee</code>: 従業員</li>\n  <li><code>section</code>: 部門</li>\n  <li><code>master_item</code>: 商品</li>\n  <li><code>member</code>: メンバー</li>\n</ul>",
+        "description": "<h2 id=\"\">概要</h2>\n<p>\nカスタム項目定義の一覧を取得します。\n使用可能なもののみを返却します。\n</p>\n\n<h3>入力形式の一覧</h3>\n<ul>\n  <li><code>text</code>: 一行テキスト</li>\n  <li><code>textarea</code>: 複数行テキスト</li>\n  <li><code>amount</code>: 金額</li>\n  <li><code>quantity</code>: 数量</li>\n  <li><code>number</code>: 数値</li>\n  <li><code>date</code>: 日付</li>\n  <li><code>enum</code>: プルダウン</li>\n  <li><code>partner</code>: 取引先</li>\n  <li><code>section</code>: 部門</li>\n  <li><code>master_item</code>: 商品</li>\n  <li><code>member</code>: メンバー</li>\n</ul>",
         "operationId": "get_master_custom_fields_business_definitions",
         "parameters": [
           {
@@ -6716,37 +6716,6 @@
         ],
         "additionalProperties": false
       },
-      "CustomFieldEmployeeValue": {
-        "type": "object",
-        "description": "従業員型カスタム項目の値",
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": [
-              "employee"
-            ],
-            "description": "マスタ型の種別",
-            "example": "employee"
-          },
-          "id": {
-            "type": "integer",
-            "format": "int64",
-            "description": "従業員ID",
-            "example": 101
-          },
-          "name": {
-            "type": "string",
-            "description": "従業員名",
-            "example": "サンプル従業員"
-          }
-        },
-        "required": [
-          "type",
-          "id",
-          "name"
-        ],
-        "additionalProperties": false
-      },
       "CustomFieldSectionValue": {
         "type": "object",
         "description": "部門型カスタム項目の値",
@@ -6851,9 +6820,6 @@
             "$ref": "#/components/schemas/CustomFieldPartnerValue"
           },
           {
-            "$ref": "#/components/schemas/CustomFieldEmployeeValue"
-          },
-          {
             "$ref": "#/components/schemas/CustomFieldSectionValue"
           },
           {
@@ -6867,7 +6833,6 @@
           "propertyName": "type",
           "mapping": {
             "partner": "#/components/schemas/CustomFieldPartnerValue",
-            "employee": "#/components/schemas/CustomFieldEmployeeValue",
             "section": "#/components/schemas/CustomFieldSectionValue",
             "master_item": "#/components/schemas/CustomFieldMasterItemValue",
             "member": "#/components/schemas/CustomFieldMemberValue"
@@ -6879,7 +6844,7 @@
         "description": "カスタム項目",
         "properties": {
           "value": {
-            "description": "カスタム項目の値\n* 文字列型（text, textarea, date）: 文字列\n* 数値型（number, amount, quantity）: 数値\n* プルダウン型（enum）: 選択肢の名称（文字列）\n* マスタ型（partner, employee, section, master_item, member）: マスタ情報オブジェクト",
+            "description": "カスタム項目の値\n* 文字列型（text, textarea, date）: 文字列\n* 数値型（number, amount, quantity）: 数値\n* プルダウン型（enum）: 選択肢の名称（文字列）\n* マスタ型（partner, section, master_item, member）: マスタ情報オブジェクト",
             "nullable": true,
             "anyOf": [
               {
@@ -8038,7 +8003,6 @@
           "code": {
             "type": "string",
             "description": "商品コード",
-            "nullable": true,
             "example": "ITEM-001"
           },
           "name": {
@@ -8115,6 +8079,7 @@
         },
         "required": [
           "id",
+          "code",
           "name",
           "display_name",
           "memo_tag_ids"
@@ -8259,7 +8224,7 @@
           },
           "type": {
             "type": "string",
-            "description": "カスタム項目の入力形式\n* `text` - 一行テキスト\n* `textarea` - 複数行テキスト\n* `amount` - 金額\n* `quantity` - 数量\n* `number` - 数値\n* `date` - 日付\n* `enum` - プルダウン\n* `partner` - 取引先\n* `employee` - 従業員\n* `section` - 部門\n* `master_item` - 商品\n* `member` - メンバー",
+            "description": "カスタム項目の入力形式\n* `text` - 一行テキスト\n* `textarea` - 複数行テキスト\n* `amount` - 金額\n* `quantity` - 数量\n* `number` - 数値\n* `date` - 日付\n* `enum` - プルダウン\n* `partner` - 取引先\n* `section` - 部門\n* `master_item` - 商品\n* `member` - メンバー",
             "enum": [
               "text",
               "textarea",
@@ -8269,7 +8234,6 @@
               "date",
               "enum",
               "partner",
-              "employee",
               "section",
               "master_item",
               "member"
@@ -8518,29 +8482,6 @@
           }
         ]
       },
-      "EmployeeCustomFieldDefinition": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/CustomFieldDefinitionBase"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "type": {
-                "type": "string",
-                "enum": [
-                  "employee"
-                ],
-                "example": "employee"
-              }
-            },
-            "required": [
-              "type"
-            ]
-          }
-        ]
-      },
       "SectionCustomFieldDefinition": {
         "allOf": [
           {
@@ -8637,9 +8578,6 @@
             "$ref": "#/components/schemas/PartnerCustomFieldDefinition"
           },
           {
-            "$ref": "#/components/schemas/EmployeeCustomFieldDefinition"
-          },
-          {
             "$ref": "#/components/schemas/SectionCustomFieldDefinition"
           },
           {
@@ -8660,7 +8598,6 @@
             "date": "#/components/schemas/DateCustomFieldDefinition",
             "enum": "#/components/schemas/EnumCustomFieldDefinition",
             "partner": "#/components/schemas/PartnerCustomFieldDefinition",
-            "employee": "#/components/schemas/EmployeeCustomFieldDefinition",
             "section": "#/components/schemas/SectionCustomFieldDefinition",
             "master_item": "#/components/schemas/MasterItemCustomFieldDefinition",
             "member": "#/components/schemas/MemberCustomFieldDefinition"
@@ -16340,8 +16277,8 @@
                 {
                   "id": "01JPP4FD1CVQWCDSWA90VE1ZTX",
                   "key": "custom_field_009",
-                  "display_name": "担当従業員",
-                  "type": "employee",
+                  "display_name": "担当メンバー",
+                  "type": "member",
                   "required": false,
                   "description": null
                 },

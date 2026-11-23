@@ -82,8 +82,6 @@ transfers | 口座振替
 
 docs | 見積書・納品書・請求書・領収書・発注書
 
-doc_postings | (請求書の)郵送
-
 receipts | ファイルボックス
 
 receipt_stream_editor | 連続取引登録
@@ -244,7 +242,6 @@ bank_accountant_staff_users | アドバイザー事業所内でのメンバー�
 - deal_linkage*: object
 - transfers*: object
 - docs*: object
-- doc_postings*: object
 - receipts*: object
 - receipt_folders*: object
 - receipt_stream_editor*: object
