@@ -6,7 +6,7 @@ freee サインは freee 本体とは別の MCP サーバー（`freee-sign-mcp`�
 ## セットアップ
 
 ```bash
-npx --package=freee-mcp@0.38.4 -- freee-sign-mcp configure
+npx --package=freee-mcp@0.38.5 -- freee-sign-mcp configure
 ```
 
 ブラウザで freee サインにログインし、OAuth 認証を完了します。設定は `~/.config/freee-mcp/sign-config.json` に保存されます。
@@ -76,4 +76,4 @@ API リファレンスが `sign-references/` に含まれます:
 ## エラー対応
 
 - 認証エラー: `sign_auth_status` で確認 → `sign_clear_auth` → `sign_authenticate`
-- 設定エラー: `npx --package=freee-mcp@0.38.4 -- freee-sign-mcp configure --force` で再設定
+- 設定エラー: `npx --package=freee-mcp@0.38.5 -- freee-sign-mcp configure --force` で再設定
