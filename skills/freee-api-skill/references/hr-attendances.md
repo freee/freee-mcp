@@ -34,7 +34,9 @@
   - compensatory_holiday: 代休
   - special_holiday: 特別休暇
 - early_leaving_mins: integer(int32) - 早退分の時間（分単位）
+- half_paid_holiday_mins: integer(int32) - [deprecated] 有給休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
 - half_special_holiday_mins: integer(int32) - [deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
+- hourly_paid_holiday_mins: integer(int32) - [deprecated] 有給休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
 - hourly_special_holiday_mins: integer(int32) - [deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
 - is_absence: boolean - 欠勤かどうか
 - is_editable: boolean - 勤怠データが編集可能かどうか
@@ -43,6 +45,7 @@
 - normal_work_clock_out_at: string(date-time) - 所定労働終了時刻
 - normal_work_mins: integer(int32) - 所定労働時間
 - note: string - 勤怠メモ
+- paid_holiday: number(float) - [deprecated] この日に対する有給取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_paid_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_paid_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください
 - paid_holidays: array[object] - [deprecated] 年次有給休暇の実績 ※ 削除予定のため holidays を参照してください （ApiV1EmployeesWorkRecordSerializer のみ）
 - holidays: array[object] - 休暇の内訳（年次有給休暇、特別休暇、代休）。
   full では mins と time_ranges を返しません。half では mins を返します。
@@ -64,9 +67,6 @@
 - total_latenight_overtime_within_statutory_work_mins: integer(int32) - 深夜の法定内残業時間（分）
 - total_overtime_except_normal_work_mins: integer(int32) - 所定外法定外労働時間（分）
 - total_latenight_overtime_except_normal_work_mins: integer(int32) - 深夜の所定外法定外労働時間（分）
-- half_paid_holiday_mins: integer(int32) - [deprecated] 有給休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください （LegacyApiV1EmployeesWorkRecordSerializer のみ）
-- hourly_paid_holiday_mins: integer(int32) - [deprecated] 有給休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください （LegacyApiV1EmployeesWorkRecordSerializer のみ）
-- paid_holiday: number(float) - [deprecated] この日に対する有給取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_paid_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_paid_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください （LegacyApiV1EmployeesWorkRecordSerializer のみ）
 
 ## PUT /api/v1/employees/{employee_id}/work_records/{date} — 勤怠の更新
 
@@ -180,7 +180,9 @@
   - compensatory_holiday: 代休
   - special_holiday: 特別休暇
 - early_leaving_mins: integer(int32) - 早退分の時間（分単位）
+- half_paid_holiday_mins: integer(int32) - [deprecated] 有給休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
 - half_special_holiday_mins: integer(int32) - [deprecated] 特別休暇の半休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
+- hourly_paid_holiday_mins: integer(int32) - [deprecated] 有給休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
 - hourly_special_holiday_mins: integer(int32) - [deprecated] 特別休暇の時間休を利用した時間（分単位） ※ 削除予定のため holidays を参照してください
 - is_absence: boolean - 欠勤かどうか
 - is_editable: boolean - 勤怠データが編集可能かどうか
@@ -189,6 +191,7 @@
 - normal_work_clock_out_at: string(date-time) - 所定労働終了時刻
 - normal_work_mins: integer(int32) - 所定労働時間
 - note: string - 勤怠メモ
+- paid_holiday: number(float) - [deprecated] この日に対する有給取得日数。半休の場合は0.5が入ります。時間休の場合はhourly_paid_holiday_minsを所定労働時間で割った値が入るため、実際の時間を確認するにはhourly_paid_holiday_minsを参照してください。 ※ 削除予定のため holidays を参照してください
 - paid_holidays: array[object] - [deprecated] 年次有給休暇の実績 ※ 削除予定のため holidays を参照してください
 - holidays: array[object] - 休暇の内訳（年次有給休暇、特別休暇、代休）。
   full では mins と time_ranges を返しません。half では mins を返します。
