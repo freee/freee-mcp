@@ -381,6 +381,61 @@
         ]
       }
     },
+    "/hub/survey/employee_details": {
+      "get": {
+        "operationId": "list_survey_employee_details",
+        "summary": "従業員詳細一覧取得（リモート版freee-mcp限定）",
+        "description": "従業員の従業員番号と表示名を取得します。サーベイ結果の従業員IDと従業員番号・表示名を対応付けるために使います。\n従業員IDを指定するとその従業員のみ、省略するとアクセス権のあるすべての従業員を返します。\n本日時点で在籍中かつログインを持つ従業員のみ返し、アクセス権のない従業員は結果に含まれません。\n従業員IDの指定の有無にかかわらず、結果は常にページングされます。続きがある場合は next_page_token が返ります。その値を page_token にそのまま指定して次のページを取得します。\n不正な page_token を指定した場合は 400 を返します。",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeDetailsRequest.company_id"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeDetailsRequest.employee_ids"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeDetailsRequest.page_size"
+          },
+          {
+            "$ref": "#/components/parameters/Survey.ListEmployeeDetailsRequest.page_token"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "従業員詳細一覧取得レスポンス",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Survey.EmployeeDetail"
+                      },
+                      "description": "従業員詳細のリスト（従業員IDの昇順）"
+                    },
+                    "next_page_token": {
+                      "type": "string",
+                      "description": "次ページ取得用トークン。次ページがない場合は空文字列です。",
+                      "example": "following-token"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "next_page_token"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "survey"
+        ]
+      }
+    },
     "/hub/launch/kaigyo_application": {
       "get": {
         "operationId": "get_launch_kaigyo_application",
@@ -1385,6 +1440,54 @@
         },
         "explode": false
       },
+      "Survey.ListEmployeeDetailsRequest.company_id": {
+        "name": "company_id",
+        "in": "query",
+        "required": true,
+        "description": "事業所ID",
+        "schema": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "explode": false
+      },
+      "Survey.ListEmployeeDetailsRequest.employee_ids": {
+        "name": "employee_ids[]",
+        "in": "query",
+        "required": false,
+        "description": "取得する従業員のID。500件以下で指定します。省略するとアクセス権のあるすべての従業員を返します。指定の有無にかかわらず、結果はページングされます。重複したIDは無視されます。",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "maxItems": 500
+        }
+      },
+      "Survey.ListEmployeeDetailsRequest.page_size": {
+        "name": "page_size",
+        "in": "query",
+        "required": false,
+        "description": "1ページあたりの取得件数（デフォルト100、最大500）。employee_ids の指定の有無にかかわらず使われます。",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 500
+        },
+        "explode": false
+      },
+      "Survey.ListEmployeeDetailsRequest.page_token": {
+        "name": "page_token",
+        "in": "query",
+        "required": false,
+        "description": "次ページ取得用トークン。前回のレスポンスの next_page_token を指定します。不正なトークンを指定した場合は 400 を返します。",
+        "schema": {
+          "type": "string"
+        },
+        "explode": false
+      },
       "Launch.GetKaigyoApplicationRequest": {
         "name": "company_id",
         "in": "query",
@@ -2363,6 +2466,33 @@
           }
         },
         "description": "設問",
+        "additionalProperties": false
+      },
+      "Survey.EmployeeDetail": {
+        "type": "object",
+        "required": [
+          "employee_id",
+          "employee_number",
+          "display_name"
+        ],
+        "properties": {
+          "employee_id": {
+            "type": "string",
+            "description": "従業員ID",
+            "example": "101"
+          },
+          "employee_number": {
+            "type": "string",
+            "description": "従業員番号",
+            "example": "A0001"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "表示名",
+            "example": "山田 太郎"
+          }
+        },
+        "description": "従業員詳細",
         "additionalProperties": false
       },
       "Launch.Prefecture": {
