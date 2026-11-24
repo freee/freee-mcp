@@ -5934,7 +5934,7 @@
         ],
         "responses": {
           "200": {
-            "description": "<p>レスポンスの各キーは以下の項目と対応しています。</p>\n<p>詳細は <a href=\"https://support.freee.co.jp/hc/ja/articles/210265673\">https://support.freee.co.jp/hc/ja/articles/210265673</a> を参照してください。</p>\n<table>\n  <thead>\n    <tr>\n      <th style=\"padding: 5px\">キー</th>\n      <th style=\"padding: 5px\">対応する項目</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td style=\"padding: 5px\">wallet_txns</td>\n      <td style=\"padding: 5px\">自動で経理 / 取得した明細</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">deals</td>\n      <td style=\"padding: 5px\">取引</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">deal_linkage</td>\n      <td style=\"padding: 5px\">取引連携（freee請求書など、freee会計以外から連携させる取引）</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">transfers</td>\n      <td style=\"padding: 5px\">口座振替</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">docs</td>\n      <td style=\"padding: 5px\">見積書・納品書・請求書・領収書・発注書</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">doc_postings</td>\n      <td style=\"padding: 5px\">(請求書の)郵送</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">receipts</td>\n      <td style=\"padding: 5px\">ファイルボックス</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">receipt_stream_editor</td>\n      <td style=\"padding: 5px\">連続取引登録</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">spreadsheets</td>\n      <td style=\"padding: 5px\">エクセルインポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">expense_applications</td>\n      <td style=\"padding: 5px\">経費精算</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">expense_application_sync_payroll</td>\n      <td style=\"padding: 5px\">経費精算の給与連携</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">manage_bulk_expense_application_approvals</td>\n      <td style=\"padding: 5px\">経費精算の一括承認</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">payment_requests</td>\n      <td style=\"padding: 5px\">支払依頼</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">payment_request_templates</td>\n      <td style=\"padding: 5px\">支払テンプレート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">approval_requests</td>\n      <td style=\"padding: 5px\">各種申請</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">purchase_requests</td>\n      <td style=\"padding: 5px\">購買申請</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">suspense_payments</td>\n      <td style=\"padding: 5px\">仮払金</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports</td>\n      <td style=\"padding: 5px\">収益 / 費用レポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_income_expense</td>\n      <td style=\"padding: 5px\">損益レポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_receivables</td>\n      <td style=\"padding: 5px\">入金管理レポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_payables</td>\n      <td style=\"padding: 5px\">支払管理レポート(一括振込ファイルを含む)</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_purchase_budgets</td>\n      <td style=\"padding: 5px\">購買進捗モニター</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_cash_balance</td>\n      <td style=\"padding: 5px\">現預金レポート/資金繰りレポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_managements_planning</td>\n      <td style=\"padding: 5px\">経営プランニング</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_managements_navigation</td>\n      <td style=\"padding: 5px\">経営ナビゲーション</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_managements_introduction</td>\n      <td style=\"padding: 5px\">経営プランニング・経営ナビゲーションの紹介ページ</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_custom_reports_aggregate</td>\n      <td style=\"padding: 5px\">カスタムレポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_pl</td>\n      <td style=\"padding: 5px\">損益計算書(月次推移/試算表)</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_bs</td>\n      <td style=\"padding: 5px\">貸借対照表(月次推移/試算表)</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_general_ledgers</td>\n      <td style=\"padding: 5px\">総勘定元帳</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_journals</td>\n      <td style=\"padding: 5px\">仕訳帳</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">manual_journals</td>\n      <td style=\"padding: 5px\">振替伝票</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">fixed_assets</td>\n      <td style=\"padding: 5px\">固定資産台帳</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">inventory_refreshes</td>\n      <td style=\"padding: 5px\">在庫棚卸</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">biz_allocations</td>\n      <td style=\"padding: 5px\">家事按分</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">payment_records</td>\n      <td style=\"padding: 5px\">支払調書</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">annual_reports</td>\n      <td style=\"padding: 5px\">決算書、確定申告書類</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">consolidation</td>\n      <td style=\"padding: 5px\">連結会計</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">tax_reports</td>\n      <td style=\"padding: 5px\">消費税区分別表・消費税集計表</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">consumption_entries</td>\n      <td style=\"padding: 5px\">消費税申告書</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">tax_return</td>\n      <td style=\"padding: 5px\">連携用データ</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">account_item_statements</td>\n      <td style=\"padding: 5px\">勘定科目内訳明細書</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">month_end</td>\n      <td style=\"padding: 5px\">月締め</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">year_end</td>\n      <td style=\"padding: 5px\">年度締め</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">walletables</td>\n      <td style=\"padding: 5px\">口座 / 口座の同期</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">companies</td>\n      <td style=\"padding: 5px\">事業所の設定</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">invitations</td>\n      <td style=\"padding: 5px\">メンバー招待</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">access_controls</td>\n      <td style=\"padding: 5px\">権限管理</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">sign_in_logs</td>\n      <td style=\"padding: 5px\">ログイン履歴</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">user_attribute_logs</td>\n      <td style=\"padding: 5px\">ユーザー更新履歴</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">app_role_logs</td>\n      <td style=\"padding: 5px\">権限変更履歴</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">txn_relationship_logs</td>\n      <td style=\"padding: 5px\">仕訳関連履歴</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">backups</td>\n      <td style=\"padding: 5px\">バックアップ</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">opening_balances</td>\n      <td style=\"padding: 5px\">開始残高の設定</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">system_conversion</td>\n      <td style=\"padding: 5px\">乗り換え設定</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">resets</td>\n      <td style=\"padding: 5px\">リセット</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">partners</td>\n      <td style=\"padding: 5px\">取引先</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">items</td>\n      <td style=\"padding: 5px\">品目</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">sections</td>\n      <td style=\"padding: 5px\">部門</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">tags</td>\n      <td style=\"padding: 5px\">メモタグ</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">account_items</td>\n      <td style=\"padding: 5px\">勘定科目</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">taxes</td>\n      <td style=\"padding: 5px\">税区分</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">payroll_item_sets</td>\n      <td style=\"padding: 5px\">給与連携の設定</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">user_matchers</td>\n      <td style=\"padding: 5px\">自動登録ルール</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">deal_templates</td>\n      <td style=\"padding: 5px\">取引テンプレート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">manual_journal_templates</td>\n      <td style=\"padding: 5px\">振替伝票テンプレート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">cost_allocations</td>\n      <td style=\"padding: 5px\">部門配賦</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">approval_flow_routes</td>\n      <td style=\"padding: 5px\">承認経路</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">expense_application_templates</td>\n      <td style=\"padding: 5px\">経費科目</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">request_forms</td>\n      <td style=\"padding: 5px\">申請フォーム</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">system_messages_for_admin</td>\n      <td style=\"padding: 5px\">管理者向けお知らせ</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">company_internal_announcements</td>\n      <td style=\"padding: 5px\"><a href=\"https://support.freee.co.jp/hc/ja/articles/900002322383#:~:text=%E7%A4%BE%E5%86%85%E5%90%91%E3%81%91%E3%81%AE%E3%82%A2%E3%83%8A%E3%82%A6%E3%83%B3%E3%82%B9%E3%82%92%E6%8E%B2%E7%A4%BA%E3%81%A7%E3%81%8D%E3%82%8B%E6%A9%9F%E8%83%BD%E3%81%A7%E3%81%99%E3%80%82\" target=\"_blank\">アナウンス</a></td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">doc_change_logs</td>\n      <td style=\"padding: 5px\">受発注書類変更履歴</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">entries_reviews</td>\n      <td style=\"padding: 5px\">記帳レビュー</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">freee_cards_stream</td>\n      <td style=\"padding: 5px\">freeeカードで経理</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">proxy_application_settings</td>\n      <td style=\"padding: 5px\">代理申請の設定</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">workflows</td>\n      <td style=\"padding: 5px\">仕訳承認</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">oauth_applications</td>\n      <td style=\"padding: 5px\">アプリ利用</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">oauth_authorizations</td>\n      <td style=\"padding: 5px\">アプリ認可</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">division_tag_1</td>\n      <td style=\"padding: 5px\">セグメント1</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">division_tag_2</td>\n      <td style=\"padding: 5px\">セグメント2</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">division_tag_3</td>\n      <td style=\"padding: 5px\">セグメント3</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">currencies</td>\n      <td style=\"padding: 5px\">外貨（通貨の設定）</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">bank_accountant_staff_users</td>\n      <td style=\"padding: 5px\">アドバイザー事業所内でのメンバー管理</td>\n    </tr>\n  </tbody>\n</table>\n",
+            "description": "<p>レスポンスの各キーは以下の項目と対応しています。</p>\n<p>詳細は <a href=\"https://support.freee.co.jp/hc/ja/articles/210265673\">https://support.freee.co.jp/hc/ja/articles/210265673</a> を参照してください。</p>\n<table>\n  <thead>\n    <tr>\n      <th style=\"padding: 5px\">キー</th>\n      <th style=\"padding: 5px\">対応する項目</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td style=\"padding: 5px\">wallet_txns</td>\n      <td style=\"padding: 5px\">自動で経理 / 取得した明細</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">deals</td>\n      <td style=\"padding: 5px\">取引</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">deal_linkage</td>\n      <td style=\"padding: 5px\">取引連携（freee請求書など、freee会計以外から連携させる取引）</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">transfers</td>\n      <td style=\"padding: 5px\">口座振替</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">docs</td>\n      <td style=\"padding: 5px\">見積書・納品書・請求書・領収書・発注書</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">receipts</td>\n      <td style=\"padding: 5px\">ファイルボックス</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">receipt_stream_editor</td>\n      <td style=\"padding: 5px\">連続取引登録</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">spreadsheets</td>\n      <td style=\"padding: 5px\">エクセルインポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">expense_applications</td>\n      <td style=\"padding: 5px\">経費精算</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">expense_application_sync_payroll</td>\n      <td style=\"padding: 5px\">経費精算の給与連携</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">manage_bulk_expense_application_approvals</td>\n      <td style=\"padding: 5px\">経費精算の一括承認</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">payment_requests</td>\n      <td style=\"padding: 5px\">支払依頼</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">payment_request_templates</td>\n      <td style=\"padding: 5px\">支払テンプレート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">approval_requests</td>\n      <td style=\"padding: 5px\">各種申請</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">purchase_requests</td>\n      <td style=\"padding: 5px\">購買申請</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">suspense_payments</td>\n      <td style=\"padding: 5px\">仮払金</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports</td>\n      <td style=\"padding: 5px\">収益 / 費用レポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_income_expense</td>\n      <td style=\"padding: 5px\">損益レポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_receivables</td>\n      <td style=\"padding: 5px\">入金管理レポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_payables</td>\n      <td style=\"padding: 5px\">支払管理レポート(一括振込ファイルを含む)</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_purchase_budgets</td>\n      <td style=\"padding: 5px\">購買進捗モニター</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_cash_balance</td>\n      <td style=\"padding: 5px\">現預金レポート/資金繰りレポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_managements_planning</td>\n      <td style=\"padding: 5px\">経営プランニング</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_managements_navigation</td>\n      <td style=\"padding: 5px\">経営ナビゲーション</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_managements_introduction</td>\n      <td style=\"padding: 5px\">経営プランニング・経営ナビゲーションの紹介ページ</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_custom_reports_aggregate</td>\n      <td style=\"padding: 5px\">カスタムレポート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_pl</td>\n      <td style=\"padding: 5px\">損益計算書(月次推移/試算表)</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_bs</td>\n      <td style=\"padding: 5px\">貸借対照表(月次推移/試算表)</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_general_ledgers</td>\n      <td style=\"padding: 5px\">総勘定元帳</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">reports_journals</td>\n      <td style=\"padding: 5px\">仕訳帳</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">manual_journals</td>\n      <td style=\"padding: 5px\">振替伝票</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">fixed_assets</td>\n      <td style=\"padding: 5px\">固定資産台帳</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">inventory_refreshes</td>\n      <td style=\"padding: 5px\">在庫棚卸</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">biz_allocations</td>\n      <td style=\"padding: 5px\">家事按分</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">payment_records</td>\n      <td style=\"padding: 5px\">支払調書</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">annual_reports</td>\n      <td style=\"padding: 5px\">決算書、確定申告書類</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">consolidation</td>\n      <td style=\"padding: 5px\">連結会計</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">tax_reports</td>\n      <td style=\"padding: 5px\">消費税区分別表・消費税集計表</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">consumption_entries</td>\n      <td style=\"padding: 5px\">消費税申告書</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">tax_return</td>\n      <td style=\"padding: 5px\">連携用データ</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">account_item_statements</td>\n      <td style=\"padding: 5px\">勘定科目内訳明細書</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">month_end</td>\n      <td style=\"padding: 5px\">月締め</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">year_end</td>\n      <td style=\"padding: 5px\">年度締め</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">walletables</td>\n      <td style=\"padding: 5px\">口座 / 口座の同期</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">companies</td>\n      <td style=\"padding: 5px\">事業所の設定</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">invitations</td>\n      <td style=\"padding: 5px\">メンバー招待</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">access_controls</td>\n      <td style=\"padding: 5px\">権限管理</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">sign_in_logs</td>\n      <td style=\"padding: 5px\">ログイン履歴</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">user_attribute_logs</td>\n      <td style=\"padding: 5px\">ユーザー更新履歴</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">app_role_logs</td>\n      <td style=\"padding: 5px\">権限変更履歴</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">txn_relationship_logs</td>\n      <td style=\"padding: 5px\">仕訳関連履歴</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">backups</td>\n      <td style=\"padding: 5px\">バックアップ</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">opening_balances</td>\n      <td style=\"padding: 5px\">開始残高の設定</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">system_conversion</td>\n      <td style=\"padding: 5px\">乗り換え設定</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">resets</td>\n      <td style=\"padding: 5px\">リセット</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">partners</td>\n      <td style=\"padding: 5px\">取引先</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">items</td>\n      <td style=\"padding: 5px\">品目</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">sections</td>\n      <td style=\"padding: 5px\">部門</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">tags</td>\n      <td style=\"padding: 5px\">メモタグ</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">account_items</td>\n      <td style=\"padding: 5px\">勘定科目</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">taxes</td>\n      <td style=\"padding: 5px\">税区分</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">payroll_item_sets</td>\n      <td style=\"padding: 5px\">給与連携の設定</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">user_matchers</td>\n      <td style=\"padding: 5px\">自動登録ルール</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">deal_templates</td>\n      <td style=\"padding: 5px\">取引テンプレート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">manual_journal_templates</td>\n      <td style=\"padding: 5px\">振替伝票テンプレート</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">cost_allocations</td>\n      <td style=\"padding: 5px\">部門配賦</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">approval_flow_routes</td>\n      <td style=\"padding: 5px\">承認経路</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">expense_application_templates</td>\n      <td style=\"padding: 5px\">経費科目</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">request_forms</td>\n      <td style=\"padding: 5px\">申請フォーム</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">system_messages_for_admin</td>\n      <td style=\"padding: 5px\">管理者向けお知らせ</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">company_internal_announcements</td>\n      <td style=\"padding: 5px\"><a href=\"https://support.freee.co.jp/hc/ja/articles/900002322383#:~:text=%E7%A4%BE%E5%86%85%E5%90%91%E3%81%91%E3%81%AE%E3%82%A2%E3%83%8A%E3%82%A6%E3%83%B3%E3%82%B9%E3%82%92%E6%8E%B2%E7%A4%BA%E3%81%A7%E3%81%8D%E3%82%8B%E6%A9%9F%E8%83%BD%E3%81%A7%E3%81%99%E3%80%82\" target=\"_blank\">アナウンス</a></td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">doc_change_logs</td>\n      <td style=\"padding: 5px\">受発注書類変更履歴</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">entries_reviews</td>\n      <td style=\"padding: 5px\">記帳レビュー</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">freee_cards_stream</td>\n      <td style=\"padding: 5px\">freeeカードで経理</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">proxy_application_settings</td>\n      <td style=\"padding: 5px\">代理申請の設定</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">workflows</td>\n      <td style=\"padding: 5px\">仕訳承認</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">oauth_applications</td>\n      <td style=\"padding: 5px\">アプリ利用</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">oauth_authorizations</td>\n      <td style=\"padding: 5px\">アプリ認可</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">division_tag_1</td>\n      <td style=\"padding: 5px\">セグメント1</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">division_tag_2</td>\n      <td style=\"padding: 5px\">セグメント2</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">division_tag_3</td>\n      <td style=\"padding: 5px\">セグメント3</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">currencies</td>\n      <td style=\"padding: 5px\">外貨（通貨の設定）</td>\n    </tr>\n    <tr>\n      <td style=\"padding: 5px\">bank_accountant_staff_users</td>\n      <td style=\"padding: 5px\">アドバイザー事業所内でのメンバー管理</td>\n    </tr>\n  </tbody>\n</table>\n",
             "content": {
               "application/json": {
                 "schema": {
@@ -5963,7 +5963,6 @@
                     "division_tag_2",
                     "division_tag_3",
                     "doc_change_logs",
-                    "doc_postings",
                     "docs",
                     "entries_reviews",
                     "expense_application_sync_payroll",
@@ -6041,9 +6040,6 @@
                     },
                     "docs": {
                       "$ref": "#/components/schemas/userCapabilityWithSelfOnly"
-                    },
-                    "doc_postings": {
-                      "$ref": "#/components/schemas/userCapabilityJustCreate"
                     },
                     "receipts": {
                       "$ref": "#/components/schemas/userCapabilityWithSelfOnly"
@@ -17939,7 +17935,7 @@
           "Payment requests"
         ],
         "summary": "支払依頼一覧の取得",
-        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼一覧を取得する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、支払依頼の一覧を取得することができます。</li>\n</ul>",
+        "description": "\n<h2 id=\"_1\">概要</h2>\n\n<p>指定した事業所の支払依頼一覧を取得する</p>\n\n<p>支払依頼APIの使い方については、<a href=\"https://developer.freee.co.jp/tips/accounting-payment-requests\" target=\"_blank\">freee会計支払依頼APIの使い方</a>をご参照ください</p>\n\n<h2 id=\"_2\">注意点</h2>\n<ul>\n  <li>本APIでは、支払依頼の一覧を取得することができます。</li>\n  <li>パラメータ status を指定しない場合、ステータスでは絞り込まず、すべてのステータスの支払依頼を返します。</li>\n  <li>\n    パラメータ status には申請ステータスと取引ステータスのどちらかを指定します。レスポンスでは申請ステータスを status、取引ステータスを deal_status として返します。\n    <ul>\n      <li>パラメータ status に <code>approved</code> を指定した場合は、取引が登録されていない承認済の支払依頼のみを返します。取引が登録された承認済の支払依頼は、<code>unsettled</code> または <code>settled</code> を指定すると取得できます。レスポンスの status は取引の有無に関わらず <code>approved</code> です。</li>\n      <li>例: パラメータ status に <code>settled</code> を指定した場合、レスポンスの status が <code>approved</code>、deal_status が <code>settled</code> の支払依頼を返します。</li>\n    </ul>\n  </li>\n  <li>後続の支払依頼が存在する場合でも、取得件数が limit より少なくなることがあります。</li>\n</ul>",
         "operationId": "get_payment_requests",
         "parameters": [
           {
@@ -17984,6 +17980,24 @@
             "name": "end_application_date",
             "in": "query",
             "description": "申請日で絞込：終了日(yyyy-mm-dd)",
+            "schema": {
+              "type": "string"
+            },
+            "example": "2019-12-17"
+          },
+          {
+            "name": "start_last_approval_date",
+            "in": "query",
+            "description": "最新の承認日で絞込：開始日(yyyy-mm-dd)\n最新の承認日は、支払依頼に対して行われた承認（特権承認を含む）のうち最も新しい承認の日付で、申請が承認済になった日とは限りません。そのため、承認済以外の支払依頼も対象になります。\n* 承認経路の途中のステップのみ承認された支払依頼は、そのステップの承認日\n* 承認後に差戻し・却下された支払依頼は、差戻し・却下前の承認日\n* 差戻し後に再度承認された支払依頼は、再承認日\n* 一度も承認されていない支払依頼は対象外\n\n2026年10月20日以降に承認または更新された支払依頼のみが対象です。",
+            "schema": {
+              "type": "string"
+            },
+            "example": "2019-12-17"
+          },
+          {
+            "name": "end_last_approval_date",
+            "in": "query",
+            "description": "最新の承認日で絞込：終了日(yyyy-mm-dd)\n最新の承認日は、支払依頼に対して行われた承認（特権承認を含む）のうち最も新しい承認の日付で、申請が承認済になった日とは限りません。そのため、承認済以外の支払依頼も対象になります。\n* 承認経路の途中のステップのみ承認された支払依頼は、そのステップの承認日\n* 承認後に差戻し・却下された支払依頼は、差戻し・却下前の承認日\n* 差戻し後に再度承認された支払依頼は、再承認日\n* 一度も承認されていない支払依頼は対象外\n\n2026年10月20日以降に承認または更新された支払依頼のみが対象です。",
             "schema": {
               "type": "string"
             },
@@ -21758,6 +21772,7 @@
                           },
                           "description": {
                             "type": "string",
+                            "nullable": true,
                             "description": "説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。",
                             "example": "スターバックス"
                           },
@@ -22263,6 +22278,7 @@
                     },
                     "description": {
                       "type": "string",
+                      "nullable": true,
                       "description": "説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。",
                       "example": "スターバックス"
                     },
@@ -22361,6 +22377,7 @@
                     },
                     "last_updated_user_id": {
                       "type": "integer",
+                      "nullable": true,
                       "description": "最終更新ユーザーID\n* 0: freeeシステムによる更新\n",
                       "example": 1
                     },
@@ -22613,6 +22630,7 @@
                     },
                     "description": {
                       "type": "string",
+                      "nullable": true,
                       "description": "説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。",
                       "example": "スターバックス"
                     },
@@ -22711,6 +22729,7 @@
                     },
                     "last_updated_user_id": {
                       "type": "integer",
+                      "nullable": true,
                       "description": "最終更新ユーザーID\n* 0: freeeシステムによる更新\n",
                       "example": 1
                     },
@@ -23161,6 +23180,7 @@
                     },
                     "description": {
                       "type": "string",
+                      "nullable": true,
                       "description": "説明文。明細の取引内容とのマッチングに使用される文字列です。condition=4(指定なし)の場合は空文字列が返ります。",
                       "example": "スターバックス"
                     },
@@ -23259,6 +23279,7 @@
                     },
                     "last_updated_user_id": {
                       "type": "integer",
+                      "nullable": true,
                       "description": "最終更新ユーザーID\n* 0: freeeシステムによる更新\n",
                       "example": 1
                     },
@@ -51443,7 +51464,7 @@
                 },
                 "posting_status": {
                   "type": "string",
-                  "description": "郵送ステータス(unrequested: リクエスト前, preview_registered: プレビュー登録, preview_failed: プレビュー登録失敗, ordered: 注文中, order_failed: 注文失敗, printing: 印刷中, canceled: キャンセル, posted: 投函済み)",
+                  "description": "郵送ステータス(unrequested: リクエスト前, preview_registered: プレビュー登録, preview_failed: プレビュー登録失敗, ordered: 注文中, order_failed: 注文失敗, printing: 印刷中, canceled: キャンセル, posted: 投函済み, cancel: 注文前キャンセル, ordering: 注文処理中, bounced: 郵送不達)",
                   "example": "unrequested",
                   "enum": [
                     "",
@@ -51454,7 +51475,10 @@
                     "order_failed",
                     "printing",
                     "canceled",
-                    "posted"
+                    "posted",
+                    "cancel",
+                    "ordering",
+                    "bounced"
                   ]
                 },
                 "partner_name": {
@@ -52062,7 +52086,7 @@
               },
               "posting_status": {
                 "type": "string",
-                "description": "郵送ステータス(unrequested: リクエスト前, preview_registered: プレビュー登録, preview_failed: プレビュー登録失敗, ordered: 注文中, order_failed: 注文失敗, printing: 印刷中, canceled: キャンセル, posted: 投函済み)",
+                "description": "郵送ステータス(unrequested: リクエスト前, preview_registered: プレビュー登録, preview_failed: プレビュー登録失敗, ordered: 注文中, order_failed: 注文失敗, printing: 印刷中, canceled: キャンセル, posted: 投函済み, cancel: 注文前キャンセル, ordering: 注文処理中, bounced: 郵送不達)",
                 "example": "unrequested",
                 "enum": [
                   "",
@@ -52073,7 +52097,10 @@
                   "order_failed",
                   "printing",
                   "canceled",
-                  "posted"
+                  "posted",
+                  "cancel",
+                  "ordering",
+                  "bounced"
                 ]
               },
               "partner_name": {

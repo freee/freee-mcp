@@ -631,7 +631,7 @@
     "/master/custom_fields/business/definitions": {
       "get": {
         "summary": "案件カスタム項目定義一覧",
-        "description": "<h2 id=\"\">概要</h2>\n<p>\nカスタム項目定義の一覧を取得します。\n使用可能なもののみを返却します。\n</p>\n\n<h3>入力形式の一覧</h3>\n<ul>\n  <li><code>text</code>: 一行テキスト</li>\n  <li><code>textarea</code>: 複数行テキスト</li>\n  <li><code>amount</code>: 金額</li>\n  <li><code>quantity</code>: 数量</li>\n  <li><code>number</code>: 数値</li>\n  <li><code>date</code>: 日付</li>\n  <li><code>enum</code>: プルダウン</li>\n  <li><code>partner</code>: 取引先</li>\n  <li><code>employee</code>: 従業員</li>\n  <li><code>section</code>: 部門</li>\n  <li><code>master_item</code>: 商品</li>\n  <li><code>member</code>: メンバー</li>\n</ul>",
+        "description": "<h2 id=\"\">概要</h2>\n<p>\nカスタム項目定義の一覧を取得します。\n使用可能なもののみを返却します。\n</p>\n\n<h3>入力形式の一覧</h3>\n<ul>\n  <li><code>text</code>: 一行テキスト</li>\n  <li><code>textarea</code>: 複数行テキスト</li>\n  <li><code>amount</code>: 金額</li>\n  <li><code>quantity</code>: 数量</li>\n  <li><code>number</code>: 数値</li>\n  <li><code>date</code>: 日付</li>\n  <li><code>enum</code>: プルダウン</li>\n  <li><code>partner</code>: 取引先</li>\n  <li><code>section</code>: 部門</li>\n  <li><code>master_item</code>: 商品</li>\n  <li><code>member</code>: メンバー</li>\n</ul>",
         "parameters": [
           {
             "name": "company_id",

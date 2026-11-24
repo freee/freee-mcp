@@ -811,6 +811,7 @@ POST /api/v1/employees/{employee_id}/time_clocks と同じ
 ### レスポンス
 
 - employee_attendance_tag_summaries: array[object]
+- employee_attendance_mins_tag_summaries: array[object]
 
 ## PUT /api/v1/employees/{employee_id}/attendance_tag_summaries/{year}/{month} — 勤怠タグ月次サマリの更新
 
@@ -828,10 +829,14 @@ POST /api/v1/employees/{employee_id}/time_clocks と同じ
 ### リクエストボディ
 
 - company_id*: integer(int32) - 事業所ID 例: `1` (最小: 1, 最大: 2147483647)
-- employee_attendance_tag_summaries*: array[object] - 更新対象の勤怠タグサマリのリスト
+- employee_attendance_tag_summaries: array[object] - 更新対象の勤怠タグサマリのリスト
   配列の要素:
     - attendance_tag_id*: integer(int32) - 勤怠タグID 例: `1` (最小: 1, 最大: 2147483647)
     - amount*: integer(int32) - 勤怠タグ回数 例: `1` (最小: 0, 最大: 99999)
+- employee_attendance_mins_tag_summaries: array[object] - 更新対象の時間数タグサマリのリスト
+  配列の要素:
+    - attendance_tag_id*: integer(int32) - 勤怠タグID 例: `1` (最小: 1, 最大: 2147483647)
+    - mins*: integer(int32) - 勤怠タグ時間数（分） 例: `60` (最小: 0, 最大: 44640)
 
 ### レスポンス
 
@@ -853,6 +858,7 @@ GET /api/v1/employees/{employee_id}/attendance_tag_summaries/{year}/{month} と�
 ### レスポンス
 
 - employee_attendance_tags: array[object]
+- employee_attendance_mins_tags: array[object]
 
 ## GET /api/v1/employees/{employee_id}/attendance_tags/{date} — 勤怠タグと利用回数の取得
 
@@ -883,10 +889,14 @@ GET /api/v1/employees/{employee_id}/attendance_tags と同じ
 ### リクエストボディ
 
 - company_id*: integer(int32) - 事業所ID 例: `1` (最小: 1, 最大: 2147483647)
-- employee_attendance_tags*: array[object] - 更新対象の勤怠タグのリスト
+- employee_attendance_tags: array[object] - 更新対象の勤怠タグのリスト
   配列の要素:
     - attendance_tag_id*: integer(int32) - 勤怠タグID 例: `1` (最小: 1, 最大: 2147483647)
     - amount*: integer(int32) - 勤怠タグ回数 例: `1` (最小: 0, 最大: 999)
+- employee_attendance_mins_tags: array[object] - 更新対象の勤怠時間数タグのリスト
+  配列の要素:
+    - attendance_tag_id*: integer(int32) - 勤怠タグID 例: `1` (最小: 1, 最大: 2147483647)
+    - mins*: integer(int32) - 勤怠タグ時間数（分） 例: `60` (最小: 1, 最大: 5999)
 
 ### レスポンス
 
