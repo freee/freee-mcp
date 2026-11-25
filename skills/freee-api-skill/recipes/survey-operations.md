@@ -48,7 +48,7 @@ freee_api_get {
 
 ## 配信回一覧の絞り込み
 
-`/hub/survey/base_surveys/{base_survey_id}/surveys` は `include_hidden` / `year` で絞り込み可能。`include_hidden` を省略すると非表示の配信回は結果に含まれない点に注意。詳細なパラメータは `references/survey-surveys.md` を参照。
+`/hub/survey/base_surveys/{base_survey_id}/surveys` は `include_hidden` / `start_date` / `end_date` で絞り込み可能。`include_hidden` を省略すると非表示の配信回は結果に含まれない点に注意。`start_date` と `end_date` は配信回の開始日時の範囲指定で、片方だけでは指定できず、両方を同時に指定する点に注意。詳細なパラメータは `references/survey-surveys.md` を参照。
 
 ## 配信対象者の未回答状況
 
