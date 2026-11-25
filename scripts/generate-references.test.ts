@@ -10,6 +10,9 @@ import {
   layoutReferences,
   replaceFileCounts,
   replaceOperationCount,
+  resolveTagFilePrefix,
+  syncApiTagMappings,
+  tagNameToEnglishName,
   toReadmeLabel,
   type OpenAPISchema,
   type PathData,
@@ -941,6 +944,135 @@ describe("README の Agent Skills の内容", () => {
   it("toReadmeLabel は freee 接頭辞だけを外す", () => {
     expect(toReadmeLabel("freee会計")).toBe("会計");
     expect(toReadmeLabel("人事評価")).toBe("人事評価");
+  });
+});
+
+/** パスとタグだけを持つ最小のスキーマ（1 パス 1 GET） */
+function schemaWithTaggedPaths(tagsByPath: Record<string, string>): OpenAPISchema {
+  return {
+    paths: Object.fromEntries(
+      Object.entries(tagsByPath).map(([path, tag]) => [path, { get: { tags: [tag] } }])
+    ),
+  };
+}
+
+const mcponlyConfig = {
+  apiKey: "mcponly-api",
+  servicePathPrefixes: {
+    survey: "/hub/survey/",
+    "employee-evaluation": "/hub/employee_evaluation/",
+  },
+};
+
+describe("resolveTagFilePrefix", () => {
+  it("1 service 専用のスキーマは prefix をそのまま返す", () => {
+    const schema = schemaWithTaggedPaths({ "/api/1/deals": "Deals" });
+    expect(resolveTagFilePrefix(schema, "Deals", { apiKey: "accounting-api", prefix: "accounting" })).toBe(
+      "accounting"
+    );
+  });
+
+  it("複数 service のスキーマはタグ名ではなくパスで service を決める", () => {
+    const schema = schemaWithTaggedPaths({
+      "/hub/employee_evaluation/evaluation_cycle_sheets": "employee_evaluation_evaluation_cycle_sheets",
+      "/hub/survey/base_surveys": "survey_base_surveys",
+    });
+    expect(
+      resolveTagFilePrefix(schema, "employee_evaluation_evaluation_cycle_sheets", mcponlyConfig)
+    ).toBe("employee-evaluation");
+    expect(resolveTagFilePrefix(schema, "survey_base_surveys", mcponlyConfig)).toBe("survey");
+  });
+
+  it("エンドポイントが無いタグは undefined を返す", () => {
+    const schema = schemaWithTaggedPaths({ "/hub/survey/base_surveys": "survey_base_surveys" });
+    expect(resolveTagFilePrefix(schema, "survey", mcponlyConfig)).toBeUndefined();
+  });
+
+  it("どの service のパス範囲にも当たらないパスはエラーにする", () => {
+    const schema = schemaWithTaggedPaths({ "/hub/launch/kaigyo_application": "launch_kaigyo_application" });
+    expect(() => resolveTagFilePrefix(schema, "launch_kaigyo_application", mcponlyConfig)).toThrow(
+      /matches 0 services/
+    );
+  });
+
+  it("1 タグが複数 service にまたがる場合はエラーにする", () => {
+    const schema = schemaWithTaggedPaths({
+      "/hub/survey/base_surveys": "shared",
+      "/hub/employee_evaluation/evaluation_results": "shared",
+    });
+    expect(() => resolveTagFilePrefix(schema, "shared", mcponlyConfig)).toThrow(/spans multiple services/);
+  });
+});
+
+describe("tagNameToEnglishName", () => {
+  it("タグ名の先頭の service 名を外して prefix の重複を防ぐ", () => {
+    expect(
+      tagNameToEnglishName("employee_evaluation_evaluation_cycle_sheets", "employee-evaluation")
+    ).toBe("evaluation-cycle-sheets");
+    expect(tagNameToEnglishName("receivable_management_allocations", "receivable-management")).toBe(
+      "allocations"
+    );
+  });
+
+  it("service 名で始まらないタグはそのまま変換する", () => {
+    expect(tagNameToEnglishName("UnitCosts", "pm")).toBe("unit-costs");
+    expect(tagNameToEnglishName("sales_orders", "sm")).toBe("sales-orders");
+  });
+
+  it("タグ名が service 名そのものなら外さない", () => {
+    expect(tagNameToEnglishName("survey", "survey")).toBe("survey");
+  });
+
+  it("非 ASCII のタグは null を返す", () => {
+    expect(tagNameToEnglishName("文書", "sign")).toBeNull();
+  });
+});
+
+describe("syncApiTagMappings", () => {
+  it("新しいタグは service を除いた英語名で足し、スキーマから消えたタグは消す", () => {
+    const schema = schemaWithTaggedPaths({
+      "/hub/employee_evaluation/evaluation_results": "employee_evaluation_evaluation_results",
+      "/hub/employee_evaluation/evaluation_cycle_sheets": "employee_evaluation_evaluation_cycle_sheets",
+    });
+    const mappings: Record<string, string> = { employee_evaluation: "evaluation-results" };
+
+    const result = syncApiTagMappings(mappings, schema, mcponlyConfig);
+
+    expect(result).toEqual({ updated: true, warnings: [] });
+    expect(mappings).toEqual({
+      employee_evaluation_evaluation_results: "evaluation-results",
+      employee_evaluation_evaluation_cycle_sheets: "evaluation-cycle-sheets",
+    });
+  });
+
+  it("既存のマッピングは書き換えない", () => {
+    const schema = schemaWithTaggedPaths({ "/hub/survey/base_surveys": "survey_base_surveys" });
+    const mappings: Record<string, string> = { survey_base_surveys: "custom-name" };
+
+    expect(syncApiTagMappings(mappings, schema, mcponlyConfig)).toEqual({ updated: false, warnings: [] });
+    expect(mappings).toEqual({ survey_base_surveys: "custom-name" });
+  });
+
+  it("スキーマから消えた非 ASCII のタグは手書きなので消さずに warnings に積む", () => {
+    const schema = schemaWithTaggedPaths({ "/api/v1/employees": "従業員" });
+    const mappings: Record<string, string> = { 従業員: "employees", 有給申請: "paid-leave-requests" };
+
+    const result = syncApiTagMappings(mappings, schema, { apiKey: "hr-api", prefix: "hr" });
+
+    expect(result.updated).toBe(false);
+    expect(result.warnings).toHaveLength(1);
+    expect(mappings).toEqual({ 従業員: "employees", 有給申請: "paid-leave-requests" });
+  });
+
+  it("非 ASCII のタグは足さずに warnings に積む", () => {
+    const schema = schemaWithTaggedPaths({ "/v1/documents": "文書" });
+    const mappings: Record<string, string> = {};
+
+    const result = syncApiTagMappings(mappings, schema, { apiKey: "sign-api", prefix: "sign" });
+
+    expect(result.updated).toBe(false);
+    expect(result.warnings).toHaveLength(1);
+    expect(mappings).toEqual({});
   });
 });
 

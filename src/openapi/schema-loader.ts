@@ -7,6 +7,7 @@ import {
   type MinimalSchema,
   MinimalSchemaSchema,
 } from './minimal-types.js';
+import { MCPONLY_SERVICE_PATH_PREFIXES } from './mcponly-services.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -175,22 +176,23 @@ const SERVICE_METADATA: Record<ApiType, ServiceMetadata> = {
     name: 'freee業務委託管理 API',
   },
   // 以下 3 つは mcponly ソースを pathPrefix で分け合う（1 ファイルに複数ドメインが同居する）。
+  // pathPrefix はリファレンス生成と共有するため mcponly-services.ts に置く。
   // いずれも freee-mcp（リモート版）限定で、stdio モードでは isMcpOnlyPath で弾かれる。
   survey: {
     source: 'mcponly',
-    pathPrefix: '/hub/survey/',
+    pathPrefix: MCPONLY_SERVICE_PATH_PREFIXES.survey,
     baseUrl: 'https://api.freee.co.jp',
     name: 'freeeサーベイ API',
   },
   launch: {
     source: 'mcponly',
-    pathPrefix: '/hub/launch/',
+    pathPrefix: MCPONLY_SERVICE_PATH_PREFIXES.launch,
     baseUrl: 'https://api.freee.co.jp',
     name: 'freee開業 API',
   },
   employee_evaluation: {
     source: 'mcponly',
-    pathPrefix: '/hub/employee_evaluation/',
+    pathPrefix: MCPONLY_SERVICE_PATH_PREFIXES.employee_evaluation,
     baseUrl: 'https://api.freee.co.jp',
     name: '人事評価 API',
   },
