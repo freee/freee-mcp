@@ -175,8 +175,9 @@ Common issues:
 新しく mcp-only 区分のエンドポイントがリリースされたとき:
 
 - それは必ず `mcponly.yml` に入るため、`bun run fetch:schemas` → `bun run generate:references` を流すだけでバナーと stdio ゲートは自動で反映される
-- 新しいドメインを `service` として増やす場合のみ、通常のドメイン追加と同様に `schema-loader.ts`（ApiType / SERVICE_METADATA）・`client-mode.ts`（enum / hint）・`tag-mappings.json` を配線する。バナーとゲートは provenance で自動
-- `mcponly.json` は複数ドメインが同居するため、`SERVICE_METADATA` の各エントリに `pathPrefix`（`/hub/<domain>/`）を必ず指定する。指定漏れは `schema-loader.test.ts` の「mcponly schema source coverage」が検出する
+- 新しいドメインを `service` として増やす場合のみ、通常のドメイン追加と同様に `schema-loader.ts`（ApiType / SERVICE_METADATA）・`client-mode.ts`（enum / hint）・`generate-references.ts`（SERVICE_LABELS）を配線し、`src/openapi/mcponly-services.ts` の `MCPONLY_SERVICE_PATH_PREFIXES` にパス範囲（`/hub/<domain>/`）を足す。バナーとゲートは provenance で自動
+- `mcponly.json` は複数ドメインが同居するため、サービスはパスで判定する。`MCPONLY_SERVICE_PATH_PREFIXES` は `SERVICE_METADATA` の `pathPrefix` とリファレンス生成の両方が参照する。指定漏れは `schema-loader.test.ts` の「mcponly schema source coverage」と、リファレンス生成時のエラーが検出する
+- 既存ドメイン内でのタグの追加・分割・改名には freee-mcp 側の変更は不要。リファレンス生成はタグのパスからサービスを決め、`tag-mappings.json` はスキーマに合わせて自動で追加・削除される（新しいタグの英語名はタグ名の先頭のサービス名を外して作る）
 
 ## Writing Style
 

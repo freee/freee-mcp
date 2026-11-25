@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MCPONLY_SERVICE_PATH_PREFIXES } from './mcponly-services.js';
 import {
   type MinimalOperation,
   type MinimalPathItem,
@@ -178,19 +179,19 @@ const SERVICE_METADATA: Record<ApiType, ServiceMetadata> = {
   // いずれも freee-mcp（リモート版）限定で、stdio モードでは isMcpOnlyPath で弾かれる。
   survey: {
     source: 'mcponly',
-    pathPrefix: '/hub/survey/',
+    pathPrefix: MCPONLY_SERVICE_PATH_PREFIXES.survey,
     baseUrl: 'https://api.freee.co.jp',
     name: 'freeeサーベイ API',
   },
   launch: {
     source: 'mcponly',
-    pathPrefix: '/hub/launch/',
+    pathPrefix: MCPONLY_SERVICE_PATH_PREFIXES.launch,
     baseUrl: 'https://api.freee.co.jp',
     name: 'freee開業 API',
   },
   employee_evaluation: {
     source: 'mcponly',
-    pathPrefix: '/hub/employee_evaluation/',
+    pathPrefix: MCPONLY_SERVICE_PATH_PREFIXES.employee_evaluation,
     baseUrl: 'https://api.freee.co.jp',
     name: '人事評価 API',
   },
