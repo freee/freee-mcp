@@ -1080,10 +1080,7 @@ function containsNonAscii(text: string): boolean {
  * Convert a tag name to a kebab-case English name for use as filename.
  * Handles PascalCase, snake_case, space-separated, and other common patterns.
  * Returns null for non-ASCII tag names (e.g. Japanese) that need manual mapping.
- *
- * ファイル名は `${filePrefix}-${englishName}.md` になるので、タグ名の先頭が
- * service 名（`receivable_management_allocations` の `receivable_management_`）なら
- * 外して prefix の重複を防ぐ。
+ * A leading service name is stripped to avoid duplicating the file prefix.
  */
 export function tagNameToEnglishName(tagName: string, filePrefix?: string): string | null {
   if (containsNonAscii(tagName)) {
@@ -1127,15 +1124,8 @@ const TAG_BLACKLIST: Record<string, string[]> = {
 };
 
 /**
- * タグがどの service のリファレンスになるか（ファイル名 prefix）を決める。
- *
- * 1 service 専用のスキーマは config.prefix をそのまま使う。複数 service が
- * 同居するスキーマ（mcponly）は、タグに属するパスを servicePathPrefixes と
- * 突き合わせて決める。freee_api_* ツールと同じくパスで判定するので、配信元で
- * タグが分割・改名されてもここを直す必要はない。
- *
- * タグにエンドポイントが無ければ undefined を返す。パスがどの service にも
- * 当たらない場合と、1 タグが複数 service にまたがる場合はエラーにする。
+ * Resolve the file prefix (service) of a tag from the paths it contains.
+ * Returns undefined if the tag has no endpoints.
  */
 export function resolveTagFilePrefix(
   schema: OpenAPISchema,
@@ -1174,16 +1164,8 @@ export function resolveTagFilePrefix(
 }
 
 /**
- * 1 API 分の tag-mappings をスキーマに合わせる。
- *
- * - スキーマにあってマッピングに無いタグは、タグ名から英語名を作って足す
- *   （非 ASCII のタグは作れないので warnings に積み、手動のマッピングを待つ）
- * - マッピングにあってスキーマから消えた ASCII のタグは消す。配信元でタグが
- *   分割・改名されたときに古いエントリが残り続けないようにするため。非 ASCII の
- *   タグは手書きのマッピングで、タグが戻ったときに自動では復元できないので
- *   消さずに warnings に積む
- *
- * apiMappings を直接書き換え、変更があれば true を返す。
+ * Add missing tags to and remove stale tags from one API's mappings (in place).
+ * Non-ASCII mappings are hand-written and cannot be regenerated, so they are kept.
  */
 export function syncApiTagMappings(
   apiMappings: Record<string, string>,
@@ -1300,13 +1282,8 @@ async function processApi(
 interface ReferenceApiConfig {
   apiKey: string;
   schemaFile: string;
-  /** このスキーマ全体が属する service。複数 service を含むスキーマでは servicePathPrefixes を使う。 */
   prefix?: string;
-  /**
-   * service（ファイル名 prefix）→ 担当するパスの prefix。複数 service を含むスキーマ用で、
-   * prefix の代わりに使う。タグの service はタグ名ではなくパスで決める
-   * （resolveTagFilePrefix 参照）。キーは SERVICE_LABELS のキーと一致させること。
-   */
+  /** service (file prefix) -> path prefix, for schemas shared by multiple services */
   servicePathPrefixes?: Record<string, string>;
   outputDir: string;
 }
@@ -1323,8 +1300,7 @@ const API_CONFIGS: ReferenceApiConfig[] = [
   { apiKey: "partner-management-api", schemaFile: join(OPENAPI_DIR, "partner-management-api-schema.json"), prefix: "partner-management", outputDir: OUTPUT_DIR },
   { apiKey: "tax-return-api", schemaFile: join(OPENAPI_DIR, "tax-return-api-schema.json"), prefix: "tax-return", outputDir: OUTPUT_DIR },
   // ここ由来のパスは mcp-only とみなされ、各リファレンス冒頭に MCP_ONLY_BANNER が
-  // 自動挿入される（renderReference 参照）。複数 service が 1 ファイルに同居するため
-  // prefix ではなく servicePathPrefixes を使う。
+  // 自動挿入される（generateReference 参照）。
   {
     apiKey: "mcponly-api",
     schemaFile: MCPONLY_SCHEMA_FILE,

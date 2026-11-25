@@ -176,7 +176,6 @@ const SERVICE_METADATA: Record<ApiType, ServiceMetadata> = {
     name: 'freee業務委託管理 API',
   },
   // 以下 3 つは mcponly ソースを pathPrefix で分け合う（1 ファイルに複数ドメインが同居する）。
-  // pathPrefix はリファレンス生成と共有するため mcponly-services.ts に置く。
   // いずれも freee-mcp（リモート版）限定で、stdio モードでは isMcpOnlyPath で弾かれる。
   survey: {
     source: 'mcponly',

@@ -947,7 +947,6 @@ describe("README の Agent Skills の内容", () => {
   });
 });
 
-/** パスとタグだけを持つ最小のスキーマ（1 パス 1 GET） */
 function schemaWithTaggedPaths(tagsByPath: Record<string, string>): OpenAPISchema {
   return {
     paths: Object.fromEntries(
