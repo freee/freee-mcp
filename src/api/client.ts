@@ -172,21 +172,27 @@ export function formatRetryAfterMessage(retryAfter: string | null): string {
 }
 
 const PATH_TRAVERSAL_MESSAGE =
-  'API path に "." / ".." の segment (エンコードされたものを含む)、"\\"、エンコードされた "/" / "\\" を含めることはできません。';
+  'API path に "." / ".." の segment (エンコードされたものや、エンコードされた "/" / "\\" で区切られたものを含む) や "\\" を含めることはできません。';
 
 /**
  * `new URL()` は相対解決で dot-segment (`.`, `..`, `%2e`, `%2e%2e` 等) を取り除くため、
  * schema の照合を通った path でも、送る path が schema に無い path や baseUrl の外に変わりうる。
  * 正規化で path が変わる入力を、URL を組み立てる前に拒否する。
+ *
+ * `/api/1/partners/code/{code}` のように、エンコードされた "/" / "\" を値に含みうる path があるため、
+ * `%2f` / `%5c` そのものは許す。ただし受け手 (proxy や server) が一段 decode した後に
+ * dot-segment となるもの (`..%2f`、`foo%2f..` 等) は拒否する。decode は一段だけ行う (`%252f` は decode しない)。
  */
 function assertNoPathTraversal(apiPath: string): void {
-  if (apiPath.includes('\\') || /%(2f|5c)/i.test(apiPath)) {
+  if (apiPath.includes('\\')) {
     throw new Error(PATH_TRAVERSAL_MESSAGE);
   }
   for (const segment of apiPath.split('/')) {
-    const decoded = segment.replace(/%2e/gi, '.');
-    if (decoded === '.' || decoded === '..') {
-      throw new Error(PATH_TRAVERSAL_MESSAGE);
+    const decoded = segment.replace(/%(2f|5c)/gi, '/').replace(/%2e/gi, '.');
+    for (const part of decoded.split('/')) {
+      if (part === '.' || part === '..') {
+        throw new Error(PATH_TRAVERSAL_MESSAGE);
+      }
     }
   }
 }

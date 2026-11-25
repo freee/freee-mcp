@@ -393,14 +393,45 @@ describe('client', () => {
       ['/api/1/deals/.%2e/users/me'],
       ['/api/1/deals/%2e'],
       ['/api/1/deals/1%2f..'],
-      ['/api/1/deals/1%2F2'],
-      ['/api/1/deals/1%5c2'],
       ['/api/1/deals/1\\2'],
+      ['/api/1/partners/code/..%2fusers/me'],
+      ['/api/1/partners/code/%2e%2e%2fusers/me'],
+      ['/api/1/partners/code/%2e%2e%5cusers/me'],
+      ['/api/1/partners/code/foo%2f..'],
+      ['/api/1/partners/code/%2E%2E%2Fetc'],
+      ['/api/1/partners/code/foo%5C.%2Fbar'],
     ])('should reject path that changes when normalized: %s', async (path) => {
       await setupAccessToken(TEST_ACCESS_TOKEN);
 
       await expect(makeApiRequest('GET', path)).rejects.toThrow('"." / ".." の segment');
       expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['/api/1/partners/code/A%2FB'],
+      ['/api/1/partners/code/A%2fB'],
+      ['/api/1/partners/code/A%5CB'],
+      ['/api/1/partners/code/A%5cB%2FC'],
+      ['/api/1/partners/code/..A%2F.B'],
+    ])('should accept encoded "/" or "\\" that does not form a dot-segment: %s', async (path) => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      mockFetch.mockResolvedValue(createJsonResponse({ ok: true }));
+
+      await makeApiRequest('GET', path);
+
+      expect(mockFetch).toHaveBeenCalledWith(`${TEST_API_URL}${path}`, expect.anything());
+    });
+
+    it('should decode only one level of percent-encoding (%252f is not treated as "/")', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      mockFetch.mockResolvedValue(createJsonResponse({ ok: true }));
+
+      await makeApiRequest('GET', '/api/1/partners/code/%252f..');
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        `${TEST_API_URL}/api/1/partners/code/%252f..`,
+        expect.anything(),
+      );
     });
 
     it('should not let a path escape the base URL path', async () => {
