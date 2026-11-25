@@ -399,30 +399,18 @@ function matchPathParameters(
   }));
 }
 
-function decodePathSegment(raw: string): string | null {
-  try {
-    return decodeURIComponent(raw);
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Checks a raw path segment against the declared parameter type.
  *
- * `getPathRegex` only keeps a value inside one literal segment. Percent-encoded
- * separators (`%2f`) and dot segments (`..`, `%2e%2e`) still pass it and are sent
- * to the freee API as path traversal, so they are rejected here.
+ * Only `integer` is checked: `getPathRegex` keeps a value inside one literal segment,
+ * but `..%2f2002` and the like still pass it, and an id that is not plain digits
+ * can select a resource other than the one the caller meant.
+ * `string` parameters are deliberately not restricted here. The freee API accepts
+ * percent-encoded `/` or `.` in them (e.g. `/api/1/partners/code/{code}`), so rejecting
+ * them would be a breaking change. Dot segments are rejected in `makeApiRequest`.
  */
 function isValidPathParameterValue(raw: string, type: string | undefined): boolean {
-  if (type === 'integer') {
-    return /^[0-9]+$/.test(raw);
-  }
-  const decoded = decodePathSegment(raw);
-  if (decoded === null || decoded === '.' || decoded === '..') {
-    return false;
-  }
-  return !/[/\\]/.test(decoded) && !/\p{Cc}/u.test(decoded);
+  return type !== 'integer' || /^[0-9]+$/.test(raw);
 }
 
 /** `{company_id}` anywhere, or `{id}` right after a `companies` segment. */
@@ -434,13 +422,9 @@ function invalidPathParameterResult(
   path: string,
   parameter: PathParameterMatch,
 ): PathValidationResult {
-  const expectation =
-    parameter.type === 'integer'
-      ? 'must contain digits only'
-      : 'must be a single path segment (no "/", "\\", "." or ".." even when percent-encoded)';
   return {
     isValid: false,
-    message: `Path parameter '${parameter.name}' in '${path}' ${expectation}.`,
+    message: `Path parameter '${parameter.name}' in '${path}' must contain digits only.`,
   };
 }
 

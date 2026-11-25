@@ -308,18 +308,13 @@ describe('schema-loader', () => {
     });
 
     it.each([
-      ['dot segment', '/api/1/partners/code/..'],
-      ['encoded dot segment', '/api/1/partners/code/%2E%2E'],
       ['encoded slash', '/api/1/partners/code/a%2fb'],
       ['encoded backslash', '/api/1/partners/code/a%5cb'],
-      ['control character', '/api/1/partners/code/a%0ab'],
-      ['malformed percent-encoding', '/api/1/partners/code/%E0%A4%A'],
-    ])('should reject a string path parameter with %s', (_label, path) => {
-      // '/api/1/partners/code/{code}' only supports PUT
-      const result = validatePathForService('PUT', path, 'accounting');
-
-      expect(result.isValid).toBe(false);
-      expect(result.message).toContain('single path segment');
+      ['encoded dot segment', '/api/1/partners/code/%2E%2E'],
+    ])('should not restrict a string path parameter with %s', (_label, path) => {
+      // The freee API accepts these in `{code}` ('/api/1/partners/code/{code}' only supports PUT),
+      // so rejecting them would be a breaking change. Dot segments are rejected in makeApiRequest.
+      expect(validatePathForService('PUT', path, 'accounting').isValid).toBe(true);
     });
 
     it('should accept ordinary string path parameters', () => {
