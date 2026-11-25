@@ -132,6 +132,18 @@ freee_api_get {
 - ユーザーへ提示する際は、あくまでfreee上の記録として引用する  
 - 対象従業員のサマリーレコードの `status` が `RESULT_SUMMARY_STATUS_COMPLETED` でない場合(未生成を含む)、MCP側でポーリングや生成のトリガーを行わない。AIサマリーの生成・生成状況の確認はfreee人事労務の画面上でのみ行う操作であり、MCP経由では実行しない。その場合は該当従業員のドロワーが自動的に開くURL(`/hr_survey#/retentions/{base_survey_id}/surveys/{survey_id}/results?employee_id={employee_id}&open_drawer=true`)を案内し、そこで生成・確認するよう伝える(ドロワーの自動オープンは、対象の配信回にその従業員の結果が存在する場合のみ機能する)。
 
+## 権限と部門制御
+
+サーベイAPIの結果は、呼び出したユーザーの権限と部門制御によって変わる。
+
+- 権限: サーベイの「設定・運用」または「サーベイ結果」の閲覧権限が必要。全社平均・個人結果・個人結果サマリー(ListCompanySurveyResults / ListEmployeeSurveyResults / ListSurveyResultSummaries)は「サーベイ結果」の閲覧権限が必要。権限がない場合はエラーになる。
+- 部門制御: 部門管理者のようにアクセス可能な従業員が限られるユーザーでは、従業員単位の結果がアクセス可能な従業員の分に絞り込まれる。
+  - GetSurvey: `survey_targets` のみ絞り込まれる。`target_count` と `unanswered_count` は全従業員の分のまま。
+  - ListEmployeeSurveyResults / ListSurveyResultSummaries: アクセス可能な従業員の結果のみ返る。アクセス可能でない `employee_id` を指定すると権限エラーになる。
+- サーベイ企画・配信回・設問・全社平均は従業員単位では絞り込まれない。
+
+絞り込みの結果、一覧が空または少なくてもエラーではない。ユーザーへ提示する際は、アクセス可能な範囲の結果であることを伝え、全従業員の結果として扱わない。
+
 ## company_id の取り扱い
 
 他の freee API と同様、`company_id`（クエリパラメータ、必須）は現在の事業所（`freee_get_current_company`）と一致している必要がある。不一致だとエラーになる。切り替えは `freee_set_current_company` を使う。
