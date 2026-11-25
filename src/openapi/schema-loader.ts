@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MCPONLY_SERVICE_PATH_PREFIXES } from './mcponly-services.js';
 import {
   type MinimalOperation,
   type MinimalPathItem,
   type MinimalSchema,
   MinimalSchemaSchema,
 } from './minimal-types.js';
-import { MCPONLY_SERVICE_PATH_PREFIXES } from './mcponly-services.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
