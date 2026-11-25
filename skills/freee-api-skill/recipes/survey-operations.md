@@ -21,6 +21,7 @@ freeeサーベイAPIを使ったサーベイ・配信回の取得ガイド。
 | サーベイ | `/hub/survey/base_surveys` | サーベイそのもの（テンプレート、繰り返し設定など） |
 | 配信回 | `/hub/survey/base_surveys/{base_survey_id}/surveys` | サーベイに紐づく配信回の一覧 |
 | 配信回詳細 | `/hub/survey/surveys/{survey_id}` | 配信回の詳細＋配信対象者一覧 |
+| 従業員詳細 | `/hub/survey/employee_details` | 従業員IDに対応する従業員番号・表示名（下記「従業員番号・表示名の取得」を参照） |
 | 結果・サマリー | (下記「サーベイ結果と個人結果の取得」等を参照) | 集計結果・個人結果・設問内容・AIサマリー |
 
 ```
@@ -66,6 +67,27 @@ freee_api_get {
 `survey_targets[].employee_id` には、給与計算対象外（`with_no_payroll_calculation: true`）の従業員も含まれうる。従業員一覧を `/api/v1/employees` や `/api/v1/companies/{company_id}/employees` で取得する際に `with_no_payroll_calculation` を指定しない場合（デフォルトはfalse）、これらの従業員はレスポンスから除外される。
 
 配信対象者と従業員情報を突合する前に、すでに取得済みの従業員一覧が `with_no_payroll_calculation=true` で取得されたものか確認すること。そうでない場合、給与計算対象外の従業員がマッチせず、配信対象者の一部が欠落した状態で処理してしまう。
+
+従業員IDに対応する従業員番号・表示名だけが必要な場合は、サーベイAPIの `/hub/survey/employee_details` を使える。詳細は「従業員番号・表示名の取得」を参照。
+
+## 従業員番号・表示名の取得(ListEmployeeDetails)
+
+サーベイ結果や配信対象者の `employee_id` に対応する従業員番号（`employee_number`）と表示名（`display_name`）を取得する。
+
+```
+freee_api_get {
+  "service": "survey",
+  "path": "/hub/survey/employee_details",
+  "query": { "company_id": 123456, "employee_ids[]": [200, 201] }
+}
+# → data[]（従業員IDの昇順）と next_page_token を返す
+```
+
+- `employee_ids[]` を省略すると、アクセス可能なすべての従業員を返す。指定する場合は500件以下とする。
+- `employee_ids[]` の指定の有無にかかわらず、結果は常にページングされる。`next_page_token` が空でない間は、その値を `page_token` に指定して次のページを取得する。`page_size` の既定は100、最大500。
+- 1ページの件数が `page_size` に満たなくても、`next_page_token` が空でない限り続きがある。件数でページの終端を判断しない。
+- 本日時点で在籍中かつログインを持つ従業員のみ返る。それ以外の従業員やアクセス可能でない従業員の `employee_id` は、エラーにならず結果から除かれる。サーベイ結果の `employee_id` の一部がこのエンドポイントで見つからないことがあるが、見つからない従業員の情報を推測で補わない。
+- 部門制御により、部門管理者はアクセス可能な従業員の分のみ取得できる。
 
 ## サーベイ結果と個人結果の取得(ListCompanySurveyResults / ListEmployeeSurveyResults)
 ```
