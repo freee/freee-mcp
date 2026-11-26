@@ -1,8 +1,8 @@
 import type { OAuthClientInformationFull } from '@modelcontextprotocol/sdk/shared/auth.js';
 import express from 'express';
 import { MemoryStore } from 'express-rate-limit';
-import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
+import { requestOnLoopback } from '../test-utils/loopback.js';
 import { RedisClientStore } from './client-store.js';
 import { setupRateLimiting } from './http-server.js';
 import { RequestRecorder, withRequestRecorder } from './request-context.js';
@@ -111,7 +111,8 @@ describe('/register dedup (integration)', () => {
       seededClient(nowSec + 30 * 24 * 60 * 60),
     );
 
-    const res = await request(app).post('/register').send(registrationMetadata);
+    const api = await requestOnLoopback(app);
+    const res = await api.post('/register').send(registrationMetadata);
 
     expect(res.status).toBe(201);
     expect((res.body as { client_id: string }).client_id).toBe('existing-cid');
@@ -125,7 +126,8 @@ describe('/register dedup (integration)', () => {
     const nowSec = Math.floor(Date.now() / 1000);
     const { app, mintedRegistrations } = await buildRegisterApp(seededClient(nowSec - 60));
 
-    const res = await request(app).post('/register').send(registrationMetadata);
+    const api = await requestOnLoopback(app);
+    const res = await api.post('/register').send(registrationMetadata);
 
     expect(res.status).toBe(201);
     expect((res.body as { client_id: string }).client_id).toBe('freshly-minted');
@@ -139,8 +141,9 @@ describe('/register dedup (integration)', () => {
     const { app } = await buildRegisterApp();
 
     const statuses: number[] = [];
+    const api = await requestOnLoopback(app);
     for (let i = 0; i < 5; i++) {
-      const res = await request(app).post('/register').send(registrationMetadata);
+      const res = await api.post('/register').send(registrationMetadata);
       statuses.push(res.status);
     }
 
@@ -155,8 +158,9 @@ describe('/token rate limiting (integration)', () => {
     // 20 refresh tokens (distinct users) from the same loopback IP. If /token
     // were still keyed by IP, the fine limiter would 429 the 11th request.
     // Keying by credential must let all of them through.
+    const api = await requestOnLoopback(app);
     for (let i = 0; i < 20; i++) {
-      const res = await request(app)
+      const res = await api
         .post('/token')
         .type('form')
         .send({ grant_type: 'refresh_token', refresh_token: `user-${i}-token` });
@@ -168,8 +172,9 @@ describe('/token rate limiting (integration)', () => {
     const app = await buildTokenApp();
 
     const statuses: number[] = [];
+    const api = await requestOnLoopback(app);
     for (let i = 0; i < 12; i++) {
-      const res = await request(app)
+      const res = await api
         .post('/token')
         .type('form')
         .send({ grant_type: 'refresh_token', refresh_token: 'same-token' });
@@ -186,8 +191,9 @@ describe('/token rate limiting (integration)', () => {
     const app = await buildTokenApp();
 
     // Different codes from one IP are independent; reusing one code is capped.
+    const api = await requestOnLoopback(app);
     for (let i = 0; i < 15; i++) {
-      const res = await request(app)
+      const res = await api
         .post('/token')
         .type('form')
         .send({ grant_type: 'authorization_code', code: `code-${i}` });
@@ -208,8 +214,9 @@ describe('/token rate limiting (integration)', () => {
       withRequestRecorder(recorder, () => next());
     });
 
+    const api = await requestOnLoopback(app);
     for (let i = 0; i < 11; i++) {
-      await request(app)
+      await api
         .post('/token')
         .type('form')
         .send({ grant_type: 'refresh_token', refresh_token: 'same-rt' });

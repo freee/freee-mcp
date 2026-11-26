@@ -1,6 +1,6 @@
 import express, { type Express } from 'express';
-import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
+import { requestOnLoopback } from '../test-utils/loopback.js';
 import {
   createLivenessHandler,
   createReadinessHandler,
@@ -25,7 +25,8 @@ describe('createLivenessHandler', () => {
     };
     const app = buildApp(redis);
 
-    const res = await request(app).get('/livez');
+    const api = await requestOnLoopback(app);
+    const res = await api.get('/livez');
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ status: 'ok' });
@@ -41,7 +42,8 @@ describe('createLivenessHandler', () => {
     };
     const app = buildApp(redis);
 
-    const res = await request(app).get('/livez');
+    const api = await requestOnLoopback(app);
+    const res = await api.get('/livez');
 
     expect(res.status).toBe(200);
     expect(redis.ping).not.toHaveBeenCalled();
@@ -55,7 +57,8 @@ describe('createReadinessHandler', () => {
     };
     const app = buildApp(redis);
 
-    const res = await request(app).get('/readyz');
+    const api = await requestOnLoopback(app);
+    const res = await api.get('/readyz');
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ status: 'ok', redis: 'connected' });
@@ -106,7 +109,8 @@ describe('createReadinessHandler', () => {
     };
     const app = buildApp(redis);
 
-    const res = await request(app).get('/readyz');
+    const api = await requestOnLoopback(app);
+    const res = await api.get('/readyz');
 
     expect(res.status).toBe(503);
     expect(res.body).toEqual({ status: 'degraded', redis: 'disconnected' });
@@ -120,7 +124,8 @@ describe('createReadinessHandler', () => {
     };
     const app = buildApp(redis, 50);
 
-    const res = await request(app).get('/readyz');
+    const api = await requestOnLoopback(app);
+    const res = await api.get('/readyz');
 
     expect(res.status).toBe(503);
     expect(res.body).toEqual({ status: 'degraded', redis: 'disconnected' });
@@ -132,7 +137,8 @@ describe('createReadinessHandler', () => {
     };
     const app = buildApp(redis, 0);
 
-    const res = await request(app).get('/readyz');
+    const api = await requestOnLoopback(app);
+    const res = await api.get('/readyz');
 
     expect(res.status).toBe(503);
     expect(res.body).toEqual({ status: 'degraded', redis: 'disconnected' });

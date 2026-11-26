@@ -9,6 +9,7 @@ import {
 } from '@opentelemetry/sdk-trace-base';
 import express from 'express';
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
+import { listenOnLoopback } from '../test-utils/loopback.js';
 import { createDefaultPropagator } from './init.js';
 
 function makeRequest(
@@ -75,9 +76,7 @@ describe('createTracingMiddleware', () => {
       res.json({ ok: true });
     });
 
-    server = app.listen(0);
-    const addr = server.address();
-    port = typeof addr === 'object' && addr ? addr.port : 0;
+    ({ server, port } = await listenOnLoopback(app));
 
     const result = await makeRequest(port, '/test');
     expect(result.statusCode).toBe(200);
@@ -100,9 +99,7 @@ describe('createTracingMiddleware', () => {
       res.json({ ok: true });
     });
 
-    server = app.listen(0);
-    const addr = server.address();
-    port = typeof addr === 'object' && addr ? addr.port : 0;
+    ({ server, port } = await listenOnLoopback(app));
 
     const result = await makeRequest(port, '/test');
     expect(result.statusCode).toBe(200);
@@ -139,9 +136,7 @@ describe('createTracingMiddleware', () => {
       res.json({ status: 'ok' });
     });
 
-    server = app.listen(0);
-    const addr = server.address();
-    port = typeof addr === 'object' && addr ? addr.port : 0;
+    ({ server, port } = await listenOnLoopback(app));
 
     const result = await makeRequest(port, probePath);
     expect(result.statusCode).toBe(200);
@@ -179,9 +174,7 @@ describe('createTracingMiddleware', () => {
       },
     );
 
-    server = app.listen(0);
-    const addr = server.address();
-    port = typeof addr === 'object' && addr ? addr.port : 0;
+    ({ server, port } = await listenOnLoopback(app));
 
     const result = await makeRequest(port, '/error');
     expect(result.statusCode).toBe(500);
@@ -208,9 +201,7 @@ describe('createTracingMiddleware', () => {
       res.status(201).json({ created: true });
     });
 
-    server = app.listen(0);
-    const addr = server.address();
-    port = typeof addr === 'object' && addr ? addr.port : 0;
+    ({ server, port } = await listenOnLoopback(app));
 
     const result = await makeRequest(port, '/created');
     expect(result.statusCode).toBe(201);
@@ -237,9 +228,7 @@ describe('createTracingMiddleware', () => {
       res.status(200).json({ ok: true });
     });
 
-    server = app.listen(0);
-    const addr = server.address();
-    port = typeof addr === 'object' && addr ? addr.port : 0;
+    ({ server, port } = await listenOnLoopback(app));
 
     // traceparent: version-traceid-parentspanid-flags
     const upstreamTraceId = '0af7651916cd43dd8448eb211c80319c';
@@ -278,9 +267,7 @@ describe('createTracingMiddleware', () => {
       res.status(200).json({ ok: true });
     });
 
-    server = app.listen(0);
-    const addr = server.address();
-    port = typeof addr === 'object' && addr ? addr.port : 0;
+    ({ server, port } = await listenOnLoopback(app));
 
     await makeRequest(port, '/mcp', 'POST');
 
@@ -310,9 +297,7 @@ describe('createTracingMiddleware', () => {
       res.status(200).json({ ok: true });
     });
 
-    server = app.listen(0);
-    const addr = server.address();
-    port = typeof addr === 'object' && addr ? addr.port : 0;
+    ({ server, port } = await listenOnLoopback(app));
 
     await makeRequest(port, '/mcp', 'GET');
     await makeRequest(port, '/mcp', 'POST');
@@ -346,9 +331,7 @@ describe('createTracingMiddleware', () => {
       res.status(200).json({ ok: true });
     });
 
-    server = app.listen(0);
-    const addr = server.address();
-    port = typeof addr === 'object' && addr ? addr.port : 0;
+    ({ server, port } = await listenOnLoopback(app));
 
     await makeRequest(port, '/oauth/authorize', 'GET');
 
@@ -374,9 +357,7 @@ describe('createTracingMiddleware', () => {
       res.status(200).json({ ok: true });
     });
 
-    server = app.listen(0);
-    const addr = server.address();
-    port = typeof addr === 'object' && addr ? addr.port : 0;
+    ({ server, port } = await listenOnLoopback(app));
 
     await makeRequest(port, '/mcp', 'POST');
 
@@ -438,13 +419,9 @@ describe('createTracingMiddleware - canonical log line', () => {
     return { logInfo, logWarn, logError, app };
   }
 
-  function listen(app: express.Express): Promise<{ srv: http.Server; port: number }> {
-    return new Promise((resolve) => {
-      const srv = app.listen(0, () => {
-        const addr = srv.address();
-        resolve({ srv, port: typeof addr === 'object' && addr ? addr.port : 0 });
-      });
-    });
+  async function listen(app: express.Express): Promise<{ srv: http.Server; port: number }> {
+    const { server: srv, port } = await listenOnLoopback(app);
+    return { srv, port };
   }
 
   it('emits exactly one canonical log line per request with the full payload shape', async () => {

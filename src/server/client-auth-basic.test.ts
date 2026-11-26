@@ -1,8 +1,8 @@
 import type { OAuthRegisteredClientsStore } from '@modelcontextprotocol/sdk/server/auth/clients.js';
 import type { OAuthClientInformationFull } from '@modelcontextprotocol/sdk/shared/auth.js';
 import express, { type Express } from 'express';
-import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
+import { requestOnLoopback } from '../test-utils/loopback.js';
 import { decodeBasicAuth } from './client-auth-basic.js';
 import { RequestRecorder, withRequestRecorder } from './request-context.js';
 
@@ -48,7 +48,7 @@ async function postToken(
   app: Express,
   opts: { headers?: Record<string, string>; body?: string; method?: 'POST' | 'OPTIONS' } = {},
 ) {
-  const agent = request(app);
+  const agent = await requestOnLoopback(app);
   const builder = opts.method === 'OPTIONS' ? agent.options('/token') : agent.post('/token');
   const withType = builder.set('Content-Type', 'application/x-www-form-urlencoded');
   for (const [k, v] of Object.entries(opts.headers ?? {})) {

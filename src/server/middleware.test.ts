@@ -1,7 +1,7 @@
 import type { Server } from 'node:http';
 import http from 'node:http';
-import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { listenOnLoopback } from '../test-utils/loopback.js';
 
 // Use http.request instead of fetch to avoid global fetch mock from setup.ts
 function httpRequest(
@@ -124,9 +124,7 @@ describe('middleware stack', () => {
 
   beforeAll(async () => {
     const app = await createTestApp();
-    server = app.listen(0);
-    const port = (server.address() as AddressInfo).port;
-    baseUrl = `http://127.0.0.1:${port}`;
+    ({ server, baseUrl } = await listenOnLoopback(app));
   });
 
   afterAll(() => {

@@ -9,8 +9,8 @@ import type {
   OAuthTokens,
 } from '@modelcontextprotocol/sdk/shared/auth.js';
 import express, { type Express } from 'express';
-import request from 'supertest';
 import { describe, expect, it } from 'vitest';
+import { requestOnLoopback } from '../test-utils/loopback.js';
 import { decodeBasicAuth } from './client-auth-basic.js';
 import { createOverrideMetadataHandler } from './oauth-metadata-override.js';
 
@@ -123,7 +123,8 @@ const publicClient: OAuthClientInformationFull = {
 describe('OAuth AS — Basic auth integration', () => {
   it('advertises client_secret_basic in /.well-known/oauth-authorization-server', async () => {
     const app = await buildApp({});
-    const res = await request(app).get('/.well-known/oauth-authorization-server');
+    const api = await requestOnLoopback(app);
+    const res = await api.get('/.well-known/oauth-authorization-server');
     expect(res.status).toBe(200);
     expect(res.body.token_endpoint_auth_methods_supported).toContain('client_secret_basic');
     expect(res.body.token_endpoint_auth_methods_supported).toContain('client_secret_post');
@@ -133,7 +134,8 @@ describe('OAuth AS — Basic auth integration', () => {
 
   it('accepts a token request with Authorization: Basic for a confidential client', async () => {
     const app = await buildApp({ [confidentialClient.client_id]: confidentialClient });
-    const res = await request(app)
+    const api = await requestOnLoopback(app);
+    const res = await api
       .post('/token')
       .set('Authorization', basicHeader('confid-1', 'super-secret-1'))
       .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -145,7 +147,8 @@ describe('OAuth AS — Basic auth integration', () => {
 
   it('still accepts client_secret_post token requests (no regression)', async () => {
     const app = await buildApp({ [confidentialClient.client_id]: confidentialClient });
-    const res = await request(app)
+    const api = await requestOnLoopback(app);
+    const res = await api
       .post('/token')
       .set('Content-Type', 'application/x-www-form-urlencoded')
       .send(
@@ -158,7 +161,8 @@ describe('OAuth AS — Basic auth integration', () => {
 
   it('still accepts public clients via body without secret (none auth method)', async () => {
     const app = await buildApp({ [publicClient.client_id]: publicClient });
-    const res = await request(app)
+    const api = await requestOnLoopback(app);
+    const res = await api
       .post('/token')
       .set('Content-Type', 'application/x-www-form-urlencoded')
       .send('grant_type=refresh_token&refresh_token=mock-refresh&client_id=public-1');
@@ -168,7 +172,8 @@ describe('OAuth AS — Basic auth integration', () => {
 
   it('rejects Basic with wrong secret with 401 + WWW-Authenticate', async () => {
     const app = await buildApp({ [confidentialClient.client_id]: confidentialClient });
-    const res = await request(app)
+    const api = await requestOnLoopback(app);
+    const res = await api
       .post('/token')
       .set('Authorization', basicHeader('confid-1', 'wrong'))
       .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -181,7 +186,8 @@ describe('OAuth AS — Basic auth integration', () => {
 
   it('rejects Basic with malformed payload with 401', async () => {
     const app = await buildApp({});
-    const res = await request(app)
+    const api = await requestOnLoopback(app);
+    const res = await api
       .post('/token')
       .set('Authorization', 'Basic !!!notbase64!!!')
       .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -193,7 +199,8 @@ describe('OAuth AS — Basic auth integration', () => {
 
   it('rejects body+header credential collision with 400 invalid_request', async () => {
     const app = await buildApp({ [confidentialClient.client_id]: confidentialClient });
-    const res = await request(app)
+    const api = await requestOnLoopback(app);
+    const res = await api
       .post('/token')
       .set('Authorization', basicHeader('confid-1', 'super-secret-1'))
       .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -207,7 +214,8 @@ describe('OAuth AS — Basic auth integration', () => {
 
   it('rejects public clients attempting Basic with 401', async () => {
     const app = await buildApp({ [publicClient.client_id]: publicClient });
-    const res = await request(app)
+    const api = await requestOnLoopback(app);
+    const res = await api
       .post('/token')
       .set('Authorization', basicHeader('public-1', 'whatever'))
       .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -219,7 +227,8 @@ describe('OAuth AS — Basic auth integration', () => {
 
   it('accepts /revoke with Authorization: Basic', async () => {
     const app = await buildApp({ [confidentialClient.client_id]: confidentialClient });
-    const res = await request(app)
+    const api = await requestOnLoopback(app);
+    const res = await api
       .post('/revoke')
       .set('Authorization', basicHeader('confid-1', 'super-secret-1'))
       .set('Content-Type', 'application/x-www-form-urlencoded')
