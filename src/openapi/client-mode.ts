@@ -13,7 +13,7 @@ import { sanitizePath } from '../server/logger.js';
 import { getCurrentRecorder } from '../server/request-context.js';
 import { getTransportMode } from '../server/user-agent.js';
 import type { AuthExtra } from '../storage/context.js';
-import { extractTokenContext } from '../storage/context.js';
+import { extractTokenContext, resolveCompanyId } from '../storage/context.js';
 import { registerTracedTool, setToolAttributes } from '../telemetry/tool-tracer.js';
 import { createTextResponse, formatErrorMessage } from '../utils/error.js';
 import { getHttpMethodToolAnnotations } from '../utils/http-method-annotations.js';
@@ -175,7 +175,29 @@ type RequestOutcome =
   | { kind: 'rejected'; message: string; isError: boolean };
 
 /**
- * パス検証 → mcp-only ゲート → freee API 呼び出しまでを行う共通処理。
+ * パスに埋め込まれた事業所 ID（例: `/api/1/companies/{id}`）が現在の事業所と異なる場合に、
+ * ユーザー向けのエラーメッセージを返す。一致する場合や事業所 ID を含まないパスでは null。
+ * query / body の company_id は makeApiRequest が同じ検査をしている。
+ */
+async function findCompanyIdInPathMismatch(
+  companyIdInPath: string | undefined,
+  tokenContext: ReturnType<typeof extractTokenContext>,
+): Promise<string | null> {
+  if (companyIdInPath === undefined) {
+    return null;
+  }
+  const currentCompanyId = await resolveCompanyId(tokenContext);
+  if (companyIdInPath === String(currentCompanyId)) {
+    return null;
+  }
+  return (
+    `company_id の不整合: パスの事業所 ID (${companyIdInPath}) と現在の事業所 (${currentCompanyId}) が異なります。\n` +
+    `freee_set_current_company で事業所を切り替えるか、パスの事業所 ID を修正してください。`
+  );
+}
+
+/**
+ * パス検証 → パス内の事業所 ID の検査 → mcp-only ゲート → freee API 呼び出しまでを行う共通処理。
  * 検証で弾いた場合は error を recorder に記録して `rejected` を返す。
  * freee API 呼び出しの失敗（4xx/5xx/network 等）は throw するので呼び出し側で扱う。
  * tool_call の記録は呼び出し側（単発ツール / bulk ツール）の責務。
@@ -205,6 +227,19 @@ async function executeRequest(
   }
 
   const actualPath = validation.actualPath ?? path;
+
+  const companyMismatch = await findCompanyIdInPathMismatch(
+    validation.companyIdInPath,
+    tokenContext,
+  );
+  if (companyMismatch) {
+    recorder?.recordError({
+      source: 'validation',
+      error_type: 'company_id_mismatch',
+      chain: makeErrorChain('ValidationError', 'company id in path differs from current company'),
+    });
+    return { kind: 'rejected', message: companyMismatch, isError: true };
+  }
 
   // mcp-only エンドポイントはローカル（stdio）モードでは freee API 側で拒否される。
   // 往復を避け、ユーザーへの案内を確実にするため、ここで API を叩かずに弾く。
