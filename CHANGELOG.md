@@ -1,5 +1,11 @@
 # freee-mcp
 
+## 0.38.6
+
+### Patch Changes
+
+- [`b059926`](https://github.com/freee/freee-mcp/commit/b0599264b27b42a9b671674346f12e926a8b9f96): サーベイ API レシピの配信回一覧の絞り込み説明を year から start_date / end_date に更新し、権限と部門制御、従業員詳細一覧（ListEmployeeDetails）の説明を追加
+
 ## 0.38.5
 
 ### Patch Changes
