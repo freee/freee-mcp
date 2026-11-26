@@ -9,6 +9,7 @@ import { join, dirname } from "path";
 import { mkdir, readdir, readFile, unlink, writeFile } from "fs/promises";
 import { existsSync } from "fs";
 import { fileURLToPath } from "url";
+import { MCPONLY_SERVICE_PATH_PREFIXES } from "../src/openapi/mcponly-services.js";
 
 // Path setup
 const __filename = fileURLToPath(import.meta.url);
@@ -1079,13 +1080,21 @@ function containsNonAscii(text: string): boolean {
  * Convert a tag name to a kebab-case English name for use as filename.
  * Handles PascalCase, snake_case, space-separated, and other common patterns.
  * Returns null for non-ASCII tag names (e.g. Japanese) that need manual mapping.
+ * A leading service name is stripped to avoid duplicating the file prefix.
  */
-function tagNameToEnglishName(tagName: string): string | null {
+export function tagNameToEnglishName(tagName: string, filePrefix?: string): string | null {
   if (containsNonAscii(tagName)) {
     return null;
   }
+  let base = tagName;
+  if (filePrefix !== undefined) {
+    const servicePart = `${filePrefix.replace(/-/g, "_")}_`;
+    if (base.startsWith(servicePart) && base.length > servicePart.length) {
+      base = base.slice(servicePart.length);
+    }
+  }
   // Insert hyphens before uppercase letters in PascalCase (e.g. UnitCosts -> Unit-Costs)
-  let name = tagName.replace(/([a-z0-9])([A-Z])/g, "$1-$2");
+  let name = base.replace(/([a-z0-9])([A-Z])/g, "$1-$2");
   // Replace underscores and spaces with hyphens
   name = name.replace(/[_\s]+/g, "-");
   return name.toLowerCase();
@@ -1115,40 +1124,115 @@ const TAG_BLACKLIST: Record<string, string[]> = {
 };
 
 /**
- * Sync tag mappings: add any tags found in schemas but missing from mappings.
+ * Resolve the file prefix (service) of a tag from the paths it contains.
+ * Returns undefined if the tag has no endpoints.
+ */
+export function resolveTagFilePrefix(
+  schema: OpenAPISchema,
+  tagName: string,
+  config: Pick<ReferenceApiConfig, "apiKey" | "prefix" | "servicePathPrefixes">
+): string | undefined {
+  if (config.prefix !== undefined) {
+    return config.prefix;
+  }
+  const servicePathPrefixes = config.servicePathPrefixes;
+  if (servicePathPrefixes === undefined) {
+    throw new Error(`${config.apiKey} has neither prefix nor servicePathPrefixes in API_CONFIGS.`);
+  }
+
+  const services = new Set<string>();
+  for (const { path } of extractEndpointsByTag(schema, tagName)) {
+    const matched = Object.entries(servicePathPrefixes)
+      .filter(([, pathPrefix]) => path.startsWith(pathPrefix))
+      .map(([service]) => service);
+    if (matched.length !== 1) {
+      throw new Error(
+        `Path "${path}" (tag "${tagName}" in ${config.apiKey}) matches ${matched.length} services. ` +
+          `Add its path prefix to MCPONLY_SERVICE_PATH_PREFIXES (and the service to SERVICE_LABELS).`
+      );
+    }
+    services.add(matched[0]);
+  }
+
+  if (services.size > 1) {
+    throw new Error(
+      `Tag "${tagName}" in ${config.apiKey} spans multiple services: ${[...services].join(", ")}. ` +
+        `A tag must stay within one service.`
+    );
+  }
+  return services.values().next().value;
+}
+
+/**
+ * Add missing tags to and remove stale tags from one API's mappings (in place).
+ * Non-ASCII mappings are hand-written and cannot be regenerated, so they are kept.
+ */
+export function syncApiTagMappings(
+  apiMappings: Record<string, string>,
+  schema: OpenAPISchema,
+  config: Pick<ReferenceApiConfig, "apiKey" | "prefix" | "servicePathPrefixes">
+): { updated: boolean; warnings: string[] } {
+  const tags = extractAllTags(schema);
+  const blacklisted = TAG_BLACKLIST[config.apiKey] ?? [];
+  const warnings: string[] = [];
+  let updated = false;
+
+  for (const tag of tags) {
+    if (blacklisted.includes(tag)) continue;
+    if (tag in apiMappings) continue;
+
+    const englishName = tagNameToEnglishName(tag, resolveTagFilePrefix(schema, tag, config));
+    if (englishName === null) {
+      warnings.push(
+        `${config.apiKey} tag "${tag}" contains non-ASCII characters and needs manual mapping in tag-mappings.json`
+      );
+      continue;
+    }
+    apiMappings[tag] = englishName;
+    console.log(`  Added mapping: ${config.apiKey} "${tag}" -> "${englishName}"`);
+    updated = true;
+  }
+
+  const present = new Set(tags);
+  for (const tag of Object.keys(apiMappings)) {
+    if (present.has(tag)) continue;
+    if (containsNonAscii(tag)) {
+      warnings.push(`${config.apiKey} tag "${tag}" is no longer in schema; remove it from tag-mappings.json if it is obsolete`);
+      continue;
+    }
+    delete apiMappings[tag];
+    console.log(`  Removed mapping: ${config.apiKey} "${tag}" (no longer in schema)`);
+    updated = true;
+  }
+
+  return { updated, warnings };
+}
+
+/**
+ * Sync tag mappings for every API whose schema file exists.
  * Returns true if mappings were updated.
  */
 async function syncTagMappings(
   mappings: TagMappings,
-  apiConfigs: Array<{ apiKey: string; schemaFile: string }>
+  apiConfigs: ReferenceApiConfig[]
 ): Promise<boolean> {
   let updated = false;
 
-  for (const { apiKey, schemaFile } of apiConfigs) {
-    if (!existsSync(schemaFile)) continue;
+  for (const config of apiConfigs) {
+    if (!existsSync(config.schemaFile)) continue;
 
-    const schemaText = await readFile(schemaFile, "utf-8");
+    const schemaText = await readFile(config.schemaFile, "utf-8");
     const schema: OpenAPISchema = JSON.parse(schemaText);
-    const tags = extractAllTags(schema);
-    const blacklisted = TAG_BLACKLIST[apiKey] ?? [];
 
-    if (!mappings[apiKey]) {
-      mappings[apiKey] = {};
+    if (!mappings[config.apiKey]) {
+      mappings[config.apiKey] = {};
     }
 
-    for (const tag of tags) {
-      if (blacklisted.includes(tag)) continue;
-      if (!(tag in mappings[apiKey])) {
-        const englishName = tagNameToEnglishName(tag);
-        if (englishName === null) {
-          console.warn(`  Warning: ${apiKey} tag "${tag}" contains non-ASCII characters and needs manual mapping in tag-mappings.json`);
-          continue;
-        }
-        mappings[apiKey][tag] = englishName;
-        console.log(`  Added mapping: ${apiKey} "${tag}" -> "${englishName}"`);
-        updated = true;
-      }
+    const result = syncApiTagMappings(mappings[config.apiKey], schema, config);
+    for (const warning of result.warnings) {
+      console.warn(`  Warning: ${warning}`);
     }
+    updated = updated || result.updated;
   }
 
   return updated;
@@ -1158,12 +1242,10 @@ async function syncTagMappings(
  * Process an API
  */
 async function processApi(
-  apiKey: string,
-  schemaFile: string,
-  prefix: string | undefined,
-  tagServices: Record<string, string> | undefined,
+  config: ReferenceApiConfig,
   mappings: TagMappings
 ): Promise<RenderedReference[]> {
+  const { apiKey, schemaFile } = config;
   console.log("");
   console.log(`Processing ${apiKey}...`);
   console.log("================================");
@@ -1182,12 +1264,10 @@ async function processApi(
   const references: RenderedReference[] = [];
   for (const [tagName, englishName] of Object.entries(tagMappings)) {
     if (englishName) {
-      const filePrefix = prefix ?? tagServices?.[tagName];
+      const filePrefix = resolveTagFilePrefix(schema, tagName, config);
       if (filePrefix === undefined) {
-        throw new Error(
-          `Tag "${tagName}" in ${apiKey} has no service. ` +
-            `Add it to tagServices in API_CONFIGS (and to SERVICE_LABELS).`
-        );
+        console.warn(`  Skipped tag "${tagName}" in ${apiKey}: no endpoints`);
+        continue;
       }
       const reference = renderReference(apiKey, schema, tagName, englishName, filePrefix);
       if (reference) references.push(reference);
@@ -1202,15 +1282,9 @@ async function processApi(
 interface ReferenceApiConfig {
   apiKey: string;
   schemaFile: string;
-  /** このスキーマ全体が属する service。複数 service を含むスキーマでは tagServices を使う。 */
   prefix?: string;
-  /**
-   * タグ → service。複数 service を含むスキーマ用で、prefix の代わりに使う。
-   * タグはリファレンスのグルーピング単位で service とは目的が違い、タグ名からは
-   * ドメインの区切りを判定できないため、導出せず対応表で持つ。
-   * ここに無いタグは生成時にエラーになる。値は SERVICE_LABELS のキーと一致させること。
-   */
-  tagServices?: Record<string, string>;
+  /** service (file prefix) -> path prefix, for schemas shared by multiple services */
+  servicePathPrefixes?: Record<string, string>;
   outputDir: string;
 }
 
@@ -1226,23 +1300,23 @@ const API_CONFIGS: ReferenceApiConfig[] = [
   { apiKey: "partner-management-api", schemaFile: join(OPENAPI_DIR, "partner-management-api-schema.json"), prefix: "partner-management", outputDir: OUTPUT_DIR },
   { apiKey: "tax-return-api", schemaFile: join(OPENAPI_DIR, "tax-return-api-schema.json"), prefix: "tax-return", outputDir: OUTPUT_DIR },
   // ここ由来のパスは mcp-only とみなされ、各リファレンス冒頭に MCP_ONLY_BANNER が
-  // 自動挿入される（generateReference 参照）。複数 service が 1 ファイルに同居するため
-  // prefix ではなく tagServices を使う。
+  // 自動挿入される（generateReference 参照）。
   {
     apiKey: "mcponly-api",
     schemaFile: MCPONLY_SCHEMA_FILE,
-    tagServices: {
-      survey: "survey",
-      launch_kaigyo_application: "launch",
-      employee_evaluation: "employee-evaluation",
-    },
+    servicePathPrefixes: Object.fromEntries(
+      Object.entries(MCPONLY_SERVICE_PATH_PREFIXES).map(([service, pathPrefix]) => [
+        service.replace(/_/g, "-"),
+        pathPrefix,
+      ])
+    ),
     outputDir: OUTPUT_DIR,
   },
   { apiKey: "sign-api", schemaFile: join(OPENAPI_DIR, "sign-api-schema.json"), prefix: "sign", outputDir: SIGN_OUTPUT_DIR },
 ];
 
 // ファイル名 prefix -> freee_api_* ツールの service パラメータと日本語ラベル。
-// キーは API_CONFIGS の prefix または tagServices の値と一致させること
+// キーは API_CONFIGS の prefix または servicePathPrefixes のキーと一致させること
 // （新しいドメインを足したらここも足す）。
 const SERVICE_LABELS: Record<string, { service: string; label: string }> = {
   accounting: { service: "accounting", label: "freee会計" },
@@ -1270,11 +1344,11 @@ export function findServicesMissingFromIndex(): string[] {
   const known = new Set(Object.keys(SERVICE_LABELS));
   const missing: string[] = [];
 
-  for (const { prefix, tagServices, outputDir } of API_CONFIGS) {
+  for (const { prefix, servicePathPrefixes, outputDir } of API_CONFIGS) {
     // sign は SIGN-GUIDE.md がリファレンス一覧を持つので索引の対象外。
     if (outputDir !== OUTPUT_DIR) continue;
 
-    const services = tagServices ? Object.values(tagServices) : prefix ? [prefix] : [];
+    const services = servicePathPrefixes ? Object.keys(servicePathPrefixes) : prefix ? [prefix] : [];
     for (const service of services) {
       if (!known.has(service)) missing.push(service);
     }
@@ -1602,8 +1676,9 @@ async function main(): Promise<void> {
 
     // Process each API
     const references: RenderedReference[] = [];
-    for (const { apiKey, schemaFile, prefix, tagServices, outputDir } of API_CONFIGS) {
-      const rendered = await processApi(apiKey, schemaFile, prefix, tagServices, mappings);
+    for (const config of API_CONFIGS) {
+      const { outputDir } = config;
+      const rendered = await processApi(config, mappings);
       if (outputDir === OUTPUT_DIR) {
         references.push(...rendered);
         continue;
