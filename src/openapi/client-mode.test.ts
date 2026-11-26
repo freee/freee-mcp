@@ -398,6 +398,48 @@ describe('generateClientModeTool - privacy', () => {
     expect(errors[0].error_type).toBe('path_validation_failed');
   });
 
+  // makeApiRequest が URL を組み立てる前後の検査 (dot-segment・制御文字・組み立てた後の書き換わり)
+  // で拒否したときも、他の makeApiRequest 内の検証エラー ("?" / "#"、company_id の不整合) と同じく
+  // catch で source: 'tool_handler' として recorder に残る
+  it.each([
+    ['/api/1/deals/../users/me', 'API path に "." / ".." の segment を含めることはできません。'],
+    [
+      '/api/1/deals/.\t./users/me',
+      'API path に制御文字 (タブ・改行など) やスペースを含めることはできません。',
+    ],
+  ])('records the error when makeApiRequest rejects the path %j', async (path, message) => {
+    const clientModule = await import('../api/client.js');
+    vi.mocked(clientModule.makeApiRequest).mockRejectedValueOnce(new Error(message));
+
+    const { generateClientModeTool } = await import('./client-mode.js');
+    const { RequestRecorder, withRequestRecorder } = await import('../server/request-context.js');
+
+    generateClientModeTool(stubServer);
+    const getHandler = capturedHandlers.get('freee_api_get');
+
+    const recorder = new RequestRecorder({
+      request_id: 'req-path-reject',
+      source_ip: '127.0.0.1',
+      method: 'POST',
+      path: '/mcp',
+    });
+
+    const result = (await withRequestRecorder(recorder, () =>
+      getHandler?.({ service: 'accounting', path }, undefined),
+    )) as { isError?: boolean };
+    expect(result.isError).toBe(true);
+
+    const payload = recorder.buildPayload({ status: 200, duration_ms: 1 });
+    const toolCalls = (payload.mcp as { tool_calls: Array<{ status: string }> }).tool_calls;
+    expect(toolCalls).toHaveLength(1);
+    expect(toolCalls[0].status).toBe('error');
+
+    const errors = payload.errors as Array<{ source: string; chain: Array<{ message: string }> }>;
+    expect(errors).toHaveLength(1);
+    expect(errors[0].source).toBe('tool_handler');
+    expect(errors[0].chain[0].message).toBe(message);
+  });
+
   it('requests XML from the schema metadata and returns the original XML text', async () => {
     const path = '/hub/tax_return/corporate/sheet/national/10/10100100';
     const xml = '<?xml version="1.0" encoding="UTF-8"?><sheet><label>法人税額</label></sheet>';
