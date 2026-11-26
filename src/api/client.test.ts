@@ -407,6 +407,51 @@ describe('client', () => {
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
+    // WHATWG URL パーサーは path の途中のタブ・LF・CR を取り除き、先頭と末尾のスペースと
+    // C0 制御文字を切り落とすので、これらは組み立てた後に ".." になる
+    it.each([
+      ['/api/1/deals/.\t./users/me'],
+      ['/api/1/deals/.\n./users/me'],
+      ['/api/1/deals/.\r./users/me'],
+      ['/api/1/deals/%2\te%2e/users/me'],
+      ['/api/1/deals/.. '],
+      ['/api/1/deals/..\x01'],
+      ['/api/1/deals/\x00..'],
+      ['/api/1/deals/..\x7f'],
+      ['/api/1/partners/code/A B'],
+    ])('should reject path containing control characters or spaces: %j', async (path) => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+
+      await expect(makeApiRequest('GET', path)).rejects.toThrow('制御文字');
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['/api/1/partners/code/日本', '/api/1/partners/code/%E6%97%A5%E6%9C%AC'],
+      ['/api/1/partners/code/a{b}`c', '/api/1/partners/code/a%7Bb%7D%60c'],
+      ['/api/1/partners/code/a%2Fb%zz', '/api/1/partners/code/a%2Fb%zz'],
+      ["/api/1/partners/code/a|b'c", "/api/1/partners/code/a|b'c"],
+    ])('should accept a path that the URL parser only percent-encodes: %s', async (path, sent) => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      mockFetch.mockResolvedValue(createJsonResponse({ ok: true }));
+
+      await makeApiRequest('GET', path);
+
+      expect(mockFetch).toHaveBeenCalledWith(`${TEST_API_URL}${sent}`, expect.anything());
+    });
+
+    it('should accept "^", whether or not the runtime percent-encodes it in the path', async () => {
+      await setupAccessToken(TEST_ACCESS_TOKEN);
+      mockFetch.mockResolvedValue(createJsonResponse({ ok: true }));
+
+      await makeApiRequest('GET', '/api/1/partners/code/a^b');
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        new URL('/api/1/partners/code/a^b', TEST_API_URL).toString(),
+        expect.anything(),
+      );
+    });
+
     it.each([
       ['/api/1/partners/code/A%2FB'],
       ['/api/1/partners/code/A%2fB'],

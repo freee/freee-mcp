@@ -171,6 +171,49 @@ export function formatRetryAfterMessage(retryAfter: string | null): string {
   return fallback;
 }
 
+const CONTROL_OR_SPACE_MESSAGE =
+  'API path に制御文字 (タブ・改行など) やスペースを含めることはできません。スペースは "%20" のようにエンコードしてください。';
+
+function hasControlOrSpace(value: string): boolean {
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code <= 0x20 || code === 0x7f) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// "^" を path で percent-encode するかは runtime によって異なる (bun はする、Node.js はしない)
+const URL_ENCODES_CARET_IN_PATH = new URL('http://h/^').pathname === '/%5E';
+const PATH_PERCENT_ENCODE_CHARS = new Set(['"', '#', '<', '>', '?', '`', '{', '}']);
+const utf8Encoder = new TextEncoder();
+
+/**
+ * `new URL()` が path に対して行う percent-encode (path percent-encode set) だけを再現する。
+ * 組み立てた後の pathname がこれと一致すれば、URL パーサーが path を書き換えていない
+ * (文字の除去・dot-segment の除去・"\\" の "/" への置き換えなどが起きていない) と言える。
+ */
+function encodePathLikeUrlParser(path: string): string {
+  let encoded = '';
+  for (const ch of path) {
+    const code = ch.codePointAt(0) ?? 0;
+    const needsEncode =
+      code <= 0x20 ||
+      code >= 0x7f ||
+      PATH_PERCENT_ENCODE_CHARS.has(ch) ||
+      (ch === '^' && URL_ENCODES_CARET_IN_PATH);
+    if (!needsEncode) {
+      encoded += ch;
+      continue;
+    }
+    for (const byte of utf8Encoder.encode(ch)) {
+      encoded += `%${byte.toString(16).toUpperCase().padStart(2, '0')}`;
+    }
+  }
+  return encoded;
+}
+
 const PATH_TRAVERSAL_MESSAGE =
   'API path に "." / ".." の segment (エンコードされたものや、エンコードされた "/" / "\\" で区切られたものを含む) や "\\" を含めることはできません。';
 
@@ -184,6 +227,11 @@ const PATH_TRAVERSAL_MESSAGE =
  * dot-segment となるもの (`..%2f`、`foo%2f..` 等) は拒否する。decode は一段だけ行う (`%252f` は decode しない)。
  */
 function assertNoPathTraversal(apiPath: string): void {
+  // WHATWG URL パーサーは path の途中のタブ・LF・CR を取り除き、先頭と末尾のスペースと C0 制御文字を
+  // 切り落とす。`.\t.` や `.. ` が組み立てた後に `..` になるので、segment の検査の前に拒否する。
+  if (hasControlOrSpace(apiPath)) {
+    throw new Error(CONTROL_OR_SPACE_MESSAGE);
+  }
   if (apiPath.includes('\\')) {
     throw new Error(PATH_TRAVERSAL_MESSAGE);
   }
@@ -244,6 +292,13 @@ export async function makeApiRequest(
   // baseUrl の origin と path の下に留まっていることを確かめる
   if (url.origin !== base.origin || !url.pathname.startsWith(base.pathname)) {
     throw new Error('API path が API の base URL の外を指しています。');
+  }
+  // URL パーサーが取り除く・置き換える文字の種類に依存しないよう、組み立てた後の pathname が
+  // base の path と path をつないだものと (percent-encode の差を除いて) 一致することを確かめる
+  if (url.pathname !== `${base.pathname}${encodePathLikeUrlParser(normalizedPath)}`) {
+    throw new Error(
+      'API path が URL を組み立てる際に書き換わりました。path をそのまま送れる形で指定してください。',
+    );
   }
   // ログには正規化の後の、実際に送る path (baseUrl の path を除いたもの) を残す
   const safePath = sanitizePath(url.pathname.slice(base.pathname.length - 1));
