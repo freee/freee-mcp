@@ -9,10 +9,10 @@ import type {
   OAuthTokens,
 } from '@modelcontextprotocol/sdk/shared/auth.js';
 import express, { type Express } from 'express';
-import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { decodeBasicAuth } from '../../server/client-auth-basic.js';
 import { createOverrideMetadataHandler } from '../../server/oauth-metadata-override.js';
+import { requestOnLoopback } from '../../test-utils/loopback.js';
 
 // Sign-side smoke test: confirms the same adapter middleware integrates with
 // the SDK on the Sign HTTP server. Sign and accounting share the middleware
@@ -107,14 +107,16 @@ async function buildSignApp(): Promise<Express> {
 describe('Sign OAuth AS — Basic auth smoke', () => {
   it('advertises client_secret_basic in metadata', async () => {
     const app = await buildSignApp();
-    const res = await request(app).get('/.well-known/oauth-authorization-server');
+    const api = await requestOnLoopback(app);
+    const res = await api.get('/.well-known/oauth-authorization-server');
     expect(res.status).toBe(200);
     expect(res.body.token_endpoint_auth_methods_supported).toContain('client_secret_basic');
   });
 
   it('accepts /token with Authorization: Basic for a confidential Sign client', async () => {
     const app = await buildSignApp();
-    const res = await request(app)
+    const api = await requestOnLoopback(app);
+    const res = await api
       .post('/token')
       .set('Authorization', basicHeader('sign-client-1', 'sign-secret-1'))
       .set('Content-Type', 'application/x-www-form-urlencoded')

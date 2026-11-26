@@ -1,6 +1,6 @@
 import express, { type Express } from 'express';
-import request from 'supertest';
 import { describe, expect, it } from 'vitest';
+import { requestOnLoopback } from '../test-utils/loopback.js';
 import { captureOAuthErrorResponse } from './oauth-error-capture.js';
 import { RequestRecorder, withRequestRecorder } from './request-context.js';
 
@@ -51,7 +51,8 @@ describe('captureOAuthErrorResponse', () => {
       holder,
     );
 
-    const res = await request(app).post('/token').send();
+    const api = await requestOnLoopback(app);
+    const res = await api.post('/token').send();
 
     expect(res.status).toBe(400);
     const errors = recordedErrors(holder.recorder, 400);
@@ -71,7 +72,8 @@ describe('captureOAuthErrorResponse', () => {
     const holder: { recorder?: RequestRecorder } = {};
     const app = buildApp({ status: 401, body: { error: 'invalid_client' } }, holder);
 
-    await request(app).post('/token').send();
+    const api = await requestOnLoopback(app);
+    await api.post('/token').send();
 
     const errors = recordedErrors(holder.recorder, 401);
     expect(errors).toHaveLength(1);
@@ -86,7 +88,8 @@ describe('captureOAuthErrorResponse', () => {
       holder,
     );
 
-    await request(app).post('/token').send();
+    const api = await requestOnLoopback(app);
+    await api.post('/token').send();
 
     expect(recordedErrors(holder.recorder, 200)).toHaveLength(0);
   });
@@ -95,7 +98,8 @@ describe('captureOAuthErrorResponse', () => {
     const holder: { recorder?: RequestRecorder } = {};
     const app = buildApp({ status: 400, body: { message: 'something else' } }, holder);
 
-    await request(app).post('/token').send();
+    const api = await requestOnLoopback(app);
+    await api.post('/token').send();
 
     // No `error` string field → leave the canonical-log fallback to handle it.
     expect(recordedErrors(holder.recorder, 400)).toHaveLength(0);
@@ -108,7 +112,8 @@ describe('captureOAuthErrorResponse', () => {
       holder,
     );
 
-    await request(app).post('/token').send();
+    const api = await requestOnLoopback(app);
+    await api.post('/token').send();
 
     const errors = recordedErrors(holder.recorder, 400);
     expect(errors[0].chain[0].message).not.toContain('1234567');
