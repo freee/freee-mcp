@@ -1,5 +1,18 @@
 # freee-mcp
 
+## 0.38.7
+
+### Patch Changes
+
+- [`c61792d`](https://github.com/freee/freee-mcp/commit/c61792d700ef6c4bd6e637d12def6c8759c2775d): API ツールの path パラメータのうち、integer と宣言されたものを数字のみ許可するように検証した。あわせて、path に含まれる事業所 ID（`/api/1/companies/{id}` など）が現在の事業所と異なる場合は、query / body の `company_id` と同様にリクエストを送る前に拒否する
+- [`b3f49aa`](https://github.com/freee/freee-mcp/commit/b3f49aa9fbd146b48b6f9c7b7cd447351362cc9e): freee API へのリクエストの path の検証を強化しました。
+
+  - `.` / `..` の segment (`%2e` などのエンコードされたものや、`..%2f`・`foo%2f..` のようにエンコードされた `/` / `\` で区切られたものを含む) と `\` を含む path を、URL を組み立てる前に拒否するようにしました。`/api/1/partners/code/A%2FB` のように、dot-segment にならないエンコードされた `/` / `\` は通します
+  - URL を組み立てた後の path が、API の base URL の origin と path の下に留まっていることを確かめるようにしました
+  - タブ・改行などの制御文字とスペースを含む path を拒否するようにしました (URL パーサーがこれらを取り除くため、`.\t.` や `.. ` が組み立てた後に `..` になっていました)
+  - URL を組み立てた後の path が、base URL の path と指定した path を (percent-encode の差を除いて) そのままつないだものと一致することを確かめるようにしました
+  - リクエストログの `path_pattern` を、URL を組み立てた後の実際に送る path から作るようにしました
+
 ## 0.38.6
 
 ### Patch Changes
